@@ -1,13 +1,38 @@
 # osu_importer/__init__.py
 
-import bpy
+bl_info = {
+    "name": "osu! Beatmap and Replay Importer",
+    "author": "wavezz",
+    "version": (0, 1),
+    "blender": (4, 20, 0),
+    "location": "View3D > Sidebar > osu! Importer",
+    "description": "Imports Osu! Beatmaps and Replays into Blender",
+    "category": "Import-Export",
+    "wiki_url": "https://github.com/dein-benutzername/osu_importer",
+    "tracker_url": "https://github.com/dein-benutzername/osu_importer/issues",
+    "support": "COMMUNITY",
+}
 
-from .bl_info import bl_info
+import bpy
 
 from .properties import OSUImporterProperties
 from .operators import OSU_OT_Import, OSU_OT_AdjustCursorOffset
 from .panels import OSU_PT_ImporterPanel
-from .utils import register_utils, unregister_utils  # Falls nötig
+from .utils import (
+    create_collection,
+    get_audio_lead_in,
+    get_first_replay_event_time,
+    load_hitobject_times,
+    shift_cursor_keyframes,
+    SCALE_FACTOR,
+    get_ms_per_frame,
+    load_and_create_hitobjects,
+    create_circle_at_position,
+    create_slider_curve,
+    create_spinner_at_position,
+    create_animated_cursor,
+    animate_cursor
+)
 
 classes = (
     OSUImporterProperties,

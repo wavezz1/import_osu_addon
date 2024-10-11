@@ -12,7 +12,7 @@ import bpy
 from bpy.props import StringProperty, BoolProperty, FloatProperty, PointerProperty
 from bpy.types import Operator, Panel, PropertyGroup
 import os
-
+#test
 # Versuche, osrparse zu importieren, und installiere es bei Bedarf
 try:
     import osrparse

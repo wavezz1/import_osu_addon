@@ -47,3 +47,9 @@ class OSUImporterProperties(PropertyGroup):
         description="Berechneter Zeit-Offset (ms)",
         default=0.0
     )
+    calculated_cursor_offset: FloatProperty(
+        name="Berechneter Cursor-Offset",
+        description="Automatisch berechneter Cursor-Offset (ms)",
+        default=0.0,
+        options={'HIDDEN'},  # Verhindert, dass die Property gespeichert wird
+    )

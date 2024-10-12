@@ -29,7 +29,7 @@ class OSU_PT_ImporterPanel(Panel):
             col = layout.column(align=True)
             col.label(text=f"Erstes HitObject: {props.detected_first_hitobject_time:.2f} ms")
             col.label(text=f"Erstes Replay-Event: {props.detected_first_replay_time:.2f} ms")
-            col.label(text=f"Berechneter Cursor-Offset: {props.cursor_offset:.2f} ms")
+            col.label(text=f"Berechneter Cursor-Offset: {props.calculated_cursor_offset:.2f} ms")
             if props.use_auto_offset:
                 col.label(text=f"Berechneter Offset: {props.detected_offset:.2f} ms")
             else:

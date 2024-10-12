@@ -14,14 +14,11 @@ from .utils import (
 )
 import os
 
-# Versuche, osrparse zu importieren, und installiere es bei Bedarf
 try:
     import osrparse
 except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "osrparse"])
-    import osrparse
+    self.report({'ERROR'}, "Das benötigte Modul 'osrparse' ist nicht installiert. Bitte installiere es manuell.")
+    return {'CANCELLED'}
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
@@ -99,7 +96,8 @@ class OSU_OT_Import(Operator):
         cursor_offset = adjusted_first_hitobject_time / 2
 
         # Speichere den Cursor-Offset in den Properties (optional)
-        props.cursor_offset = cursor_offset
+        # props.cursor_offset = cursor_offset
+        props.calculated_cursor_offset = cursor_offset
 
         # Verwende automatischen oder manuellen Offset
         if props.use_auto_offset:

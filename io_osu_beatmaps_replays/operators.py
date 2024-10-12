@@ -14,12 +14,6 @@ from .utils import (
 )
 import os
 
-try:
-    import osrparse
-except ImportError:
-    self.report({'ERROR'}, "Das benötigte Modul 'osrparse' ist nicht installiert. Bitte installiere es manuell.")
-    return {'CANCELLED'}
-
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
     bl_label = "Importieren"
@@ -30,6 +24,14 @@ class OSU_OT_Import(Operator):
         return result
 
     def main(self, context):
+
+        # Importiere osrparse innerhalb der Methode
+        try:
+            import osrparse
+        except ImportError:
+            self.report({'ERROR'}, "Das benötigte Modul 'osrparse' ist nicht installiert. Bitte installiere es manuell.")
+            return {'CANCELLED'}
+
         from .utils import (
             load_and_create_hitobjects,
             create_circle_at_position,

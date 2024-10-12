@@ -8,15 +8,14 @@ class OSUImporterProperties(PropertyGroup):
     osu_file: StringProperty(
         name="Beatmap (.osu)",
         description="Pfad zur .osu Beatmap-Datei",
-        default="",
         subtype='FILE_PATH'
     )
     osr_file: StringProperty(
         name="Replay (.osr)",
         description="Pfad zur .osr Replay-Datei",
-        default="",
         subtype='FILE_PATH'
     )
+
     use_auto_offset: BoolProperty(
         name="Automatischen Offset verwenden",
         description="Verwende den automatisch berechneten Offset",

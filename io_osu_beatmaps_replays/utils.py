@@ -161,7 +161,8 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
             # Ungerade Anzahl von Wiederholungen: Endpunkt ist der letzten Kontrollpunkt
             end_x, end_y = points[-1]
 
-        create_circle_at_position(end_x, end_y, f"{name}_tail", end_time_ms, global_index, sliders_collection, offset)
+        # Slider-Ende erstellen
+        create_circle_at_position(end_x, end_y, f"{name}_tail", start_time_ms, global_index, sliders_collection, offset)
 
         # Slider-Ball animieren
         animate_slider_ball(slider, start_frame, end_frame, repeats)

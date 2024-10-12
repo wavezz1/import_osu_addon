@@ -35,6 +35,3 @@ class OSU_PT_ImporterPanel(Panel):
             else:
                 col.label(text=f"Manueller Offset: {props.manual_offset:.2f} ms")
 
-        layout.separator()
-        layout.prop(props, "cursor_offset")
-        layout.operator("osu_importer.adjust_cursor_offset", text="Cursor Offset Anwenden")

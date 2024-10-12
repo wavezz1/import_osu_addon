@@ -141,18 +141,3 @@ class OSU_OT_Import(Operator):
 
         self.report({'INFO'}, "Import abgeschlossen.")
         return {'FINISHED'}
-
-class OSU_OT_AdjustCursorOffset(Operator):
-    bl_idname = "osu_importer.adjust_cursor_offset"
-    bl_label = "Cursor Offset Anwenden"
-    bl_description = "Verschiebt die Cursor-Keyframes um den angegebenen Offset"
-
-    def execute(self, context):
-        from .properties import OSUImporterProperties
-        from .utils import shift_cursor_keyframes
-
-        props = context.scene.osu_importer_props
-        cursor_offset = props.cursor_offset
-        shift_cursor_keyframes("Cursor", cursor_offset)
-        self.report({'INFO'}, f"Cursor-Keyframes um {cursor_offset} ms verschoben.")
-        return {'FINISHED'}

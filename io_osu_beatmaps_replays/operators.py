@@ -84,12 +84,9 @@ class OSU_OT_Import(Operator):
         first_hitobject_time = hitobject_times[0]
         first_replay_time = get_first_replay_event_time(replay.replay_data)
 
-        # Annahme: Standard-Lead-In im Replay ist 2000 ms
-        standard_replay_lead_in = 2000
-
         # Berechne die angepassten Zeiten
         adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
-        adjusted_first_replay_time = first_replay_time - standard_replay_lead_in
+        adjusted_first_replay_time = first_replay_time  # Entferne - standard_replay_lead_in
 
         offset = adjusted_first_hitobject_time - adjusted_first_replay_time
 

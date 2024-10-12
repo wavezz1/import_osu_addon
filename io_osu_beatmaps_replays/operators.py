@@ -95,8 +95,7 @@ class OSU_OT_Import(Operator):
         # Berechne den Cursor-Offset (Hälfte der Zeit des ersten HitObjects)
         cursor_offset = adjusted_first_hitobject_time / 2
 
-        # Speichere den Cursor-Offset in den Properties (optional)
-        # props.cursor_offset = cursor_offset
+        # Speichere den Cursor-Offset in den Properties
         props.calculated_cursor_offset = cursor_offset
 
         # Verwende automatischen oder manuellen Offset

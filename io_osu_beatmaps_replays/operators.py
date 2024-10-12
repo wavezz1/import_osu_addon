@@ -95,6 +95,12 @@ class OSU_OT_Import(Operator):
         props.detected_first_replay_time = adjusted_first_replay_time
         props.detected_offset = offset
 
+        # Berechne den Cursor-Offset (Hälfte der Zeit des ersten HitObjects)
+        cursor_offset = adjusted_first_hitobject_time / 2
+
+        # Speichere den Cursor-Offset in den Properties (optional)
+        props.cursor_offset = cursor_offset
+
         # Verwende automatischen oder manuellen Offset
         if props.use_auto_offset:
             final_offset = offset
@@ -105,6 +111,7 @@ class OSU_OT_Import(Operator):
         print(f"Geschwindigkeitsmultiplikator: {speed_multiplier}")
         print(f"Erste Hitobject-Zeit: {adjusted_first_hitobject_time} ms")
         print(f"Erste Replay-Event-Zeit: {adjusted_first_replay_time} ms")
+        print(f"Berechneter Cursor-Offset: {cursor_offset} ms")
 
         # Erstelle Collections
         circles_collection = create_collection("Circles")
@@ -125,7 +132,7 @@ class OSU_OT_Import(Operator):
         # Erstelle und animiere den Cursor
         cursor = create_animated_cursor(cursor_collection)
         if cursor is not None:
-            animate_cursor(cursor, replay.replay_data, final_offset)
+            animate_cursor(cursor, replay.replay_data, final_offset + cursor_offset)
         else:
             self.report({'WARNING'}, "Cursor konnte nicht erstellt werden.")
 

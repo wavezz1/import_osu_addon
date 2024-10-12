@@ -111,24 +111,31 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
     except Exception as e:
         print(f"Fehler beim Erstellen eines Kreises: {e}")
 
-def create_slider_curve(points, name, start_time_ms, global_index, sliders_collection, offset, early_frames=5):
+
+def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset,
+                        early_frames=5):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
+        end_frame = (end_time_ms + offset) / get_ms_per_frame()
 
-        curve_data = bpy.data.curves.new(name=f"{global_index:03d}_{name}", type='CURVE')
+        # Erstelle die Kurve
+        curve_data = bpy.data.curves.new(name=f"{global_index:03d}_{name}_curve", type='CURVE')
         curve_data.dimensions = '3D'
-        spline = curve_data.splines.new('POLY')
-        spline.points.add(len(points) - 1)
+        spline = curve_data.splines.new('BEZIER')
+        spline.bezier_points.add(len(points) - 1)
 
         for i, (x, y) in enumerate(points):
             corrected_x = x * SCALE_FACTOR
             corrected_y = -y * SCALE_FACTOR
-            spline.points[i].co = (corrected_x, corrected_y, 0, 1)
+            bp = spline.bezier_points[i]
+            bp.co = (corrected_x, corrected_y, 0)
+            bp.handle_left_type = 'AUTO'
+            bp.handle_right_type = 'AUTO'
 
-        slider = bpy.data.objects.new(f"{global_index:03d}_{name}", curve_data)
+        slider = bpy.data.objects.new(f"{global_index:03d}_{name}_curve", curve_data)
 
-        # Keyframe Sichtbarkeit
+        # Keyframe Sichtbarkeit für die Kurve
         slider.hide_viewport = True
         slider.hide_render = True
         slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
@@ -139,8 +146,25 @@ def create_slider_curve(points, name, start_time_ms, global_index, sliders_colle
         slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
         slider.keyframe_insert(data_path="hide_render", frame=early_start_frame)
 
-        # Link zum gewünschten Collection hinzufügen
         sliders_collection.objects.link(slider)
+
+        # Slider-Kopf erstellen
+        create_circle_at_position(points[0][0], points[0][1], f"{name}_head", start_time_ms, global_index,
+                                  sliders_collection, offset)
+
+        # Slider-Ende erstellen
+        # Bei Wiederholungen muss der Endpunkt angepasst werden
+        if repeats % 2 == 0:
+            # Gerade Anzahl von Wiederholungen: Endpunkt ist der Anfangspunkt
+            end_x, end_y = points[0]
+        else:
+            # Ungerade Anzahl von Wiederholungen: Endpunkt ist der letzten Kontrollpunkt
+            end_x, end_y = points[-1]
+
+        create_circle_at_position(end_x, end_y, f"{name}_tail", end_time_ms, global_index, sliders_collection, offset)
+
+        # Slider-Ball animieren
+        animate_slider_ball(slider, start_frame, end_frame, repeats)
 
     except Exception as e:
         print(f"Fehler beim Erstellen eines Sliders: {e}")
@@ -199,18 +223,85 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
                         if len(parts) > 5:
                             slider_data = parts[5].split('|')
                             if len(slider_data) > 1:
-                                slider_data = slider_data[1:]  # Slider-Typ entfernen
-                                for point in slider_data:
+                                slider_type = slider_data[0]
+                                slider_control_points = slider_data[1:]
+                                for point in slider_control_points:
                                     if ':' in point:
                                         px_str, py_str = point.split(':')
                                         px, py = float(px_str), float(py_str)
                                         slider_points.append((px, py))
-                        create_slider_curve(slider_points, f"slider_{time}", start_time_ms, global_index, sliders_collection, offset)
+                        else:
+                            continue  # Keine Slider-Daten
+
+                        # Wiederholungen und Pixel-Länge ermitteln
+                        repeat_count = int(parts[6]) if len(parts) > 6 else 1
+                        pixel_length = float(parts[7]) if len(parts) > 7 else 100
+
+                        # Slider-Dauer berechnen
+                        slider_duration = calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier)
+
+                        end_time_ms = start_time_ms + slider_duration
+
+                        create_slider_curve(
+                            slider_points,
+                            f"slider_{time}",
+                            start_time_ms,
+                            end_time_ms,
+                            repeat_count,
+                            global_index,
+                            sliders_collection,
+                            offset
+                        )
                     elif hit_type & 8:  # Spinner
                         create_spinner_at_position(256, 192, f"spinner_{time}", start_time_ms, global_index, spinners_collection, offset)
                     global_index += 1
     except Exception as e:
         print(f"Fehler beim Laden und Erstellen der HitObjects: {e}")
+
+def animate_slider_ball(slider_curve, start_frame, end_frame, repeats):
+    try:
+        # Erstelle den Slider-Ball
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.2, location=slider_curve.location)
+        slider_ball = bpy.context.object
+        slider_ball.name = f"{slider_curve.name}_ball"
+
+        # Füge einen 'Follow Path'-Constraint hinzu
+        follow_path = slider_ball.constraints.new('FOLLOW_PATH')
+        follow_path.target = slider_curve
+        follow_path.use_curve_follow = True
+
+        # Setze die Animationseinstellungen für die Kurve
+        slider_curve.data.path_duration = end_frame - start_frame
+
+        # Keyframe die 'offset_factor' des Constraints
+        slider_ball.keyframe_insert(data_path="constraints[\"Follow Path\"].offset_factor", frame=start_frame)
+        slider_ball.constraints["Follow Path"].offset_factor = repeats
+        slider_ball.keyframe_insert(data_path="constraints[\"Follow Path\"].offset_factor", frame=end_frame)
+
+        # Keyframe Sichtbarkeit
+        slider_ball.hide_viewport = True
+        slider_ball.hide_render = True
+        slider_ball.keyframe_insert(data_path="hide_viewport", frame=start_frame - 1)
+        slider_ball.keyframe_insert(data_path="hide_render", frame=start_frame - 1)
+
+        slider_ball.hide_viewport = False
+        slider_ball.hide_render = False
+        slider_ball.keyframe_insert(data_path="hide_viewport", frame=start_frame)
+        slider_ball.keyframe_insert(data_path="hide_render", frame=start_frame)
+
+    except Exception as e:
+        print(f"Fehler beim Animieren des Slider-Balls: {e}")
+
+def calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier):
+    # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit
+    # Dies ist ein komplexes Thema und erfordert detailliertes Parsing der .osu-Datei
+    # Für eine vereinfachte Annäherung verwenden wir einen Standardwert
+    slider_multiplier = 1.4  # Standard-Slider-Multiplikator, kann aus der .osu-Datei gelesen werden
+    beat_duration = 500  # Annahme eines Standard-Beat-Durationswertes in ms
+
+    slider_duration = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
+    slider_duration /= speed_multiplier  # Anpassung an Mods wie DT oder HT
+    return slider_duration
 
 def create_animated_cursor(cursor_collection):
     try:

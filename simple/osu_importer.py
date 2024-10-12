@@ -2,7 +2,7 @@ bl_info = {
     "name": "osu! Beatmap and Replay Importer",
     "author": "wavezz",
     "version": (0, 1),
-    "blender": (4, 20, 0),
+    "blender": (4, 2, 0),
     "location": "View3D > Sidebar > osu! Importer",
     "description": "Imports Osu! Beatmaps and Replays into Blender",
     "category": "Import-Export",

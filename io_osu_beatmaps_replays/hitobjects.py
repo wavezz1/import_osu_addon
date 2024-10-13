@@ -1,6 +1,7 @@
 # osu_importer/hitobjects.py
 
 import bpy
+import math  # Importiere das math Modul
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .io import parse_timing_points
 from .utils import get_ms_per_frame, map_osu_to_blender
@@ -14,7 +15,11 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         early_start_frame = start_frame - early_frames
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-        bpy.ops.mesh.primitive_circle_add(radius=0.5, location=(corrected_x, corrected_y, corrected_z))
+        bpy.ops.mesh.primitive_circle_add(
+            radius=0.5,
+            location=(corrected_x, corrected_y, corrected_z),
+            rotation=(0, math.radians(90), 0)  # Drehung um 90 Grad um die Y-Achse
+        )
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
 
@@ -160,7 +165,12 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
         early_start_frame = start_frame - early_frames
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-        bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=0.1, location=(corrected_x, corrected_y, corrected_z))
+        bpy.ops.mesh.primitive_cylinder_add(
+            radius=1,
+            depth=0.1,
+            location=(corrected_x, corrected_y, corrected_z),
+            rotation=(0, math.radians(90), 0)  # Drehung um 90 Grad um die Y-Achse
+        )
         spinner = bpy.context.object
         spinner.name = f"{global_index:03d}_{name}"
 

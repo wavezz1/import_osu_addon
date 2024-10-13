@@ -51,5 +51,5 @@ class OSUImporterProperties(PropertyGroup):
         name="Berechneter Cursor-Offset",
         description="Automatisch berechneter Cursor-Offset (ms)",
         default=0.0,
-        options={'HIDDEN'},  # Verhindert, dass die Property gespeichert wird
+        options={'SKIP_SAVE'},  # Verhindert, dass die Property gespeichert wird, aber bleibt zugänglich
     )

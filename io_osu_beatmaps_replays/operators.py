@@ -5,21 +5,11 @@ from bpy.types import Operator
 import os
 
 from .properties import OSUImporterProperties
-from .utils import (
-    create_collection,
-    get_audio_lead_in,
-    get_first_replay_event_time,
-    load_hitobject_times,
-    shift_cursor_keyframes,
-    SCALE_FACTOR,
-    get_ms_per_frame,
-    load_and_create_hitobjects,
-    create_spinner_at_position,
-    create_animated_cursor,
-    animate_cursor
-)
-from .sliders import create_slider_curve, calculate_slider_duration
-from .circles import create_circle_at_position
+from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
+from .utils import get_ms_per_frame, create_collection
+from .io import load_hitobject_times, get_audio_lead_in, get_first_replay_event_time
+from .hitobjects import load_and_create_hitobjects
+from .cursor import create_animated_cursor, animate_cursor
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
@@ -62,10 +52,6 @@ class OSU_OT_Import(Operator):
         # Bestimme den Geschwindigkeitsmultiplikator basierend auf den Mods
         mods = replay.mods
         speed_multiplier = 1.0
-
-        # Definiere die Mod-Konstanten
-        MOD_DOUBLE_TIME = 64
-        MOD_HALF_TIME = 256
 
         if mods & MOD_DOUBLE_TIME:
             speed_multiplier = 1.5

@@ -1,17 +1,19 @@
 # osu_importer/hitobjects.py
 
 import bpy
-from .utils import get_ms_per_frame, map_osu_to_blender
-from .constants import SCALE_FACTOR
+from .utils import get_ms_per_frame
+from .constants import SCALE_FACTOR, SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .io import parse_timing_points
 
 def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
-    corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+    """
+    Erstellt einen Circle (HitObject) an der angegebenen Position und fügt ihn der entsprechenden Collection hinzu.
+    """
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
 
-        bpy.ops.mesh.primitive_circle_add(radius=0.5, location=(corrected_x, corrected_y, corrected_z))
+        bpy.ops.mesh.primitive_circle_add(radius=0.5, location=(x * SCALE_FACTOR, -y * SCALE_FACTOR, 0))
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
 
@@ -52,6 +54,9 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
 
 def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset,
                         early_frames=5):
+    """
+    Erstellt einen Slider als Kurve basierend auf den gegebenen Punkten und fügt ihn der entsprechenden Collection hinzu.
+    """
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -64,12 +69,13 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
         spline.bezier_points.add(len(points) - 1)
 
         for i, (x, y) in enumerate(points):
-            corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+            corrected_x = x * SCALE_FACTOR
+            corrected_y = -y * SCALE_FACTOR
             bp = spline.bezier_points[i]
-            bp.co = (corrected_x, corrected_y, corrected_z)
+            bp.co = (corrected_x, corrected_y, 0)
             # Optional: Handle-Typen setzen
-            bp.handle_left_type = 'AUTO'
-            bp.handle_right_type = 'AUTO'
+            # bp.handle_left_type = 'AUTO'
+            # bp.handle_right_type = 'AUTO'
 
         slider = bpy.data.objects.new(f"{global_index:03d}_{name}_curve", curve_data)
 
@@ -105,13 +111,55 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
     except Exception as e:
         print(f"Fehler beim Erstellen eines Sliders: {e}")
 
+def calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier):
+    """
+    Berechnet die Dauer eines Sliders basierend auf der Beatmap-Information.
+    """
+    # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit
+    timing_points = parse_timing_points(osu_file)
+    # Standardwerte
+    beat_duration = 500  # Fallback-Wert
+    slider_multiplier = 1.4  # Standardwert, sollte aus [Difficulty] Abschnitt gelesen werden
+    try:
+        with open(osu_file, 'r', encoding='utf-8') as file:
+            difficulty_section = False
+            for line in file:
+                line = line.strip()
+                if line == '[Difficulty]':
+                    difficulty_section = True
+                    continue
+                if difficulty_section:
+                    if line == '':
+                        break  # Ende der Difficulty-Sektion
+                    if line.startswith("SliderMultiplier:"):
+                        slider_multiplier = float(line.split(':')[1].strip())
+                        break
+    except Exception as e:
+        print(f"Fehler beim Lesen des SliderMultipliers: {e}")
+
+    # Finden des passenden Timing Points
+    current_beat_length = None
+    for offset, beat_length in timing_points:
+        if start_time_ms >= offset:
+            current_beat_length = beat_length
+        else:
+            break
+    if current_beat_length is not None:
+        beat_duration = current_beat_length
+
+    slider_duration = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
+    slider_duration /= speed_multiplier  # Anpassung an Mods wie DT oder HT
+    return slider_duration
+
 def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners_collection, offset, early_frames=5):
-    corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+    """
+    Erstellt einen Spinner an der angegebenen Position und fügt ihn der entsprechenden Collection hinzu.
+    """
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
 
-        bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=0.1, location=(corrected_x, corrected_y, corrected_z))
+        bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=0.1, location=(x * SCALE_FACTOR, -y * SCALE_FACTOR, 0))
         spinner = bpy.context.object
         spinner.name = f"{global_index:03d}_{name}"
 

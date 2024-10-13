@@ -16,7 +16,7 @@ bl_info = {
 import bpy
 
 from .properties import OSUImporterProperties
-from .operators import OSU_OT_Import, OSU_OT_AdjustCursorOffset
+from .operators import OSU_OT_Import
 from .panels import OSU_PT_ImporterPanel
 from .utils import (
     create_collection,

@@ -81,7 +81,7 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
         fcurve.update()
 # osu_importer/utils.py (fortgesetzt)
 
-def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5):
+def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -90,7 +90,7 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
 
-        # Keyframe Sichtbarkeit
+        # Keyframe zum Einblenden
         circle.hide_viewport = True
         circle.hide_render = True
         circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
@@ -101,6 +101,19 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
         circle.keyframe_insert(data_path="hide_render", frame=early_start_frame)
 
+        # Optional: Keyframe zum Ausblenden
+        if end_time_ms is not None:
+            end_frame = (end_time_ms + offset) / get_ms_per_frame()
+            circle.hide_viewport = False
+            circle.hide_render = False
+            circle.keyframe_insert(data_path="hide_viewport", frame=end_frame - 1)
+            circle.keyframe_insert(data_path="hide_render", frame=end_frame - 1)
+
+            circle.hide_viewport = True
+            circle.hide_render = True
+            circle.keyframe_insert(data_path="hide_viewport", frame=end_frame)
+            circle.keyframe_insert(data_path="hide_render", frame=end_frame)
+
         # Link zum gewünschten Collection hinzufügen
         circles_collection.objects.link(circle)
         # Aus anderen Collections entfernen
@@ -110,7 +123,6 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
 
     except Exception as e:
         print(f"Fehler beim Erstellen eines Kreises: {e}")
-
 
 def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset,
                         early_frames=5):

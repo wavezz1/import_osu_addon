@@ -18,7 +18,7 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         bpy.ops.mesh.primitive_circle_add(
             radius=0.5,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(0, math.radians(90), 0)  # Drehung um 90 Grad um die Y-Achse
+            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die Y-Achse
         )
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
@@ -169,7 +169,7 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
             radius=1,
             depth=0.1,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(0, math.radians(90), 0)  # Drehung um 90 Grad um die Y-Achse
+            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die Y-Achse
         )
         spinner = bpy.context.object
         spinner.name = f"{global_index:03d}_{name}"

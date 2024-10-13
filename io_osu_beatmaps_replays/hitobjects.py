@@ -74,8 +74,8 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
             bp = spline.bezier_points[i]
             bp.co = (corrected_x, corrected_y, 0)
             # Optional: Handle-Typen setzen
-             bp.handle_left_type = 'AUTO'
-             bp.handle_right_type = 'AUTO'
+            bp.handle_left_type = 'AUTO'
+            bp.handle_right_type = 'AUTO'
 
         slider = bpy.data.objects.new(f"{global_index:03d}_{name}_curve", curve_data)
 

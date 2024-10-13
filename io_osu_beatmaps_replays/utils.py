@@ -79,7 +79,6 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
 
         # Aktualisiere die FCurve
         fcurve.update()
-# osu_importer/utils.py (fortgesetzt)
 
 def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
     try:
@@ -177,7 +176,7 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
         create_circle_at_position(end_x, end_y, f"{name}_tail", start_time_ms, global_index, sliders_collection, offset)
 
         # Slider-Ball animieren
-        animate_slider_ball(slider, start_frame, end_frame, repeats)
+        # animate_slider_ball(slider, start_frame, end_frame, repeats)
 
     except Exception as e:
         print(f"Fehler beim Erstellen eines Sliders: {e}")
@@ -271,39 +270,39 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
     except Exception as e:
         print(f"Fehler beim Laden und Erstellen der HitObjects: {e}")
 
-def animate_slider_ball(slider_curve, start_frame, end_frame, repeats):
-    try:
-        # Erstelle den Slider-Ball
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.2, location=slider_curve.location)
-        slider_ball = bpy.context.object
-        slider_ball.name = f"{slider_curve.name}_ball"
-
-        # Füge einen 'Follow Path'-Constraint hinzu
-        follow_path = slider_ball.constraints.new('FOLLOW_PATH')
-        follow_path.target = slider_curve
-        follow_path.use_curve_follow = True
-
-        # Setze die Animationseinstellungen für die Kurve
-        slider_curve.data.path_duration = end_frame - start_frame
-
-        # Keyframe die 'offset_factor' des Constraints
-        slider_ball.keyframe_insert(data_path="constraints[\"Follow Path\"].offset_factor", frame=start_frame)
-        slider_ball.constraints["Follow Path"].offset_factor = repeats
-        slider_ball.keyframe_insert(data_path="constraints[\"Follow Path\"].offset_factor", frame=end_frame)
-
-        # Keyframe Sichtbarkeit
-        slider_ball.hide_viewport = True
-        slider_ball.hide_render = True
-        slider_ball.keyframe_insert(data_path="hide_viewport", frame=start_frame - 1)
-        slider_ball.keyframe_insert(data_path="hide_render", frame=start_frame - 1)
-
-        slider_ball.hide_viewport = False
-        slider_ball.hide_render = False
-        slider_ball.keyframe_insert(data_path="hide_viewport", frame=start_frame)
-        slider_ball.keyframe_insert(data_path="hide_render", frame=start_frame)
-
-    except Exception as e:
-        print(f"Fehler beim Animieren des Slider-Balls: {e}")
+# def animate_slider_ball(slider_curve, start_frame, end_frame, repeats):
+#     try:
+#         # Erstelle den Slider-Ball
+#         bpy.ops.mesh.primitive_uv_sphere_add(radius=0.2, location=slider_curve.location)
+#         slider_ball = bpy.context.object
+#         slider_ball.name = f"{slider_curve.name}_ball"
+#
+#         # Füge einen 'Follow Path'-Constraint hinzu
+#         follow_path = slider_ball.constraints.new('FOLLOW_PATH')
+#         follow_path.target = slider_curve
+#         follow_path.use_curve_follow = True
+#
+#         # Setze die Animationseinstellungen für die Kurve
+#         slider_curve.data.path_duration = end_frame - start_frame
+#
+#         # Keyframe die 'offset_factor' des Constraints
+#         slider_ball.keyframe_insert(data_path="constraints[\"Follow Path\"].offset_factor", frame=start_frame)
+#         slider_ball.constraints["Follow Path"].offset_factor = repeats
+#         slider_ball.keyframe_insert(data_path="constraints[\"Follow Path\"].offset_factor", frame=end_frame)
+#
+#         # Keyframe Sichtbarkeit
+#         slider_ball.hide_viewport = True
+#         slider_ball.hide_render = True
+#         slider_ball.keyframe_insert(data_path="hide_viewport", frame=start_frame - 1)
+#         slider_ball.keyframe_insert(data_path="hide_render", frame=start_frame - 1)
+#
+#         slider_ball.hide_viewport = False
+#         slider_ball.hide_render = False
+#         slider_ball.keyframe_insert(data_path="hide_viewport", frame=start_frame)
+#         slider_ball.keyframe_insert(data_path="hide_render", frame=start_frame)
+#
+#     except Exception as e:
+#         print(f"Fehler beim Animieren des Slider-Balls: {e}")
 
 def calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier):
     # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit

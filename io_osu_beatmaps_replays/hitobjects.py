@@ -136,3 +136,72 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
 
     except Exception as e:
         print(f"Fehler beim Erstellen eines Spinners: {e}")
+
+def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection, spinners_collection, offset, speed_multiplier):
+    """
+    Lädt die HitObjects aus der .osu-Datei und erstellt sie in Blender.
+    """
+    global_index = 1
+    try:
+        with open(osu_file, 'r', encoding='utf-8') as file:
+            hit_objects_section = False
+            for line in file:
+                line = line.strip()
+                if line == '[HitObjects]':
+                    hit_objects_section = True
+                    continue
+                if hit_objects_section and line:
+                    parts = line.split(',')
+                    if len(parts) < 5:
+                        continue  # Nicht genügend Daten
+                    x = int(parts[0])
+                    y = int(parts[1])
+                    time = int(parts[2])
+                    hit_type = int(parts[3])
+                    start_time_ms = time / speed_multiplier  # Anpassung hier
+
+                    if hit_type & 1:  # Circle
+                        create_circle_at_position(
+                            x, y, f"circle_{time}", start_time_ms, global_index, circles_collection, offset)
+                    elif hit_type & 2:  # Slider
+                        slider_points = [(x, y)]
+                        if len(parts) > 5:
+                            slider_data = parts[5].split('|')
+                            if len(slider_data) > 1:
+                                slider_type = slider_data[0]
+                                slider_control_points = slider_data[1:]
+                                for point in slider_control_points:
+                                    if ':' in point:
+                                        px_str, py_str = point.split(':')
+                                        px, py = float(px_str), float(py_str)
+                                        slider_points.append((px, py))
+                        else:
+                            continue  # Keine Slider-Daten
+
+                        # Wiederholungen und Pixel-Länge ermitteln
+                        repeat_count = int(parts[6]) if len(parts) > 6 else 1
+                        pixel_length = float(parts[7]) if len(parts) > 7 else 100
+
+                        # Slider-Dauer berechnen
+                        slider_duration = calculate_slider_duration(
+                            osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier)
+
+                        end_time_ms = start_time_ms + slider_duration
+
+                        create_slider_curve(
+                            slider_points,
+                            f"slider_{time}",
+                            start_time_ms,
+                            end_time_ms,
+                            repeat_count,
+                            global_index,
+                            sliders_collection,
+                            offset
+                        )
+                    elif hit_type & 8:  # Spinner
+                        end_time_ms = int(parts[5]) / speed_multiplier if len(parts) > 5 else start_time_ms + 1000
+                        create_spinner_at_position(
+                            x, y, f"spinner_{time}", start_time_ms, global_index, spinners_collection, offset)
+                    global_index += 1
+    except Exception as e:
+        print(f"Fehler beim Laden und Erstellen der HitObjects: {e}")

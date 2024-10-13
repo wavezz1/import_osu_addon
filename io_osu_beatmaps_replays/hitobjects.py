@@ -18,34 +18,32 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         bpy.ops.mesh.primitive_circle_add(
             radius=0.5,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die Y-Achse
+            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die X-Achse
         )
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
 
-        # Keyframe zum Einblenden
-        circle.hide_viewport = True
-        circle.hide_render = True
-        circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        #circle.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
+        # Benutzerdefiniertes Attribut "show" hinzufügen
+        circle["show"] = False  # Startwert: Nicht sichtbar
 
-        circle.hide_viewport = False
-        circle.hide_render = False
-        circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        #circle.keyframe_insert(data_path="hide_render", frame=early_start_frame)
+        # Keyframe für das Attribut "show" einfügen (Objekt ist noch nicht sichtbar)
+        circle.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
+
+        # Attribut "show" auf True setzen (Objekt wird sichtbar)
+        circle["show"] = True
+        circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
         # Optional: Keyframe zum Ausblenden
         if end_time_ms is not None:
             end_frame = (end_time_ms + offset) / get_ms_per_frame()
-            circle.hide_viewport = False
-            circle.hide_render = False
-            circle.keyframe_insert(data_path="hide_viewport", frame=end_frame - 1)
-            #circle.keyframe_insert(data_path="hide_render", frame=end_frame - 1)
 
-            circle.hide_viewport = True
-            circle.hide_render = True
-            circle.keyframe_insert(data_path="hide_viewport", frame=end_frame)
-            #circle.keyframe_insert(data_path="hide_render", frame=end_frame)
+            # Objekt bleibt sichtbar bis kurz vor dem Endframe
+            circle["show"] = True
+            circle.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+
+            # Objekt ausblenden
+            circle["show"] = False
+            circle.keyframe_insert(data_path='["show"]', frame=end_frame)
 
         # Objekt zur gewünschten Collection hinzufügen
         circles_collection.objects.link(circle)
@@ -58,11 +56,7 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
     except Exception as e:
         print(f"Fehler beim Erstellen eines Kreises: {e}")
 
-def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset,
-                        early_frames=5):
-    """
-    Erstellt einen Slider als Kurve basierend auf den gegebenen Punkten und fügt ihn der entsprechenden Collection hinzu.
-    """
+def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset, early_frames=5):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -84,16 +78,19 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
 
         slider = bpy.data.objects.new(f"{global_index:03d}_{name}_curve", curve_data)
 
-        # Keyframe Sichtbarkeit für die Kurve
-        slider.hide_viewport = True
-        slider.hide_render = True
-        slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        #slider.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
+        # Benutzerdefiniertes Attribut "show" hinzufügen
+        slider["show"] = False  # Startwert: Nicht sichtbar
+        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
 
-        slider.hide_viewport = False
-        slider.hide_render = False
-        slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        #slider.keyframe_insert(data_path="hide_render", frame=early_start_frame)
+        slider["show"] = True
+        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+
+        # Optional: Ausblenden am Ende
+        slider["show"] = True
+        slider.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+
+        slider["show"] = False
+        slider.keyframe_insert(data_path='["show"]', frame=end_frame)
 
         sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen
@@ -102,7 +99,7 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
                 if col != sliders_collection:
                     col.objects.unlink(slider)
 
-        # Slider-Kopf und -Ende erstellen
+        # Slider-Kopf und -Ende erstellen (ggf. auch anpassen)
         create_circle_at_position(points[0][0], points[0][1], f"{name}_head", start_time_ms, global_index,
                                   sliders_collection, offset)
 
@@ -157,9 +154,6 @@ def calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_lengt
     return slider_duration
 
 def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners_collection, offset, early_frames=5):
-    """
-    Erstellt einen Spinner an der angegebenen Position und fügt ihn der entsprechenden Collection hinzu.
-    """
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -169,23 +163,22 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
             radius=1,
             depth=0.1,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die Y-Achse
+            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die X-Achse
         )
         spinner = bpy.context.object
         spinner.name = f"{global_index:03d}_{name}"
 
-        # Keyframe Sichtbarkeit
-        spinner.hide_viewport = True
-        spinner.hide_render = True
-        spinner.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        #spinner.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
+        # Benutzerdefiniertes Attribut "show" hinzufügen
+        spinner["show"] = False  # Startwert: Nicht sichtbar
+        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
 
-        spinner.hide_viewport = False
-        spinner.hide_render = False
-        spinner.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        #spinner.keyframe_insert(data_path="hide_render", frame=early_start_frame)
+        spinner["show"] = True
+        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
-        # Link zum gewünschten Collection hinzufügen
+        # Optional: Ausblenden am Ende (falls gewünscht)
+        # Hier müssten Sie die Endzeit des Spinners kennen und entsprechend keyframen
+
+        # Objekt zur gewünschten Collection hinzufügen
         spinners_collection.objects.link(spinner)
         # Aus anderen Collections entfernen
         if spinner.users_collection:

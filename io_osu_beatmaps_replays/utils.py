@@ -54,3 +54,18 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
 
         # Aktualisiere die FCurve
         fcurve.update()
+
+def map_osu_to_blender(x, y):
+    """
+    Wandelt osu!-Koordinaten in Blender-Koordinaten um.
+    Args:
+        x (float): X-Koordinate in osu!
+        y (float): Y-Koordinate in osu!
+    Returns:
+        tuple: (x, y, z) Koordinaten für Blender
+    """
+    from .constants import SCALE_FACTOR
+    corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
+    corrected_y = 0  # Optional, wenn Sie die Tiefe nicht verwenden
+    corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren
+    return corrected_x, corrected_y, corrected_z

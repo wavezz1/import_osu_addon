@@ -20,46 +20,61 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     input_node.location.x = -200 - input_node.width
     output_node.location.x = 200
 
-    # Store Named Attribute Knoten hinzufügen
-    store_attribute_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
-    store_attribute_node.location.x = 0
-    store_attribute_node.inputs['Name'].default_value = "show"
-    store_attribute_node.data_type = 'BOOLEAN'
-    store_attribute_node.domain = 'POINT'
+    # Store Named Attribute Knoten hinzufügen (für "show")
+    store_attribute_node_show = group.nodes.new('GeometryNodeStoreNamedAttribute')
+    store_attribute_node_show.location.x = 0
+    store_attribute_node_show.inputs['Name'].default_value = "show"
+    store_attribute_node_show.data_type = 'BOOLEAN'
+    store_attribute_node_show.domain = 'POINT'
 
-    # Driver auf Boolean Input setzen
-    driver = store_attribute_node.inputs['Value'].driver_add('default_value').driver
-    driver.type = 'AVERAGE'
-    var = driver.variables.new()
-    var.name = 'var'
-    var.targets[0].id_type = 'OBJECT'
-    var.targets[0].id = bpy.data.objects[driver_obj_name]
-    var.targets[0].data_path = '["show"]'
+    # Driver auf Boolean Input setzen (für "show")
+    driver_show = store_attribute_node_show.inputs['Value'].driver_add('default_value').driver
+    driver_show.type = 'AVERAGE'
+    var_show = driver_show.variables.new()
+    var_show.name = 'var'
+    var_show.targets[0].id_type = 'OBJECT'
+    var_show.targets[0].id = bpy.data.objects[driver_obj_name]
+    var_show.targets[0].data_path = '["show"]'
+
+    # Store Named Attribute Knoten hinzufügen (für "time_ms")
+    store_attribute_node_time = group.nodes.new('GeometryNodeStoreNamedAttribute')
+    store_attribute_node_time.location.x = 200
+    store_attribute_node_time.inputs['Name'].default_value = "time_ms"
+    store_attribute_node_time.data_type = 'FLOAT'
+    store_attribute_node_time.domain = 'POINT'
+
+    # Driver auf Float Input setzen (für "time_ms")
+    driver_time = store_attribute_node_time.inputs['Value'].driver_add('default_value').driver
+    driver_time.type = 'AVERAGE'
+    var_time = driver_time.variables.new()
+    var_time.name = 'var'
+    var_time.targets[0].id_type = 'OBJECT'
+    var_time.targets[0].id = bpy.data.objects[driver_obj_name]
+    var_time.targets[0].data_path = '["time_ms"]'
 
     # Geometrie-Sockets für Input und Output hinzufügen
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
     # Verbindungen zwischen den Knoten erstellen
-    group.links.new(input_node.outputs['Geometry'], store_attribute_node.inputs['Geometry'])
-    group.links.new(store_attribute_node.outputs['Geometry'], output_node.inputs['Geometry'])
+    group.links.new(input_node.outputs['Geometry'], store_attribute_node_show.inputs['Geometry'])
+    group.links.new(store_attribute_node_show.outputs['Geometry'], store_attribute_node_time.inputs['Geometry'])
+    group.links.new(store_attribute_node_time.outputs['Geometry'], output_node.inputs['Geometry'])
 
-
-def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5,
-                              end_time_ms=None):
+def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None, hitobject_times=None):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-        bpy.ops.mesh.primitive_circle_add(
-            fill_type='NGON',
-            radius=0.5,
+        bpy.ops.mesh.primitive_circle_add(fill_type='NGON', radius=0.5,
             location=(corrected_x, corrected_y, corrected_z),
             rotation=(math.radians(90), 0, 0)
         )
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
+        if hitobject_times is not None:
+            hitobject_times.append(start_time_ms)
 
         # Benutzerdefiniertes Attribut "show" hinzufügen
         circle["show"] = False
@@ -81,7 +96,6 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         create_geometry_nodes_modifier(circle, circle.name)
     except Exception as e:
         print(f"Fehler beim Erstellen eines Kreises: {e}")
-
 
 def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset, early_frames=5):
     try:

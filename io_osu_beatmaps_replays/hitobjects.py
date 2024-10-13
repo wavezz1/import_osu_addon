@@ -53,6 +53,7 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
         bpy.ops.mesh.primitive_circle_add(
+            fill_type='NGON',
             radius=0.5,
             location=(corrected_x, corrected_y, corrected_z),
             rotation=(math.radians(90), 0, 0)

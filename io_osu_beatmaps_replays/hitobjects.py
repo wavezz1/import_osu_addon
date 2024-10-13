@@ -27,12 +27,12 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         circle.hide_viewport = True
         circle.hide_render = True
         circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        circle.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
+        #circle.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
 
         circle.hide_viewport = False
         circle.hide_render = False
         circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        circle.keyframe_insert(data_path="hide_render", frame=early_start_frame)
+        #circle.keyframe_insert(data_path="hide_render", frame=early_start_frame)
 
         # Optional: Keyframe zum Ausblenden
         if end_time_ms is not None:
@@ -40,12 +40,12 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
             circle.hide_viewport = False
             circle.hide_render = False
             circle.keyframe_insert(data_path="hide_viewport", frame=end_frame - 1)
-            circle.keyframe_insert(data_path="hide_render", frame=end_frame - 1)
+            #circle.keyframe_insert(data_path="hide_render", frame=end_frame - 1)
 
             circle.hide_viewport = True
             circle.hide_render = True
             circle.keyframe_insert(data_path="hide_viewport", frame=end_frame)
-            circle.keyframe_insert(data_path="hide_render", frame=end_frame)
+            #circle.keyframe_insert(data_path="hide_render", frame=end_frame)
 
         # Objekt zur gewünschten Collection hinzufügen
         circles_collection.objects.link(circle)
@@ -88,12 +88,12 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
         slider.hide_viewport = True
         slider.hide_render = True
         slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        slider.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
+        #slider.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
 
         slider.hide_viewport = False
         slider.hide_render = False
         slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        slider.keyframe_insert(data_path="hide_render", frame=early_start_frame)
+        #slider.keyframe_insert(data_path="hide_render", frame=early_start_frame)
 
         sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen
@@ -178,12 +178,12 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
         spinner.hide_viewport = True
         spinner.hide_render = True
         spinner.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        spinner.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
+        #spinner.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
 
         spinner.hide_viewport = False
         spinner.hide_render = False
         spinner.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        spinner.keyframe_insert(data_path="hide_render", frame=early_start_frame)
+        #spinner.keyframe_insert(data_path="hide_render", frame=early_start_frame)
 
         # Link zum gewünschten Collection hinzufügen
         spinners_collection.objects.link(spinner)

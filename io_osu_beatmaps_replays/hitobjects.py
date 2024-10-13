@@ -25,6 +25,7 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     store_attribute_node.location.x = 0
     store_attribute_node.inputs['Name'].default_value = "show"
     store_attribute_node.data_type = 'BOOLEAN'
+    store_attribute_node.domain = 'INSTANCE'
 
     # Driver auf Boolean Input setzen
     driver = store_attribute_node.inputs['Value'].driver_add('default_value').driver

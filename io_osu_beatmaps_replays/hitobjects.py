@@ -154,15 +154,11 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
                     parts = line.split(',')
                     if len(parts) < 5:
                         continue  # Nicht genügend Daten
-                    x = int(parts[0])
-                    y = int(parts[1])
-                    time = int(parts[2])
-                    hit_type = int(parts[3])
+                    x, y, time, hit_type = int(parts[0]), int(parts[1]), int(parts[2]), int(parts[3])
                     start_time_ms = time / speed_multiplier  # Anpassung hier
 
                     if hit_type & 1:  # Circle
-                        create_circle_at_position(
-                            x, y, f"circle_{time}", start_time_ms, global_index, circles_collection, offset)
+                        create_circle_at_position(x, y, f"circle_{time}", start_time_ms, global_index, circles_collection, offset)
                     elif hit_type & 2:  # Slider
                         slider_points = [(x, y)]
                         if len(parts) > 5:
@@ -183,8 +179,7 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
                         pixel_length = float(parts[7]) if len(parts) > 7 else 100
 
                         # Slider-Dauer berechnen
-                        slider_duration = calculate_slider_duration(
-                            osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier)
+                        slider_duration = calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier)
 
                         end_time_ms = start_time_ms + slider_duration
 
@@ -199,9 +194,7 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
                             offset
                         )
                     elif hit_type & 8:  # Spinner
-                        end_time_ms = int(parts[5]) / speed_multiplier if len(parts) > 5 else start_time_ms + 1000
-                        create_spinner_at_position(
-                            x, y, f"spinner_{time}", start_time_ms, global_index, spinners_collection, offset)
+                        create_spinner_at_position(SPINNER_CENTER_X, SPINNER_CENTER_Y, f"spinner_{time}", start_time_ms, global_index, spinners_collection, offset)
                     global_index += 1
     except Exception as e:
         print(f"Fehler beim Laden und Erstellen der HitObjects: {e}")

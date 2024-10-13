@@ -61,7 +61,7 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     group.links.new(store_attribute_node_show.outputs['Geometry'], store_attribute_node_time.inputs['Geometry'])
     group.links.new(store_attribute_node_time.outputs['Geometry'], output_node.inputs['Geometry'])
 
-def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None, hitobject_times=None):
+def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None, hitobject_times=None, time_property_name='time_ms'):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -73,6 +73,7 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         )
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
+        circle[time_property_name] = start_time_ms
         if hitobject_times is not None:
             hitobject_times.append(start_time_ms)
 

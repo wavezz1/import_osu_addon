@@ -34,4 +34,3 @@ class OSU_PT_ImporterPanel(Panel):
                 col.label(text=f"Berechneter Offset: {props.detected_offset:.2f} ms")
             else:
                 col.label(text=f"Manueller Offset: {props.manual_offset:.2f} ms")
-

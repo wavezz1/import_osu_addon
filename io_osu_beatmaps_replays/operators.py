@@ -2,6 +2,8 @@
 
 import bpy
 from bpy.types import Operator
+import os
+
 from .properties import OSUImporterProperties
 from .utils import (
     create_collection,
@@ -10,9 +12,14 @@ from .utils import (
     load_hitobject_times,
     shift_cursor_keyframes,
     SCALE_FACTOR,
-    get_ms_per_frame
+    get_ms_per_frame,
+    load_and_create_hitobjects,
+    create_spinner_at_position,
+    create_animated_cursor,
+    animate_cursor
 )
-import os
+from .sliders import create_slider_curve, calculate_slider_duration
+from .circles import create_circle_at_position
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
@@ -24,7 +31,6 @@ class OSU_OT_Import(Operator):
         return result
 
     def main(self, context):
-
         # Importiere osrparse innerhalb der Methode
         try:
             import osrparse
@@ -32,14 +38,6 @@ class OSU_OT_Import(Operator):
             self.report({'ERROR'}, "Das benötigte Modul 'osrparse' ist nicht installiert. Bitte installiere es manuell.")
             return {'CANCELLED'}
 
-        from .utils import (
-            load_and_create_hitobjects,
-            create_circle_at_position,
-            create_slider_curve,
-            create_spinner_at_position,
-            create_animated_cursor,
-            animate_cursor
-        )
         props = context.scene.osu_importer_props
         osu_file_path = bpy.path.abspath(props.osu_file)
         osr_file_path = bpy.path.abspath(props.osr_file)

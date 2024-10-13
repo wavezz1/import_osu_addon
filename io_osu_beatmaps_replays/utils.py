@@ -3,6 +3,9 @@
 import bpy
 import os
 
+from .sliders import create_slider_curve, calculate_slider_duration
+from .circles import create_circle_at_position
+
 SCALE_FACTOR = 0.05
 
 def get_ms_per_frame():
@@ -80,104 +83,6 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
         # Aktualisiere die FCurve
         fcurve.update()
 
-def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
-    try:
-        start_frame = (start_time_ms + offset) / get_ms_per_frame()
-        early_start_frame = start_frame - early_frames
-
-        bpy.ops.mesh.primitive_circle_add(radius=0.5, location=(x * SCALE_FACTOR, -y * SCALE_FACTOR, 0))
-        circle = bpy.context.object
-        circle.name = f"{global_index:03d}_{name}"
-
-        # Keyframe zum Einblenden
-        circle.hide_viewport = True
-        circle.hide_render = True
-        circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        circle.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
-
-        circle.hide_viewport = False
-        circle.hide_render = False
-        circle.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        circle.keyframe_insert(data_path="hide_render", frame=early_start_frame)
-
-        # Optional: Keyframe zum Ausblenden
-        if end_time_ms is not None:
-            end_frame = (end_time_ms + offset) / get_ms_per_frame()
-            circle.hide_viewport = False
-            circle.hide_render = False
-            circle.keyframe_insert(data_path="hide_viewport", frame=end_frame - 1)
-            circle.keyframe_insert(data_path="hide_render", frame=end_frame - 1)
-
-            circle.hide_viewport = True
-            circle.hide_render = True
-            circle.keyframe_insert(data_path="hide_viewport", frame=end_frame)
-            circle.keyframe_insert(data_path="hide_render", frame=end_frame)
-
-        # Link zum gewünschten Collection hinzufügen
-        circles_collection.objects.link(circle)
-        # Aus anderen Collections entfernen
-        for col in circle.users_collection:
-            if col != circles_collection:
-                col.objects.unlink(circle)
-
-    except Exception as e:
-        print(f"Fehler beim Erstellen eines Kreises: {e}")
-
-def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset,
-                        early_frames=5):
-    try:
-        start_frame = (start_time_ms + offset) / get_ms_per_frame()
-        early_start_frame = start_frame - early_frames
-        end_frame = (end_time_ms + offset) / get_ms_per_frame()
-
-        # Erstelle die Kurve
-        curve_data = bpy.data.curves.new(name=f"{global_index:03d}_{name}_curve", type='CURVE')
-        curve_data.dimensions = '3D'
-        spline = curve_data.splines.new('BEZIER')
-        spline.bezier_points.add(len(points) - 1)
-
-        for i, (x, y) in enumerate(points):
-            corrected_x = x * SCALE_FACTOR
-            corrected_y = -y * SCALE_FACTOR
-            bp = spline.bezier_points[i]
-            bp.co = (corrected_x, corrected_y, 0)
-            bp.handle_left_type = 'AUTO'
-            bp.handle_right_type = 'AUTO'
-
-        slider = bpy.data.objects.new(f"{global_index:03d}_{name}_curve", curve_data)
-
-        # Keyframe Sichtbarkeit für die Kurve
-        slider.hide_viewport = True
-        slider.hide_render = True
-        slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame - 1)
-        slider.keyframe_insert(data_path="hide_render", frame=early_start_frame - 1)
-
-        slider.hide_viewport = False
-        slider.hide_render = False
-        slider.keyframe_insert(data_path="hide_viewport", frame=early_start_frame)
-        slider.keyframe_insert(data_path="hide_render", frame=early_start_frame)
-
-        sliders_collection.objects.link(slider)
-
-        # Slider-Kopf erstellen
-        create_circle_at_position(points[0][0], points[0][1], f"{name}_head", start_time_ms, global_index,
-                                  sliders_collection, offset)
-
-        # Slider-Ende erstellen
-        # Bei Wiederholungen muss der Endpunkt angepasst werden
-        if repeats % 2 == 0:
-            # Gerade Anzahl von Wiederholungen: Endpunkt ist der Anfangspunkt
-            end_x, end_y = points[0]
-        else:
-            # Ungerade Anzahl von Wiederholungen: Endpunkt ist der letzten Kontrollpunkt
-            end_x, end_y = points[-1]
-
-        # Slider-Ende erstellen
-        create_circle_at_position(end_x, end_y, f"{name}_tail", start_time_ms, global_index, sliders_collection, offset)
-
-    except Exception as e:
-        print(f"Fehler beim Erstellen eines Sliders: {e}")
-
 def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners_collection, offset, early_frames=5):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
@@ -201,9 +106,10 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
         # Link zum gewünschten Collection hinzufügen
         spinners_collection.objects.link(spinner)
         # Aus anderen Collections entfernen
-        for col in spinner.users_collection:
-            if col != spinners_collection:
-                col.objects.unlink(spinner)
+        if spinner.users_collection:
+            for col in spinner.users_collection:
+                if col != spinners_collection:
+                    col.objects.unlink(spinner)
 
     except Exception as e:
         print(f"Fehler beim Erstellen eines Spinners: {e}")
@@ -267,17 +173,6 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
     except Exception as e:
         print(f"Fehler beim Laden und Erstellen der HitObjects: {e}")
 
-def calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier):
-    # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit
-    # Dies ist ein komplexes Thema und erfordert detailliertes Parsing der .osu-Datei
-    # Für eine vereinfachte Annäherung verwenden wir einen Standardwert
-    slider_multiplier = 1.4  # Standard-Slider-Multiplikator, kann aus der .osu-Datei gelesen werden
-    beat_duration = 500  # Annahme eines Standard-Beat-Durationswertes in ms
-
-    slider_duration = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
-    slider_duration /= speed_multiplier  # Anpassung an Mods wie DT oder HT
-    return slider_duration
-
 def create_animated_cursor(cursor_collection):
     try:
         bpy.ops.mesh.primitive_uv_sphere_add(radius=0.3, location=(0, 0, 0))
@@ -287,9 +182,10 @@ def create_animated_cursor(cursor_collection):
         # Link zum gewünschten Collection hinzufügen
         cursor_collection.objects.link(cursor)
         # Aus anderen Collections entfernen
-        for col in cursor.users_collection:
-            if col != cursor_collection:
-                col.objects.unlink(cursor)
+        if cursor.users_collection:
+            for col in cursor.users_collection:
+                if col != cursor_collection:
+                    col.objects.unlink(cursor)
 
         return cursor
     except Exception as e:

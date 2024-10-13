@@ -37,7 +37,6 @@ from .utils import (
 classes = (
     OSUImporterProperties,
     OSU_OT_Import,
-    OSU_OT_AdjustCursorOffset,
     OSU_PT_ImporterPanel,
 )
 

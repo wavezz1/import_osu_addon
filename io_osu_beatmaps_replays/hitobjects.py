@@ -1,15 +1,49 @@
 # osu_importer/hitobjects.py
 
 import bpy
-import math  # Importiere das math Modul
+import math
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .io import parse_timing_points
 from .utils import get_ms_per_frame, map_osu_to_blender
 
+def create_geometry_nodes_modifier(obj, driver_obj_name):
+    # Geometry Nodes Modifier hinzufügen
+    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
+
+    # Neuen Geometry Node Tree erstellen
+    group = bpy.data.node_groups.new("Geometry Nodes", 'GeometryNodeTree')
+    modifier.node_group = group
+
+    # Group Input und Group Output Knoten hinzufügen
+    input_node = group.nodes.new('NodeGroupInput')
+    output_node = group.nodes.new('NodeGroupOutput')
+    input_node.location.x = -200 - input_node.width
+    output_node.location.x = 200
+
+    # Store Named Attribute Knoten hinzufügen
+    store_attribute_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
+    store_attribute_node.location.x = 0
+    store_attribute_node.inputs['Name'].default_value = "show"
+    store_attribute_node.data_type = 'BOOLEAN'
+
+    # Driver auf Boolean Input setzen
+    driver = store_attribute_node.inputs['Value'].driver_add('default_value').driver
+    driver.type = 'AVERAGE'
+    var = driver.variables.new()
+    var.name = 'var'
+    var.targets[0].id_type = 'OBJECT'
+    var.targets[0].id = bpy.data.objects[driver_obj_name]
+    var.targets[0].data_path = '["show"]'
+
+    # Geometrie-Sockets für Input und Output hinzufügen
+    group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
+    group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
+
+    # Verbindungen zwischen den Knoten erstellen
+    group.links.new(input_node.outputs['Geometry'], store_attribute_node.inputs['Geometry'])
+    group.links.new(store_attribute_node.outputs['Geometry'], output_node.inputs['Geometry'])
+
 def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
-    """
-    Erstellt einen Circle (HitObject) an der angegebenen Position und fügt ihn der entsprechenden Collection hinzu.
-    """
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -18,41 +52,33 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         bpy.ops.mesh.primitive_circle_add(
             radius=0.5,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die X-Achse
+            rotation=(math.radians(90), 0, 0)
         )
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
 
         # Benutzerdefiniertes Attribut "show" hinzufügen
-        circle["show"] = False  # Startwert: Nicht sichtbar
-
-        # Keyframe für das Attribut "show" einfügen (Objekt ist noch nicht sichtbar)
+        circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
 
-        # Attribut "show" auf True setzen (Objekt wird sichtbar)
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
-        # Optional: Keyframe zum Ausblenden
         if end_time_ms is not None:
             end_frame = (end_time_ms + offset) / get_ms_per_frame()
-
-            # Objekt bleibt sichtbar bis kurz vor dem Endframe
             circle["show"] = True
             circle.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
-
-            # Objekt ausblenden
             circle["show"] = False
             circle.keyframe_insert(data_path='["show"]', frame=end_frame)
 
-        # Objekt zur gewünschten Collection hinzufügen
         circles_collection.objects.link(circle)
-        # Aus anderen Collections entfernen
         if circle.users_collection:
             for col in circle.users_collection:
                 if col != circles_collection:
                     col.objects.unlink(circle)
 
+        # Geometry Nodes Modifier erstellen
+        create_geometry_nodes_modifier(circle, circle.name)
     except Exception as e:
         print(f"Fehler beim Erstellen eines Kreises: {e}")
 

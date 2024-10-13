@@ -25,7 +25,7 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     store_attribute_node.location.x = 0
     store_attribute_node.inputs['Name'].default_value = "show"
     store_attribute_node.data_type = 'BOOLEAN'
-    store_attribute_node.domain = 'INSTANCE'
+    store_attribute_node.domain = 'POINT'
 
     # Driver auf Boolean Input setzen
     driver = store_attribute_node.inputs['Value'].driver_add('default_value').driver
@@ -44,7 +44,9 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     group.links.new(input_node.outputs['Geometry'], store_attribute_node.inputs['Geometry'])
     group.links.new(store_attribute_node.outputs['Geometry'], output_node.inputs['Geometry'])
 
-def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
+
+def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5,
+                              end_time_ms=None):
     try:
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
@@ -65,12 +67,8 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
-        if end_time_ms is not None:
-            end_frame = (end_time_ms + offset) / get_ms_per_frame()
-            circle["show"] = True
-            circle.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
-            circle["show"] = False
-            circle.keyframe_insert(data_path='["show"]', frame=end_frame)
+        circle["show"] = False
+        circle.keyframe_insert(data_path='["show"]', frame=early_start_frame + 1)
 
         circles_collection.objects.link(circle)
         if circle.users_collection:
@@ -82,6 +80,7 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         create_geometry_nodes_modifier(circle, circle.name)
     except Exception as e:
         print(f"Fehler beim Erstellen eines Kreises: {e}")
+
 
 def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, global_index, sliders_collection, offset, early_frames=5):
     try:

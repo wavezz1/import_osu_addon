@@ -2,6 +2,8 @@
 
 import bpy
 
+from .constants import SCALE_FACTOR
+
 def get_ms_per_frame():
     """
     Berechnet die Anzahl der Millisekunden pro Frame basierend auf der aktuellen FPS-Einstellung der Szene.
@@ -64,7 +66,6 @@ def map_osu_to_blender(x, y):
     Returns:
         tuple: (x, y, z) Koordinaten für Blender
     """
-    from .constants import SCALE_FACTOR
     corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
     corrected_y = 0  # Optional, wenn Sie die Tiefe nicht verwenden
     corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren

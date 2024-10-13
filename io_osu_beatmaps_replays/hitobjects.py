@@ -1,9 +1,9 @@
 # osu_importer/hitobjects.py
 
 import bpy
-from .utils import get_ms_per_frame
-from .constants import SCALE_FACTOR, SPINNER_CENTER_X, SPINNER_CENTER_Y
+from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .io import parse_timing_points
+from .utils import get_ms_per_frame, map_osu_to_blender
 
 def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_collection, offset, early_frames=5, end_time_ms=None):
     """
@@ -13,7 +13,8 @@ def create_circle_at_position(x, y, name, start_time_ms, global_index, circles_c
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
 
-        bpy.ops.mesh.primitive_circle_add(radius=0.5, location=(x * SCALE_FACTOR, -y * SCALE_FACTOR, 0))
+        corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+        bpy.ops.mesh.primitive_circle_add(radius=0.5, location=(corrected_x, corrected_y, corrected_z))
         circle = bpy.context.object
         circle.name = f"{global_index:03d}_{name}"
 
@@ -69,13 +70,12 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
         spline.bezier_points.add(len(points) - 1)
 
         for i, (x, y) in enumerate(points):
-            corrected_x = x * SCALE_FACTOR
-            corrected_y = -y * SCALE_FACTOR
+            corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
             bp = spline.bezier_points[i]
-            bp.co = (corrected_x, corrected_y, 0)
+            bp.co = (corrected_x, corrected_y, corrected_z)
             # Optional: Handle-Typen setzen
-            # bp.handle_left_type = 'AUTO'
-            # bp.handle_right_type = 'AUTO'
+            bp.handle_left_type = 'AUTO'
+            bp.handle_right_type = 'AUTO'
 
         slider = bpy.data.objects.new(f"{global_index:03d}_{name}_curve", curve_data)
 
@@ -159,7 +159,8 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
         start_frame = (start_time_ms + offset) / get_ms_per_frame()
         early_start_frame = start_frame - early_frames
 
-        bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=0.1, location=(x * SCALE_FACTOR, -y * SCALE_FACTOR, 0))
+        corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+        bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=0.1, location=(corrected_x, corrected_y, corrected_z))
         spinner = bpy.context.object
         spinner.name = f"{global_index:03d}_{name}"
 

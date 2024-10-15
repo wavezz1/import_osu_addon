@@ -4,7 +4,7 @@ First and foremost, I don’t know what I’m doing, but I had a goal: importing
 
 That’s where trusty ol’ ChatGPT came into play. The code is roughly based on 90% of GPT’s work and 10% me banging my head against the wall trying to fix things after GPT broke them.
 
-This addon also builds on the fantastic work from [`osrparse`](https://github.com/kszlim/osu-replay-parser), which helped with parsing `.osr` files.
+This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), which helped with parsing `.osr` files.
 
 ## What it Does
 

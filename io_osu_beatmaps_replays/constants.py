@@ -9,5 +9,3 @@ MOD_HALF_TIME = 256
 # Spinner-Positionen (falls benötigt)
 SPINNER_CENTER_X = 256
 SPINNER_CENTER_Y = 192
-
-#

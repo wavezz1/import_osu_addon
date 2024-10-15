@@ -33,7 +33,7 @@ Rest TBD
 
 ## Blender Proof of Concept
 
-[Download the .blend file](blendfile/blender_4.2_osu_in_blender_proof_of_concept.blend)
+[Download the .blend file](blendfile/[blender_4.2]osu_in_blender_proof_of_concept.blend)
 
 ## Ending Words
 

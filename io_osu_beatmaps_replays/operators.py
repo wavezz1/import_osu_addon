@@ -66,20 +66,18 @@ class OSU_OT_Import(Operator):
         first_replay_time = get_first_replay_event_time(replay.replay_data)
 
         # Berechne die angepassten Zeiten
-        #adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
-        adjusted_first_hitobject_time = audio_lead_in / speed_multiplier
+        adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
+        #adjusted_first_hitobject_time = audio_lead_in / speed_multiplier
 
         adjusted_first_replay_time = first_replay_time
 
-        offset = adjusted_first_hitobject_time - adjusted_first_replay_time
+       # offset = adjusted_first_hitobject_time - adjusted_first_replay_time
+        offset = adjusted_first_replay_time
 
         # Speichere die Werte
         props.detected_first_hitobject_time = adjusted_first_hitobject_time
         props.detected_first_replay_time = adjusted_first_replay_time
         props.detected_offset = offset
-
-        # Berechne den Cursor-Offset (Hälfte der Zeit des ersten HitObjects)
-        #cursor_offset = adjusted_first_hitobject_time / 2
 
         # Speichere den Cursor-Offset in den Properties
         props.calculated_cursor_offset = adjusted_first_hitobject_time
@@ -114,8 +112,9 @@ class OSU_OT_Import(Operator):
         # Erstelle und animiere den Cursor
         cursor = create_animated_cursor(cursor_collection)
         if cursor is not None:
-            #animate_cursor(cursor, replay.replay_data, final_offset + adjusted_first_hitobject_time, speed_multiplier)
-            animate_cursor(cursor, replay.replay_data, adjusted_first_hitobject_time, speed_multiplier)
+            animate_cursor(cursor, replay.replay_data, final_offset, speed_multiplier)
+            #animate_cursor(cursor, replay.replay_data, final_offset + adjusted_first_replay_time, speed_multiplier)
+            #animate_cursor(cursor, replay.replay_data, adjusted_first_hitobject_time, speed_multiplier)
 
         else:
             self.report({'WARNING'}, "Cursor konnte nicht erstellt werden.")

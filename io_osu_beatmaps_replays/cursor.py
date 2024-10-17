@@ -23,7 +23,7 @@ def create_animated_cursor(cursor_collection):
         print(f"Fehler beim Erstellen des Cursors: {e}")
         return None
 
-def animate_cursor(cursor, replay_data, offset):
+def animate_cursor(cursor, replay_data, offset, speed_multiplier=1.0):
     if cursor is None:
         print("Cursor-Objekt ist None, Animation wird übersprungen.")
         return
@@ -35,7 +35,8 @@ def animate_cursor(cursor, replay_data, offset):
                 continue  # Cursor ist nicht auf dem Bildschirm
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
             cursor.location = (corrected_x, corrected_y, corrected_z)
-            frame = (total_time + offset) / get_ms_per_frame()
+            adjusted_time = (total_time + offset) / speed_multiplier
+            frame = adjusted_time / get_ms_per_frame()
             cursor.keyframe_insert(data_path="location", frame=frame)
     except Exception as e:
         print(f"Fehler beim Animieren des Cursors: {e}")

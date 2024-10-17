@@ -40,6 +40,6 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
 
 def map_osu_to_blender(x, y):
     corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
-    corrected_y = 0  # Optional, wenn Sie die Tiefe nicht verwenden
+    corrected_y = 0
     corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren
     return corrected_x, corrected_y, corrected_z

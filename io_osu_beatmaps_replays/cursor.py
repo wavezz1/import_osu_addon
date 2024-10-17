@@ -4,15 +4,12 @@ import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
 
 def create_animated_cursor(cursor_collection):
-    # Ihre bestehende Implementierung
     try:
         bpy.ops.mesh.primitive_uv_sphere_add(radius=0.3, location=(0, 0, 0))
         cursor = bpy.context.object
         cursor.name = "Cursor"
 
-        # Link zum gewünschten Collection hinzufügen
         cursor_collection.objects.link(cursor)
-        # Aus anderen Collections entfernen
         if cursor.users_collection:
             for col in cursor.users_collection:
                 if col != cursor_collection:

@@ -4,7 +4,6 @@ import bpy
 from bpy.types import Operator
 import os
 
-from .properties import OSUImporterProperties
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
 from .utils import get_ms_per_frame, create_collection
 from .io import load_hitobject_times, get_audio_lead_in, get_first_replay_event_time
@@ -21,7 +20,6 @@ class OSU_OT_Import(Operator):
         return result
 
     def main(self, context):
-        # Importiere osrparse innerhalb der Methode
         try:
             import osrparse
         except ImportError:
@@ -79,10 +77,10 @@ class OSU_OT_Import(Operator):
         props.detected_offset = offset
 
         # Berechne den Cursor-Offset (Hälfte der Zeit des ersten HitObjects)
-        cursor_offset = adjusted_first_hitobject_time / 2
+        #cursor_offset = adjusted_first_hitobject_time / 2
 
         # Speichere den Cursor-Offset in den Properties
-        props.calculated_cursor_offset = cursor_offset
+        props.calculated_cursor_offset = adjusted_first_hitobject_time
 
         # Verwende automatischen oder manuellen Offset
         if props.use_auto_offset:
@@ -94,7 +92,6 @@ class OSU_OT_Import(Operator):
         print(f"Geschwindigkeitsmultiplikator: {speed_multiplier}")
         print(f"Erste Hitobject-Zeit: {adjusted_first_hitobject_time} ms")
         print(f"Erste Replay-Event-Zeit: {adjusted_first_replay_time} ms")
-        print(f"Berechneter Cursor-Offset: {cursor_offset} ms")
 
         # Erstelle Collections
         circles_collection = create_collection("Circles")
@@ -115,7 +112,7 @@ class OSU_OT_Import(Operator):
         # Erstelle und animiere den Cursor
         cursor = create_animated_cursor(cursor_collection)
         if cursor is not None:
-            animate_cursor(cursor, replay.replay_data, final_offset + cursor_offset, speed_multiplier)
+            animate_cursor(cursor, replay.replay_data, final_offset + adjusted_first_hitobject_time, speed_multiplier)
         else:
             self.report({'WARNING'}, "Cursor konnte nicht erstellt werden.")
 

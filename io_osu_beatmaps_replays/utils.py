@@ -5,22 +5,10 @@ import bpy
 from .constants import SCALE_FACTOR
 
 def get_ms_per_frame():
-    """
-    Berechnet die Anzahl der Millisekunden pro Frame basierend auf der aktuellen FPS-Einstellung der Szene.
-    Returns:
-        float: Millisekunden pro Frame.
-    """
     fps = bpy.context.scene.render.fps
     return 1000 / fps  # Millisekunden pro Frame
 
 def create_collection(name):
-    """
-    Erstellt eine neue Collection mit dem gegebenen Namen oder gibt eine vorhandene zurück.
-    Args:
-        name (str): Der Name der Collection.
-    Returns:
-        bpy.types.Collection: Die erstellte oder vorhandene Collection.
-    """
     collection = bpy.data.collections.get(name)
     if collection is None:
         collection = bpy.data.collections.new(name)
@@ -28,12 +16,6 @@ def create_collection(name):
     return collection
 
 def shift_cursor_keyframes(cursor_object_name, offset_ms):
-    """
-    Verschiebt die Keyframes des Cursors um den angegebenen Offset in Millisekunden.
-    Args:
-        cursor_object_name (str): Der Name des Cursor-Objekts.
-        offset_ms (float): Der Offset in Millisekunden.
-    """
     cursor = bpy.data.objects.get(cursor_object_name)
     if cursor is None:
         print(f"Objekt '{cursor_object_name}' nicht gefunden.")
@@ -54,18 +36,9 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
             keyframe.handle_left.x += frame_offset
             keyframe.handle_right.x += frame_offset
 
-        # Aktualisiere die FCurve
         fcurve.update()
 
 def map_osu_to_blender(x, y):
-    """
-    Wandelt osu!-Koordinaten in Blender-Koordinaten um.
-    Args:
-        x (float): X-Koordinate in osu!
-        y (float): Y-Koordinate in osu!
-    Returns:
-        tuple: (x, y, z) Koordinaten für Blender
-    """
     corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
     corrected_y = 0  # Optional, wenn Sie die Tiefe nicht verwenden
     corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren

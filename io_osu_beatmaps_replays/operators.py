@@ -69,7 +69,7 @@ class OSU_OT_Import(Operator):
 
         # Berechne die angepassten Zeiten
         adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
-        adjusted_first_replay_time = first_replay_time  # Entferne - standard_replay_lead_in
+        adjusted_first_replay_time = first_replay_time
 
         offset = adjusted_first_hitobject_time - adjusted_first_replay_time
 
@@ -115,7 +115,7 @@ class OSU_OT_Import(Operator):
         # Erstelle und animiere den Cursor
         cursor = create_animated_cursor(cursor_collection)
         if cursor is not None:
-            animate_cursor(cursor, replay.replay_data, final_offset + cursor_offset)
+            animate_cursor(cursor, replay.replay_data, final_offset + cursor_offset, speed_multiplier)
         else:
             self.report({'WARNING'}, "Cursor konnte nicht erstellt werden.")
 

@@ -15,6 +15,12 @@ def create_collection(name):
         bpy.context.scene.collection.children.link(collection)
     return collection
 
+def map_osu_to_blender(x, y):
+    corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
+    corrected_y = 0
+    corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren
+    return corrected_x, corrected_y, corrected_z
+
 def shift_cursor_keyframes(cursor_object_name, offset_ms):
     cursor = bpy.data.objects.get(cursor_object_name)
     if cursor is None:
@@ -37,9 +43,3 @@ def shift_cursor_keyframes(cursor_object_name, offset_ms):
             keyframe.handle_right.x += frame_offset
 
         fcurve.update()
-
-def map_osu_to_blender(x, y):
-    corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
-    corrected_y = 0
-    corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren
-    return corrected_x, corrected_y, corrected_z

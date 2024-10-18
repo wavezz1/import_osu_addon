@@ -156,9 +156,6 @@ def create_slider_curve(points, name, start_time_ms, end_time_ms, repeats, globa
         print(f"Fehler beim Erstellen eines Sliders: {e}")
 
 def calculate_slider_duration(osu_file, start_time_ms, repeat_count, pixel_length, speed_multiplier):
-    """
-    Berechnet die Dauer eines Sliders basierend auf der Beatmap-Information.
-    """
     # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit
     timing_points = parse_timing_points(osu_file)
     # Standardwerte
@@ -232,9 +229,6 @@ def create_spinner_at_position(x, y, name, start_time_ms, global_index, spinners
         print(f"Fehler beim Erstellen eines Spinners: {e}")
 
 def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection, spinners_collection, offset, speed_multiplier):
-    """
-    Lädt die HitObjects aus der .osu-Datei und erstellt sie in Blender.
-    """
     global_index = 1
     try:
         with open(osu_file, 'r', encoding='utf-8') as file:
@@ -249,8 +243,7 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
                     if len(parts) < 5:
                         continue  # Nicht genügend Daten
                     x, y, time, hit_type = int(parts[0]), int(parts[1]), int(parts[2]), int(parts[3])
-                    start_time_ms = time / speed_multiplier  # Anpassung hier
-
+                    start_time_ms = time / speed_multiplier
                     if hit_type & 1:  # Circle
                         create_circle_at_position(x, y, f"circle_{time}", start_time_ms, global_index, circles_collection, offset)
                     elif hit_type & 2:  # Slider
@@ -266,9 +259,10 @@ def load_and_create_hitobjects(osu_file, circles_collection, sliders_collection,
                                         px, py = float(px_str), float(py_str)
                                         slider_points.append((px, py))
                         else:
-                            continue  # Keine Slider-Daten
+                            continue
 
                         # Wiederholungen und Pixel-Länge ermitteln
+                        #??
                         repeat_count = int(parts[6]) if len(parts) > 6 else 1
                         pixel_length = float(parts[7]) if len(parts) > 7 else 100
 

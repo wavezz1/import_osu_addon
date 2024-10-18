@@ -67,18 +67,18 @@ class OSU_OT_Import(Operator):
 
         # Berechne die angepassten Zeiten
         adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
+        offset = adjusted_first_hitobject_time / get_ms_per_frame()
+        #adjusted_first_replay_time = first_replay_time
 
-        adjusted_first_replay_time = first_replay_time
-
-        offset = adjusted_first_hitobject_time - adjusted_first_replay_time
+        #offset = adjusted_first_hitobject_time  - adjusted_first_replay_time
 
         # Speichere die Werte
-        props.detected_first_hitobject_time = adjusted_first_hitobject_time
-        props.detected_first_replay_time = adjusted_first_replay_time
+        props.detected_first_hitobject_time = offset
+        props.detected_first_replay_time = first_replay_time
         props.detected_offset = offset
 
         # Speichere den Cursor-Offset in den Properties
-        props.calculated_cursor_offset = adjusted_first_hitobject_time
+        props.calculated_cursor_offset = offset
 
         # Verwende automatischen oder manuellen Offset
         if props.use_auto_offset:
@@ -88,8 +88,8 @@ class OSU_OT_Import(Operator):
 
         print(f"Verwendeter Zeit-Offset: {final_offset} ms")
         print(f"Geschwindigkeitsmultiplikator: {speed_multiplier}")
-        print(f"Erste Hitobject-Zeit: {adjusted_first_hitobject_time} ms")
-        print(f"Erste Replay-Event-Zeit: {adjusted_first_replay_time} ms")
+        print(f"Erste Hitobject-Zeit: {offset} ms")
+        print(f"Erste Replay-Event-Zeit: {first_replay_time} ms")
 
         # Erstelle Collections
         circles_collection = create_collection("Circles")
@@ -110,14 +110,14 @@ class OSU_OT_Import(Operator):
         # Erstelle und animiere den Cursor
         cursor = create_animated_cursor(cursor_collection)
         if cursor is not None:
-            animate_cursor(cursor, replay.replay_data, final_offset + adjusted_first_replay_time, speed_multiplier)
+            animate_cursor(cursor, replay.replay_data, final_offset + first_replay_time, speed_multiplier)
             #animate_cursor(cursor, replay.replay_data, adjusted_first_hitobject_time, speed_multiplier)
 
         else:
             self.report({'WARNING'}, "Cursor konnte nicht erstellt werden.")
 
         # Setze den Startframe der Szene
-        scene_start_time = min(adjusted_first_hitobject_time, adjusted_first_replay_time)
+        scene_start_time = min(adjusted_first_hitobject_time, first_replay_time)
         bpy.context.scene.frame_start = int(scene_start_time / get_ms_per_frame())
 
         self.report({'INFO'}, "Import abgeschlossen.")

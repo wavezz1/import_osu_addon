@@ -37,8 +37,6 @@ def main_execution(context):
     props.bpm = osu_parser.bpm
     props.total_hitobjects = osu_parser.total_hitobjects
     props.mods = ", ".join(osr_parser.mod_list) if osr_parser.mod_list else "Keine"
-    props.player_name = osr_parser.player_name
-    props.misses = osr_parser.misses
 
     # Berechne den Offset und andere notwendige Werte
     try:

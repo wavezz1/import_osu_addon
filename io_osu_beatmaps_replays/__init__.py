@@ -15,11 +15,21 @@ bl_info = {
 
 import bpy
 
-from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import
+from .ui import (
+    OSUImporterProperties,
+    OSU_PT_ImporterPanel,
+    OSU_PT_ImporterPanel_Offsets,
+    OSU_PT_ImporterPanel_BeatmapInfo,
+    OSU_PT_ImporterPanel_ReplayInfo,
+    OSU_OT_Import,
+)
 
 classes = (
     OSUImporterProperties,
     OSU_PT_ImporterPanel,
+    OSU_PT_ImporterPanel_Offsets,
+    OSU_PT_ImporterPanel_BeatmapInfo,
+    OSU_PT_ImporterPanel_ReplayInfo,
     OSU_OT_Import,
 )
 

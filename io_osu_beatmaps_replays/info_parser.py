@@ -65,14 +65,18 @@ class OsrParser:
         self.replay_data = None
         self.mods = 0
         self.mod_list = []
+        self.player_name = ""
+        self.misses = 0
         self.parse_osr_file()
 
     def parse_osr_file(self):
         try:
-            replay = osrparse.Replay.from_path(self.osr_file_path)
-            self.replay_data = replay.replay_data
-            self.mods = replay.mods
+            replay = osrparse.parse_replay_file(self.osr_file_path)
+            self.replay_data = replay.play_data
+            self.mods = replay.mod_combination
             self.mod_list = self.get_mods_list(self.mods)
+            self.player_name = replay.player_name
+            self.misses = replay.number_misses
         except Exception as e:
             print(f"Fehler beim Parsen der .osr-Datei: {e}")
 
@@ -81,7 +85,6 @@ class OsrParser:
         mod_constants = {
             1: "NoFail",
             2: "Easy",
-            4: "TouchDevice",
             8: "Hidden",
             16: "HardRock",
             32: "SuddenDeath",
@@ -105,7 +108,7 @@ class OsrParser:
 def get_first_replay_event_time(replay_data):
     total_time = 0
     for event in replay_data:
-        total_time += event.time_delta
+        total_time += event.time_since_previous_action
         if event.x != -256 and event.y != -256:
             return total_time
     return total_time  # Falls alle Events bei (-256, -256) sind

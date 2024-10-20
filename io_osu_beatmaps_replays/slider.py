@@ -52,7 +52,7 @@ class SliderCreator:
         # Slider-Dauer berechnen
         slider_duration_ms = self.calculate_slider_duration(time_ms, repeat_count, pixel_length, speed_multiplier)
         end_time_ms = time_ms + slider_duration_ms
-        end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) - self.offset_frames
+        end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
 
         # Erstelle die Kurve
         curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_curve", type='CURVE')
@@ -72,17 +72,17 @@ class SliderCreator:
 
         # Benutzerdefiniertes Attribut "show" hinzufügen
         slider["show"] = False  # Startwert: Nicht sichtbar
-        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
+        slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - self.offset_frames)
 
         slider["show"] = True
-        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - self.offset_frames)
 
         # Optional: Ausblenden am Ende
         slider["show"] = True
-        slider.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+        slider.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - self.offset_frames)
 
         slider["show"] = False
-        slider.keyframe_insert(data_path='["show"]', frame=end_frame)
+        slider.keyframe_insert(data_path='["show"]', frame=end_frame - self.offset_frames)
 
         self.sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen
@@ -142,17 +142,17 @@ class SliderCreator:
 
         # Benutzerdefiniertes Attribut "show" hinzufügen
         endpoint["show"] = False
-        endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
+        endpoint.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - self.offset_frames)
 
         endpoint["show"] = True
-        endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+        endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame - self.offset_frames)
 
         # Objekt bleibt sichtbar bis zum Endframe
         endpoint["show"] = True
-        endpoint.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+        endpoint.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - self.offset_frames)
 
         endpoint["show"] = False
-        endpoint.keyframe_insert(data_path='["show"]', frame=end_frame)
+        endpoint.keyframe_insert(data_path='["show"]', frame=end_frame - self.offset_frames)
 
         self.sliders_collection.objects.link(endpoint)
         if endpoint.users_collection:

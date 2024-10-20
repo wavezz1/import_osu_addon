@@ -28,7 +28,7 @@ class SpinnerCreator:
         # Endzeit des Spinners ermitteln
         if self.hitobject.extras:
             end_time_ms = int(self.hitobject.extras[0])
-            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) - self.offset_frames
+            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
         else:
             print(f"Keine Endzeit für Spinner bei {time_ms} ms gefunden.")
             return
@@ -43,19 +43,19 @@ class SpinnerCreator:
         spinner = bpy.context.object
         spinner.name = f"{self.global_index:03d}_spinner_{time_ms}"
 
-        # Benutzerdefiniertes Attribut "show" hinzufügen
+        # Setzen der Keyframes und Eigenschaften
         spinner["show"] = False  # Startwert: Nicht sichtbar
-        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
+        spinner.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - self.offset_frames)
 
         spinner["show"] = True
-        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - self.offset_frames)
 
         # Ausblenden am Ende
         spinner["show"] = True
-        spinner.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+        spinner.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - self.offset_frames)
 
         spinner["show"] = False
-        spinner.keyframe_insert(data_path='["show"]', frame=end_frame)
+        spinner.keyframe_insert(data_path='["show"]', frame=end_frame - self.offset_frames)
 
         self.spinners_collection.objects.link(spinner)
         # Aus anderen Collections entfernen
@@ -64,4 +64,4 @@ class SpinnerCreator:
                 if col != self.spinners_collection:
                     col.objects.unlink(spinner)
 
-        create_geometry_nodes_modifier(spinner, spinner.name)
+        #create_geometry_nodes_modifier(spinner, spinner.name)

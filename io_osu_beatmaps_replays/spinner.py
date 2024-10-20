@@ -28,7 +28,7 @@ class SpinnerCreator:
         # Endzeit des Spinners ermitteln
         if self.hitobject.extras:
             end_time_ms = int(self.hitobject.extras[0])
-            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
+            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) - self.offset_frames
         else:
             print(f"Keine Endzeit für Spinner bei {time_ms} ms gefunden.")
             return

@@ -20,7 +20,7 @@ class CircleCreator:
         y = self.hitobject.y
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
+        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) - self.offset_frames
         early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)

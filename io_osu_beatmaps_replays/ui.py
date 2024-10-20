@@ -118,3 +118,13 @@ class OSU_PT_ImporterPanel(Panel):
 
             col = layout.column(align=True)
             col.label(text=f"Aktive Mods: {props.mods}")
+
+class OSU_OT_Import(Operator):
+    bl_idname = "osu_importer.import"
+    bl_label = "Importieren"
+    bl_description = "Importiert die ausgewählte Beatmap und Replay"
+
+    def execute(self, context):
+        from .exec import main_execution  # Aktualisiert
+        result = main_execution(context)
+        return result

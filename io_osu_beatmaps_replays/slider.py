@@ -142,17 +142,17 @@ class SliderCreator:
 
         # Benutzerdefiniertes Attribut "show" hinzufügen
         endpoint["show"] = False
-        endpoint.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - self.offset_frames)
+        endpoint.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - (self.offset_frames / 2))
 
         endpoint["show"] = True
-        endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame - self.offset_frames)
+        endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame - (self.offset_frames / 2))
 
         # Objekt bleibt sichtbar bis zum Endframe
         endpoint["show"] = True
-        endpoint.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - self.offset_frames)
+        endpoint.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - (self.offset_frames / 2))
 
         endpoint["show"] = False
-        endpoint.keyframe_insert(data_path='["show"]', frame=end_frame - self.offset_frames)
+        endpoint.keyframe_insert(data_path='["show"]', frame=end_frame - (self.offset_frames / 2))
 
         self.sliders_collection.objects.link(endpoint)
         if endpoint.users_collection:

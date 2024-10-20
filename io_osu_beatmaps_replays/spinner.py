@@ -45,17 +45,17 @@ class SpinnerCreator:
 
         # Setzen der Keyframes und Eigenschaften
         spinner["show"] = False  # Startwert: Nicht sichtbar
-        spinner.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - self.offset_frames)
+        spinner.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - (self.offset_frames / 2))
 
         spinner["show"] = True
-        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - self.offset_frames)
+        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - (self.offset_frames / 2))
 
         # Ausblenden am Ende
         spinner["show"] = True
-        spinner.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - self.offset_frames)
+        spinner.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - (self.offset_frames / 2))
 
         spinner["show"] = False
-        spinner.keyframe_insert(data_path='["show"]', frame=end_frame - self.offset_frames)
+        spinner.keyframe_insert(data_path='["show"]', frame=end_frame - (self.offset_frames / 2))
 
         self.spinners_collection.objects.link(spinner)
         # Aus anderen Collections entfernen

@@ -3,6 +3,7 @@
 import os
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
 from .utils import get_ms_per_frame
+from .info_parser import get_first_replay_event_time
 
 def calculate_speed_multiplier(mods):
     speed_multiplier = 1.0
@@ -21,7 +22,8 @@ def calculate_offsets(osu_parser, osr_parser):
     speed_multiplier = calculate_speed_multiplier(mods)
 
     # Lade die HitObject-Zeiten
-    hitobject_times = [obj.time for obj in osu_parser.hitobjects]
+    #hitobject_times = [obj.time for obj in osu_parser.hitobjects]
+    hitobject_times = [int(line.split(',')[2]) for line in osu_parser.hitobjects]
     if not hitobject_times:
         raise ValueError("Keine HitObjects in der .osu-Datei gefunden.")
 
@@ -45,11 +47,3 @@ def calculate_offsets(osu_parser, osr_parser):
         'first_hitobject_time': adjusted_first_hitobject_time,
         'first_replay_time': first_replay_time,
     }
-
-def get_first_replay_event_time(replay_data):
-    total_time = 0
-    for event in replay_data:
-        total_time += event.time_delta
-        if event.x != -256 and event.y != -256:
-            return total_time
-    return total_time  # Falls alle Events bei (-256, -256) sind

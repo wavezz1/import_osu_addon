@@ -63,6 +63,7 @@ def main_execution(context):
     props.detected_first_hitobject_time = first_hitobject_time
     props.detected_first_replay_time = first_replay_time
     props.detected_offset = offset_ms
+    props.detected_offset_frames = offset_frames
 
     # Verwende automatischen oder manuellen Offset
     if props.use_auto_offset:
@@ -70,6 +71,7 @@ def main_execution(context):
     else:
         final_offset_frames = props.manual_offset / get_ms_per_frame()
         props.detected_offset = props.manual_offset  # Aktualisiere den Offset für die UI
+        props.manual_offset_frames = final_offset_frames
 
     # Verbesserter Offset-Text
     used_offset_ms = final_offset_frames * get_ms_per_frame()

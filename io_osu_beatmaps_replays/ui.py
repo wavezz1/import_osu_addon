@@ -44,6 +44,16 @@ class OSUImporterProperties(PropertyGroup):
         default=0.0
     )
 
+    detected_offset_frames: FloatProperty(
+        name="Berechneter Offset (Frames)",
+        description="Berechneter Zeit-Offset in Frames",
+        default=0.0
+    )
+    manual_offset_frames: FloatProperty(
+        name="Manueller Offset (Frames)",
+        description="Manuell festgelegter Zeit-Offset in Frames",
+        default=0.0
+    )
     # Neue Properties für die geparsten Informationen
     approach_rate: FloatProperty(
         name="Approach Rate",
@@ -115,10 +125,13 @@ class OSU_PT_ImporterPanel(Panel):
             replay_info = f"Mods: {props.formatted_mods} | Acc: {props.accuracy:.2f}% | Misses: {props.misses}"
             layout.label(text=replay_info)
 
-        # Offset-Informationen verbessern
+        # Offset-Informationen verbessern und in Frames anzeigen
         if props.detected_offset != 0.0 or props.manual_offset != 0.0:
             layout.separator()
-            offset_text = f"Verwendeter Offset: {props.detected_offset:.2f} ms" if props.use_auto_offset else f"Manueller Offset: {props.manual_offset:.2f} ms"
+            if props.use_auto_offset:
+                offset_text = f"Verwendeter Offset: {props.detected_offset:.2f} ms ({props.detected_offset_frames:.2f} Frames)"
+            else:
+                offset_text = f"Manueller Offset: {props.manual_offset:.2f} ms ({props.manual_offset_frames:.2f} Frames)"
             layout.label(text=offset_text)
 
 class OSU_OT_Import(Operator):

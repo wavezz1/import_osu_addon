@@ -1,7 +1,7 @@
 # import_objects.py
 
 import bpy
-from .circle import CircleCreator
+from .circles import CircleCreator
 from .slider import SliderCreator
 from .spinner import SpinnerCreator
 from .hitobjects import HitObjectsProcessor

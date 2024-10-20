@@ -52,7 +52,7 @@ class SliderCreator:
         # Slider-Dauer berechnen
         slider_duration_ms = self.calculate_slider_duration(time_ms, repeat_count, pixel_length, speed_multiplier)
         end_time_ms = time_ms + slider_duration_ms
-        end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
+        end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) - self.offset_frames
 
         # Erstelle die Kurve
         curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_curve", type='CURVE')

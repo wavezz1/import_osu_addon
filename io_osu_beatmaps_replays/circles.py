@@ -35,13 +35,13 @@ class CircleCreator:
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False
-        circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - self.offset_frames)
+        circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - (self.offset_frames / 2))
 
         circle["show"] = True
-        circle.keyframe_insert(data_path='["show"]', frame=early_start_frame - self.offset_frames)
+        circle.keyframe_insert(data_path='["show"]', frame=early_start_frame - (self.offset_frames / 2))
 
         circle["show"] = False
-        circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1) - self.offset_frames)
+        circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1) - (self.offset_frames / 2))
 
         self.circles_collection.objects.link(circle)
         if circle.users_collection:

@@ -3,6 +3,7 @@
 import bpy
 
 def create_geometry_nodes_modifier(obj, driver_obj_name):
+
     """
     Fügt dem gegebenen Objekt einen Geometry Nodes Modifier hinzu,
     der Attribute 'show' (Boolean) und 'time_ms' (Float) steuert.

@@ -1,4 +1,4 @@
-# osu_importer/operators.py
+# osu_importer/_operators.py
 
 import bpy
 from bpy.types import Operator
@@ -6,7 +6,7 @@ import os
 
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
 from .utils import get_ms_per_frame, create_collection
-from .io import load_hitobject_times, get_audio_lead_in, get_first_replay_event_time
+from ._io import load_hitobject_times, get_audio_lead_in, get_first_replay_event_time
 from .hitobjects import load_and_create_hitobjects
 from .cursor import create_animated_cursor, animate_cursor
 

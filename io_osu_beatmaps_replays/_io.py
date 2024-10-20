@@ -1,4 +1,4 @@
-# osu_importer/io.py
+# osu_importer/_io.py
 
 def load_hitobject_times(osu_file):
     hitobject_times = []

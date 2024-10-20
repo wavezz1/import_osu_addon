@@ -1,4 +1,4 @@
-# osu_importer/panels.py
+# osu_importer/_panels.py
 
 import bpy
 from bpy.types import Panel

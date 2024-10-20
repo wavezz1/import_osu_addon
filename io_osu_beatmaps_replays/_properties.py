@@ -1,4 +1,4 @@
-# osu_importer/properties.py
+# osu_importer/_properties.py
 
 import bpy
 from bpy.props import StringProperty, BoolProperty, FloatProperty

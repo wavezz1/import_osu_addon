@@ -3,7 +3,7 @@
 import os
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
 from .utils import get_ms_per_frame
-from .info_parser import get_first_replay_event_time
+#from .info_parser import get_first_replay_event_time
 
 def calculate_speed_multiplier(mods):
     speed_multiplier = 1.0
@@ -28,7 +28,8 @@ def calculate_offsets(osu_parser, osr_parser):
         raise ValueError("Keine HitObjects in der .osu-Datei gefunden.")
 
     first_hitobject_time = hitobject_times[0]
-    first_replay_time = get_first_replay_event_time(osr_parser.replay_data)
+    #first_replay_time = get_first_replay_event_time(osr_parser.replay_data)
+    first_replay_time = osr_parser.get_first_replay_event_time()
 
     # Berechne die angepassten Zeiten
     adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier

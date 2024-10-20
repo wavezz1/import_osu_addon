@@ -1,4 +1,4 @@
-# circle.py
+# circles.py
 
 import bpy
 from .utils import map_osu_to_blender, get_ms_per_frame

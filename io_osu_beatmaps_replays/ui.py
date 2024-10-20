@@ -44,7 +44,7 @@ class OSUImporterProperties(PropertyGroup):
         default=0.0
     )
 
-    # Neue Properties für die geparsten Beatmap-Informationen
+    # Neue Properties für die geparsten Informationen
     approach_rate: FloatProperty(
         name="Approach Rate",
         description="Approach Rate der Beatmap",
@@ -71,19 +71,6 @@ class OSUImporterProperties(PropertyGroup):
         default=""
     )
 
-    # Replay-Informationen
-    player_name: StringProperty(
-        name="Spielername",
-        description="Name des Spielers",
-        default=""
-    )
-    misses: IntProperty(
-        name="Misses",
-        description="Anzahl der Misses",
-        default=0
-    )
-    # Weitere Replay-Informationen können hier hinzugefügt werden
-
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
     bl_idname = "OSU_PT_importer_panel"
@@ -104,65 +91,33 @@ class OSU_PT_ImporterPanel(Panel):
 
         layout.operator("osu_importer.import", text="Importieren")
 
-class OSU_PT_ImporterPanel_Offsets(Panel):
-    bl_label = "Offset-Informationen"
-    bl_idname = "OSU_PT_importer_panel_offsets"
-    bl_parent_id = "OSU_PT_importer_panel"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "osu! Importer"
-    bl_options = {'DEFAULT_CLOSED'}  # Standardmäßig geschlossen
+        # Zeige die erkannten Werte an
+        if props.detected_first_hitobject_time != 0 or props.detected_first_replay_time != 0:
+            layout.separator()
+            layout.label(text="Erkannte Werte:")
 
-    def draw(self, context):
-        layout = self.layout
-        props = context.scene.osu_importer_props
+            col = layout.column(align=True)
+            col.label(text=f"Erstes HitObject: {props.detected_first_hitobject_time:.2f} ms")
+            col.label(text=f"Erstes Replay-Event: {props.detected_first_replay_time:.2f} ms")
+            if props.use_auto_offset:
+                col.label(text=f"Berechneter Offset: {props.detected_offset:.2f} ms")
+            else:
+                col.label(text=f"Manueller Offset: {props.manual_offset:.2f} ms")
 
-        layout.label(text="Erkannte Werte:")
-        col = layout.column(align=True)
-        col.label(text=f"Erstes HitObject: {props.detected_first_hitobject_time:.2f} ms")
-        col.label(text=f"Erstes Replay-Event: {props.detected_first_replay_time:.2f} ms")
-        if props.use_auto_offset:
-            col.label(text=f"Berechneter Offset: {props.detected_offset:.2f} ms")
-        else:
-            col.label(text=f"Manueller Offset: {props.manual_offset:.2f} ms")
+            layout.separator()
+            layout.label(text="Beatmap-Informationen:")
 
-class OSU_PT_ImporterPanel_BeatmapInfo(Panel):
-    bl_label = "Beatmap-Informationen"
-    bl_idname = "OSU_PT_importer_panel_beatmap_info"
-    bl_parent_id = "OSU_PT_importer_panel"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "osu! Importer"
-    bl_options = {'DEFAULT_CLOSED'}
+            col = layout.column(align=True)
+            col.label(text=f"BPM: {props.bpm:.2f}")
+            col.label(text=f"Approach Rate: {props.approach_rate}")
+            col.label(text=f"Circle Size: {props.circle_size}")
+            col.label(text=f"Anzahl HitObjects: {props.total_hitobjects}")
 
-    def draw(self, context):
-        layout = self.layout
-        props = context.scene.osu_importer_props
+            layout.separator()
+            layout.label(text="Replay-Informationen:")
 
-        col = layout.column(align=True)
-        col.label(text=f"BPM: {props.bpm:.2f}")
-        col.label(text=f"Approach Rate: {props.approach_rate}")
-        col.label(text=f"Circle Size: {props.circle_size}")
-        col.label(text=f"Anzahl HitObjects: {props.total_hitobjects}")
-
-class OSU_PT_ImporterPanel_ReplayInfo(Panel):
-    bl_label = "Replay-Informationen"
-    bl_idname = "OSU_PT_importer_panel_replay_info"
-    bl_parent_id = "OSU_PT_importer_panel"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "osu! Importer"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw(self, context):
-        layout = self.layout
-        props = context.scene.osu_importer_props
-
-        col = layout.column(align=True)
-        col.label(text=f"Spielername: {props.player_name}")
-        col.label(text=f"Aktive Mods: {props.mods}")
-        col.label(text=f"Misses: {props.misses}")
-        # Weitere Replay-Informationen können hier hinzugefügt werden
+            col = layout.column(align=True)
+            col.label(text=f"Aktive Mods: {props.mods}")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
@@ -170,65 +125,6 @@ class OSU_OT_Import(Operator):
     bl_description = "Importiert die ausgewählte Beatmap und Replay"
 
     def execute(self, context):
-        from .exec import main_execution
+        from .exec import main_execution  # Aktualisiert
         result = main_execution(context)
         return result
-
-
-# class OSU_PT_ImporterPanel(Panel):
-#     bl_label = "osu! Importer"
-#     bl_idname = "OSU_PT_importer_panel"
-#     bl_space_type = 'VIEW_3D'
-#     bl_region_type = 'UI'
-#     bl_category = "osu! Importer"
-#
-#     def draw(self, context):
-#         layout = self.layout
-#         props = context.scene.osu_importer_props
-#
-#         layout.prop(props, "osu_file")
-#         layout.prop(props, "osr_file")
-#
-#         layout.prop(props, "use_auto_offset")
-#         if not props.use_auto_offset:
-#             layout.prop(props, "manual_offset")
-#
-#         layout.operator("osu_importer.import", text="Importieren")
-#
-#         # Zeige die erkannten Werte an
-#         if props.detected_first_hitobject_time != 0 or props.detected_first_replay_time != 0:
-#             layout.separator()
-#             layout.label(text="Erkannte Werte:")
-#
-#             col = layout.column(align=True)
-#             col.label(text=f"Erstes HitObject: {props.detected_first_hitobject_time:.2f} ms")
-#             col.label(text=f"Erstes Replay-Event: {props.detected_first_replay_time:.2f} ms")
-#             if props.use_auto_offset:
-#                 col.label(text=f"Berechneter Offset: {props.detected_offset:.2f} ms")
-#             else:
-#                 col.label(text=f"Manueller Offset: {props.manual_offset:.2f} ms")
-#
-#             layout.separator()
-#             layout.label(text="Beatmap-Informationen:")
-#
-#             col = layout.column(align=True)
-#             col.label(text=f"BPM: {props.bpm:.2f}")
-#             col.label(text=f"Approach Rate: {props.approach_rate}")
-#             col.label(text=f"Circle Size: {props.circle_size}")
-#             col.label(text=f"Anzahl HitObjects: {props.total_hitobjects}")
-#
-#             layout.separator()
-#             layout.label(text="Replay-Informationen:")
-#
-#             col = layout.column(align=True)
-#             col.label(text=f"Aktive Mods: {props.mods}")
-#
-# class OSU_OT_Import(Operator):
-#     bl_idname = "osu_importer.import"
-#     bl_label = "Importieren"
-#     bl_description = "Importiert die ausgewählte Beatmap und Replay"
-#
-#     def execute(self, context):
-#         from .exec import main_execution  # Aktualisiert
-#         result = main_execution(context)
-#         return result

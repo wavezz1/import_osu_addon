@@ -31,12 +31,16 @@ def main_execution(context):
     osu_parser = OsuParser(osu_file_path)
     osr_parser = OsrParser(osr_file_path)
 
-    # Setze die neuen Properties
+    # Setze die neuen Eigenschaften für Beatmap-Informationen
     props.approach_rate = float(osu_parser.difficulty_settings.get("ApproachRate", 5))
     props.circle_size = float(osu_parser.difficulty_settings.get("CircleSize", 5))
     props.bpm = osu_parser.bpm
     props.total_hitobjects = osu_parser.total_hitobjects
-    props.mods = ", ".join(osr_parser.mod_list) if osr_parser.mod_list else "Keine"
+
+    # Setze die neuen Eigenschaften für Replay-Informationen
+    props.formatted_mods = ','.join(osr_parser.mod_list) if osr_parser.mod_list else "Keine"
+    props.accuracy = osr_parser.calculate_accuracy()
+    props.misses = osr_parser.calculate_misses()
 
     # Berechne den Offset und andere notwendige Werte
     try:
@@ -55,7 +59,7 @@ def main_execution(context):
     first_hitobject_time = offset_data['first_hitobject_time']
     first_replay_time = offset_data['first_replay_time']
 
-    # Speichere die Werte in den Properties für die Anzeige in der UI
+    # Speichere die Werte für die Anzeige in der UI
     props.detected_first_hitobject_time = first_hitobject_time
     props.detected_first_replay_time = first_replay_time
     props.detected_offset = offset_ms
@@ -65,11 +69,14 @@ def main_execution(context):
         final_offset_frames = offset_frames
     else:
         final_offset_frames = props.manual_offset / get_ms_per_frame()
+        props.detected_offset = props.manual_offset  # Aktualisiere den Offset für die UI
 
-    print(f"Verwendeter Zeit-Offset: {final_offset_frames * get_ms_per_frame()} ms")
+    # Verbesserter Offset-Text
+    used_offset_ms = final_offset_frames * get_ms_per_frame()
+    print(f"Verwendeter Zeit-Offset: {used_offset_ms:.2f} ms")
     print(f"Geschwindigkeitsmultiplikator: {speed_multiplier}")
-    print(f"Erste HitObject-Zeit: {first_hitobject_time} ms")
-    print(f"Erste Replay-Event-Zeit: {first_replay_time} ms")
+    print(f"Erste HitObject-Zeit: {first_hitobject_time:.2f} ms")
+    print(f"Erste Replay-Event-Zeit: {first_replay_time:.2f} ms")
 
     # Importiere die HitObjects
     import_hitobjects(osu_parser, final_offset_frames, speed_multiplier)

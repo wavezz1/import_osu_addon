@@ -1,6 +1,7 @@
 # circles.py
 
 import bpy
+import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier
 from .constants import SCALE_FACTOR
@@ -27,7 +28,7 @@ class CircleCreator:
             fill_type='NGON',
             radius=0.5,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(0, 0, 0)
+            rotation=(math.radians(90), 0, 0)
         )
         circle = bpy.context.object
         circle.name = f"{self.global_index:03d}_circle_{time_ms}"

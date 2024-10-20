@@ -83,10 +83,10 @@ class OsrParser:
             self.replay_data = replay.replay_data
             self.mods = replay.mods
             self.mod_list = self.get_mods_list(self.mods)
-            self.number_300s = replay.number_300s
-            self.number_100s = replay.number_100s
-            self.number_50s = replay.number_50s
-            self.misses = replay.misses
+            self.number_300s = replay.count_300
+            self.number_100s = replay.count_100
+            self.number_50s = replay.count_50
+            self.misses = replay.count_miss
         except Exception as e:
             print(f"Fehler beim Parsen der .osr-Datei: {e}")
 

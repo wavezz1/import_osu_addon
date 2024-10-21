@@ -35,7 +35,7 @@ def animate_cursor(cursor, replay_data, offset_frames, speed_multiplier=1.0):
 
     total_time = 0
     try:
-        print(str(replay_data[:10]))
+        print(str(replay_data[:120]))
         for event in replay_data:
             total_time += event.time_delta
             if event.x == -256 and event.y == -256:

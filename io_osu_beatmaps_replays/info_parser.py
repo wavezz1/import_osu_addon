@@ -139,13 +139,3 @@ class OsrParser:
             if mods & mod_value:
                 mod_names.append(mod_name)
         return mod_names
-
-
-    # def get_first_replay_event_time(self):
-    #     total_time = 0
-    #     for event in self.replay_data:
-    #         if event.time_delta >= 0:
-    #             total_time += event.time_delta
-    #
-    #             # return total_time
-    #     return total_time

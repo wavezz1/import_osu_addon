@@ -43,8 +43,8 @@ def main_execution(context):
     props.misses = osr_parser.calculate_misses()
 
     speed_multiplier = calculate_speed_multiplier(osr_parser.mods)
-    final_offset_frames = props.manual_offset / get_ms_per_frame()
-    props.detected_offset = props.manual_offset  # Aktualisiere den Offset für die UI
+    final_offset_frames = 0 #props.manual_offset / get_ms_per_frame()
+    props.detected_offset = 0 #props.manual_offset  # Aktualisiere den Offset für die UI
     props.manual_offset_frames = 0 #final_offset_frames
 
     # Importiere die HitObjects

@@ -54,7 +54,7 @@ def main_execution(context):
         )
         return {'CANCELLED'}
 
-    speed_multiplier = offset_data['speed_multiplier']
+    speed_multiplier = offset_data.speed_multiplier
     # offset_frames = offset_data['offset_frames']
     # offset_ms = offset_data['offset_ms']
     # first_hitobject_time = offset_data['first_hitobject_time']

@@ -80,7 +80,6 @@ class OsrParser:
     def parse_osr_file(self):
         try:
             replay = osrparse.Replay.from_path(self.osr_file_path)
-            print(str(replay.replay_data[:5]))
             self.replay_data = replay.replay_data
             self.mods = replay.mods
             self.mod_list = self.get_mods_list(self.mods)

@@ -92,7 +92,7 @@ class SliderCreator:
                     col.objects.unlink(slider)
 
         # Slider-Kopf und -Ende erstellen (optional)
-        self.create_slider_endpoints(points, time_ms, start_frame, end_frame)
+        #self.create_slider_endpoints(points, time_ms, start_frame, end_frame)
 
         create_geometry_nodes_modifier(slider, slider.name)
 
@@ -116,49 +116,49 @@ class SliderCreator:
         slider_duration /= speed_multiplier  # Anpassung an Mods wie DT oder HT
         return slider_duration
 
-    def create_slider_endpoints(self, points, time_ms, early_start_frame, end_frame):
-        # Slider-Kopf erstellen
-        head_x, head_y = points[0]
-        self.create_slider_endpoint(head_x, head_y, f"slider_head_{time_ms}", early_start_frame, end_frame)
-
-        # Slider-Ende erstellen (abhängig von der Anzahl der Wiederholungen)
-        repeats = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
-        if repeats % 2 == 0:
-            end_x, end_y = points[0]
-        else:
-            end_x, end_y = points[-1]
-        self.create_slider_endpoint(end_x, end_y, f"slider_tail_{time_ms}", early_start_frame, end_frame)
-
-    def create_slider_endpoint(self, x, y, name, early_start_frame, end_frame):
-        corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-        bpy.ops.mesh.primitive_circle_add(
-            fill_type='NGON',
-            radius=0.5,
-            location=(corrected_x, corrected_y, corrected_z),
-            rotation=(math.radians(90), 0, 0)
-        )
-        endpoint = bpy.context.object
-        endpoint.name = f"{self.global_index:03d}_{name}"
-
-        # Benutzerdefiniertes Attribut "show" hinzufügen
-        endpoint["show"] = False
-        endpoint.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
-
-        endpoint["show"] = True
-        endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-
-        # Objekt bleibt sichtbar bis zum Endframe
-        endpoint["show"] = True
-        endpoint.keyframe_insert(data_path='["show"]', frame=(end_frame - 1))
-
-        endpoint["show"] = False
-        endpoint.keyframe_insert(data_path='["show"]', frame=end_frame)
-
-        self.sliders_collection.objects.link(endpoint)
-        if endpoint.users_collection:
-            for col in endpoint.users_collection:
-                if col != self.sliders_collection:
-                    col.objects.unlink(endpoint)
+    # def create_slider_endpoints(self, points, time_ms, early_start_frame, end_frame):
+    #     # Slider-Kopf erstellen
+    #     head_x, head_y = points[0]
+    #     self.create_slider_endpoint(head_x, head_y, f"slider_head_{time_ms}", early_start_frame, end_frame)
+    #
+    #     # Slider-Ende erstellen (abhängig von der Anzahl der Wiederholungen)
+    #     repeats = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
+    #     if repeats % 2 == 0:
+    #         end_x, end_y = points[0]
+    #     else:
+    #         end_x, end_y = points[-1]
+    #     self.create_slider_endpoint(end_x, end_y, f"slider_tail_{time_ms}", early_start_frame, end_frame)
+    #
+    # def create_slider_endpoint(self, x, y, name, early_start_frame, end_frame):
+    #     corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+    #     bpy.ops.mesh.primitive_circle_add(
+    #         fill_type='NGON',
+    #         radius=0.5,
+    #         location=(corrected_x, corrected_y, corrected_z),
+    #         rotation=(math.radians(90), 0, 0)
+    #     )
+    #     endpoint = bpy.context.object
+    #     endpoint.name = f"{self.global_index:03d}_{name}"
+    #
+    #     # Benutzerdefiniertes Attribut "show" hinzufügen
+    #     endpoint["show"] = False
+    #     endpoint.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
+    #
+    #     endpoint["show"] = True
+    #     endpoint.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+    #
+    #     # Objekt bleibt sichtbar bis zum Endframe
+    #     endpoint["show"] = True
+    #     endpoint.keyframe_insert(data_path='["show"]', frame=(end_frame - 1))
+    #
+    #     endpoint["show"] = False
+    #     endpoint.keyframe_insert(data_path='["show"]', frame=end_frame)
+    #
+    #     self.sliders_collection.objects.link(endpoint)
+    #     if endpoint.users_collection:
+    #         for col in endpoint.users_collection:
+    #             if col != self.sliders_collection:
+    #                 col.objects.unlink(endpoint)
 
         # Geometry Nodes Modifier hinzufügen
         create_geometry_nodes_modifier(endpoint, endpoint.name)

@@ -72,17 +72,17 @@ class SliderCreator:
 
         # Benutzerdefiniertes Attribut "show" hinzufügen
         slider["show"] = False  # Startwert: Nicht sichtbar
-        slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1) - (self.offset_frames / 2))
+        slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
 
         slider["show"] = True
-        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - (self.offset_frames / 2))
+        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
         # Optional: Ausblenden am Ende
         slider["show"] = True
-        slider.keyframe_insert(data_path='["show"]', frame=(end_frame - 1) - (self.offset_frames / 2))
+        slider.keyframe_insert(data_path='["show"]', frame=(end_frame - 1))
 
         slider["show"] = False
-        slider.keyframe_insert(data_path='["show"]', frame=end_frame - (self.offset_frames / 2))
+        slider.keyframe_insert(data_path='["show"]', frame=end_frame)
 
         self.sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen

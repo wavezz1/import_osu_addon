@@ -16,44 +16,6 @@ class OSUImporterProperties(PropertyGroup):
         subtype='FILE_PATH'
     )
 
-    use_auto_offset: BoolProperty(
-        name="Automatischen Offset verwenden",
-        description="Verwende den automatisch berechneten Offset",
-        default=True
-    )
-    manual_offset: FloatProperty(
-        name="Manueller Offset (ms)",
-        description="Manuell festgelegter Zeit-Offset in Millisekunden",
-        default=0.0
-    )
-
-    # Eigenschaften für die erkannten Werte
-    detected_first_hitobject_time: FloatProperty(
-        name="Erstes HitObject",
-        description="Zeit des ersten HitObjects (ms)",
-        default=0.0
-    )
-    detected_first_replay_time: FloatProperty(
-        name="Erstes Replay-Event",
-        description="Zeit des ersten Replay-Events (ms)",
-        default=0.0
-    )
-    detected_offset: FloatProperty(
-        name="Berechneter Offset",
-        description="Berechneter Zeit-Offset (ms)",
-        default=0.0
-    )
-
-    detected_offset_frames: FloatProperty(
-        name="Berechneter Offset (Frames)",
-        description="Berechneter Zeit-Offset in Frames",
-        default=0.0
-    )
-    manual_offset_frames: FloatProperty(
-        name="Manueller Offset (Frames)",
-        description="Manuell festgelegter Zeit-Offset in Frames",
-        default=0.0
-    )
     # Neue Properties für die geparsten Informationen
     approach_rate: FloatProperty(
         name="Approach Rate",
@@ -109,10 +71,6 @@ class OSU_PT_ImporterPanel(Panel):
         layout.prop(props, "osu_file")
         layout.prop(props, "osr_file")
 
-        # layout.prop(props, "use_auto_offset")
-        # if not props.use_auto_offset:
-        #     layout.prop(props, "manual_offset")
-
         layout.operator("osu_importer.import", text="Importieren")
 
         # Beatmap-Informationen anzeigen
@@ -124,15 +82,6 @@ class OSU_PT_ImporterPanel(Panel):
         if props.formatted_mods or props.accuracy != 0.0 or props.misses != 0:
             replay_info = f"Mods: {props.formatted_mods} | Acc: {props.accuracy:.2f}% | Misses: {props.misses}"
             layout.label(text=replay_info)
-
-        # # Offset-Informationen verbessern und in Frames anzeigen
-        # if props.detected_offset != 0.0 or props.manual_offset != 0.0:
-        #     layout.separator()
-        #     if props.use_auto_offset:
-        #         offset_text = f"Verwendeter Offset: {props.detected_offset:.2f} ms ({props.detected_offset_frames:.2f} Frames)"
-        #     else:
-        #         offset_text = f"Manueller Offset: {props.manual_offset:.2f} ms ({props.manual_offset_frames:.2f} Frames)"
-        #     layout.label(text=offset_text)
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

@@ -6,7 +6,7 @@ from .info_parser import OsuParser, OsrParser
 from .import_objects import import_hitobjects
 from .cursor import create_cursor, animate_cursor
 from .utils import create_collection, get_ms_per_frame
-from .offset_calculator import calculate_speed_multiplier
+from .mod_functions import calculate_speed_multiplier
 
 def main_execution(context):
     props = context.scene.osu_importer_props
@@ -42,45 +42,10 @@ def main_execution(context):
     props.accuracy = osr_parser.calculate_accuracy()
     props.misses = osr_parser.calculate_misses()
 
-    # Berechne den Offset und andere notwendige Werte
-    try:
-        offset_data = calculate_speed_multiplier(osr_parser.mods)
-        #offset_data = calculate_offsets(osu_parser, osr_parser)
-    except ValueError as e:
-        context.window_manager.popup_menu(
-            lambda self, ctx: self.layout.label(text=str(e)),
-            title="Fehler",
-            icon='ERROR'
-        )
-        return {'CANCELLED'}
-
-    speed_multiplier = offset_data
-    # offset_frames = offset_data['offset_frames']
-    # offset_ms = offset_data['offset_ms']
-    # first_hitobject_time = offset_data['first_hitobject_time']
-    # first_replay_time = offset_data['first_replay_time']
-
-    # # Speichere die Werte für die Anzeige in der UI
-    # props.detected_first_hitobject_time = first_hitobject_time
-    # props.detected_first_replay_time = first_replay_time
-    # props.detected_offset = offset_ms
-    # props.detected_offset_frames = offset_frames
-    #
-    # # Verwende automatischen oder manuellen Offset
-    # if props.use_auto_offset:
-    #     final_offset_frames = offset_frames
-    # else:
-    #
+    speed_multiplier = calculate_speed_multiplier(osr_parser.mods)
     final_offset_frames = props.manual_offset / get_ms_per_frame()
     props.detected_offset = props.manual_offset  # Aktualisiere den Offset für die UI
     props.manual_offset_frames = 0 #final_offset_frames
-
-    # # Verbesserter Offset-Text
-    # used_offset_ms = final_offset_frames * get_ms_per_frame()
-    # print(f"Verwendeter Zeit-Offset: {used_offset_ms:.2f} ms")
-    # print(f"Geschwindigkeitsmultiplikator: {speed_multiplier}")
-    # print(f"Erste HitObject-Zeit: {first_hitobject_time:.2f} ms")
-    # print(f"Erste Replay-Event-Zeit: {first_replay_time:.2f} ms")
 
     # Importiere die HitObjects
     import_hitobjects(osu_parser, final_offset_frames, speed_multiplier)
@@ -92,9 +57,5 @@ def main_execution(context):
         animate_cursor(cursor, osr_parser.replay_data, final_offset_frames, speed_multiplier)
     else:
         print("Cursor konnte nicht erstellt werden.")
-
-    # Setze den Startframe der Szene
-    #scene_start_time_ms = min(first_hitobject_time, first_replay_time)
-    #bpy.context.scene.frame_start = int((scene_start_time_ms / get_ms_per_frame()) + final_offset_frames)
 
     return {'FINISHED'}

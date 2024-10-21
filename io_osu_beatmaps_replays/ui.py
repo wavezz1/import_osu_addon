@@ -109,9 +109,9 @@ class OSU_PT_ImporterPanel(Panel):
         layout.prop(props, "osu_file")
         layout.prop(props, "osr_file")
 
-        layout.prop(props, "use_auto_offset")
-        if not props.use_auto_offset:
-            layout.prop(props, "manual_offset")
+        # layout.prop(props, "use_auto_offset")
+        # if not props.use_auto_offset:
+        #     layout.prop(props, "manual_offset")
 
         layout.operator("osu_importer.import", text="Importieren")
 
@@ -125,14 +125,14 @@ class OSU_PT_ImporterPanel(Panel):
             replay_info = f"Mods: {props.formatted_mods} | Acc: {props.accuracy:.2f}% | Misses: {props.misses}"
             layout.label(text=replay_info)
 
-        # Offset-Informationen verbessern und in Frames anzeigen
-        if props.detected_offset != 0.0 or props.manual_offset != 0.0:
-            layout.separator()
-            if props.use_auto_offset:
-                offset_text = f"Verwendeter Offset: {props.detected_offset:.2f} ms ({props.detected_offset_frames:.2f} Frames)"
-            else:
-                offset_text = f"Manueller Offset: {props.manual_offset:.2f} ms ({props.manual_offset_frames:.2f} Frames)"
-            layout.label(text=offset_text)
+        # # Offset-Informationen verbessern und in Frames anzeigen
+        # if props.detected_offset != 0.0 or props.manual_offset != 0.0:
+        #     layout.separator()
+        #     if props.use_auto_offset:
+        #         offset_text = f"Verwendeter Offset: {props.detected_offset:.2f} ms ({props.detected_offset_frames:.2f} Frames)"
+        #     else:
+        #         offset_text = f"Manueller Offset: {props.manual_offset:.2f} ms ({props.manual_offset_frames:.2f} Frames)"
+        #     layout.label(text=offset_text)
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

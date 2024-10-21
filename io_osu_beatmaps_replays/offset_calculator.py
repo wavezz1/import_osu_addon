@@ -13,38 +13,38 @@ def calculate_speed_multiplier(mods):
         speed_multiplier = 0.75
     return speed_multiplier
 
-def calculate_offsets(osu_parser, osr_parser):
-    # Lade den AudioLeadIn-Wert
-    audio_lead_in = osu_parser.audio_lead_in
+# def calculate_offsets(osu_parser, osr_parser):
+#     # Lade den AudioLeadIn-Wert
+#     audio_lead_in = osu_parser.audio_lead_in
+#
+#     # Bestimme den Geschwindigkeitsmultiplikator basierend auf den Mods
+#     mods = osr_parser.mods
+#     speed_multiplier = calculate_speed_multiplier(mods)
+#
+#     # Lade die HitObject-Zeiten
+#     #hitobject_times = [obj.time for obj in osu_parser.hitobjects]
+#     hitobject_times = [int(line.split(',')[2]) for line in osu_parser.hitobjects]
+#     if not hitobject_times:
+#         raise ValueError("Keine HitObjects in der .osu-Datei gefunden.")
 
-    # Bestimme den Geschwindigkeitsmultiplikator basierend auf den Mods
-    mods = osr_parser.mods
-    speed_multiplier = calculate_speed_multiplier(mods)
-
-    # Lade die HitObject-Zeiten
-    #hitobject_times = [obj.time for obj in osu_parser.hitobjects]
-    hitobject_times = [int(line.split(',')[2]) for line in osu_parser.hitobjects]
-    if not hitobject_times:
-        raise ValueError("Keine HitObjects in der .osu-Datei gefunden.")
-
-    first_hitobject_time = hitobject_times[0]
+    # first_hitobject_time = hitobject_times[0]
     #first_replay_time = get_first_replay_event_time(osr_parser.replay_data)
-    first_replay_time = osr_parser.get_first_replay_event_time()
+    #first_replay_time = osr_parser.get_first_replay_event_time()
 
-    # Berechne die angepassten Zeiten
-    adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
-
-    # Berechne den Offset in Millisekunden
-    offset_ms = adjusted_first_hitobject_time - first_replay_time
-
-    # Berechne den Offset in Frames
-    offset_frames = offset_ms / get_ms_per_frame()
-
-    # Rückgabe aller relevanten Werte
-    return {
-        'speed_multiplier': speed_multiplier,
-        'offset_ms': offset_ms,
-        'offset_frames': offset_frames,
-        'first_hitobject_time': adjusted_first_hitobject_time,
-        'first_replay_time': first_replay_time,
-    }
+    # # Berechne die angepassten Zeiten
+    # adjusted_first_hitobject_time = (first_hitobject_time + audio_lead_in) / speed_multiplier
+    #
+    # # Berechne den Offset in Millisekunden
+    # offset_ms = adjusted_first_hitobject_time - first_replay_time
+    #
+    # # Berechne den Offset in Frames
+    # offset_frames = offset_ms / get_ms_per_frame()
+    #
+    # # Rückgabe aller relevanten Werte
+    # return {
+    #     'speed_multiplier': speed_multiplier,
+    #     'offset_ms': offset_ms,
+    #     'offset_frames': offset_frames,
+    #     'first_hitobject_time': adjusted_first_hitobject_time,
+    #     'first_replay_time': first_replay_time,
+    # }

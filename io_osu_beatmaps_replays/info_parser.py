@@ -145,7 +145,8 @@ class OsrParser:
     def get_first_replay_event_time(self):
         total_time = 0
         for event in self.replay_data:
-            total_time += event.time_delta
-            if event.x != -256 and event.y != -256:
-                return total_time
+            if event.time_delta >= 0:
+                total_time += event.time_delta
+
+                # return total_time
         return total_time

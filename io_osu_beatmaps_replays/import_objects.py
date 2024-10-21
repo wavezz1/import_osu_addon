@@ -16,8 +16,6 @@ def import_hitobjects(osu_parser, final_offset_frames, speed_multiplier):
 
     settings = {
         'speed_multiplier': speed_multiplier,
-        'early_frames': 5,
-        # Weitere Einstellungen
     }
 
     global_index = 1

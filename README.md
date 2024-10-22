@@ -18,12 +18,9 @@ The Driver system is based on the properties of individual hitobjects, whose val
 
 ## Installation
 
-```bash
-pip install osrparse
-```
 Add Addon .zip in Preferences
 
-Rest TBD
+Click "install osrparse" if you don't have it 
 
 ## Blender Proof of Concept of v0.3
 

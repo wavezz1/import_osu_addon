@@ -5,7 +5,7 @@ import os
 from .info_parser import OsuParser, OsrParser
 from .import_objects import import_hitobjects
 from .cursor import create_cursor, animate_cursor
-from .utils import create_collection, get_ms_per_frame
+from .utils import create_collection
 from .mod_functions import calculate_speed_multiplier
 
 def main_execution(context):
@@ -43,18 +43,15 @@ def main_execution(context):
     props.misses = osr_parser.calculate_misses()
 
     speed_multiplier = calculate_speed_multiplier(osr_parser.mods)
-    final_offset_frames = 0 #props.manual_offset / get_ms_per_frame()
-    props.detected_offset = 0 #props.manual_offset  # Aktualisiere den Offset für die UI
-    props.manual_offset_frames = 0 #final_offset_frames
 
     # Importiere die HitObjects
-    import_hitobjects(osu_parser, final_offset_frames, speed_multiplier)
+    import_hitobjects(osu_parser, speed_multiplier)
 
     # Erstelle und animiere den Cursor
     cursor_collection = create_collection("Cursor")
     cursor = create_cursor(cursor_collection)
     if cursor is not None:
-        animate_cursor(cursor, osr_parser.replay_data, final_offset_frames, speed_multiplier)
+        animate_cursor(cursor, osr_parser.replay_data, speed_multiplier)
     else:
         print("Cursor konnte nicht erstellt werden.")
 

@@ -5,15 +5,13 @@ import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .hitobjects import HitObject
-from .geometry_nodes import create_geometry_nodes_modifier
 
 
 class SpinnerCreator:
-    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, offset_frames: float, settings: dict):
+    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict):
         self.hitobject = hitobject
         self.global_index = global_index
         self.spinners_collection = spinners_collection
-        self.offset_frames = offset_frames
         self.settings = settings
         self.create_spinner()
 
@@ -22,13 +20,13 @@ class SpinnerCreator:
         y = SPINNER_CENTER_Y
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
+        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame())
         early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         # Endzeit des Spinners ermitteln
         if self.hitobject.extras:
             end_time_ms = int(self.hitobject.extras[0])
-            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame()) + self.offset_frames
+            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame())
         else:
             print(f"Keine Endzeit für Spinner bei {time_ms} ms gefunden.")
             return

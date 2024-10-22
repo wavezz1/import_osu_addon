@@ -6,7 +6,7 @@ That’s where trusty ol’ ChatGPT came into play. The code is roughly based on
 
 This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), which helped with parsing `.osr` files.
 
-**CAUTION: Replays with the intro skipped are broken due to an issue in osrparse's last versions**
+**CAUTION: Replays with the intro skipped are broken due to an issue in osrparse's latest versions**
 
 ## What it Does
 

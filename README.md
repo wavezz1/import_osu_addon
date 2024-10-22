@@ -25,7 +25,7 @@ Add Addon .zip in Preferences
 
 Rest TBD
 
-## Blender Proof of Concept
+## Blender Proof of Concept of v0.3
 
 [Download the .blend file](blendfile/[blender_4.2]osu_in_blender_proof_of_concept.blend)
 

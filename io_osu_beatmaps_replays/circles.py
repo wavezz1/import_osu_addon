@@ -34,7 +34,6 @@ class CircleCreator:
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
-
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 

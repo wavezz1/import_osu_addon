@@ -88,7 +88,7 @@ class SliderCreator:
             for col in slider.users_collection:
                 if col != self.sliders_collection:
                     col.objects.unlink(slider)
-
+                    
         create_geometry_nodes_modifier(slider, slider.name)
 
     def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier):

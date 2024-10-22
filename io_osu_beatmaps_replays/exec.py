@@ -5,6 +5,7 @@ import os
 from .info_parser import OsuParser, OsrParser
 from .import_objects import import_hitobjects
 from .cursor import create_cursor, animate_cursor
+
 from .utils import create_collection
 from .mod_functions import calculate_speed_multiplier
 
@@ -32,10 +33,12 @@ def main_execution(context):
     osr_parser = OsrParser(osr_file_path)
 
     # Setze die neuen Eigenschaften für Beatmap-Informationen
+
     props.approach_rate = float(osu_parser.difficulty_settings.get("ApproachRate", 5))
     props.circle_size = float(osu_parser.difficulty_settings.get("CircleSize", 5))
     props.bpm = osu_parser.bpm
     props.total_hitobjects = osu_parser.total_hitobjects
+
 
     # Setze die neuen Eigenschaften für Replay-Informationen
     props.formatted_mods = ','.join(osr_parser.mod_list) if osr_parser.mod_list else "Keine"

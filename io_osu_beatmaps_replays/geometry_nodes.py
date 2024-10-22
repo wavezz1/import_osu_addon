@@ -3,7 +3,6 @@
 import bpy
 
 def create_geometry_nodes_modifier(obj, driver_obj_name):
-
     # Geometry Nodes Modifier hinzufügen
     modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
 
@@ -15,6 +14,7 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     # Group Input und Group Output Knoten hinzufügen
     input_node = group.nodes.new('NodeGroupInput')
     output_node = group.nodes.new('NodeGroupOutput')
+
     input_node.location.x = 0
     output_node.location.x = 500
 
@@ -24,7 +24,9 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
 
     # Store Named Attribute Knoten hinzufügen (für "show")
     store_attribute_node_show = group.nodes.new('GeometryNodeStoreNamedAttribute')
+
     store_attribute_node_show.location.x = 150
+
     store_attribute_node_show.inputs['Name'].default_value = "show"
     store_attribute_node_show.data_type = 'BOOLEAN'
     store_attribute_node_show.domain = 'POINT'
@@ -40,7 +42,9 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
 
     # Store Named Attribute Knoten hinzufügen (für "time_ms")
     store_attribute_node_time = group.nodes.new('GeometryNodeStoreNamedAttribute')
+
     store_attribute_node_time.location.x = 300
+
     store_attribute_node_time.inputs['Name'].default_value = "time_ms"
     store_attribute_node_time.data_type = 'FLOAT'
     store_attribute_node_time.domain = 'POINT'

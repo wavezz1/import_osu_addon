@@ -15,6 +15,10 @@ def create_cursor(cursor_collection):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
+        # Benutzerdefinierte Eigenschaften hinzufügen
+        cursor['k1_clicked'] = False
+        cursor['k2_clicked'] = False
+
         return cursor
     except Exception as e:
         print(f"Fehler beim Erstellen des Cursors: {e}")
@@ -41,5 +45,6 @@ def animate_cursor(cursor, replay_data, speed_multiplier=1.0):
             frame = (adjusted_time_ms / get_ms_per_frame())
             
             cursor.keyframe_insert(data_path="location", frame=frame)
+
     except Exception as e:
         print(f"Fehler beim Animieren des Cursors: {e}")

@@ -18,6 +18,7 @@ class HitObjectsProcessor:
         self.process_hitobjects()
 
     def process_hitobjects(self):
+        print(str(self.osu_parser.hitobjects[:10]))
         for line in self.osu_parser.hitobjects:
             parts = line.split(',')
             if len(parts) < 5:

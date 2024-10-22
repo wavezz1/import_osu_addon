@@ -16,14 +16,6 @@ You can then add a separate Geometry Nodes object that, for example, takes all h
 
 The Driver system is based on the properties of individual hitobjects, whose values can be keyframed. I wanted to avoid using viewport and render keyframes and instead used a more flexible solution.
 
-## Current Issues
-
-- **Broken Offsets:** The cursor is way out of sync with the beatmap’s hit keyframes. I divided a calculated offset by 2, which seems to line things up... more or less. If the "automatically import" checkbox is not checked, you'll need to import with a custom offset in milliseconds.
-
-- **Sliders??:** Honestly, I’m not entirely sure what I’ve created here. It kind of resembles sliders? I used a Bézier curve algorithm, but I don’t think osu! sliders work the same way they did back in 2007.
-
-- **Hit Circle Click Detection:** I’m still unsure when a hit circle should actually be marked as clicked. I added some geometry attributes as offsets, and it seems like it’s moving in the right direction. But it’s definitely not there yet.
-
 ## Installation
 
 ```bash

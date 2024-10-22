@@ -20,15 +20,7 @@ def create_cursor(cursor_collection):
         print(f"Fehler beim Erstellen des Cursors: {e}")
         return None
 
-def animate_cursor(cursor, replay_data, offset_frames, speed_multiplier=1.0):
-
-    """
-    :param cursor: Das Cursor-Objekt.
-    :param replay_data: Die Replay-Daten aus der .osr-Datei.
-    :param offset_frames: Der Offset in Frames, um den die Animation verschoben wird.
-    :param speed_multiplier: Der Geschwindigkeitsmultiplikator basierend auf Mods.
-    """
-
+def animate_cursor(cursor, replay_data, speed_multiplier=1.0):
     if cursor is None:
         print("Cursor-Objekt ist None, Animation wird übersprungen.")
         return
@@ -45,7 +37,7 @@ def animate_cursor(cursor, replay_data, offset_frames, speed_multiplier=1.0):
             cursor.location = (corrected_x, corrected_y, corrected_z)
 
             adjusted_time_ms = total_time / speed_multiplier
-            frame = (adjusted_time_ms / get_ms_per_frame()) + offset_frames
+            frame = (adjusted_time_ms / get_ms_per_frame())
 
             cursor.keyframe_insert(data_path="location", frame=frame)
     except Exception as e:

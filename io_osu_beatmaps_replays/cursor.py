@@ -21,6 +21,7 @@ def create_cursor(cursor_collection):
         return None
 
 def animate_cursor(cursor, replay_data, speed_multiplier=1.0):
+
     if cursor is None:
         print("Cursor-Objekt ist None, Animation wird übersprungen.")
         return
@@ -38,7 +39,7 @@ def animate_cursor(cursor, replay_data, speed_multiplier=1.0):
 
             adjusted_time_ms = total_time / speed_multiplier
             frame = (adjusted_time_ms / get_ms_per_frame())
-
+            
             cursor.keyframe_insert(data_path="location", frame=frame)
     except Exception as e:
         print(f"Fehler beim Animieren des Cursors: {e}")

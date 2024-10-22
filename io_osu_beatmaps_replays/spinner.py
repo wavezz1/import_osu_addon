@@ -6,7 +6,6 @@ from .utils import map_osu_to_blender, get_ms_per_frame
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .hitobjects import HitObject
 
-
 class SpinnerCreator:
     def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict):
         self.hitobject = hitobject

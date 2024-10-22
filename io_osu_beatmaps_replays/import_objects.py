@@ -8,6 +8,7 @@ from .hitobjects import HitObjectsProcessor
 from .utils import create_collection
 
 def import_hitobjects(osu_parser, speed_multiplier):
+
     circles_collection = create_collection("Circles")
     sliders_collection = create_collection("Sliders")
     spinners_collection = create_collection("Spinners")

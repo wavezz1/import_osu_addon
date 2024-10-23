@@ -41,6 +41,11 @@ class SpinnerCreator:
         spinner = bpy.context.object
         spinner.name = f"{self.global_index:03d}_spinner_{time_ms}"
 
+        # Spinner-Dauer berechnen
+        spinner_duration_ms = end_time_ms - time_ms
+        scene_fps = bpy.context.scene.render.fps
+        spinner_duration_frames = spinner_duration_ms / (1000 / scene_fps)
+
         # Setzen der Keyframes und Eigenschaften
         spinner["show"] = False  # Startwert: Nicht sichtbar
         spinner.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))

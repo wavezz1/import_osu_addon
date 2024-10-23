@@ -36,7 +36,6 @@ class CircleCreator:
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1))
 
@@ -52,17 +51,3 @@ class CircleCreator:
         create_geometry_nodes_modifier(circle, circle.name)
 
         # Optional: Weitere Konfiguration basierend auf Circle Size, Approach Rate usw.
-
-    def set_keyframes_for_clicks(self, circle, start_frame):
-        """Setzt Keyframes für Mausclicks k1 und k2."""
-        if self.k1_clicks[int(start_frame)][1]:  # Wenn k1 gedrückt ist
-            circle["k1"] = True
-        else:
-            circle["k1"] = False
-        circle.keyframe_insert(data_path='["k1"]', frame=start_frame)
-
-        if self.k2_clicks[int(start_frame)][1]:  # Wenn k2 gedrückt ist
-            circle["k2"] = True
-        else:
-            circle["k2"] = False
-        circle.keyframe_insert(data_path='["k2"]', frame=start_frame)

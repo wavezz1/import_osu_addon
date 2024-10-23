@@ -146,13 +146,11 @@ class OsrParser:
 
     def parse_key_presses(self):
         for frame in self.replay_data:
-            # Prüfe die gedrückten Tasten anhand der Bits in frame.keys
-            print(frame.keys)
-            #k1_pressed = frame.keys & osrparse.ReplayKeys.K1
-            #k2_pressed = frame.keys & osrparse.ReplayKeys.K2
-            # if k1_pressed or k2_pressed:
-            #     self.key_presses.append({
-            #         'time': frame.time_since_previous_action,
-            #         'k1': bool(k1_pressed),
-            #         'k2': bool(k2_pressed)
-            #     })
+            if frame.keys & osrparse.utils.Key.K1:
+                print("K1 gedrückt")
+            if frame.keys & osrparse.utils.Key.K2:
+                print("K2 gedrückt")
+            if frame.keys & osrparse.utils.Key.M1:
+                print("M1 gedrückt")
+            if frame.keys & osrparse.utils.Key.M2:
+                print("M2 gedrückt")

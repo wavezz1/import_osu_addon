@@ -40,11 +40,14 @@ class OsuParser:
                     elif section == 'TimingPoints':
                         parts = line.split(',')
                         if len(parts) >= 2:
-                            offset = float(parts[0])
-                            beat_length = float(parts[1])
-                            self.timing_points.append((offset, beat_length))
-                    elif section == 'HitObjects':
-                        self.hitobjects.append(line)
+                            try:
+                                offset = float(parts[0])
+                                beat_length = float(parts[1])
+                                self.timing_points.append((offset, beat_length))
+                            except ValueError:
+                                print(f"Fehler beim Parsen der Timing Points in Zeile: {line}")
+
+                    self.hitobjects.append(line)
         except Exception as e:
             print(f"Fehler beim Parsen der .osu-Datei: {e}")
 

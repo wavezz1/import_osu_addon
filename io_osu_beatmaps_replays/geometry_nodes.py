@@ -62,3 +62,44 @@ def create_geometry_nodes_modifier(obj, driver_obj_name):
     group.links.new(input_node.outputs['Geometry'], store_attribute_node_show.inputs['Geometry'])
     group.links.new(store_attribute_node_show.outputs['Geometry'], store_attribute_node_time.inputs['Geometry'])
     group.links.new(store_attribute_node_time.outputs['Geometry'], output_node.inputs['Geometry'])
+
+def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
+    # Geometry Nodes Modifier hinzufügen
+    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
+
+    # Neuen Geometry Node Tree erstellen
+    node_group_name = f"Geometry Nodes {obj.name}"
+    group = bpy.data.node_groups.new(node_group_name, 'GeometryNodeTree')
+    modifier.node_group = group
+
+    # Group Input und Group Output Knoten hinzufügen
+    input_node = group.nodes.new('NodeGroupInput')
+    output_node = group.nodes.new('NodeGroupOutput')
+
+    input_node.location.x = 0
+    output_node.location.x = 500
+
+    # Geometrie-Sockets für Input und Output hinzufügen
+    group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
+    group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
+
+    # Attribute für "k1", "k2", "m1", "m2" hinzufügen
+    for key in ["k1", "k2", "m1", "m2"]:
+        store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
+        store_attribute_node_key.location.x = 150 + (len(key) * 50)
+        store_attribute_node_key.inputs['Name'].default_value = key
+        store_attribute_node_key.data_type = 'BOOLEAN'
+        store_attribute_node_key.domain = 'POINT'
+
+        # Driver auf Boolean Input setzen (für die Tasten)
+        driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver
+        driver_key.type = 'AVERAGE'
+        var_key = driver_key.variables.new()
+        var_key.name = 'var'
+        var_key.targets[0].id_type = 'OBJECT'
+        var_key.targets[0].id = bpy.data.objects[driver_obj_name]
+        var_key.targets[0].data_path = f'["{key}"]'
+
+        # Verknüpfungen erstellen
+        group.links.new(input_node.outputs['Geometry'], store_attribute_node_key.inputs['Geometry'])
+        group.links.new(store_attribute_node_key.outputs['Geometry'], output_node.inputs['Geometry'])

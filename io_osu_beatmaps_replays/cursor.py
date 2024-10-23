@@ -2,6 +2,7 @@
 
 import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
+from .geometry_nodes import create_geometry_nodes_modifier_cursor
 
 def create_cursor(cursor_collection):
     try:
@@ -14,6 +15,9 @@ def create_cursor(cursor_collection):
             for col in cursor.users_collection:
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
+
+        # Füge den Geometry Nodes Modifier hinzu
+        create_geometry_nodes_modifier_cursor(cursor, "Cursor")
 
         return cursor
     except Exception as e:

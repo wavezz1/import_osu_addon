@@ -36,7 +36,6 @@ class CircleCreator:
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1))
 
@@ -47,5 +46,3 @@ class CircleCreator:
                     col.objects.unlink(circle)
 
         create_geometry_nodes_modifier(circle, circle.name)
-
-        # Optional: Weitere Konfiguration basierend auf Circle Size, Approach Rate usw.

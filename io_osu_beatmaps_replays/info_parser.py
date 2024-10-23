@@ -40,9 +40,13 @@ class OsuParser:
                     elif section == 'TimingPoints':
                         parts = line.split(',')
                         if len(parts) >= 2:
-                            offset = float(parts[0])
-                            beat_length = float(parts[1])
-                            self.timing_points.append((offset, beat_length))
+                            try:
+                                offset = float(parts[0])
+                                beat_length = float(parts[1])
+                                self.timing_points.append((offset, beat_length))
+                                print(f"TimingPoint: Offset={offset}, BeatLength={beat_length}")
+                            except ValueError:
+                                print(f"Fehler beim Parsen der Timing Points in Zeile: {line}")
                     elif section == 'HitObjects':
                         self.hitobjects.append(line)
         except Exception as e:
@@ -75,6 +79,7 @@ class OsrParser:
         self.replay_data = None
         self.mods = 0
         self.mod_list = []
+        self.key_presses = []  # Neu hinzugefügt
         self.parse_osr_file()
 
     def parse_osr_file(self):
@@ -87,6 +92,8 @@ class OsrParser:
             self.number_100s = replay.count_100
             self.number_50s = replay.count_50
             self.misses = replay.count_miss
+
+            self.parse_key_presses()  # Neu hinzugefügt
 
         except Exception as e:
             print(f"Fehler beim Parsen der .osr-Datei: {e}")
@@ -140,3 +147,27 @@ class OsrParser:
             if mods & mod_value:
                 mod_names.append(mod_name)
         return mod_names
+
+    def parse_key_presses(self):
+        key_presses = []
+        for frame in self.replay_data:
+            key_presses.append({
+                'time': frame.time_delta,
+                'k1': bool(frame.keys & osrparse.utils.Key.K1),
+                'k2': bool(frame.keys & osrparse.utils.Key.K2),
+                'm1': bool(frame.keys & osrparse.utils.Key.M1),
+                'm2': bool(frame.keys & osrparse.utils.Key.M2),
+            })
+        return key_presses
+
+
+    # def parse_key_presses(self):
+    #     for frame in self.replay_data:
+    #         if frame.keys & osrparse.utils.Key.K1:
+    #             print("K1 gedrückt")
+    #         if frame.keys & osrparse.utils.Key.K2:
+    #             print("K2 gedrückt")
+    #         if frame.keys & osrparse.utils.Key.M1:
+    #             print("M1 gedrückt")
+    #         if frame.keys & osrparse.utils.Key.M2:
+    #             print("M2 gedrückt")

@@ -62,6 +62,8 @@ class SliderCreator:
         return bezier_points
 
     def create_slider(self):
+        approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        circle_size = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
         x = self.hitobject.x
         y = self.hitobject.y
         time_ms = self.hitobject.time
@@ -103,6 +105,9 @@ class SliderCreator:
                     bp.handle_right_type = 'AUTO'
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
+
+                slider["ar"] = approach_rate
+                slider["cs"] = circle_size
 
         # Wiederholungen und Pixel-Länge ermitteln
         repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1

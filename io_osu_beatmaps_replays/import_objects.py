@@ -21,7 +21,7 @@ def import_hitobjects(osu_parser, speed_multiplier):
 
     global_index = 1
     for circle in processor.circles:
-        CircleCreator(circle, global_index, circles_collection, settings)
+        CircleCreator(circle, global_index, circles_collection, settings, osu_parser)
         global_index += 1
 
     for slider in processor.sliders:

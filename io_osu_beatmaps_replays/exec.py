@@ -55,7 +55,7 @@ def main_execution(context):
 
     # Erstelle und animiere den Cursor
     cursor_collection = create_collection("Cursor")
-    cursor = create_cursor(cursor_collection)
+    cursor = create_cursor(cursor_collection, osu_file_path)
     if cursor is not None:
         animate_cursor(cursor, osr_parser.replay_data, key_presses, speed_multiplier)  # Übergabe von key_presses
     else:

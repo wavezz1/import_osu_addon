@@ -89,7 +89,7 @@ class SliderCreator:
         scene_fps = bpy.context.scene.render.fps
         slider_duration_frames = slider_duration_ms / (1000 / scene_fps)
         slider["slider_duration_frames"] = slider_duration_frames
-        
+
         self.sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen
         if slider.users_collection:
@@ -102,7 +102,7 @@ class SliderCreator:
     def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier):
         # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit
         timing_points = self.osu_parser.timing_points
-        beat_duration = 500  # Fallback-Wert
+        beat_duration = 500  # Fallback
         slider_multiplier = float(self.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
 
         # Finden des passenden Timing Points
@@ -112,9 +112,20 @@ class SliderCreator:
                 current_beat_length = beat_length
             else:
                 break
-        if current_beat_length is not None:
-            beat_duration = current_beat_length
 
+        if current_beat_length is not None and current_beat_length > 0:
+            beat_duration = current_beat_length
+        else:
+            print(f"Warnung: Ungültiger Beat Length bei Startzeit {start_time_ms}. Fallback-Wert wird verwendet.")
+
+        # Berechnung der Slider-Dauer
         slider_duration = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
-        slider_duration /= speed_multiplier  # Anpassung an Mods wie DT oder HT
+
+        # Überprüfen, ob die resultierende Dauer sinnvoll ist
+        if slider_duration < 0:
+            print(f"Warnung: Negative Slider-Dauer berechnet für Startzeit {start_time_ms}.")
+
+        # Anpassung für Mods wie DT oder HT
+        slider_duration /= speed_multiplier
+
         return slider_duration

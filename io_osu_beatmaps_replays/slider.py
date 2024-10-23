@@ -102,14 +102,18 @@ class SliderCreator:
     def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier):
         # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit
         timing_points = self.osu_parser.timing_points
-        beat_duration = 500  # Fallback
+        beat_duration = 500  # Fallback-Wert, falls kein Timing Point gefunden wird
         slider_multiplier = float(self.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
 
         # Finden des passenden Timing Points
+        inherited_multiplier = 1.0
         current_beat_length = None
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:
-                current_beat_length = beat_length
+                if beat_length < 0:  # Inherited Timing Point (negativer BeatLength)
+                    inherited_multiplier = -100 / beat_length  # Skalierung der Slidergeschwindigkeit
+                else:  # Normaler Timing Point
+                    current_beat_length = beat_length
             else:
                 break
 
@@ -119,11 +123,8 @@ class SliderCreator:
             print(f"Warnung: Ungültiger Beat Length bei Startzeit {start_time_ms}. Fallback-Wert wird verwendet.")
 
         # Berechnung der Slider-Dauer
-        slider_duration = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
-
-        # Überprüfen, ob die resultierende Dauer sinnvoll ist
-        if slider_duration < 0:
-            print(f"Warnung: Negative Slider-Dauer berechnet für Startzeit {start_time_ms}.")
+        slider_duration = (pixel_length / (
+                    slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
 
         # Anpassung für Mods wie DT oder HT
         slider_duration /= speed_multiplier

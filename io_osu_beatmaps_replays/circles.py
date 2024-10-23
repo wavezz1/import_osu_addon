@@ -11,8 +11,6 @@ class CircleCreator:
         self.global_index = global_index
         self.circles_collection = circles_collection
         self.settings = settings  # Enthält Circle Size, Approach Rate usw.
-        self.k1_clicks = k1_clicks  # Liste von k1 (linke Maustaste) Ereignissen
-        self.k2_clicks = k2_clicks  # Liste von k2 (rechte Maustaste) Ereignissen
         self.create_circle()
 
     def create_circle(self):

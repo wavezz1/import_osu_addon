@@ -83,17 +83,17 @@ def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
-    # Erstelle die Attribute für "k1", "k2", "m1", "m2"
+    # Erstelle die Attribute für "k1", "k2", "m1", "m2", "ar", "cs"
     previous_node = input_node  # Start mit Input-Node
 
-    for key in ["k1", "k2", "m1", "m2"]:
+    for key in ["k1", "k2", "m1", "m2", "ar", "cs"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node_key.location.x = previous_node.location.x + 200
         store_attribute_node_key.inputs['Name'].default_value = key
-        store_attribute_node_key.data_type = 'BOOLEAN'
+        store_attribute_node_key.data_type = 'FLOAT' if key in ["ar", "cs"] else 'BOOLEAN'
         store_attribute_node_key.domain = 'POINT'
 
-        # Driver auf Boolean Input setzen (für die Tasten)
+        # Driver auf Input setzen
         driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver
         driver_key.type = 'AVERAGE'
         var_key = driver_key.variables.new()

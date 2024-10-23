@@ -37,7 +37,7 @@ class OsuParser:
                     elif section == 'Difficulty':
                         key, value = line.split(':', 1)
                         self.difficulty_settings[key.strip()] = value.strip()
-                        elif section == 'TimingPoints':
+                    elif section == 'TimingPoints':
                         parts = line.split(',')
                         if len(parts) >= 2:
                             try:

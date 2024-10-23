@@ -4,16 +4,21 @@ import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_circle
+from .info_parser import OsuParser
 
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings):
+    def __init__(self, hitobject, global_index, circles_collection, settings,osu_parser: OsuParser):
         self.hitobject = hitobject
         self.global_index = global_index
         self.circles_collection = circles_collection
         self.settings = settings  # Enthält Circle Size, Approach Rate usw.
         self.create_circle()
+        self.osu_parser = osu_parser
 
     def create_circle(self):
+        approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        circle_size = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+
         x = self.hitobject.x
         y = self.hitobject.y
         time_ms = self.hitobject.time
@@ -31,9 +36,9 @@ class CircleCreator:
         circle = bpy.context.object
         circle.name = f"{self.global_index:03d}_circle_{time_ms}"
 
-        # Füge "ar" und "cs" hinzu
-        circle["ar"] = self.settings.get('ApproachRate', 5.0)
-        circle["cs"] = self.settings.get('CircleSize', 5.0)
+        # Füge "ar" und "cs" als Eigenschaften zum Kreis hinzu
+        circle["ar"] = approach_rate
+        circle["cs"] = circle_size
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False

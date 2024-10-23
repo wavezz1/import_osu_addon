@@ -2,7 +2,7 @@
 
 import bpy
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier
+from .geometry_nodes import create_geometry_nodes_modifier_slider
 from .info_parser import OsuParser
 from .hitobjects import HitObject
 
@@ -82,6 +82,10 @@ class SliderCreator:
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=end_frame)
 
+        # Füge "slider_duration" hinzu
+        slider["slider_duration"] = slider_duration_ms
+        slider.keyframe_insert(data_path='["slider_duration"]', frame=start_frame)
+
         self.sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen
         if slider.users_collection:
@@ -89,7 +93,7 @@ class SliderCreator:
                 if col != self.sliders_collection:
                     col.objects.unlink(slider)
                     
-        create_geometry_nodes_modifier(slider, slider.name)
+        create_geometry_nodes_modifier_slider(slider, slider.name)
 
     def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier):
         # Parsen der Timing-Punkte und Berechnung der Slider-Geschwindigkeit

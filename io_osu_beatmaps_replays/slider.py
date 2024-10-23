@@ -82,10 +82,14 @@ class SliderCreator:
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=end_frame)
 
-        # Füge "slider_duration" hinzu
-        slider["slider_duration"] = slider_duration_ms
-        slider.keyframe_insert(data_path='["slider_duration"]', frame=start_frame)
+        # Füge "slider_duration_ms" und "slider_duration_frames" hinzu (ohne Keyframe)
+        slider["slider_duration_ms"] = slider_duration_ms
 
+        # Berechne slider_duration in Frames basierend auf der Szenen-FPS
+        scene_fps = bpy.context.scene.render.fps
+        slider_duration_frames = slider_duration_ms / (1000 / scene_fps)
+        slider["slider_duration_frames"] = slider_duration_frames
+        
         self.sliders_collection.objects.link(slider)
         # Aus anderen Collections entfernen
         if slider.users_collection:

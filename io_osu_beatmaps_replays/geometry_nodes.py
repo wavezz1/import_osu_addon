@@ -77,16 +77,18 @@ def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
     output_node = group.nodes.new('NodeGroupOutput')
 
     input_node.location.x = 0
-    output_node.location.x = 500
+    output_node.location.x = 1000
 
     # Geometrie-Sockets für Input und Output hinzufügen
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
-    # Attribute für "k1", "k2", "m1", "m2" hinzufügen
+    # Erstelle die Attribute für "k1", "k2", "m1", "m2"
+    previous_node = input_node  # Start mit Input-Node
+
     for key in ["k1", "k2", "m1", "m2"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
-        store_attribute_node_key.location.x = 150 + (len(key) * 50)
+        store_attribute_node_key.location.x = previous_node.location.x + 200
         store_attribute_node_key.inputs['Name'].default_value = key
         store_attribute_node_key.data_type = 'BOOLEAN'
         store_attribute_node_key.domain = 'POINT'
@@ -100,6 +102,11 @@ def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
         var_key.targets[0].id = bpy.data.objects[driver_obj_name]
         var_key.targets[0].data_path = f'["{key}"]'
 
-        # Verknüpfungen erstellen
-        group.links.new(input_node.outputs['Geometry'], store_attribute_node_key.inputs['Geometry'])
-        group.links.new(store_attribute_node_key.outputs['Geometry'], output_node.inputs['Geometry'])
+        # Verknüpfungen zwischen vorherigem Knoten und dem aktuellen Knoten
+        group.links.new(previous_node.outputs['Geometry'], store_attribute_node_key.inputs['Geometry'])
+
+        # Aktuellen Knoten als vorherigen für die nächste Iteration setzen
+        previous_node = store_attribute_node_key
+
+    # Letzte Verbindung zum Output-Knoten
+    group.links.new(previous_node.outputs['Geometry'], output_node.inputs['Geometry'])

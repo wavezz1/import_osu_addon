@@ -171,6 +171,10 @@ def create_geometry_nodes_modifier_spinner(obj, driver_obj_name):
     input_node.location.x = 0
     output_node.location.x = 1000
 
+    # Geometrie-Sockets für Input und Output hinzufügen
+    group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
+    group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
+
     # Attribute für "show", "spinner_duration_ms", und "spinner_duration_frames" hinzufügen
     for key in ["show", "spinner_duration_ms", "spinner_duration_frames"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')

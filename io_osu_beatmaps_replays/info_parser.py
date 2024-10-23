@@ -145,12 +145,25 @@ class OsrParser:
         return mod_names
 
     def parse_key_presses(self):
+        key_presses = []
         for frame in self.replay_data:
-            if frame.keys & osrparse.utils.Key.K1:
-                print("K1 gedrückt")
-            if frame.keys & osrparse.utils.Key.K2:
-                print("K2 gedrückt")
-            if frame.keys & osrparse.utils.Key.M1:
-                print("M1 gedrückt")
-            if frame.keys & osrparse.utils.Key.M2:
-                print("M2 gedrückt")
+            key_presses.append({
+                'time': frame.time_delta,
+                'k1': bool(frame.keys & osrparse.utils.Key.K1),
+                'k2': bool(frame.keys & osrparse.utils.Key.K2),
+                'm1': bool(frame.keys & osrparse.utils.Key.M1),
+                'm2': bool(frame.keys & osrparse.utils.Key.M2),
+            })
+        return key_presses
+
+
+    # def parse_key_presses(self):
+    #     for frame in self.replay_data:
+    #         if frame.keys & osrparse.utils.Key.K1:
+    #             print("K1 gedrückt")
+    #         if frame.keys & osrparse.utils.Key.K2:
+    #             print("K2 gedrückt")
+    #         if frame.keys & osrparse.utils.Key.M1:
+    #             print("M1 gedrückt")
+    #         if frame.keys & osrparse.utils.Key.M2:
+    #             print("M2 gedrückt")

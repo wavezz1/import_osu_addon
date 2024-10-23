@@ -6,7 +6,7 @@ from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier
 
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings, k1_clicks, k2_clicks):
+    def __init__(self, hitobject, global_index, circles_collection, settings):
         self.hitobject = hitobject
         self.global_index = global_index
         self.circles_collection = circles_collection

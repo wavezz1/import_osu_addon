@@ -3,7 +3,7 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier
+from .geometry_nodes import create_geometry_nodes_modifier_circle
 
 class CircleCreator:
     def __init__(self, hitobject, global_index, circles_collection, settings):
@@ -31,6 +31,10 @@ class CircleCreator:
         circle = bpy.context.object
         circle.name = f"{self.global_index:03d}_circle_{time_ms}"
 
+        # Füge "ar" und "cs" hinzu
+        circle["ar"] = self.settings.get('ApproachRate', 5.0)
+        circle["cs"] = self.settings.get('CircleSize', 5.0)
+
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
@@ -45,4 +49,4 @@ class CircleCreator:
                 if col != self.circles_collection:
                     col.objects.unlink(circle)
 
-        create_geometry_nodes_modifier(circle, circle.name)
+        create_geometry_nodes_modifier_circle(circle, circle.name)

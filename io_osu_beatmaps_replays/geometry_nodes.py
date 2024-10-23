@@ -2,67 +2,6 @@
 
 import bpy
 
-def create_geometry_nodes_modifier(obj, driver_obj_name):
-    # Geometry Nodes Modifier hinzufügen
-    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
-
-    # Neuen Geometry Node Tree erstellen
-    node_group_name = f"Geometry Nodes {obj.name}"
-    group = bpy.data.node_groups.new(node_group_name, 'GeometryNodeTree')
-    modifier.node_group = group
-
-    # Group Input und Group Output Knoten hinzufügen
-    input_node = group.nodes.new('NodeGroupInput')
-    output_node = group.nodes.new('NodeGroupOutput')
-
-    input_node.location.x = 0
-    output_node.location.x = 500
-
-    # Geometrie-Sockets für Input und Output hinzufügen
-    group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
-    group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
-
-    # Store Named Attribute Knoten hinzufügen (für "show")
-    store_attribute_node_show = group.nodes.new('GeometryNodeStoreNamedAttribute')
-
-    store_attribute_node_show.location.x = 150
-
-    store_attribute_node_show.inputs['Name'].default_value = "show"
-    store_attribute_node_show.data_type = 'BOOLEAN'
-    store_attribute_node_show.domain = 'POINT'
-
-    # Driver auf Boolean Input setzen (für "show")
-    driver_show = store_attribute_node_show.inputs['Value'].driver_add('default_value').driver
-    driver_show.type = 'AVERAGE'
-    var_show = driver_show.variables.new()
-    var_show.name = 'var'
-    var_show.targets[0].id_type = 'OBJECT'
-    var_show.targets[0].id = bpy.data.objects[driver_obj_name]
-    var_show.targets[0].data_path = '["show"]'
-
-    # Store Named Attribute Knoten hinzufügen (für "time_ms")
-    store_attribute_node_time = group.nodes.new('GeometryNodeStoreNamedAttribute')
-
-    store_attribute_node_time.location.x = 300
-
-    store_attribute_node_time.inputs['Name'].default_value = "time_ms"
-    store_attribute_node_time.data_type = 'FLOAT'
-    store_attribute_node_time.domain = 'POINT'
-
-    # Driver auf Float Input setzen (für "time_ms")
-    driver_time = store_attribute_node_time.inputs['Value'].driver_add('default_value').driver
-    driver_time.type = 'AVERAGE'
-    var_time = driver_time.variables.new()
-    var_time.name = 'var'
-    var_time.targets[0].id_type = 'OBJECT'
-    var_time.targets[0].id = bpy.data.objects[driver_obj_name]
-    var_time.targets[0].data_path = '["time_ms"]'
-
-    # Verbindungen zwischen den Knoten erstellen
-    group.links.new(input_node.outputs['Geometry'], store_attribute_node_show.inputs['Geometry'])
-    group.links.new(store_attribute_node_show.outputs['Geometry'], store_attribute_node_time.inputs['Geometry'])
-    group.links.new(store_attribute_node_time.outputs['Geometry'], output_node.inputs['Geometry'])
-
 def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
     # Geometry Nodes Modifier hinzufügen
     modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
@@ -110,6 +49,50 @@ def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
 
     # Letzte Verbindung zum Output-Knoten
     group.links.new(previous_node.outputs['Geometry'], output_node.inputs['Geometry'])
+
+def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
+    # Geometry Nodes Modifier hinzufügen
+    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
+
+    # Neuen Geometry Node Tree erstellen
+    node_group_name = f"Geometry Nodes {obj.name}"
+    group = bpy.data.node_groups.new(node_group_name, 'GeometryNodeTree')
+    modifier.node_group = group
+
+    # Group Input und Group Output Knoten hinzufügen
+    input_node = group.nodes.new('NodeGroupInput')
+    output_node = group.nodes.new('NodeGroupOutput')
+
+    input_node.location.x = 0
+    output_node.location.x = 500
+
+    # Geometrie-Sockets für Input und Output hinzufügen
+    group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
+    group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
+
+    # Store Named Attribute Knoten hinzufügen (für "show", "ar", "cs")
+    for key in ["show", "ar", "cs"]:
+        store_attribute_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
+        store_attribute_node.location.x = input_node.location.x + 200
+        store_attribute_node.inputs['Name'].default_value = key
+        store_attribute_node.data_type = 'BOOLEAN' if key == "show" else 'FLOAT'
+        store_attribute_node.domain = 'POINT'
+
+        # Driver auf Input setzen
+        driver = store_attribute_node.inputs['Value'].driver_add('default_value').driver
+        driver.type = 'AVERAGE'
+        var = driver.variables.new()
+        var.name = 'var'
+        var.targets[0].id_type = 'OBJECT'
+        var.targets[0].id = bpy.data.objects[driver_obj_name]
+        var.targets[0].data_path = f'["{key}"]'
+
+        # Verknüpfungen erstellen
+        group.links.new(input_node.outputs['Geometry'], store_attribute_node.inputs['Geometry'])
+        input_node = store_attribute_node
+
+    # Verbindung zum Output-Knoten
+    group.links.new(input_node.outputs['Geometry'], output_node.inputs['Geometry'])
 
 def create_geometry_nodes_modifier_slider(obj, driver_obj_name):
     # Geometry Nodes Modifier hinzufügen

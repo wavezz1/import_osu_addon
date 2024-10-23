@@ -75,6 +75,8 @@ class OsrParser:
         self.replay_data = None
         self.mods = 0
         self.mod_list = []
+        self.k1 = []
+        self.k2 = []
         self.parse_osr_file()
 
     def parse_osr_file(self):
@@ -87,6 +89,9 @@ class OsrParser:
             self.number_100s = replay.count_100
             self.number_50s = replay.count_50
             self.misses = replay.count_miss
+
+            # Mausclicks parsen
+            self.parse_mouse_clicks()
 
         except Exception as e:
             print(f"Fehler beim Parsen der .osr-Datei: {e}")
@@ -140,3 +145,21 @@ class OsrParser:
             if mods & mod_value:
                 mod_names.append(mod_name)
         return mod_names
+
+    def parse_mouse_clicks(self):
+        """Parses mouse clicks (k1 and k2) from the replay data."""
+        k1_flag = 0b0001  # Bit for k1 (left mouse button)
+        k2_flag = 0b0010  # Bit for k2 (right mouse button)
+
+        for frame in self.replay_data:
+            # Check if k1 (left click) is pressed
+            if frame.keys_pressed & k1_flag:
+                self.k1.append((frame.time_since_previous_action, True))  # k1 pressed
+            else:
+                self.k1.append((frame.time_since_previous_action, False))  # k1 not pressed
+
+            # Check if k2 (right click) is pressed
+            if frame.keys_pressed & k2_flag:
+                self.k2.append((frame.time_since_previous_action, True))  # k2 pressed
+            else:
+                self.k2.append((frame.time_since_previous_action, False))  # k2 not pressed

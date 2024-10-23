@@ -6,11 +6,13 @@ from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier
 
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings):
+    def __init__(self, hitobject, global_index, circles_collection, settings, k1_clicks, k2_clicks):
         self.hitobject = hitobject
         self.global_index = global_index
         self.circles_collection = circles_collection
         self.settings = settings  # Enthält Circle Size, Approach Rate usw.
+        self.k1_clicks = k1_clicks  # Liste von k1 (linke Maustaste) Ereignissen
+        self.k2_clicks = k2_clicks  # Liste von k2 (rechte Maustaste) Ereignissen
         self.create_circle()
 
     def create_circle(self):
@@ -40,6 +42,9 @@ class CircleCreator:
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1))
 
+        # Setzen von Keyframes für Mausklicks (k1 und k2)
+        self.set_keyframes_for_clicks(circle, start_frame)
+
         self.circles_collection.objects.link(circle)
         if circle.users_collection:
             for col in circle.users_collection:
@@ -49,3 +54,17 @@ class CircleCreator:
         create_geometry_nodes_modifier(circle, circle.name)
 
         # Optional: Weitere Konfiguration basierend auf Circle Size, Approach Rate usw.
+
+    def set_keyframes_for_clicks(self, circle, start_frame):
+        """Setzt Keyframes für Mausclicks k1 und k2."""
+        if self.k1_clicks[int(start_frame)][1]:  # Wenn k1 gedrückt ist
+            circle["k1"] = True
+        else:
+            circle["k1"] = False
+        circle.keyframe_insert(data_path='["k1"]', frame=start_frame)
+
+        if self.k2_clicks[int(start_frame)][1]:  # Wenn k2 gedrückt ist
+            circle["k2"] = True
+        else:
+            circle["k2"] = False
+        circle.keyframe_insert(data_path='["k2"]', frame=start_frame)

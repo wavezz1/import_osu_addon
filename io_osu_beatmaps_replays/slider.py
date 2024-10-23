@@ -102,7 +102,7 @@ class SliderCreator:
                     bp.handle_left_type = 'AUTO'
                     bp.handle_right_type = 'AUTO'
 
-                slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}", curve_data)
+                slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
 
         # Wiederholungen und Pixel-Länge ermitteln
         repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1

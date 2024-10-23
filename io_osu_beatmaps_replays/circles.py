@@ -39,9 +39,6 @@ class CircleCreator:
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1))
 
-        # Setzen von Keyframes für Mausklicks (k1 und k2)
-        self.set_keyframes_for_clicks(circle, start_frame)
-
         self.circles_collection.objects.link(circle)
         if circle.users_collection:
             for col in circle.users_collection:

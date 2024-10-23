@@ -15,10 +15,6 @@ def create_cursor(cursor_collection):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        # Benutzerdefinierte Eigenschaften hinzufügen
-        cursor['k1_clicked'] = False
-        cursor['k2_clicked'] = False
-
         return cursor
     except Exception as e:
         print(f"Fehler beim Erstellen des Cursors: {e}")

@@ -89,7 +89,7 @@ class SliderCreator:
                 elif slider_type == "B":
                     points = self.create_bezier_spline(points)  # Bezier-Spline für Typ "B"
                 # Erstelle die Kurve
-                curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_curve", type='CURVE')
+                curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve", type='CURVE')
                 curve_data.dimensions = '3D'
                 spline = curve_data.splines.new('BEZIER')
                 spline.bezier_points.add(len(points) - 1)

@@ -46,5 +46,3 @@ class CircleCreator:
                     col.objects.unlink(circle)
 
         create_geometry_nodes_modifier(circle, circle.name)
-
-        # Optional: Weitere Konfiguration basierend auf Circle Size, Approach Rate usw.

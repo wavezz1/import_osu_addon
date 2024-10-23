@@ -37,13 +37,14 @@ class OsuParser:
                     elif section == 'Difficulty':
                         key, value = line.split(':', 1)
                         self.difficulty_settings[key.strip()] = value.strip()
-                    elif section == 'TimingPoints':
+                        elif section == 'TimingPoints':
                         parts = line.split(',')
                         if len(parts) >= 2:
                             try:
                                 offset = float(parts[0])
                                 beat_length = float(parts[1])
                                 self.timing_points.append((offset, beat_length))
+                                print(f"TimingPoint: Offset={offset}, BeatLength={beat_length}")
                             except ValueError:
                                 print(f"Fehler beim Parsen der Timing Points in Zeile: {line}")
                     elif section == 'HitObjects':

@@ -7,13 +7,13 @@ from .geometry_nodes import create_geometry_nodes_modifier_circle
 from .info_parser import OsuParser
 
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings,osu_parser: OsuParser):
+    def __init__(self, hitobject, global_index, circles_collection, settings, osu_parser: OsuParser):
         self.hitobject = hitobject
         self.global_index = global_index
         self.circles_collection = circles_collection
-        self.settings = settings  # Enthält Circle Size, Approach Rate usw.
-        self.create_circle()
+        self.settings = settings
         self.osu_parser = osu_parser
+        self.create_circle()
 
     def create_circle(self):
         approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))

@@ -114,15 +114,14 @@ def create_geometry_nodes_modifier_slider(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
-    # Attribute für "show", "slider_duration", "slider_duration_frames", "ar", und "cs" hinzufügen
+    # Attribute für "show", "slider_duration", "slider_duration_frames", "ar", "cs", und "is_anchor" hinzufügen
     for key in ["show", "slider_duration", "slider_duration_frames", "ar", "cs"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node_key.location.x = input_node.location.x + 200 + (len(key) * 50)
         store_attribute_node_key.inputs['Name'].default_value = key
-        store_attribute_node_key.data_type = 'BOOLEAN' if key == "show" else 'FLOAT'
+        store_attribute_node_key.data_type = 'BOOLEAN' if key in ["show"] else 'FLOAT'
         store_attribute_node_key.domain = 'POINT'
 
-        # Driver auf Input setzen
         driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver
         driver_key.type = 'AVERAGE'
         var_key = driver_key.variables.new()

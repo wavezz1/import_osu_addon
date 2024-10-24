@@ -109,14 +109,16 @@ class SliderCreator:
                         px, py = float(px_str), float(py_str)
                         points.append((px, py))
 
-                # Flexibler Umgang mit der Anzahl der Punkte
-                if slider_type == "B":
-                    if len(points) < 3:
-                        print(
-                            f"Nicht genügend Punkte für quadratische Bezier-Kurve, verwende lineare Interpolation: {points}")
-                        points = self.create_linear_spline(points)  # Verwende lineare Spline
-                    else:
-                        points = self.create_bezier_spline(points)  # Quadratische Bezier-Spline
+                # Verarbeite die Slider entsprechend dem Typ
+                if slider_type == "P":
+                    points = self.create_catmull_rom_spline(points)
+                elif slider_type == "L":
+                    points = self.create_linear_spline(points)  # Lineare Spline für Typ "L"
+                elif slider_type == "B":
+                    if len(points) < 2:
+                        print(f"Nicht genügend Punkte für Bezier-Spline: {points}")
+                        return
+                    points = self.create_bezier_spline(points)  # Bezier-Spline für Typ "B"
 
                 # Erstelle die Kurve in Blender
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",
@@ -125,13 +127,20 @@ class SliderCreator:
                 spline = curve_data.splines.new('BEZIER')
                 spline.bezier_points.add(len(points) - 1)
 
-                # Verwende die Punkte zur Erstellung der Spline in Blender
                 for i, point in enumerate(points):
                     bp = spline.bezier_points[i]
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)
-                    bp.handle_left_type = 'AUTO'
-                    bp.handle_right_type = 'AUTO'
+
+                    # Setze den Handle-Typ basierend auf der Kurvenart und Position
+                    if slider_type == "B" and i > 0 and i < len(points) - 1:
+                        # Falls es sich um einen Ankerpunkt handelt (hier hart eingestellt), setze den Typ auf 'VECTOR'
+                        bp.handle_left_type = 'VECTOR'
+                        bp.handle_right_type = 'VECTOR'
+                    else:
+                        # Standardmäßig die Handles auf 'FREE' setzen, um die Form frei zu bestimmen
+                        bp.handle_left_type = 'FREE'
+                        bp.handle_right_type = 'FREE'
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
 

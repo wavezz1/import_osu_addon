@@ -132,13 +132,30 @@ class SliderCreator:
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)
 
+                    # Berechne die Handles, um die Tangenten der Kurve zu berücksichtigen
+                    if i > 0:  # Handle für den vorherigen Punkt setzen (left handle)
+                        prev_point = points[i - 1]
+                        prev_corrected_x, prev_corrected_y, prev_corrected_z = map_osu_to_blender(prev_point[0],
+                                                                                                  prev_point[1])
+                        bp.handle_left = (corrected_x + (prev_corrected_x - corrected_x) * 0.3,
+                                          corrected_y + (prev_corrected_y - corrected_y) * 0.3,
+                                          corrected_z + (prev_corrected_z - corrected_z) * 0.3)
+
+                    if i < len(points) - 1:  # Handle für den nächsten Punkt setzen (right handle)
+                        next_point = points[i + 1]
+                        next_corrected_x, next_corrected_y, next_corrected_z = map_osu_to_blender(next_point[0],
+                                                                                                  next_point[1])
+                        bp.handle_right = (corrected_x + (next_corrected_x - corrected_x) * 0.3,
+                                           corrected_y + (next_corrected_y - corrected_y) * 0.3,
+                                           corrected_z + (next_corrected_z - corrected_z) * 0.3)
+
                     # Setze den Handle-Typ basierend auf der Kurvenart und Position
                     if slider_type == "B" and i > 0 and i < len(points) - 1:
-                        # Falls es sich um einen Ankerpunkt handelt (hier hart eingestellt), setze den Typ auf 'VECTOR'
+                        # Ankerpunkte (harter Übergang), setze auf 'VECTOR'
                         bp.handle_left_type = 'VECTOR'
                         bp.handle_right_type = 'VECTOR'
                     else:
-                        # Standardmäßig die Handles auf 'FREE' setzen, um die Form frei zu bestimmen
+                        # Standardmäßig Handles auf 'FREE' setzen, um die Form manuell anzupassen
                         bp.handle_left_type = 'FREE'
                         bp.handle_right_type = 'FREE'
 

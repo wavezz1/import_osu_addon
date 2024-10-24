@@ -54,8 +54,10 @@ class SliderCreator:
         bezier_points = []
         n = len(points)
         if n < 3:
-            return points  # At least 3 points required for a quadratic Bezier curve.
-
+            print(f"Zu wenige Punkte für Bezier-Kurve: {points}")
+            return points
+        # if len(points) % 3 != 0:
+        #     points = points[:-(len(points) % 3)]  # Entfernt überzählige Punkte
         # Process points in groups of 3 (P0, P1, P2)
         for i in range(0, n - 2, 2):
             p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
@@ -90,27 +92,32 @@ class SliderCreator:
                         px, py = float(px_str), float(py_str)
                         points.append((px, py))
 
-                # Catmull-Rom-Spline für Slider vom Typ "P" (Perfect Curve)
+                if len(points) < 3:
+                    print(f"Weniger als 3 Punkte für Slider vorhanden: {points}")
+                    return  # Fallback oder Alternative
+
+                # Verarbeite die Slider entsprechend dem Typ
                 if slider_type == "P":
                     points = self.create_catmull_rom_spline(points)
                 elif slider_type == "L":
                     points = self.create_linear_spline(points)  # Lineare Spline für Typ "L"
                 elif slider_type == "B":
+                    if len(points) % 2 == 0:
+                        points.pop()  # Falls eine gerade Anzahl Punkte vorliegt, den letzten Punkt entfernen
                     points = self.create_quadratic_bezier_spline(points)  # Bezier-Spline für Typ "B"
-                # Erstelle die Kurve
+
+                # Erstelle die Kurve in Blender
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",
                                                  type='CURVE')
                 curve_data.dimensions = '3D'
                 spline = curve_data.splines.new('BEZIER')
-
-                # Setze Bezier-Handle-Informationen für jeden Punkt.
                 spline.bezier_points.add(len(points) - 1)
 
+                # Verwende hier 3 Punkte für die quadratische Bezier-Kurve
                 for i, (p0, p1, p2) in enumerate(self.create_quadratic_bezier_spline(points)):
                     bp = spline.bezier_points[i]
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(p0[0], p0[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)
-                    # Handle links/rechts auf AUTO setzen
                     bp.handle_left_type = 'AUTO'
                     bp.handle_right_type = 'AUTO'
 

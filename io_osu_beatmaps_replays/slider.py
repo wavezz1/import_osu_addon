@@ -50,25 +50,35 @@ class SliderCreator:
     def create_linear_spline(self, points):
         return points  # Lineare Spline
 
-    def create_quadratic_bezier_spline(self, points):
+    def create_bezier_spline(self, points):
         bezier_points = []
         n = len(points)
-        if n < 3:
-            print(f"Zu wenige Punkte für Bezier-Kurve: {points}")
-            return points
-        # if len(points) % 3 != 0:
-        #     points = points[:-(len(points) % 3)]  # Entfernt überzählige Punkte
-        # Process points in groups of 3 (P0, P1, P2)
-        for i in range(0, n - 2, 2):
-            p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
-            # t läuft von 0 bis 1, um Punkte entlang der Bezier-Kurve zu berechnen
-            for t in [j / 10.0 for j in range(11)]:
-                bezier_point = ((1 - t) ** 2 * p0 +
-                                2 * (1 - t) * t * p1 +
-                                t ** 2 * p2)
-                bezier_points.append(bezier_point)
 
-        return bezier_points
+        # Wenn nur 2 Punkte vorhanden sind, wechsle auf eine lineare Bezier-Kurve
+        if n == 2:
+            p0, p1 = Vector(points[0]), Vector(points[1])
+            for t in [j / 10.0 for j in range(11)]:
+                bezier_point = self.vector_lerp(p0, p1, t)  # Lineare Interpolation
+                bezier_points.append(bezier_point)
+            return bezier_points
+
+        # Wenn 3 oder mehr Punkte vorhanden sind, benutze die quadratische Bezier-Kurve
+        if n >= 3:
+            # Process points in groups of 3 (P0, P1, P2)
+            for i in range(0, n - 2, 2):
+                p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
+                # t läuft von 0 bis 1, um Punkte entlang der Bezier-Kurve zu berechnen
+                for t in [j / 10.0 for j in range(11)]:
+                    bezier_point = ((1 - t) ** 2 * p0 +
+                                    2 * (1 - t) * t * p1 +
+                                    t ** 2 * p2)
+                    bezier_points.append(bezier_point)
+
+            return bezier_points
+
+        # Wenn nicht genug Punkte vorhanden sind, gib die Punkte einfach zurück
+        print(f"Nicht genügend Punkte für Bezier-Kurve: {points}")
+        return points
 
     def create_slider(self):
         approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
@@ -102,9 +112,12 @@ class SliderCreator:
                 elif slider_type == "L":
                     points = self.create_linear_spline(points)  # Lineare Spline für Typ "L"
                 elif slider_type == "B":
-                    if len(points) % 2 == 0:
-                        points.pop()  # Falls eine gerade Anzahl Punkte vorliegt, den letzten Punkt entfernen
-                    points = self.create_quadratic_bezier_spline(points)  # Bezier-Spline für Typ "B"
+                    if len(points) < 2:
+                        print(f"Nicht genügend Punkte für Bezier-Spline: {points}")
+                        return  # Abbrechen, wenn nicht genügend Punkte vorhanden sind
+                    # if len(points) % 2 == 0:
+                    #     points.pop()  # Falls eine gerade Anzahl Punkte vorliegt, den letzten Punkt entfernen
+                    points = self.create_bezier_spline(points)  # Bezier-Spline für Typ "B"
 
                 # Erstelle die Kurve in Blender
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",
@@ -114,7 +127,7 @@ class SliderCreator:
                 spline.bezier_points.add(len(points) - 1)
 
                 # Verwende hier 3 Punkte für die quadratische Bezier-Kurve
-                for i, (p0, p1, p2) in enumerate(self.create_quadratic_bezier_spline(points)):
+                for i, (p0, p1, p2) in enumerate(self.create_bezier_spline(points)):
                     bp = spline.bezier_points[i]
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(p0[0], p0[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)

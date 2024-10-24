@@ -54,9 +54,9 @@ class SliderCreator:
         bezier_points = []
         n = len(points)
         if n < 3:
-            return points  # Es müssen mindestens 3 Punkte für eine quadratische Bezier-Kurve vorhanden sein.
+            return points  # At least 3 points required for a quadratic Bezier curve.
 
-        # Gehe durch die Punkte in Gruppen von 3 (p0, p1, p2)
+        # Process points in groups of 3 (P0, P1, P2)
         for i in range(0, n - 2, 2):
             p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
             for t in [j / 10.0 for j in range(11)]:

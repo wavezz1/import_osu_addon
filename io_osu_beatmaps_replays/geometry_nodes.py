@@ -30,7 +30,7 @@ def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
         store_attribute_node_key.location.x = previous_node.location.x + 200
         store_attribute_node_key.inputs['Name'].default_value = key
         store_attribute_node_key.data_type = 'FLOAT' if key in ["ar", "cs"] else 'BOOLEAN'
-        store_attribute_node_key.domain = 'INSTANCE'
+        store_attribute_node_key.domain = 'POINT'
 
         # Driver auf Input setzen
         driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver
@@ -76,7 +76,7 @@ def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
         store_attribute_node.location.x = input_node.location.x + 200
         store_attribute_node.inputs['Name'].default_value = key
         store_attribute_node.data_type = 'BOOLEAN' if key == "show" else 'FLOAT'
-        store_attribute_node.domain = 'INSTANCE'
+        store_attribute_node.domain = 'POINT'
 
         # Driver auf Input setzen
         driver = store_attribute_node.inputs['Value'].driver_add('default_value').driver
@@ -120,7 +120,7 @@ def create_geometry_nodes_modifier_slider(obj, driver_obj_name):
         store_attribute_node_key.location.x = input_node.location.x + 200 + (len(key) * 50)
         store_attribute_node_key.inputs['Name'].default_value = key
         store_attribute_node_key.data_type = 'BOOLEAN' if key in ["show"] else 'FLOAT'
-        store_attribute_node_key.domain = 'INSTANCE'
+        store_attribute_node_key.domain = 'POINT'
 
         driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver
         driver_key.type = 'AVERAGE'
@@ -163,7 +163,7 @@ def create_geometry_nodes_modifier_spinner(obj, driver_obj_name):
         store_attribute_node_key.location.x = 150 + (len(key) * 50)
         store_attribute_node_key.inputs['Name'].default_value = key
         store_attribute_node_key.data_type = 'BOOLEAN' if key == "show" else 'FLOAT'
-        store_attribute_node_key.domain = 'INSTANCE'
+        store_attribute_node_key.domain = 'POINT'
 
         # Driver auf Input setzen
         driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver

@@ -62,23 +62,30 @@ class SliderCreator:
                 bezier_points.append(bezier_point)
             return bezier_points
 
-        # Wenn 3 oder mehr Punkte vorhanden sind, benutze die quadratische Bezier-Kurve
+        # Wenn 3 oder mehr Punkte vorhanden sind, benutze die quadratische oder kubische Bezier-Kurve
         if n >= 3:
-            # Process points in groups of 3 (P0, P1, P2)
-            for i in range(0, n - 2, 2):
-                p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
-                # t läuft von 0 bis 1, um Punkte entlang der Bezier-Kurve zu berechnen
+            current_curve = []
+            for i, point in enumerate(points):
+                current_curve.append(Vector(point))
+
+                # Wenn wir eine Gruppe von 3 Punkten haben, berechne die quadratische Bezier-Kurve
+                if len(current_curve) == 3:
+                    p0, p1, p2 = current_curve
+                    for t in [j / 10.0 for j in range(11)]:
+                        bezier_point = ((1 - t) ** 2 * p0 +
+                                        2 * (1 - t) * t * p1 +
+                                        t ** 2 * p2)
+                        bezier_points.append(bezier_point)
+                    current_curve = [p2]  # Setze den letzten Punkt als Startpunkt der nächsten Gruppe
+
+            # Falls am Ende nur noch 2 Punkte übrig sind, lineare Interpolation für den letzten Abschnitt
+            if len(current_curve) == 2:
+                p0, p1 = current_curve
                 for t in [j / 10.0 for j in range(11)]:
-                    bezier_point = ((1 - t) ** 2 * p0 +
-                                    2 * (1 - t) * t * p1 +
-                                    t ** 2 * p2)
+                    bezier_point = self.vector_lerp(p0, p1, t)
                     bezier_points.append(bezier_point)
 
-            return bezier_points
-
-        # Wenn nicht genug Punkte vorhanden sind, gib die Punkte einfach zurück
-        print(f"Nicht genügend Punkte für Bezier-Kurve: {points}")
-        return points
+        return bezier_points
 
     def create_slider(self):
         approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))

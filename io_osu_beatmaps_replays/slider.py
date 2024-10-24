@@ -59,6 +59,7 @@ class SliderCreator:
         # Process points in groups of 3 (P0, P1, P2)
         for i in range(0, n - 2, 2):
             p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
+            # t läuft von 0 bis 1, um Punkte entlang der Bezier-Kurve zu berechnen
             for t in [j / 10.0 for j in range(11)]:
                 bezier_point = ((1 - t) ** 2 * p0 +
                                 2 * (1 - t) * t * p1 +
@@ -105,7 +106,7 @@ class SliderCreator:
                 # Setze Bezier-Handle-Informationen für jeden Punkt.
                 spline.bezier_points.add(len(points) - 1)
 
-                for i, (p0, p1, p2, p3) in enumerate(self.create_quadratic_bezier_spline(points)):
+                for i, (p0, p1, p2) in enumerate(self.create_quadratic_bezier_spline(points)):
                     bp = spline.bezier_points[i]
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(p0[0], p0[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)

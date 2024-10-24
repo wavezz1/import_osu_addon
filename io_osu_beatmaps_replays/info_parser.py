@@ -48,6 +48,7 @@ class OsuParser:
                             except ValueError:
                                 print(f"Fehler beim Parsen der Timing Points in Zeile: {line}")
                     elif section == 'HitObjects':
+                        print(f"Parsing HitObject Line: {line}")
                         self.hitobjects.append(line)
         except Exception as e:
             print(f"Fehler beim Parsen der .osu-Datei: {e}")

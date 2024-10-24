@@ -48,29 +48,8 @@ class OsuParser:
                             except ValueError:
                                 print(f"Fehler beim Parsen der Timing Points in Zeile: {line}")
                     elif section == 'HitObjects':
-                        parts = line.split(',')
-                        if len(parts) >= 5:
-                            x = int(parts[0])
-                            y = int(parts[1])
-                            time = int(parts[2])
-                            object_type = int(parts[3])
-                            extras = parts[5:]
-
-                            # Prüfe, ob es sich um einen Slider handelt (Slider-Typ-Bit 2 ist gesetzt)
-                            if object_type & 2:
-                                slider_data = extras[0].split('|')
-                                if len(slider_data) > 1:
-                                    slider_type = slider_data[0]  # z.B. 'B' für Bezier
-                                    control_points = slider_data[1:]  # Slider-Kontrollpunkte
-                                    repeat_count = int(extras[1]) if len(extras) > 1 else 1
-                                    pixel_length = float(extras[2]) if len(extras) > 2 else 100.0
-                                    print(
-                                        f"Slider erkannt: Typ={slider_type}, Kontrollpunkte={control_points}, Wiederholungen={repeat_count}, Pixel-Länge={pixel_length}")
-                                else:
-                                    print(f"Fehler: Ungültiger Slider-Datensatz in {line}")
-                            else:
-                                # Normales HitObject ohne Slider
-                                print(f"HitObject erkannt: X={x}, Y={y}, Zeit={time}")
+                        print(f"Parsing HitObject Line: {line}")
+                        self.hitobjects.append(line)
         except Exception as e:
             print(f"Fehler beim Parsen der .osu-Datei: {e}")
 

@@ -50,15 +50,20 @@ class SliderCreator:
     def create_linear_spline(self, points):
         return points  # Lineare Spline
 
-    def create_cubic_bezier_spline(self, points):
+    def create_quadratic_bezier_spline(self, points):
         bezier_points = []
         n = len(points)
-        if n < 4:
-            return points  # Es müssen mindestens 4 Punkte für eine kubische Bezier-Kurve vorhanden sein.
+        if n < 3:
+            return points  # Es müssen mindestens 3 Punkte für eine quadratische Bezier-Kurve vorhanden sein.
 
-        for i in range(0, n - 3, 3):
-            p0, p1, p2, p3 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2]), Vector(points[i + 3])
-            bezier_points.append((p0, p1, p2, p3))
+        # Gehe durch die Punkte in Gruppen von 3 (p0, p1, p2)
+        for i in range(0, n - 2, 2):
+            p0, p1, p2 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2])
+            for t in [j / 10.0 for j in range(11)]:
+                bezier_point = ((1 - t) ** 2 * p0 +
+                                2 * (1 - t) * t * p1 +
+                                t ** 2 * p2)
+                bezier_points.append(bezier_point)
 
         return bezier_points
 
@@ -90,7 +95,7 @@ class SliderCreator:
                 elif slider_type == "L":
                     points = self.create_linear_spline(points)  # Lineare Spline für Typ "L"
                 elif slider_type == "B":
-                    points = self.create_cubic_bezier_spline(points)  # Bezier-Spline für Typ "B"
+                    points = self.create_quadratic_bezier_spline(points)  # Bezier-Spline für Typ "B"
                 # Erstelle die Kurve
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",
                                                  type='CURVE')
@@ -100,7 +105,7 @@ class SliderCreator:
                 # Setze Bezier-Handle-Informationen für jeden Punkt.
                 spline.bezier_points.add(len(points) - 1)
 
-                for i, (p0, p1, p2, p3) in enumerate(self.create_cubic_bezier_spline(points)):
+                for i, (p0, p1, p2, p3) in enumerate(self.create_quadratic_bezier_spline(points)):
                     bp = spline.bezier_points[i]
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(p0[0], p0[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)

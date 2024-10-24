@@ -156,8 +156,8 @@ class SliderCreator:
                         bp.handle_right_type = 'VECTOR'
                     else:
                         # Standardmäßig Handles auf 'FREE' setzen, um die Form manuell anzupassen
-                        bp.handle_left_type = 'AUTO'
-                        bp.handle_right_type = 'AUTO'
+                        bp.handle_left_type = 'FREE'
+                        bp.handle_right_type = 'FREE'
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
 

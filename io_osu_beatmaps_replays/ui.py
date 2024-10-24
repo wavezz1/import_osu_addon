@@ -94,5 +94,6 @@ class OSU_OT_Import(Operator):
         context.scene.render.fps = 60
         # Dein bestehender Import-Code kommt hierhin
         self.report({'INFO'}, "Szene auf 60 FPS gesetzt")
+
         result = main_execution(context)
         return result

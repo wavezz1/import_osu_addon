@@ -67,9 +67,9 @@ class CircleCreator:
 
         # Die genaue Berechnung der early_frames kann variieren, aber eine Annäherung wäre:
         if ar <= 5:
-            early_frames = 1200 + (600 * (5 - ar) / 5)
+            early_frames = 1200 + (600 * (5 - ar))
         else:
-            early_frames = 1200 - (750 * (ar - 5) / 5)
+            early_frames = 1200 - (750 * (ar - 5))
 
         # Multipliziere early_frames, um sie an das Spieltempo anzupassen
         early_frames /= get_ms_per_frame()  # Umwandlung in Frames

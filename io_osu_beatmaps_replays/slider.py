@@ -21,29 +21,27 @@ class SliderCreator:
         p1 = Vector(p1)
         return p0.lerp(p1, t)
 
-    def create_catmull_rom_spline(self, points):
+    def create_catmull_rom_spline(self, points, tension=0.5):
         spline_points = []
         n = len(points)
         if n < 2:
             return points  # Nicht genug Punkte für eine Kurve
 
         for i in range(n - 1):
-            # Verwende Vector für die Punkte
+            # Nutze Vector für die Punkte
             p0 = Vector(points[i - 1]) if i > 0 else Vector(points[i])
             p1 = Vector(points[i])
             p2 = Vector(points[i + 1])
             p3 = Vector(points[i + 2]) if i < n - 2 else Vector(points[i + 1])
 
-            # Interpolation zwischen den Punkten
+            # Catmull-Rom-Interpolation
             for t in [j / 10.0 for j in range(11)]:
                 t2 = t * t
                 t3 = t2 * t
-                spline_point = 0.5 * (
-                        (2 * p1) +
-                        (-p0 + p2) * t +
-                        (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
-                        (-p0 + 3 * p1 - 3 * p2 + p3) * t3
-                )
+                m1 = (1 - tension) * (p2 - p0) * 0.5
+                m2 = (1 - tension) * (p3 - p1) * 0.5
+                spline_point = (2 * t3 - 3 * t2 + 1) * p1 + (t3 - 2 * t2 + t) * m1 + (-2 * t3 + 3 * t2) * p2 + (
+                            t3 - t2) * m2
                 spline_points.append(spline_point)
 
         return spline_points
@@ -54,35 +52,28 @@ class SliderCreator:
         bezier_points = []
         n = len(points)
 
-        # Wenn nur 2 Punkte vorhanden sind, wechsle auf eine lineare Bezier-Kurve
-        if n == 2:
+        if n == 2:  # Lineare Bezier-Kurve
             p0, p1 = Vector(points[0]), Vector(points[1])
             for t in [j / 10.0 for j in range(11)]:
-                bezier_point = self.vector_lerp(p0, p1, t)  # Lineare Interpolation
+                bezier_point = self.vector_lerp(p0, p1, t)
                 bezier_points.append(bezier_point)
             return bezier_points
 
-        # Wenn 3 oder mehr Punkte vorhanden sind, benutze die quadratische oder kubische Bezier-Kurve
-        if n >= 3:
-            current_curve = []
-            for i, point in enumerate(points):
-                current_curve.append(Vector(point))
+        if n == 3:  # Quadratische Bezier-Kurve
+            p0, p1, p2 = Vector(points[0]), Vector(points[1]), Vector(points[2])
+            for t in [j / 10.0 for j in range(11)]:
+                bezier_point = ((1 - t) ** 2 * p0) + (2 * (1 - t) * t * p1) + (t ** 2 * p2)
+                bezier_points.append(bezier_point)
+            return bezier_points
 
-                # Wenn wir eine Gruppe von 3 Punkten haben, berechne die quadratische Bezier-Kurve
-                if len(current_curve) == 3:
-                    p0, p1, p2 = current_curve
-                    for t in [j / 10.0 for j in range(11)]:
-                        bezier_point = ((1 - t) ** 2 * p0 +
-                                        2 * (1 - t) * t * p1 +
-                                        t ** 2 * p2)
-                        bezier_points.append(bezier_point)
-                    current_curve = [p2]  # Setze den letzten Punkt als Startpunkt der nächsten Gruppe
-
-            # Falls am Ende nur noch 2 Punkte übrig sind, lineare Interpolation für den letzten Abschnitt
-            if len(current_curve) == 2:
-                p0, p1 = current_curve
+        if n >= 4:  # Kubische Bezier-Kurve
+            for i in range(0, n - 3, 3):
+                p0, p1, p2, p3 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2]), Vector(points[i + 3])
                 for t in [j / 10.0 for j in range(11)]:
-                    bezier_point = self.vector_lerp(p0, p1, t)
+                    bezier_point = ((1 - t) ** 3 * p0 +
+                                    3 * (1 - t) ** 2 * t * p1 +
+                                    3 * (1 - t) * t ** 2 * p2 +
+                                    t ** 3 * p3)
                     bezier_points.append(bezier_point)
 
         return bezier_points
@@ -111,14 +102,11 @@ class SliderCreator:
 
                 # Verarbeite die Slider entsprechend dem Typ
                 if slider_type == "P":
-                    points = self.create_catmull_rom_spline(points)
+                    points = self.create_catmull_rom_spline(points, tension=0.5)  # Spannung kann angepasst werden
                 elif slider_type == "L":
-                    points = self.create_linear_spline(points)  # Lineare Spline für Typ "L"
+                    points = self.create_linear_spline(points)
                 elif slider_type == "B":
-                    if len(points) < 2:
-                        print(f"Nicht genügend Punkte für Bezier-Spline: {points}")
-                        return
-                    points = self.create_bezier_spline(points)  # Bezier-Spline für Typ "B"
+                    points = self.create_bezier_spline(points)
 
                 # Erstelle die Kurve in Blender
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",

@@ -22,9 +22,11 @@ Add Addon .zip in Preferences
 
 Click "install osrparse" if you don't have it 
 
-## Blender Proof of Concept of v0.3 (v0.4 TBD)
+## Blender Proof of Concept of v0.5
 
 [Download the .blend file](blendfile/[blender_4.2]osu_in_blender_proof_of_concept.blend)
+
+Still need to implement is_clicked attribute, hitobjects get deleted by age
 
 ## Ending Words
 

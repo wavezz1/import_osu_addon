@@ -60,4 +60,8 @@ def main_execution(context):
     else:
         print("Cursor konnte nicht erstellt werden.")
 
+    scene = bpy.context.scene
+    scene.frame_start = min([obj.animation_data.action.frame_range[0] for obj in bpy.data.objects if obj.animation_data and obj.animation_data.action])
+    scene.frame_end = max([obj.animation_data.action.frame_range[1] for obj in bpy.data.objects if obj.animation_data and obj.animation_data.action])
+
     return {'FINISHED'}

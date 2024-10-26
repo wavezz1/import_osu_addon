@@ -22,7 +22,7 @@ Add Addon .zip in Preferences
 
 Click "install osrparse" if you don't have it 
 
-## Blender Proof of Concept of v0.5
+## Blender Proof of Concept v0.5
 
 [Download the .blend file](blendfile/[blender_4.2]osu_in_blender_proof_of_concept.blend)
 

@@ -2,6 +2,7 @@
 
 import bpy
 from mathutils import Vector
+from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_slider
 from .osu_replay_data_manager import OsuReplayDataManager
@@ -87,7 +88,7 @@ class SliderCreator:
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         timing_points = self.data_manager.osu_parser.timing_points
 
-        osu_radius = 32 * (1 - 0.7 * (circle_size / 10))
+        osu_radius = (54.4 - 4.48 * circle_size) / 2
 
         x = self.hitobject.x
         y = self.hitobject.y
@@ -151,7 +152,7 @@ class SliderCreator:
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
                 slider["ar"] = approach_rate
-                slider["cs"] = osu_radius
+                slider["cs"] = osu_radius * SCALE_FACTOR
 
         repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
         pixel_length = float(self.hitobject.extras[2]) if len(self.hitobject.extras) > 2 else 100

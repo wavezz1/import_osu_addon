@@ -44,9 +44,13 @@ def main_execution(context):
     scene.frame_end = int(max([obj.animation_data.action.frame_range[1] for obj in bpy.data.objects if
                                obj.animation_data and obj.animation_data.action]))
 
+    # Speaker-Update forcieren
     speaker = bpy.data.objects.get("OsuAudioSpeaker")
     if speaker and speaker.type == 'SPEAKER':
-        speaker.data.muted = True
-        speaker.data.muted = False
-
+        sound = speaker.data.sound
+        # Deaktiviere und reaktiviere den Sound
+        speaker.data.sound = None
+        bpy.context.view_layer.update()  # Update durch Scene-Graph
+        speaker.data.sound = sound
+        bpy.context.view_layer.update()
     return {'FINISHED'}, data_manager

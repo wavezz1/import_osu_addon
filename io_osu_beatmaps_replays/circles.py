@@ -3,7 +3,6 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .constants import SCALE_FACTOR
 from .geometry_nodes import create_geometry_nodes_modifier_circle
 from .osu_replay_data_manager import OsuReplayDataManager
 
@@ -43,7 +42,7 @@ class CircleCreator:
 
         # Füge "ar" und "cs" als Eigenschaften zum Kreis hinzu
         circle["ar"] = approach_rate
-        circle["cs"] = osu_radius * SCALE_FACTOR
+        circle["cs"] = osu_radius
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False

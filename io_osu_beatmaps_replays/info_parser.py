@@ -70,7 +70,7 @@ class OsrParser:
         self.number_100s = 0
         self.number_50s = 0
         self.misses = 0
-        self.total_score = 0
+        self.score = 0
         self.max_combo = 0
         self.parse_osr_file()
 
@@ -85,7 +85,7 @@ class OsrParser:
             self.number_50s = replay.count_50
             self.misses = replay.count_miss
             self.max_combo = replay.max_combo
-            self.total_score = replay.total_score
+            self.score = replay.score
 
             # Fülle key_presses
             self.key_presses = self.parse_key_presses()
@@ -106,6 +106,14 @@ class OsrParser:
         return [name for val, name in mod_constants.items() if mods & val]
 
     def parse_key_presses(self):
-        return [{'time': frame.time_delta, 'k1': bool(frame.keys & osrparse.utils.Key.K1),
-                 'k2': bool(frame.keys & osrparse.utils.Key.K2), 'm1': bool(frame.keys & osrparse.utils.Key.M1),
-                 'm2': bool(frame.keys & osrparse.utils.Key.M2)} for frame in self.replay_data]
+        key_presses = []
+        for frame in self.replay_data:
+            # Verwende Bitmasking, um die gedrückten Tasten in `keys` zu extrahieren
+            key_presses.append({
+                'time': frame.time_delta,
+                'k1': bool(frame.keys & osrparse.utils.Key.K1),
+                'k2': bool(frame.keys & osrparse.utils.Key.K2),
+                'm1': bool(frame.keys & osrparse.utils.Key.M1),
+                'm2': bool(frame.keys & osrparse.utils.Key.M2),
+            })
+        return key_presses

@@ -28,7 +28,7 @@ class OsuReplayDataManager:
             "accuracy": self.osr_parser.calculate_accuracy(),
             "misses": self.osr_parser.misses,
             "max_combo": self.osr_parser.max_combo,
-            "total_score": self.osr_parser.total_score,
+            "total_score": self.osr_parser.score,
         }
 
     @property

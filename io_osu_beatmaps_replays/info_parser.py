@@ -87,7 +87,6 @@ class OsrParser:
             self.max_combo = replay.max_combo
             self.score = replay.score
 
-            # Fülle key_presses
             self.key_presses = self.parse_key_presses()
 
         except Exception as e:
@@ -108,7 +107,6 @@ class OsrParser:
     def parse_key_presses(self):
         key_presses = []
         for frame in self.replay_data:
-            # Verwende Bitmasking, um die gedrückten Tasten in `keys` zu extrahieren
             key_presses.append({
                 'time': frame.time_delta,
                 'k1': bool(frame.keys & osrparse.utils.Key.K1),

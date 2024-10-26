@@ -40,7 +40,7 @@ class SpinnerCreator:
             radius=1,
             depth=0.1,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die X-Achse
+            rotation=(math.radians(90), 0, 0)
         )
         spinner = bpy.context.object
         spinner.name = f"{self.global_index:03d}_spinner_{time_ms}"

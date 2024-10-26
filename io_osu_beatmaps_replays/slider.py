@@ -152,7 +152,7 @@ class SliderCreator:
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
                 slider["ar"] = approach_rate
-                slider["cs"] = osu_radius * SCALE_FACTOR * 10
+                slider["cs"] = osu_radius * SCALE_FACTOR
 
         repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
         pixel_length = float(self.hitobject.extras[2]) if len(self.hitobject.extras) > 2 else 100

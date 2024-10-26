@@ -89,7 +89,6 @@ class OSU_OT_Import(Operator):
 
     def execute(self, context):
         from .exec import main_execution
-        from .osu_replay_data_manager import OsuReplayDataManager
 
         # Setze die Szene auf 60 FPS
         context.scene.render.fps = 60

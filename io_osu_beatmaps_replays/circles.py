@@ -43,7 +43,7 @@ class CircleCreator:
 
         # Füge "ar" und "cs" als Eigenschaften zum Kreis hinzu
         circle["ar"] = approach_rate
-        circle["cs"] = osu_radius * SCALE_FACTOR
+        circle["cs"] = osu_radius * SCALE_FACTOR * 100
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False

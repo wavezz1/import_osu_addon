@@ -107,10 +107,4 @@ class OsuReplayDataManager:
             pitch = 0.75
         speaker.data.pitch = pitch
 
-        #FORCE UPDATE
-        speaker.data.muted = True
-        bpy.context.view_layer.update()
-        speaker.data.muted = False
-        bpy.context.view_layer.update()
-
         print(f"Audio-Datei '{audio_filename}' erfolgreich importiert und mit {pitch}x Pitch dem Speaker hinzugefügt.")

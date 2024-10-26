@@ -5,14 +5,16 @@ import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_spinner
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
+from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
 class SpinnerCreator:
-    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict):
+    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict, data_manager: OsuReplayDataManager):
         self.hitobject = hitobject
         self.global_index = global_index
         self.spinners_collection = spinners_collection
         self.settings = settings
+        self.data_manager = data_manager
         self.create_spinner()
 
     def create_spinner(self):

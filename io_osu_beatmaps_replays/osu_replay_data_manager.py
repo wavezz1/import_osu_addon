@@ -1,5 +1,7 @@
 # osu_replay_data_manager.py
 
+import bpy
+import os
 from .info_parser import OsuParser, OsrParser
 
 class OsuReplayDataManager:
@@ -64,3 +66,33 @@ class OsuReplayDataManager:
 
         print("\n--- Key Presses (First 10 Presses) ---")
         print(self.key_presses[:10])  # Nur die ersten 10 Tastendrücke zur Übersicht
+
+    def import_audio(self):
+        # Prüfen, ob der Audio-Dateiname in den General Settings existiert
+        audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")
+        if not audio_filename:
+            print("Keine Audio-Datei in den General Settings gefunden.")
+            return
+
+        # Vollständigen Pfad zur Audio-Datei erstellen
+        osu_file_dir = os.path.dirname(self.osu_parser.osu_file_path)
+        audio_path = os.path.join(osu_file_dir, audio_filename)
+
+        # Überprüfen, ob die Datei existiert
+        if not os.path.isfile(audio_path):
+            print(f"Audio-Datei '{audio_filename}' nicht gefunden im Verzeichnis: {osu_file_dir}")
+            return
+
+        # Speaker-Objekt hinzufügen
+        bpy.ops.object.speaker_add(location=(0, 0, 0))
+        speaker = bpy.context.object
+        speaker.name = "OsuAudioSpeaker"
+
+        # Sound-Datei laden und dem Speaker-Objekt zuweisen
+        sound = bpy.data.sounds.load(filepath=audio_path, check_existing=True)
+        speaker.data.sound = sound
+
+        # Playback einstellen (optional)
+        speaker.data.volume = 1.0  # Lautstärke
+        speaker.data.pitch = 1.0  # Playback-Geschwindigkeit
+        print(f"Audio-Datei '{audio_filename}' erfolgreich importiert und dem Speaker hinzugefügt.")

@@ -24,6 +24,7 @@ def main_execution(context):
     # Erstelle eine zentrale Instanz für osu! und Replay-Daten
     data_manager = OsuReplayDataManager(osu_file_path, osr_file_path)
     data_manager.print_all_info()
+    data_manager.import_audio()
 
     # Importiere die HitObjects
     import_hitobjects(data_manager, calculate_speed_multiplier(data_manager.mods))

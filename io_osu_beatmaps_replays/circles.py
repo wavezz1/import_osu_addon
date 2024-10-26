@@ -27,8 +27,8 @@ class CircleCreator:
         start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame())
 
         # Berechne die early_frames abhängig von der AR
-        early_frames = self.calculate_early_frames(approach_rate, speed_multiplier)
-        early_start_frame = start_frame - early_frames
+        #early_frames = self.calculate_early_frames(approach_rate, speed_multiplier)
+        early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
         bpy.ops.mesh.primitive_circle_add(

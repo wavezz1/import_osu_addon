@@ -30,7 +30,7 @@ class CircleCreator:
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
-        osu_radius = (54.4 - 4.48 * circle_size)
+        osu_radius = (54.4 - 4.48 * circle_size) / 2
 
         bpy.ops.mesh.primitive_circle_add(
             fill_type='NGON',
@@ -43,7 +43,7 @@ class CircleCreator:
 
         # Füge "ar" und "cs" als Eigenschaften zum Kreis hinzu
         circle["ar"] = approach_rate
-        circle["cs"] = osu_radius * SCALE_FACTOR * 100
+        circle["cs"] = osu_radius * SCALE_FACTOR * 10
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False

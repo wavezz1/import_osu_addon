@@ -28,7 +28,7 @@ def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
         return None
 
 
-def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0):
+def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0,audio_lead_in=0):
     if cursor is None:
         print("Cursor-Objekt ist None, Animation wird übersprungen.")
         return
@@ -37,6 +37,7 @@ def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0):
     print(f"Replay data (first 10 events): {replay_data[:10]}")
     print(f"Key presses (first 10): {key_presses[:10]}")
 
+    audio_lead_in_frames = audio_lead_in / get_ms_per_frame()
     total_time = 0
     try:
         for i, event in enumerate(replay_data):
@@ -48,7 +49,7 @@ def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0):
             cursor.location = (corrected_x, corrected_y, corrected_z)
 
             adjusted_time_ms = total_time / speed_multiplier
-            frame = (adjusted_time_ms / get_ms_per_frame())
+            frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
 
             cursor["k1"] = key_presses[i]['k1']
             cursor["k2"] = key_presses[i]['k2']

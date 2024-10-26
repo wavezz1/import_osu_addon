@@ -15,6 +15,7 @@ def import_hitobjects(data_manager, speed_multiplier):
 
     settings = {
         'speed_multiplier': speed_multiplier,
+        'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
     }
 
     global_index = 1

@@ -18,12 +18,13 @@ class CircleCreator:
     def create_circle(self):
         approach_rate = self.data_manager.beatmap_info["approach_rate"]
         circle_size = self.data_manager.beatmap_info["circle_size"]
+        audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
         x = self.hitobject.x
         y = self.hitobject.y
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame())
+        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
         early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)

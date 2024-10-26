@@ -3,6 +3,7 @@
 import bpy
 import os
 from .info_parser import OsuParser, OsrParser
+from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
 
 class OsuReplayDataManager:
     def __init__(self, osu_file_path, osr_file_path):
@@ -94,5 +95,13 @@ class OsuReplayDataManager:
 
         # Playback einstellen (optional)
         speaker.data.volume = 1.0  # Lautstärke
-        speaker.data.pitch = 1.0  # Playback-Geschwindigkeit
-        print(f"Audio-Datei '{audio_filename}' erfolgreich importiert und dem Speaker hinzugefügt.")
+        # Playback Geschwindigkeit (Pitch) entsprechend Modifikatoren anpassen
+
+        pitch = 1.0
+        if self.mods & MOD_DOUBLE_TIME:
+            pitch = 1.5
+        elif self.mods & MOD_HALF_TIME:
+            pitch = 0.75
+        speaker.data.pitch = pitch
+
+        print(f"Audio-Datei '{audio_filename}' erfolgreich importiert und mit {pitch}x Pitch dem Speaker hinzugefügt.")

@@ -95,8 +95,11 @@ class OsuReplayDataManager:
 
         # Playback einstellen (optional)
         speaker.data.volume = 1.0  # Lautstärke
-        # Playback Geschwindigkeit (Pitch) entsprechend Modifikatoren anpassen
+        speaker.data.attenuation = 0.0  # Keine Distanz-Dämpfung
+        speaker.data.distance_max = 10000.0  # Hoher Wert für maximale Reichweite
+        speaker.data.distance_reference = 0.1  # Geringer Wert für gleichbleibende Lautstärke
 
+        # Playback Geschwindigkeit (Pitch) entsprechend Modifikatoren anpassen
         pitch = 1.0
         if self.mods & MOD_DOUBLE_TIME:
             pitch = 1.5

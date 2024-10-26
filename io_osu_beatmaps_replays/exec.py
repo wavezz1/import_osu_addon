@@ -39,7 +39,7 @@ def main_execution(context):
     speed_multiplier = calculate_speed_multiplier(data_manager.mods)
 
     # Importiere die HitObjects
-    import_hitobjects(data_manager.osu_parser, speed_multiplier)
+    import_hitobjects(data_manager, speed_multiplier)
 
     # Erstelle und animiere den Cursor
     cursor_collection = create_collection("Cursor")

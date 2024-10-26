@@ -1,5 +1,8 @@
 # hitobjects.py
 
+from .osu_replay_data_manager import OsuReplayDataManager
+
+
 class HitObject:
     def __init__(self, x, y, time, hit_type, hit_sound, extras):
         self.x = x
@@ -9,17 +12,21 @@ class HitObject:
         self.hit_sound = hit_sound
         self.extras = extras
 
+
 class HitObjectsProcessor:
-    def __init__(self, osu_parser):
-        self.osu_parser = osu_parser
+    def __init__(self, data_manager: OsuReplayDataManager):
+        self.data_manager = data_manager
         self.circles = []
         self.sliders = []
         self.spinners = []
         self.process_hitobjects()
 
     def process_hitobjects(self):
-        print(str(self.osu_parser.hitobjects[:10]))
-        for line in self.osu_parser.hitobjects:
+        # Greife auf die hitobjects-Liste über data_manager zu
+        hitobjects = self.data_manager.hitobjects
+        print(str(hitobjects[:10]))
+
+        for line in hitobjects:
             parts = line.split(',')
             if len(parts) < 5:
                 continue

@@ -17,7 +17,6 @@ def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        # Verwende data_manager für die zentralen Beatmap-Informationen
         cursor["ar"] = data_manager.beatmap_info["approach_rate"]
         cursor["cs"] = data_manager.beatmap_info["circle_size"]
 
@@ -33,6 +32,10 @@ def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0):
     if cursor is None:
         print("Cursor-Objekt ist None, Animation wird übersprungen.")
         return
+
+    # Debugging: Ausgabe der Datenstruktur
+    print(f"Replay data (first 10 events): {replay_data[:10]}")
+    print(f"Key presses (first 10): {key_presses[:10]}")
 
     total_time = 0
     try:

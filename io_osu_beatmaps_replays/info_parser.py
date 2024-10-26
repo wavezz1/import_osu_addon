@@ -94,7 +94,7 @@ class OsrParser:
             self.number_50s = replay.count_50
             self.misses = replay.count_miss
 
-            self.parse_key_presses()
+            self.key_presses = self.parse_key_presses()
 
         except Exception as e:
             print(f"Fehler beim Parsen der .osr-Datei: {e}")

@@ -43,7 +43,7 @@ def main_execution(context):
 
     # Erstelle und animiere den Cursor
     cursor_collection = create_collection("Cursor")
-    cursor = create_cursor(cursor_collection, osu_file_path)
+    cursor = create_cursor(cursor_collection, data_manager)
     if cursor:
         animate_cursor(cursor, data_manager.replay_data, data_manager.key_presses, speed_multiplier)
     else:

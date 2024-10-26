@@ -3,9 +3,9 @@
 import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
 from .geometry_nodes import create_geometry_nodes_modifier_cursor
-from .info_parser import OsuParser
+from .osu_replay_data_manager import OsuReplayDataManager
 
-def create_cursor(cursor_collection, osu_file_path):
+def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
     try:
         bpy.ops.mesh.primitive_uv_sphere_add(radius=0.3, location=(0, 0, 0))
         cursor = bpy.context.object
@@ -17,10 +17,9 @@ def create_cursor(cursor_collection, osu_file_path):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        osu_parser = OsuParser(osu_file_path)
-
-        cursor["ar"] = float(osu_parser.difficulty_settings.get("ApproachRate", 5.0))
-        cursor["cs"] = float(osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        # Verwende data_manager für die zentralen Beatmap-Informationen
+        cursor["ar"] = data_manager.beatmap_info["approach_rate"]
+        cursor["cs"] = data_manager.beatmap_info["circle_size"]
 
         create_geometry_nodes_modifier_cursor(cursor, "Cursor")
 

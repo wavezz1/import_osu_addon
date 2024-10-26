@@ -30,7 +30,7 @@ class CircleCreator:
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
-        osu_radius = (54.4 - 4.48 * circle_size) / 2
+        osu_radius = (54.4 - 4.48 * circle_size)
 
         bpy.ops.mesh.primitive_circle_add(
             fill_type='NGON',

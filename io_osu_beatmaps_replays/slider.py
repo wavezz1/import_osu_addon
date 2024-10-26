@@ -88,7 +88,7 @@ class SliderCreator:
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         timing_points = self.data_manager.osu_parser.timing_points
 
-        osu_radius = (54.4 - 4.48 * circle_size) / 2
+        osu_radius = (54.4 - 4.48 * circle_size)
 
         x = self.hitobject.x
         y = self.hitobject.y

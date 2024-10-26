@@ -14,6 +14,11 @@ class OsuReplayDataManager:
             "circle_size": float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0)),
             "bpm": self.osu_parser.bpm,
             "total_hitobjects": self.osu_parser.total_hitobjects,
+            "audio_lead_in": self.osu_parser.audio_lead_in,
+            "timing_points": self.osu_parser.timing_points,
+            "general_settings": self.osu_parser.general_settings,
+            "metadata": self.osu_parser.metadata,
+            "events": self.osu_parser.events,
         }
 
     @property
@@ -21,7 +26,9 @@ class OsuReplayDataManager:
         return {
             "mods": ','.join(self.osr_parser.mod_list) if self.osr_parser.mod_list else "Keine",
             "accuracy": self.osr_parser.calculate_accuracy(),
-            "misses": self.osr_parser.calculate_misses(),
+            "misses": self.osr_parser.misses,
+            "max_combo": self.osr_parser.max_combo,
+            "total_score": self.osr_parser.total_score,
         }
 
     @property

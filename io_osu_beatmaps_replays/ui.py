@@ -15,8 +15,6 @@ class OSUImporterProperties(PropertyGroup):
         description="Pfad zur .osr Replay-Datei",
         subtype='FILE_PATH'
     )
-
-    # Neue Properties für die geparsten Informationen
     approach_rate: FloatProperty(
         name="Approach Rate",
         description="Approach Rate der Beatmap",

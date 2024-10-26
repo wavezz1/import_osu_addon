@@ -5,7 +5,6 @@ import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_circle
 from .info_parser import OsuParser
-from .mod_functions import calculate_speed_multiplier
 
 
 class CircleCreator:
@@ -62,16 +61,12 @@ class CircleCreator:
         create_geometry_nodes_modifier_circle(circle, circle.name)
 
     def calculate_early_frames(self, approach_rate, speed_multiplier):
-        # AR multiplizieren je nach Geschwindigkeit (DT -> 1.5, HT -> 0.75)
         ar = approach_rate * speed_multiplier
-
-        # Die genaue Berechnung der early_frames kann variieren, aber eine Annäherung wäre:
         if ar <= 5:
             early_frames = 1200 + (600 * (5 - ar))
         else:
             early_frames = 1200 - (750 * (ar - 5))
 
-        # Multipliziere early_frames, um sie an das Spieltempo anzupassen
-        early_frames /= get_ms_per_frame()  # Umwandlung in Frames
+        early_frames /= get_ms_per_frame()
 
         return early_frames

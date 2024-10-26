@@ -34,8 +34,6 @@ def is_osrparse_installed():
     except ImportError:
         return None
 
-
-# Operator zum Installieren der richtigen Version von osrparse
 class OSU_OT_InstallOsrparse(Operator):
     bl_idname = "osu_importer.install_osrparse"
     bl_label = "Install osrparse 6.0.2"
@@ -56,8 +54,6 @@ class OSU_OT_InstallOsrparse(Operator):
             self.report({'ERROR'}, f"Fehler bei der Installation von osrparse: {e}")
         return {'FINISHED'}
 
-
-# Addon Preferences für das Überprüfen und Installieren von osrparse
 class OSUImporterPreferences(AddonPreferences):
     bl_idname = __name__
 

@@ -36,7 +36,6 @@ def main_execution(context):
     key_presses = osr_parser.parse_key_presses()
 
     # Setze die neuen Eigenschaften für Beatmap-Informationen
-
     props.approach_rate = float(osu_parser.difficulty_settings.get("ApproachRate", 5))
     props.circle_size = float(osu_parser.difficulty_settings.get("CircleSize", 5))
     props.bpm = osu_parser.bpm
@@ -57,7 +56,7 @@ def main_execution(context):
     cursor_collection = create_collection("Cursor")
     cursor = create_cursor(cursor_collection, osu_file_path)
     if cursor is not None:
-        animate_cursor(cursor, osr_parser.replay_data, key_presses, speed_multiplier)  # Übergabe von key_presses
+        animate_cursor(cursor, osr_parser.replay_data, key_presses, speed_multiplier)
     else:
         print("Cursor konnte nicht erstellt werden.")
 

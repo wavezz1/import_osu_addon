@@ -18,11 +18,10 @@ def create_cursor(cursor_collection, osu_file_path):
                     col.objects.unlink(cursor)
 
         osu_parser = OsuParser(osu_file_path)
-        # Füge Approach Rate (ar) und Circle Size (cs) hinzu
+
         cursor["ar"] = float(osu_parser.difficulty_settings.get("ApproachRate", 5.0))
         cursor["cs"] = float(osu_parser.difficulty_settings.get("CircleSize", 5.0))
 
-        # Füge den Geometry Nodes Modifier hinzu
         create_geometry_nodes_modifier_cursor(cursor, "Cursor")
 
         return cursor
@@ -46,11 +45,9 @@ def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0):
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
             cursor.location = (corrected_x, corrected_y, corrected_z)
 
-            # Zeitberechnung und Frame
             adjusted_time_ms = total_time / speed_multiplier
             frame = (adjusted_time_ms / get_ms_per_frame())
 
-            # Setze die Properties für k1, k2, m1 und m2
             cursor["k1"] = key_presses[i]['k1']
             cursor["k2"] = key_presses[i]['k2']
             cursor["m1"] = key_presses[i]['m1']

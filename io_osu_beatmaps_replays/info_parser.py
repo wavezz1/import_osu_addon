@@ -94,7 +94,7 @@ class OsrParser:
             self.number_50s = replay.count_50
             self.misses = replay.count_miss
 
-            self.parse_key_presses()  # Neu hinzugefügt
+            self.parse_key_presses()
 
         except Exception as e:
             print(f"Fehler beim Parsen der .osr-Datei: {e}")
@@ -121,7 +121,7 @@ class OsrParser:
             1 << 6: "DT",
             1 << 7: "RX",
             1 << 8: "HT",
-            1 << 9: "NC",  # Wird als DT + NC behandelt
+            1 << 9: "NC",
             1 << 10: "FL",
             1 << 11: "AP",
             1 << 12: "SO",
@@ -160,15 +160,3 @@ class OsrParser:
                 'm2': bool(frame.keys & osrparse.utils.Key.M2),
             })
         return key_presses
-
-
-    # def parse_key_presses(self):
-    #     for frame in self.replay_data:
-    #         if frame.keys & osrparse.utils.Key.K1:
-    #             print("K1 gedrückt")
-    #         if frame.keys & osrparse.utils.Key.K2:
-    #             print("K2 gedrückt")
-    #         if frame.keys & osrparse.utils.Key.M1:
-    #             print("M1 gedrückt")
-    #         if frame.keys & osrparse.utils.Key.M2:
-    #             print("M2 gedrückt")

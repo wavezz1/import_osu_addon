@@ -2,18 +2,21 @@
 
 import bpy
 from mathutils import Vector
+from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_slider
-from .info_parser import OsuParser
+from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
+
 class SliderCreator:
-    def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, settings: dict, osu_parser: OsuParser):
+    def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, settings: dict,
+                 data_manager: OsuReplayDataManager):
         self.hitobject = hitobject
         self.global_index = global_index
         self.sliders_collection = sliders_collection
         self.settings = settings
-        self.osu_parser = osu_parser
+        self.data_manager = data_manager
         self.create_slider()
 
     def vector_lerp(self, p0, p1, t):
@@ -28,13 +31,11 @@ class SliderCreator:
             return points  # Nicht genug Punkte für eine Kurve
 
         for i in range(n - 1):
-            # Nutze Vector für die Punkte
             p0 = Vector(points[i - 1]) if i > 0 else Vector(points[i])
             p1 = Vector(points[i])
             p2 = Vector(points[i + 1])
             p3 = Vector(points[i + 2]) if i < n - 2 else Vector(points[i + 1])
 
-            # Catmull-Rom-Interpolation
             for t in [j / 10.0 for j in range(11)]:
                 t2 = t * t
                 t3 = t2 * t
@@ -45,28 +46,29 @@ class SliderCreator:
                 spline_points.append(spline_point)
 
         return spline_points
+
     def create_linear_spline(self, points):
-        return points  # Lineare Spline
+        return points
 
     def create_bezier_spline(self, points):
         bezier_points = []
         n = len(points)
 
-        if n == 2:  # Lineare Bezier-Kurve
+        if n == 2:
             p0, p1 = Vector(points[0]), Vector(points[1])
             for t in [j / 10.0 for j in range(11)]:
                 bezier_point = self.vector_lerp(p0, p1, t)
                 bezier_points.append(bezier_point)
             return bezier_points
 
-        if n == 3:  # Quadratische Bezier-Kurve
+        if n == 3:
             p0, p1, p2 = Vector(points[0]), Vector(points[1]), Vector(points[2])
             for t in [j / 10.0 for j in range(11)]:
                 bezier_point = ((1 - t) ** 2 * p0) + (2 * (1 - t) * t * p1) + (t ** 2 * p2)
                 bezier_points.append(bezier_point)
             return bezier_points
 
-        if n >= 4:  # Kubische Bezier-Kurve
+        if n >= 4:
             for i in range(0, n - 3, 3):
                 p0, p1, p2, p3 = Vector(points[i]), Vector(points[i + 1]), Vector(points[i + 2]), Vector(points[i + 3])
                 for t in [j / 10.0 for j in range(11)]:
@@ -79,13 +81,20 @@ class SliderCreator:
         return bezier_points
 
     def create_slider(self):
-        approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
-        circle_size = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        # Hole Werte über data_manager
+        approach_rate = self.data_manager.beatmap_info["approach_rate"]
+        circle_size = self.data_manager.beatmap_info["circle_size"]
+        audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+        slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
+        timing_points = self.data_manager.osu_parser.timing_points
+
+        osu_radius = (54.4 - 4.48 * circle_size) / 2
+
         x = self.hitobject.x
         y = self.hitobject.y
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame())
+        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
         early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         if self.hitobject.extras:
@@ -100,15 +109,13 @@ class SliderCreator:
                         px, py = float(px_str), float(py_str)
                         points.append((px, py))
 
-                # Verarbeite die Slider entsprechend dem Typ
                 if slider_type == "P":
-                    points = self.create_catmull_rom_spline(points, tension=0.5)  # Spannung kann angepasst werden
+                    points = self.create_catmull_rom_spline(points, tension=0.5)
                 elif slider_type == "L":
                     points = self.create_linear_spline(points)
                 elif slider_type == "B":
                     points = self.create_bezier_spline(points)
 
-                # Erstelle die Kurve in Blender
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",
                                                  type='CURVE')
                 curve_data.dimensions = '3D'
@@ -120,8 +127,7 @@ class SliderCreator:
                     corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
                     bp.co = (corrected_x, corrected_y, corrected_z)
 
-                    # Berechne die Handles, um die Tangenten der Kurve zu berücksichtigen
-                    if i > 0:  # Handle für den vorherigen Punkt setzen (left handle)
+                    if i > 0:
                         prev_point = points[i - 1]
                         prev_corrected_x, prev_corrected_y, prev_corrected_z = map_osu_to_blender(prev_point[0],
                                                                                                   prev_point[1])
@@ -129,7 +135,7 @@ class SliderCreator:
                                           corrected_y + (prev_corrected_y - corrected_y) * 0.3,
                                           corrected_z + (prev_corrected_z - corrected_z) * 0.3)
 
-                    if i < len(points) - 1:  # Handle für den nächsten Punkt setzen (right handle)
+                    if i < len(points) - 1:
                         next_point = points[i + 1]
                         next_corrected_x, next_corrected_y, next_corrected_z = map_osu_to_blender(next_point[0],
                                                                                                   next_point[1])
@@ -137,94 +143,74 @@ class SliderCreator:
                                            corrected_y + (next_corrected_y - corrected_y) * 0.3,
                                            corrected_z + (next_corrected_z - corrected_z) * 0.3)
 
-                    # Setze den Handle-Typ basierend auf der Kurvenart und Position
                     if slider_type == "B" and i > 0 and i < len(points) - 1:
-                        # Ankerpunkte (harter Übergang), setze auf 'VECTOR'
                         bp.handle_left_type = 'VECTOR'
                         bp.handle_right_type = 'VECTOR'
                     else:
-                        # Standardmäßig Handles auf 'FREE' setzen, um die Form manuell anzupassen
                         bp.handle_left_type = 'FREE'
                         bp.handle_right_type = 'FREE'
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
-
                 slider["ar"] = approach_rate
-                slider["cs"] = circle_size
+                slider["cs"] = osu_radius * SCALE_FACTOR
 
-        # Wiederholungen und Pixel-Länge ermitteln
         repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
         pixel_length = float(self.hitobject.extras[2]) if len(self.hitobject.extras) > 2 else 100
 
-                 # Slider-Dauer berechnen
-        slider_duration_ms = self.calculate_slider_duration(time_ms, repeat_count, pixel_length, speed_multiplier)
+        slider_duration_ms = self.calculate_slider_duration(time_ms, repeat_count, pixel_length, speed_multiplier,
+                                                            slider_multiplier, timing_points)
         end_time_ms = time_ms + slider_duration_ms
         end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame())
 
-
-        # Benutzerdefiniertes Attribut "show" hinzufügen
-        slider["show"] = False  # Startwert: Nicht sichtbar
+        slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
 
         slider["show"] = True
         slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
-        # Optional: Ausblenden am Ende
         slider["show"] = True
         slider.keyframe_insert(data_path='["show"]', frame=(end_frame - 1))
 
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=end_frame)
 
-        # Füge "slider_duration_ms" und "slider_duration_frames" hinzu (ohne Keyframe)
         slider["slider_duration_ms"] = slider_duration_ms
 
-        # Berechne slider_duration in Frames basierend auf der Szenen-FPS
         scene_fps = bpy.context.scene.render.fps
         slider_duration_frames = slider_duration_ms / (1000 / scene_fps)
         slider["slider_duration_frames"] = slider_duration_frames
 
         self.sliders_collection.objects.link(slider)
-        # Aus anderen Collections entfernen
         if slider.users_collection:
             for col in slider.users_collection:
                 if col != self.sliders_collection:
                     col.objects.unlink(slider)
-                    
+
         create_geometry_nodes_modifier_slider(slider, slider.name)
 
-    def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier):
-        # Defaultwerte für den Fall, dass keine Timing Points gefunden werden
+    def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier, slider_multiplier,
+                                  timing_points):
         beat_duration = 500  # Fallback-Wert
-        slider_multiplier = float(self.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
-        inherited_multiplier = 1.0  # Wird für inherited Timing Points verwendet
-
-        # Timing Points aus der osu-Datei
-        timing_points = self.osu_parser.timing_points
+        inherited_multiplier = 1.0
         current_beat_length = None
 
-        # Finde den gültigen Timing Point, der vor oder bei der Startzeit des Sliders liegt
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:
-                if beat_length < 0:  # Inherited Timing Point (negativer BeatLength)
-                    inherited_multiplier = -100 / beat_length  # Berechne den Inherited Multiplier
-                else:  # Normaler Timing Point
+                if beat_length < 0:
+                    inherited_multiplier = -100 / beat_length
+                else:
                     current_beat_length = beat_length
             else:
-                break  # Kein weiterer gültiger Timing Point nach der Startzeit gefunden
+                break
 
-        # Prüfen, ob ein gültiger Timing Point gefunden wurde
         if current_beat_length is not None and current_beat_length > 0:
             beat_duration = current_beat_length
         else:
             print(
                 f"Warnung: Kein gültiger Beat Length für Startzeit {start_time_ms}. Fallback-Wert {beat_duration} wird verwendet.")
 
-        # Slider-Dauer in Millisekunden berechnen
         slider_duration_ms = (pixel_length / (
                     slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
-
-        # Anpassung der Slider-Dauer für Mods wie Double Time (DT) oder Half Time (HT)
         slider_duration_ms /= speed_multiplier
 
         return slider_duration_ms

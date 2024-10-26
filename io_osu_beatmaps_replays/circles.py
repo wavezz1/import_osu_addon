@@ -3,35 +3,35 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
+from .constants import SCALE_FACTOR
 from .geometry_nodes import create_geometry_nodes_modifier_circle
-from .info_parser import OsuParser
-from .mod_functions import calculate_speed_multiplier
-
+from .osu_replay_data_manager import OsuReplayDataManager
 
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings, osu_parser: OsuParser):
+    def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuReplayDataManager):
         self.hitobject = hitobject
         self.global_index = global_index
         self.circles_collection = circles_collection
         self.settings = settings
-        self.osu_parser = osu_parser
+        self.data_manager = data_manager
         self.create_circle()
 
     def create_circle(self):
-        approach_rate = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
-        circle_size = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        approach_rate = self.data_manager.beatmap_info["approach_rate"]
+        circle_size = self.data_manager.beatmap_info["circle_size"]
+        audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
         x = self.hitobject.x
         y = self.hitobject.y
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame())
-
-        # Berechne die early_frames abhängig von der AR
-        early_frames = self.calculate_early_frames(approach_rate, speed_multiplier)
-        early_start_frame = start_frame - early_frames
+        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
+        early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+
+        osu_radius = (54.4 - 4.48 * circle_size) / 2
+
         bpy.ops.mesh.primitive_circle_add(
             fill_type='NGON',
             radius=0.5,
@@ -43,7 +43,7 @@ class CircleCreator:
 
         # Füge "ar" und "cs" als Eigenschaften zum Kreis hinzu
         circle["ar"] = approach_rate
-        circle["cs"] = circle_size
+        circle["cs"] = osu_radius * SCALE_FACTOR
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False
@@ -60,18 +60,3 @@ class CircleCreator:
                     col.objects.unlink(circle)
 
         create_geometry_nodes_modifier_circle(circle, circle.name)
-
-    def calculate_early_frames(self, approach_rate, speed_multiplier):
-        # AR multiplizieren je nach Geschwindigkeit (DT -> 1.5, HT -> 0.75)
-        ar = approach_rate * speed_multiplier
-
-        # Die genaue Berechnung der early_frames kann variieren, aber eine Annäherung wäre:
-        if ar <= 5:
-            early_frames = 1200 + (600 * (5 - ar))
-        else:
-            early_frames = 1200 - (750 * (ar - 5))
-
-        # Multipliziere early_frames, um sie an das Spieltempo anzupassen
-        early_frames /= get_ms_per_frame()  # Umwandlung in Frames
-
-        return early_frames

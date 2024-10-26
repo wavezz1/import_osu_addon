@@ -15,8 +15,6 @@ class OSUImporterProperties(PropertyGroup):
         description="Pfad zur .osr Replay-Datei",
         subtype='FILE_PATH'
     )
-
-    # Neue Properties für die geparsten Informationen
     approach_rate: FloatProperty(
         name="Approach Rate",
         description="Approach Rate der Beatmap",
@@ -83,17 +81,32 @@ class OSU_PT_ImporterPanel(Panel):
             replay_info = f"Mods: {props.formatted_mods} | Acc: {props.accuracy:.2f}% | Misses: {props.misses}"
             layout.label(text=replay_info)
 
+
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
     bl_label = "Importieren"
     bl_description = "Importiert die ausgewählte Beatmap und Replay"
 
     def execute(self, context):
-        from .exec import main_execution # Aktualisiert
+        from .exec import main_execution
+
         # Setze die Szene auf 60 FPS
         context.scene.render.fps = 60
-        # Dein bestehender Import-Code kommt hierhin
         self.report({'INFO'}, "Szene auf 60 FPS gesetzt")
 
-        result = main_execution(context)
+        # Importiere die Daten und erhalte das Ergebnis von main_execution
+        result, data_manager = main_execution(context)
+
+        # Aktualisiere die UI-Properties mit den Daten aus data_manager
+        props = context.scene.osu_importer_props
+        props.approach_rate = data_manager.beatmap_info["approach_rate"]
+        props.circle_size = data_manager.beatmap_info["circle_size"]
+        props.bpm = data_manager.beatmap_info["bpm"]
+        props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
+
+        # Replay-Informationen
+        props.formatted_mods = data_manager.replay_info["mods"]
+        props.accuracy = data_manager.replay_info["accuracy"]
+        props.misses = data_manager.replay_info["misses"]
+
         return result

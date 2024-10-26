@@ -5,22 +5,26 @@ import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_spinner
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
+from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
 class SpinnerCreator:
-    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict):
+    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict, data_manager: OsuReplayDataManager):
         self.hitobject = hitobject
         self.global_index = global_index
         self.spinners_collection = spinners_collection
         self.settings = settings
+        self.data_manager = data_manager
         self.create_spinner()
 
     def create_spinner(self):
+        audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+
         x = SPINNER_CENTER_X
         y = SPINNER_CENTER_Y
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame())
+        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
         early_start_frame = start_frame - self.settings.get('early_frames', 5)
 
         # Endzeit des Spinners ermitteln
@@ -36,7 +40,7 @@ class SpinnerCreator:
             radius=1,
             depth=0.1,
             location=(corrected_x, corrected_y, corrected_z),
-            rotation=(math.radians(90), 0, 0)  # Drehung um 90 Grad um die X-Achse
+            rotation=(math.radians(90), 0, 0)
         )
         spinner = bpy.context.object
         spinner.name = f"{self.global_index:03d}_spinner_{time_ms}"

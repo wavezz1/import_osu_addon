@@ -19,33 +19,19 @@ def main_execution(context):
             title="Fehler",
             icon='ERROR'
         )
-        return {'CANCELLED'}
+        return {'CANCELLED'}, None
 
     # Erstelle eine zentrale Instanz für osu! und Replay-Daten
     data_manager = OsuReplayDataManager(osu_file_path, osr_file_path)
 
-    # Setze die neuen Eigenschaften für Beatmap- und Replay-Informationen
-    beatmap_info = data_manager.beatmap_info
-    props.approach_rate = beatmap_info["approach_rate"]
-    props.circle_size = beatmap_info["circle_size"]
-    props.bpm = beatmap_info["bpm"]
-    props.total_hitobjects = beatmap_info["total_hitobjects"]
-
-    replay_info = data_manager.replay_info
-    props.formatted_mods = replay_info["mods"]
-    props.accuracy = replay_info["accuracy"]
-    props.misses = replay_info["misses"]
-
-    speed_multiplier = calculate_speed_multiplier(data_manager.mods)
-
     # Importiere die HitObjects
-    import_hitobjects(data_manager, speed_multiplier)
+    import_hitobjects(data_manager, calculate_speed_multiplier(data_manager.mods))
 
     # Erstelle und animiere den Cursor
     cursor_collection = create_collection("Cursor")
     cursor = create_cursor(cursor_collection, data_manager)
-    if cursor:
-        animate_cursor(cursor, data_manager.replay_data, data_manager.key_presses, speed_multiplier)
+    if cursor is not None:
+        animate_cursor(cursor, data_manager.replay_data, data_manager.key_presses, calculate_speed_multiplier(data_manager.mods))
     else:
         print("Cursor konnte nicht erstellt werden.")
 
@@ -56,4 +42,4 @@ def main_execution(context):
     scene.frame_end = int(max([obj.animation_data.action.frame_range[1] for obj in bpy.data.objects if
                                obj.animation_data and obj.animation_data.action]))
 
-    return {'FINISHED'}
+    return {'FINISHED'}, data_manager

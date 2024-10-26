@@ -24,7 +24,6 @@ class HitObjectsProcessor:
     def process_hitobjects(self):
         # Greife auf die hitobjects-Liste über data_manager zu
         hitobjects = self.data_manager.hitobjects
-        print(str(hitobjects[:10]))
 
         for line in hitobjects:
             parts = line.split(',')

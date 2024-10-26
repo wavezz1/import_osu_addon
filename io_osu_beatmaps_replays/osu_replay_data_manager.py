@@ -46,3 +46,21 @@ class OsuReplayDataManager:
     @property
     def mods(self):
         return self.osr_parser.mods
+
+    def print_all_info(self):
+        print("\n--- Beatmap Information ---")
+        for key, value in self.beatmap_info.items():
+            print(f"{key}: {value}")
+
+        print("\n--- Replay Information ---")
+        for key, value in self.replay_info.items():
+            print(f"{key}: {value}")
+
+        print("\n--- Hit Objects ---")
+        print(self.hitobjects[:10])  # Nur die ersten 10 HitObjects zur Übersicht
+
+        print("\n--- Replay Data (First 10 Events) ---")
+        print(self.replay_data[:10])  # Nur die ersten 10 Replay-Events zur Übersicht
+
+        print("\n--- Key Presses (First 10 Presses) ---")
+        print(self.key_presses[:10])  # Nur die ersten 10 Tastendrücke zur Übersicht

@@ -16,7 +16,6 @@ class OsuParser:
         self.bpm = self.calculate_bpm()
         self.total_hitobjects = len(self.hitobjects)
 
-
     def parse_osu_file(self):
         try:
             with open(self.osu_file_path, 'r', encoding='utf-8') as file:
@@ -43,18 +42,14 @@ class OsuParser:
                     elif section == 'TimingPoints':
                         parts = line.split(',')
                         if len(parts) >= 2:
-                            try:
-                                offset = float(parts[0])
-                                beat_length = float(parts[1])
-                                self.timing_points.append((offset, beat_length))
-                            except ValueError:
-                                print(f"Fehler beim Parsen der Timing Points in Zeile: {line}")
+                            offset, beat_length = float(parts[0]), float(parts[1])
+                            self.timing_points.append((offset, beat_length))
                     elif section == 'HitObjects':
                         self.hitobjects.append(line)
                     elif section == 'Events':
-                        self.events.append(line)  # Speichere Event-Linien zur weiteren Verwendung
+                        self.events.append(line)
         except Exception as e:
-            print(f"Fehler beim Parsen der .osu-Datei: {e}")
+            print(f"Error parsing .osu file: {e}")
 
     def calculate_bpm(self):
         min_beat_length = min((beat_length for _, beat_length in self.timing_points if beat_length > 0), default=None)
@@ -87,11 +82,9 @@ class OsrParser:
             self.misses = replay.count_miss
             self.max_combo = replay.max_combo
             self.score = replay.score
-
             self.key_presses = self.parse_key_presses()
-
         except Exception as e:
-            print(f"Fehler beim Parsen der .osr-Datei: {e}")
+            print(f"Error parsing .osr file: {e}")
 
     def calculate_accuracy(self):
         total_hits = self.number_300s + self.number_100s + self.number_50s + self.misses
@@ -106,18 +99,17 @@ class OsrParser:
             1 << 5: "SD",
             1 << 6: "DT",
             1 << 8: "HT",
-            # ... weitere Mods ...
         }
         return [name for val, name in mod_constants.items() if mods & val]
+
     def parse_key_presses(self):
         key_presses = []
         total_time = 0
         for frame in self.replay_data:
-            time_delta = frame.time_delta
-            total_time += time_delta
+            total_time += frame.time_delta
             key_presses.append({
                 'time': total_time,
-                'time_delta': time_delta,
+                'time_delta': frame.time_delta,
                 'k1': bool(frame.keys & osrparse.utils.Key.K1),
                 'k2': bool(frame.keys & osrparse.utils.Key.K2),
                 'm1': bool(frame.keys & osrparse.utils.Key.M1),

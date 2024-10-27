@@ -15,8 +15,8 @@ def main_execution(context):
 
     if not os.path.isfile(osu_file_path) or not os.path.isfile(osr_file_path):
         context.window_manager.popup_menu(
-            lambda self, ctx: self.layout.label(text="Die angegebene .osu- oder .osr-Datei existiert nicht."),
-            title="Fehler",
+            lambda self, ctx: self.layout.label(text="The specified .osu or .osr file does not exist."),
+            title="Error",
             icon='ERROR'
         )
         return {'CANCELLED'}, None
@@ -27,25 +27,24 @@ def main_execution(context):
         data_manager.import_audio()
 
     data_manager.check_hits()
-
     speed_multiplier = calculate_speed_multiplier(data_manager.mods)
 
     settings = {
         'speed_multiplier': speed_multiplier,
         'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
-        'early_frames': 5,  # Falls benötigt
+        'early_frames': 5,  # if needed
     }
 
     import_hitobjects(data_manager, settings, props)
 
     cursor_collection = create_collection("Cursor")
     cursor = create_cursor(cursor_collection, data_manager)
-    if cursor is not None:
+    if cursor:
         animate_cursor(cursor, data_manager.replay_data, data_manager.key_presses, calculate_speed_multiplier(data_manager.mods))
     else:
-        print("Cursor konnte nicht erstellt werden.")
+        print("Cursor could not be created.")
 
-    # Setze Frame Start und End basierend auf Animation
+    # Set frame start and end based on animation
     scene = bpy.context.scene
     scene.frame_start = int(min([obj.animation_data.action.frame_range[0] for obj in bpy.data.objects if
                                  obj.animation_data and obj.animation_data.action]))

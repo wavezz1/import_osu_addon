@@ -12,19 +12,16 @@ def import_hitobjects(data_manager, settings, props):
 
     global_index = 1
 
-    # Importiere Kreise, wenn die Option aktiviert ist
     if props.import_circles:
         for hitobject in data_manager.hitobjects_processor.circles:
             CircleCreator(hitobject, global_index, circles_collection, settings, data_manager)
             global_index += 1
 
-    # Importiere Slider, wenn die Option aktiviert ist
     if props.import_sliders:
         for hitobject in data_manager.hitobjects_processor.sliders:
             SliderCreator(hitobject, global_index, sliders_collection, settings, data_manager)
             global_index += 1
 
-    # Importiere Spinner, wenn die Option aktiviert ist
     if props.import_spinners:
         for hitobject in data_manager.hitobjects_processor.spinners:
             SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager)

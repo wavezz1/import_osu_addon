@@ -35,17 +35,26 @@ The Driver system is based on the properties of individual hitobjects, whose val
 
 - [Download the .blend file](blendfile/[blender_4.2]osu_in_blender_proof_of_concept.blend)
 
-## How to Use
-
 1. **Import osu! Beatmaps and Replays:**
    - Use the addon interface to select and import your `.osu` beatmap and `.osr` replay files.
 
 2. **Geometry Nodes Setup:**
    - The addon will create Geometry Nodes modifiers for different hitobject types (`Cursor`, `Circle`, `Slider`, `Spinner`), each storing relevant attributes.
 
-3. **Create Simulation Zones:**
-   - Add separate Geometry Nodes objects to utilize the stored attributes.
-   - For example, you can create a simulation zone that spawns hitobjects based on their "show" attribute.
+3. **Access the Attributes:**
+
+4. ![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
+   *General Geometry Nodes setup.*
+
+   ![Circle Geometry Nodes Setup](geo_setup/geo_nodes_setup_circle.png)
+   *Geometry Nodes setup for Circle hitobjects.*
+
+   ![Slider Geometry Nodes Setup](geo_setup/geo_nodes_setup_slider.png)
+   *Geometry Nodes setup for Slider hitobjects.*
+
+   ![Spinner Geometry Nodes Setup](geo_setup/geo_nodes_setup_spinner.png)
+   *Geometry Nodes setup for Spinner hitobjects.*
+
 
 ## Current Features
 

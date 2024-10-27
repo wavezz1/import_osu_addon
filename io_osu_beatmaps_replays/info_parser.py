@@ -116,7 +116,7 @@ class OsrParser:
             time_delta = frame.time_delta
             total_time += time_delta
             key_presses.append({
-                'time': frame.time_delta,
+                'time': total_time,
                 'time_delta': time_delta,
                 'k1': bool(frame.keys & osrparse.utils.Key.K1),
                 'k2': bool(frame.keys & osrparse.utils.Key.K2),

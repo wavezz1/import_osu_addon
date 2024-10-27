@@ -157,8 +157,7 @@ class SliderCreator:
         repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
         pixel_length = float(self.hitobject.extras[2]) if len(self.hitobject.extras) > 2 else 100
 
-        slider_duration_ms = self.calculate_slider_duration(time_ms, repeat_count, pixel_length, speed_multiplier,
-                                                            slider_multiplier, timing_points)
+        slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
         end_time_ms = time_ms + slider_duration_ms
         end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame())
 
@@ -195,30 +194,3 @@ class SliderCreator:
                     col.objects.unlink(slider)
 
         create_geometry_nodes_modifier_slider(slider, slider.name)
-
-    def calculate_slider_duration(self, start_time_ms, repeat_count, pixel_length, speed_multiplier, slider_multiplier,
-                                  timing_points):
-        beat_duration = 500  # Fallback-Wert
-        inherited_multiplier = 1.0
-        current_beat_length = None
-
-        for offset, beat_length in timing_points:
-            if start_time_ms >= offset:
-                if beat_length < 0:
-                    inherited_multiplier = -100 / beat_length
-                else:
-                    current_beat_length = beat_length
-            else:
-                break
-
-        if current_beat_length is not None and current_beat_length > 0:
-            beat_duration = current_beat_length
-        else:
-            print(
-                f"Warnung: Kein gültiger Beat Length für Startzeit {start_time_ms}. Fallback-Wert {beat_duration} wird verwendet.")
-
-        slider_duration_ms = (pixel_length / (
-                    slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
-        slider_duration_ms /= speed_multiplier
-
-        return slider_duration_ms

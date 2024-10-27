@@ -139,45 +139,87 @@ class OsuReplayDataManager:
 
     def check_hits(self):
         hit_window_300, hit_window_100, hit_window_50 = self.calculate_hit_windows()
-        hit_window = hit_window_50  # Wir verwenden das größte Fenster für die Treffererkennung
+        hit_window = hit_window_50  # Größtes Hit-Fenster
 
         speed_multiplier = calculate_speed_multiplier(self.mods)
         audio_lead_in = self.beatmap_info['audio_lead_in']
 
         key_presses = self.key_presses
-        current_time = 0
-        event_index = 0
-        key_state = {'k1': False, 'k2': False, 'm1': False, 'm2': False}
+        # Berechne die tatsächlichen Zeiten der Keypresses unter Berücksichtigung von Mods und Audio Lead-In
+        key_press_times = [(kp['time'] / speed_multiplier) + audio_lead_in for kp in key_presses]
 
         for hitobject in self.hitobjects:
-            # Entferne die Bedingung, die nur Kreise berücksichtigt
-            # if not (hitobject.hit_type & 1):  # Nur Kreise
-            #     continue
-
             hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in
-            window_start = hitobject_time - hit_window
-            window_end = hitobject_time + hit_window
             was_hit = False
 
-            while event_index < len(key_presses) and current_time <= window_end:
-                kp = key_presses[event_index]
-                time_delta = kp['time'] / speed_multiplier
-                current_time += time_delta
+            if hitobject.hit_type & 1:  # Kreis
+                window_start = hitobject_time - hit_window
+                window_end = hitobject_time + hit_window
 
-                # Tastenzustände aktualisieren
-                key_state['k1'] = kp['k1']
-                key_state['k2'] = kp['k2']
-                key_state['m1'] = kp['m1']
-                key_state['m2'] = kp['m2']
-
-                if window_start <= current_time <= window_end:
-                    if any(key_state.values()):
-                        was_hit = True
+                # Durchsuche die Keypresses innerhalb des Hit-Fensters
+                for idx, kp_time in enumerate(key_press_times):
+                    if window_start <= kp_time <= window_end:
+                        kp = key_presses[idx]
+                        if any([kp['k1'], kp['k2'], kp['m1'], kp['m2']]):
+                            was_hit = True
+                            break
+                    elif kp_time > window_end:
                         break
-                elif current_time > window_end:
-                    break
 
-                event_index += 1
+                hitobject.was_hit = was_hit
 
-            hitobject.was_hit = was_hit
-            print(f"HitObject at time {hitobject.time} was_hit: {was_hit}")
+            elif hitobject.hit_type & 2:  # Slider
+                # Berechne die Slider-Dauer
+                slider_duration_ms = self.calculate_slider_duration(hitobject)
+                slider_end_time = (hitobject.time + slider_duration_ms) / speed_multiplier + audio_lead_in
+
+                # Wir prüfen, ob während der Slider-Dauer eine Taste gedrückt wurde
+                window_start = hitobject_time - hit_window
+                window_end = slider_end_time + hit_window  # Etwas Puffer am Ende
+
+                for idx, kp_time in enumerate(key_press_times):
+                    if window_start <= kp_time <= window_end:
+                        kp = key_presses[idx]
+                        if any([kp['k1'], kp['k2'], kp['m1'], kp['m2']]):
+                            was_hit = True
+                            break
+                    elif kp_time > window_end:
+                        break
+
+                hitobject.was_hit = was_hit
+
+            else:
+                # Andere HitObject-Typen können ähnlich behandelt werden
+                pass
+
+            print(f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}")
+
+    def calculate_slider_duration(self, hitobject):
+        start_time_ms = hitobject.time
+        repeat_count = int(hitobject.extras[1]) if len(hitobject.extras) > 1 else 1
+        pixel_length = float(hitobject.extras[2]) if len(hitobject.extras) > 2 else 100.0
+        speed_multiplier = calculate_speed_multiplier(self.mods)
+        slider_multiplier = float(self.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
+        timing_points = self.osu_parser.timing_points
+
+        beat_duration = 500  # Standardwert
+        inherited_multiplier = 1.0
+        current_beat_length = None
+
+        for offset, beat_length in timing_points:
+            if start_time_ms >= offset:
+                if beat_length < 0:
+                    inherited_multiplier = -100 / beat_length
+                else:
+                    current_beat_length = beat_length
+            else:
+                break
+
+        if current_beat_length is not None and current_beat_length > 0:
+            beat_duration = current_beat_length
+
+        slider_duration_ms = (pixel_length / (
+                    slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
+        slider_duration_ms /= speed_multiplier
+
+        return slider_duration_ms

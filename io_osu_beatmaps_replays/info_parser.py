@@ -111,9 +111,13 @@ class OsrParser:
         return [name for val, name in mod_constants.items() if mods & val]
     def parse_key_presses(self):
         key_presses = []
+        total_time = 0
         for frame in self.replay_data:
+            time_delta = frame.time_delta
+            total_time += time_delta
             key_presses.append({
                 'time': frame.time_delta,
+                'time_delta': time_delta,
                 'k1': bool(frame.keys & osrparse.utils.Key.K1),
                 'k2': bool(frame.keys & osrparse.utils.Key.K2),
                 'm1': bool(frame.keys & osrparse.utils.Key.M1),

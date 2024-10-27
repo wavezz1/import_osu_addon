@@ -186,7 +186,7 @@ class OsuReplayDataManager:
                     elif kp_time > window_end:
                         break
 
-                hitobject.was_hit = was_hit
+                # hitobject.was_hit = was_hit
 
                 # Füge 'was_completed' hinzu
                 was_completed = False

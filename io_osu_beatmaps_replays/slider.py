@@ -175,8 +175,8 @@ class SliderCreator:
         slider.keyframe_insert(data_path='["was_completed"]', frame=start_frame - 1)
 
         # Setze 'was_completed' auf den tatsächlichen Wert zum Ende des Sliders
-        slider["was_completed"] = self.hitobject.was_completed
-        slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
+        slider["was_completed"] = True
+        slider.keyframe_insert(data_path='["was_completed"]', frame=start_frame)
 
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))

@@ -60,28 +60,22 @@ class SpinnerCreator:
         spinner["was_hit"] = self.hitobject.was_hit
         spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        # Setze 'was_completed' initial auf False und keyframe es vor dem Start
         spinner["was_completed"] = False
         spinner.keyframe_insert(data_path='["was_completed"]', frame=start_frame - 1)
 
-        # Setze 'was_completed' auf den tatsächlichen Wert zum Ende des Spinners
         spinner["was_completed"] = self.hitobject.was_completed
         spinner.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
 
-        # Setzen der Keyframes und Eigenschaften
-        spinner["show"] = False  # Startwert: Nicht sichtbar
+        spinner["show"] = False
         spinner.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
 
         spinner["show"] = True
         spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
-
-        # Füge die Spinner-Dauer hinzu
         spinner["spinner_duration_ms"] = spinner_duration_ms
         spinner["spinner_duration_frames"] = spinner_duration_frames
 
         self.spinners_collection.objects.link(spinner)
-        # Aus anderen Collections entfernen
         if spinner.users_collection:
             for col in spinner.users_collection:
                 if col != self.spinners_collection:

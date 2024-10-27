@@ -4,9 +4,6 @@ SCALE_FACTOR = 0.01953125
 
 # Mod-Konstanten
 
-# MOD_DOUBLE_TIME = 64
-# MOD_HALF_TIME = 256
-
 MOD_NO_FAIL = 1 << 0  # 1
 MOD_EASY = 1 << 1     # 2
 MOD_HARD_ROCK = 1 << 4  # 16

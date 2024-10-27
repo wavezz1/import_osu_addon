@@ -147,7 +147,6 @@ class SliderCreator:
         return bezier_points
 
     def create_slider(self):
-        # Hole Werte über data_manager
         approach_rate = self.data_manager.calculate_adjusted_ar()
         preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
         preempt_frames = preempt_ms / get_ms_per_frame()

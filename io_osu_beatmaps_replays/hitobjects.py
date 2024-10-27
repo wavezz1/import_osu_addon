@@ -1,8 +1,5 @@
 # hitobjects.py
 
-#from .osu_replay_data_manager import OsuReplayDataManager
-from __future__ import annotations
-
 class HitObject:
     def __init__(self, x, y, time, hit_type, hit_sound, extras):
         self.x = x

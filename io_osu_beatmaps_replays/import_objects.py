@@ -3,7 +3,6 @@
 from .circles import CircleCreator
 from .slider import SliderCreator
 from .spinner import SpinnerCreator
-from .hitobjects import HitObjectsProcessor
 from .utils import create_collection
 
 def import_hitobjects(data_manager, settings, props):

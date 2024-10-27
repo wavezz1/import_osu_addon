@@ -12,7 +12,7 @@ class HitObject:
         self.hit_sound = hit_sound
         self.extras = extras
         self.was_hit = False
-
+        self.was_completed = False
 
 class HitObjectsProcessor:
     def __init__(self, data_manager):

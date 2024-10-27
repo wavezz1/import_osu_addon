@@ -188,11 +188,35 @@ class OsuReplayDataManager:
 
                 hitobject.was_hit = was_hit
 
+                # Füge 'was_completed' hinzu
+                was_completed = False
+                if was_hit:
+                    # Prüfe, ob während der gesamten Slider-Dauer die Tasten gehalten wurden
+                    slider_window_start = hitobject_time
+                    slider_window_end = slider_end_time
+                    keys_held = True
+                    for idx, kp_time in enumerate(key_press_times):
+                        if slider_window_start <= kp_time <= slider_window_end:
+                            kp = key_presses[idx]
+                            if not any([kp['k1'], kp['k2'], kp['m1'], kp['m2']]):
+                                keys_held = False
+                                break
+                        elif kp_time > slider_window_end:
+                            break
+                    was_completed = keys_held
+                hitobject.was_hit = was_hit
+                hitobject.was_completed = was_completed
             else:
                 # Andere HitObject-Typen können ähnlich behandelt werden
-                pass
-
-            print(f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}")
+                hitobject.was_hit = False  # Standardmäßig False setzen
+            # Debug-Ausgabe für jedes HitObject
+            if hitobject.hit_type & 1:
+                print(f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}")
+            elif hitobject.hit_type & 2:
+                print(
+                    f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}, was_completed: {hitobject.was_completed}")
+            else:
+                print(f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}")
 
     def calculate_slider_duration(self, hitobject):
         start_time_ms = hitobject.time

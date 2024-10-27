@@ -19,7 +19,7 @@ The Driver system is based on the properties of individual hitobjects, whose val
 ## Installation
 
 1. **Download the Addon:**
-   - Download the `.zip` file of this addon from the [Releases](#) page.
+   - Download the `.zip` file of this addon from the [Releases](https://github.com/wavezz1/import_osu_addon/releases) page.
 
 2. **Install the Addon in Blender:**
    - Open Blender.

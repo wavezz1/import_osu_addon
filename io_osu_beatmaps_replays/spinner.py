@@ -18,6 +18,10 @@ class SpinnerCreator:
         self.create_spinner()
 
     def create_spinner(self):
+        approach_rate = self.data_manager.calculate_approach_rate()
+        preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
+        preempt_frames = preempt_ms / get_ms_per_frame()
+
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
         x = SPINNER_CENTER_X
@@ -25,7 +29,7 @@ class SpinnerCreator:
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
         start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
-        early_start_frame = start_frame - self.settings.get('early_frames', 5)
+        early_start_frame = start_frame - preempt_frames
 
         # Endzeit des Spinners ermitteln
         if self.hitobject.extras:

@@ -223,3 +223,28 @@ class OsuReplayDataManager:
         slider_duration_ms /= speed_multiplier
 
         return slider_duration_ms
+
+    def calculate_approach_rate(self):
+        ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        original_ar = ar  # Speichere die ursprüngliche AR für Debugging
+
+        # Mods berücksichtigen
+        if self.mods & MOD_HARD_ROCK:
+            ar = min(10, ar * 1.4)
+            print(f"[Debug] Hard Rock Mod aktiviert. Original AR: {original_ar}, Angepasste AR: {ar}")
+        elif self.mods & MOD_EASY:
+            ar = ar * 0.5
+            print(f"[Debug] Easy Mod aktiviert. Original AR: {original_ar}, Angepasste AR: {ar}")
+        else:
+            print(f"[Debug] Keine AR-beeinflussenden Mods aktiviert. AR bleibt bei: {ar}")
+
+        return ar
+
+    def calculate_preempt_time(self, ar):
+        if ar < 5:
+            preempt = 1800 - (120 * ar)
+            print(f"[Debug] AR < 5. Berechnete Preempt-Zeit: {preempt} ms für AR: {ar}")
+        else:
+            preempt = 1200 - (150 * (ar - 5))
+            print(f"[Debug] AR >= 5. Berechnete Preempt-Zeit: {preempt} ms für AR: {ar}")
+        return preempt  # in Millisekunden

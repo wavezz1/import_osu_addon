@@ -82,7 +82,10 @@ class SliderCreator:
 
     def create_slider(self):
         # Hole Werte über data_manager
-        approach_rate = self.data_manager.beatmap_info["approach_rate"]
+        approach_rate = self.data_manager.calculate_approach_rate()
+        preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
+        preempt_frames = preempt_ms / get_ms_per_frame()
+
         circle_size = self.data_manager.beatmap_info["circle_size"]
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
@@ -95,7 +98,7 @@ class SliderCreator:
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
         start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
-        early_start_frame = start_frame - self.settings.get('early_frames', 5)
+        early_start_frame = start_frame - preempt_frames
 
         if self.hitobject.extras:
             slider_data = self.hitobject.extras[0].split('|')

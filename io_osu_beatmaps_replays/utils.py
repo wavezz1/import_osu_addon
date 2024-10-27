@@ -5,7 +5,7 @@ from .constants import SCALE_FACTOR
 
 def get_ms_per_frame():
     fps = bpy.context.scene.render.fps
-    return 1000 / fps  # Millisekunden pro Frame
+    return 1000 / fps  # Milliseconds per frame
 
 def create_collection(name):
     collection = bpy.data.collections.get(name)
@@ -15,7 +15,7 @@ def create_collection(name):
     return collection
 
 def map_osu_to_blender(x, y):
-    corrected_x = (x - 256) * SCALE_FACTOR  # Zentrieren auf 0
+    corrected_x = (x - 256) * SCALE_FACTOR  # Centering on zero
     corrected_y = 0
-    corrected_z = (192 - y) * SCALE_FACTOR  # Invertieren und zentrieren
+    corrected_z = (192 - y) * SCALE_FACTOR  # Invert and center
     return corrected_x, corrected_y, corrected_z

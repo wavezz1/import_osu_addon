@@ -37,21 +37,19 @@ def is_osrparse_installed():
 class OSU_OT_InstallOsrparse(Operator):
     bl_idname = "osu_importer.install_osrparse"
     bl_label = "Install osrparse 6.0.2"
-    bl_description = "Installiert osrparse 6.0.2 oder ersetzt eine höhere Version"
+    bl_description = "Installs osrparse 6.0.2 or replaces a higher version"
 
     def execute(self, context):
         try:
             installed_version = is_osrparse_installed()
             if installed_version and installed_version.startswith("7"):
-                # Deinstalliere die Version 7.x.x
                 subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "-y", "osrparse"])
-                self.report({'INFO'}, f"osrparse {installed_version} deinstalliert")
+                self.report({'INFO'}, f"osrparse {installed_version} uninstalled")
 
-            # Installiere Version 6.0.2
             subprocess.check_call([sys.executable, "-m", "pip", "install", "osrparse==6.0.2"])
-            self.report({'INFO'}, "osrparse 6.0.2 erfolgreich installiert")
+            self.report({'INFO'}, "osrparse 6.0.2 installed successfully")
         except subprocess.CalledProcessError as e:
-            self.report({'ERROR'}, f"Fehler bei der Installation von osrparse: {e}")
+            self.report({'ERROR'}, f"Error installing osrparse: {e}")
         return {'FINISHED'}
 
 class OSUImporterPreferences(AddonPreferences):
@@ -62,12 +60,12 @@ class OSUImporterPreferences(AddonPreferences):
         installed_version = is_osrparse_installed()
 
         if installed_version == "6.0.2":
-            layout.label(text="osrparse 6.0.2 ist installiert", icon='CHECKMARK')
+            layout.label(text="osrparse 6.0.2 is installed", icon='CHECKMARK')
         else:
             if installed_version and installed_version.startswith("7"):
-                layout.label(text=f"osrparse {installed_version} installiert (höhere Version)", icon='ERROR')
+                layout.label(text=f"osrparse {installed_version} installed (higher version)", icon='ERROR')
             else:
-                layout.label(text="osrparse ist nicht installiert", icon='ERROR')
+                layout.label(text="osrparse not installed", icon='ERROR')
             layout.operator("osu_importer.install_osrparse", text="Install osrparse 6.0.2")
 
 def register():
@@ -83,5 +81,6 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.osu_importer_props
+
 if __name__ == "__main__":
     register()

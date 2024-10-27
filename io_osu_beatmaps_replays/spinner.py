@@ -19,27 +19,20 @@ class SpinnerCreator:
 
     def create_spinner(self):
         approach_rate = self.data_manager.calculate_adjusted_ar()
-        preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
-        preempt_frames = preempt_ms / get_ms_per_frame()
-
+        preempt_frames = self.data_manager.calculate_preempt_time(approach_rate) / get_ms_per_frame()
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
-        x = SPINNER_CENTER_X
-        y = SPINNER_CENTER_Y
-        time_ms = self.hitobject.time
-        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
+        start_frame = (self.hitobject.time / self.settings.get('speed_multiplier', 1.0)) / get_ms_per_frame() + audio_lead_in_frames
         early_start_frame = start_frame - preempt_frames
 
-        # Endzeit des Spinners ermitteln
         if self.hitobject.extras:
             end_time_ms = int(self.hitobject.extras[0])
-            end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame())
+            end_frame = end_time_ms / self.settings.get('speed_multiplier', 1.0) / get_ms_per_frame()
         else:
-            print(f"Keine Endzeit für Spinner bei {time_ms} ms gefunden.")
+            print(f"No end time found for spinner at {self.hitobject.time} ms.")
             return
 
-        corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+        corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
         bpy.ops.mesh.primitive_cylinder_add(
             radius=1,
             depth=0.1,
@@ -47,27 +40,17 @@ class SpinnerCreator:
             rotation=(math.radians(90), 0, 0)
         )
         spinner = bpy.context.object
-        spinner.name = f"{self.global_index:03d}_spinner_{time_ms}"
+        spinner.name = f"{self.global_index:03d}_spinner_{self.hitobject.time}"
 
-        # Spinner-Dauer berechnen
-        spinner_duration_ms = end_time_ms - time_ms
+        spinner_duration_ms = end_time_ms - self.hitobject.time
         scene_fps = bpy.context.scene.render.fps
         spinner_duration_frames = spinner_duration_ms / (1000 / scene_fps)
-
-        spinner["was_hit"] = False  # Initial value
-        spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
 
         spinner["was_hit"] = self.hitobject.was_hit
         spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        spinner["was_completed"] = False
-        spinner.keyframe_insert(data_path='["was_completed"]', frame=start_frame - 1)
-
         spinner["was_completed"] = self.hitobject.was_completed
         spinner.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
-
-        spinner["show"] = False
-        spinner.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
 
         spinner["show"] = True
         spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame)

@@ -25,11 +25,11 @@ def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
     # Erstelle die Attribute für "k1", "k2", "m1", "m2", "ar", "cs"
     previous_node = input_node  # Start mit Input-Node
 
-    for key in ["k1", "k2", "m1", "m2", "ar", "cs"]:
+    for key in ["k1", "k2", "m1", "m2"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node_key.location.x = previous_node.location.x + 200
         store_attribute_node_key.inputs['Name'].default_value = key
-        store_attribute_node_key.data_type = 'FLOAT' if key in ["ar", "cs"] else 'BOOLEAN'
+        store_attribute_node_key.data_type = 'BOOLEAN'
         store_attribute_node_key.domain = 'POINT'
 
         # Driver auf Input setzen
@@ -71,7 +71,7 @@ def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
     # Store Named Attribute Knoten hinzufügen (für "show", "ar", "cs")
-    for key in ["show", "was_hit"]:
+    for key in ["show", "ar", "cs", "was_hit"]:
         store_attribute_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node.location.x = input_node.location.x + 200
         store_attribute_node.inputs['Name'].default_value = key

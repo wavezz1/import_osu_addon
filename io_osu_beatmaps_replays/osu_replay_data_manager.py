@@ -180,3 +180,4 @@ class OsuReplayDataManager:
                 event_index += 1
 
             hitobject.was_hit = was_hit
+            print(f"HitObject at time {hitobject.time} was_hit: {was_hit}")

@@ -30,7 +30,10 @@ class SliderCreator:
             print("Perfekter Slider erfordert genau 3 Punkte.")
             return points  # Fallback auf Originalpunkte
 
-        p1, p2, p3 = Vector(points[0]), Vector(points[1]), Vector(points[2])
+        # Konvertiere Punkte zu 3D-Vektoren
+        p1 = Vector((points[0][0], points[0][1], 0))
+        p2 = Vector((points[1][0], points[1][1], 0))
+        p3 = Vector((points[2][0], points[2][1], 0))
 
         # Berechnung des Kreismittelpunktes
         def circle_center(p1, p2, p3):
@@ -77,10 +80,15 @@ class SliderCreator:
         spline_points = []
         for t in [i / (num_points - 1) for i in range(num_points)]:
             angle = angles[0] + t * (angles[2] - angles[0])
-            point = center + Vector((math.cos(angle) * radius, math.sin(angle) * radius, 0))
+            point = center + Vector((
+                math.cos(angle) * radius,
+                math.sin(angle) * radius,
+                0
+            ))
             spline_points.append(point)
 
         return spline_points
+
 
     def create_catmull_rom_spline(self, points, tension=0.5):
         spline_points = []

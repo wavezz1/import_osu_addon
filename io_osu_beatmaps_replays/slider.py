@@ -162,6 +162,9 @@ class SliderCreator:
         end_time_ms = time_ms + slider_duration_ms
         end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame())
 
+        slider["was_hit"] = self.hitobject.was_hit
+        slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
+
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
 
@@ -176,7 +179,7 @@ class SliderCreator:
 
         slider["slider_duration_ms"] = slider_duration_ms
 
-        slider["was_hit"] = self.hitobject.was_hit
+
 
         scene_fps = bpy.context.scene.render.fps
         slider_duration_frames = slider_duration_ms / (1000 / scene_fps)

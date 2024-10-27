@@ -150,8 +150,9 @@ class OsuReplayDataManager:
         key_state = {'k1': False, 'k2': False, 'm1': False, 'm2': False}
 
         for hitobject in self.hitobjects:
-            if not (hitobject.hit_type & 1):  # Nur Kreise
-                continue
+            # Entferne die Bedingung, die nur Kreise berücksichtigt
+            # if not (hitobject.hit_type & 1):  # Nur Kreise
+            #     continue
 
             hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in
             window_start = hitobject_time - hit_window
@@ -163,7 +164,7 @@ class OsuReplayDataManager:
                 time_delta = kp['time'] / speed_multiplier
                 current_time += time_delta
 
-                # Tastenzustände aus den bereits geparsten Daten aktualisieren
+                # Tastenzustände aktualisieren
                 key_state['k1'] = kp['k1']
                 key_state['k2'] = kp['k2']
                 key_state['m1'] = kp['m1']

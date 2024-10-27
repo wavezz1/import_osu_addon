@@ -46,6 +46,7 @@ class CircleCreator:
         circle["cs"] = osu_radius * SCALE_FACTOR
 
         circle["was_hit"] = self.hitobject.was_hit
+        circle.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False

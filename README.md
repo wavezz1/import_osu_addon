@@ -55,6 +55,35 @@ The Driver system is based on the properties of individual hitobjects, whose val
    ![Spinner Geometry Nodes Setup](geo_setup/geo_nodes_setup_spinner.png)
    *Geometry Nodes setup for Spinner hitobjects.*
 
+## Geometry Nodes Attributes
+
+### Cursor Attributes
+- **k1**: Boolean – Key status for K1
+- **k2**: Boolean – Key status for K2
+- **m1**: Boolean – Mouse button M1 status
+- **m2**: Boolean – Mouse button M2 status
+
+### Circle Attributes
+- **show**: Boolean – Visibility of the hitobject
+- **was_hit**: Boolean – Whether the hitobject was hit
+- **ar**: Float – Approach Rate
+- **cs**: Float – Circle Size
+
+### Slider Attributes
+- **show**: Boolean – Visibility of the hitobject
+- **slider_duration**: Float – Duration of the slider in seconds
+- **slider_duration_frames**: Float – Duration of the slider in frames
+- **ar**: Float – Approach Rate
+- **cs**: Float – Circle Size
+- **was_hit**: Boolean – Whether the slider was hit
+- **was_completed**: Boolean – Whether the slider was fully played
+
+### Spinner Attributes
+- **show**: Boolean – Visibility of the hitobject
+- **spinner_duration_ms**: Float – Duration of the spinner in milliseconds
+- **spinner_duration_frames**: Float – Duration of the spinner in frames
+- **was_hit**: Boolean – Whether the spinner was hit
+- **was_completed**: Boolean – Whether the spinner was fully played
 
 ## Current Features
 
@@ -63,7 +92,7 @@ The Driver system is based on the properties of individual hitobjects, whose val
   
 - **Geometry Nodes Modifiers:**
   - Each hitobject type (`Cursor`, `Circle`, `Slider`, `Spinner`) has a dedicated Geometry Nodes modifier.
-  - Attributes are stored and driven by object properties
+  - Attributes are stored and driven by object properties.
 
 - **Driver System:**
   - Utilizes Blender's driver system to link Geometry Nodes attributes with hitobject properties.
@@ -76,9 +105,9 @@ The Driver system is based on the properties of individual hitobjects, whose val
   - Replays are sometimes flipped by 180° on the Z axis.
 
 - **Performance Problems**
-  - Geometry Nodes currently get created for every Hitobject. This needs to be improved in coming versions.
+  - Geometry Nodes currently get created for every hitobject. This needs to be improved in future versions.
 
-## Ending Words 
+## Ending Words
 
 I only have basic Python knowledge, so please don’t murder me over bad code. Any help to make this work correctly is highly appreciated. Feel free to do whatever you want with the code.
 

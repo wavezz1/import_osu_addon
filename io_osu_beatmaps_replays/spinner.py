@@ -18,7 +18,7 @@ class SpinnerCreator:
         self.create_spinner()
 
     def create_spinner(self):
-        approach_rate = self.data_manager.calculate_approach_rate()
+        approach_rate = self.data_manager.calculate_adjusted_ar()
         preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
         preempt_frames = preempt_ms / get_ms_per_frame()
 

@@ -5,11 +5,13 @@ import os
 from .info_parser import OsuParser, OsrParser
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from .mod_functions import calculate_speed_multiplier
+from .hitobjects import HitObjectsProcessor
 
 class OsuReplayDataManager:
     def __init__(self, osu_file_path, osr_file_path):
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
+        self.hitobjects_processor = HitObjectsProcessor(self)
 
     @property
     def beatmap_info(self):
@@ -37,8 +39,12 @@ class OsuReplayDataManager:
 
     @property
     def hitobjects(self):
-        return self.osu_parser.hitobjects
-
+        # Kombiniere alle verarbeiteten HitObjects aus dem HitObjectsProcessor
+        return (
+                self.hitobjects_processor.circles +
+                self.hitobjects_processor.sliders +
+                self.hitobjects_processor.spinners
+        )
     @property
     def replay_data(self):
         return self.osr_parser.replay_data

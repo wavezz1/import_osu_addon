@@ -170,13 +170,26 @@ class SliderCreator:
         slider["was_hit"] = self.hitobject.was_hit
         slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        # Setze 'was_completed' initial auf False und keyframe es vor dem Start
+        # Initialisiere 'was_completed' auf False
         slider["was_completed"] = False
-        slider.keyframe_insert(data_path='["was_completed"]', frame=start_frame - 1)
+
+        # Berechne den Frame vor dem Ende des Sliders
+        before_end_frame = end_frame - 1
+
+        # Prüfe, ob der Slider nur einen Frame dauert oder weniger
+        if before_end_frame <= start_frame:
+            # Fallback für Slider mit sehr kurzer Dauer
+            before_end_frame = start_frame
+            end_frame_adjusted = start_frame + 1
+        else:
+            end_frame_adjusted = end_frame
+
+        # Keyframe 'was_completed' auf False vor dem Ende des Sliders
+        slider.keyframe_insert(data_path='["was_completed"]', frame=before_end_frame)
 
         # Setze 'was_completed' auf den tatsächlichen Wert zum Ende des Sliders
-        slider["was_completed"] = True
-        slider.keyframe_insert(data_path='["was_completed"]', frame=start_frame)
+        slider["was_completed"] = self.hitobject.was_completed
+        slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame_adjusted)
 
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))

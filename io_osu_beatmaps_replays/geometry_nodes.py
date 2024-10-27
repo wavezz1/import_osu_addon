@@ -41,7 +41,7 @@ def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
     create_geometry_nodes_modifier(obj, driver_obj_name, attributes)
 
 def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
-    attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN', "ar": 'FLOAT', "cs": 'FLOAT'}
+    attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'}
     create_geometry_nodes_modifier(obj, driver_obj_name, attributes)
 
 def create_geometry_nodes_modifier_slider(obj, driver_obj_name):

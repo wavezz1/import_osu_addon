@@ -17,20 +17,15 @@ def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        cursor["ar"] = data_manager.beatmap_info["approach_rate"]
-        cursor["cs"] = data_manager.beatmap_info["circle_size"]
-
         create_geometry_nodes_modifier_cursor(cursor, "Cursor")
-
         return cursor
     except Exception as e:
-        print(f"Fehler beim Erstellen des Cursors: {e}")
+        print(f"Error creating cursor: {e}")
         return None
 
-
-def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0,audio_lead_in=0):
+def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0, audio_lead_in=0):
     if cursor is None:
-        print("Cursor-Objekt ist None, Animation wird übersprungen.")
+        print("Cursor object is None, skipping animation.")
         return
 
     audio_lead_in_frames = audio_lead_in / get_ms_per_frame()
@@ -52,7 +47,7 @@ def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0,audio_
             cursor["m1"] = key_presses[i]['m1']
             cursor["m2"] = key_presses[i]['m2']
 
-            # Setze die Keyframes
+            # Insert keyframes
             cursor.keyframe_insert(data_path='location', frame=frame)
             cursor.keyframe_insert(data_path='["k1"]', frame=frame)
             cursor.keyframe_insert(data_path='["k2"]', frame=frame)
@@ -60,4 +55,4 @@ def animate_cursor(cursor, replay_data, key_presses, speed_multiplier=1.0,audio_
             cursor.keyframe_insert(data_path='["m2"]', frame=frame)
 
     except Exception as e:
-        print(f"Fehler beim Animieren des Cursors: {e}")
+        print(f"Error animating cursor: {e}")

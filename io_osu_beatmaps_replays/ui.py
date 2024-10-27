@@ -39,14 +39,12 @@ class OSU_PT_ImporterPanel(Panel):
         layout = self.layout
         props = context.scene.osu_importer_props
 
-        # File Selection
         box = layout.box()
         box.label(text="File Selection", icon='FILE_FOLDER')
         box.prop(props, "osu_file")
         box.prop(props, "osr_file")
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
 
-        # Beatmap Information
         if props.bpm != 0.0:
             box = layout.box()
             box.label(text="Beatmap Information", icon='INFO')
@@ -60,7 +58,6 @@ class OSU_PT_ImporterPanel(Panel):
             col.label(text=f"OD: {props.base_overall_difficulty} ({props.adjusted_overall_difficulty:.1f})" if od_modified else f"OD: {props.base_overall_difficulty}")
             col.label(text=f"HitObjects: {props.total_hitobjects}")
 
-        # Replay Information
         if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
             box = layout.box()
             box.label(text="Replay Information", icon='PLAY')
@@ -71,7 +68,6 @@ class OSU_PT_ImporterPanel(Panel):
             col.label(text=f"Max Combo: {props.max_combo}")
             col.label(text=f"Total Score: {props.total_score}")
 
-        # Settings
         box = layout.box()
         box.label(text="Settings", icon='PREFERENCES')
         col = box.column(align=True)
@@ -87,27 +83,35 @@ class OSU_OT_Import(Operator):
 
     def execute(self, context):
         from .exec import main_execution
-
-        context.scene.render.fps = 60
-        self.report({'INFO'}, "Scene set to 60 FPS")
-
-        result, data_manager = main_execution(context)
-
         props = context.scene.osu_importer_props
-        props.base_approach_rate = data_manager.get_base_ar()
-        props.adjusted_approach_rate = data_manager.calculate_adjusted_ar()
-        props.base_circle_size = data_manager.get_base_cs()
-        props.adjusted_circle_size = data_manager.calculate_adjusted_cs()
-        props.base_overall_difficulty = data_manager.get_base_od()
-        props.adjusted_overall_difficulty = data_manager.calculate_adjusted_od()
-        props.bpm = data_manager.beatmap_info["bpm"]
-        props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
 
-        # Replay Information
-        props.formatted_mods = data_manager.replay_info["mods"]
-        props.accuracy = data_manager.replay_info["accuracy"]
-        props.misses = data_manager.replay_info["misses"]
-        props.max_combo = data_manager.replay_info["max_combo"]
-        props.total_score = data_manager.replay_info["total_score"]
+        try:
+            if not (props.osu_file and props.osr_file):
+                self.report({'ERROR'}, "Please specify both .osu and .osr files.")
+                return {'CANCELLED'}
 
-        return result
+            context.scene.render.fps = 60
+            self.report({'INFO'}, "Scene set to 60 FPS")
+
+            result, data_manager = main_execution(context)
+
+            props.base_approach_rate = data_manager.get_base_ar()
+            props.adjusted_approach_rate = data_manager.calculate_adjusted_ar()
+            props.base_circle_size = data_manager.get_base_cs()
+            props.adjusted_circle_size = data_manager.calculate_adjusted_cs()
+            props.base_overall_difficulty = data_manager.get_base_od()
+            props.adjusted_overall_difficulty = data_manager.calculate_adjusted_od()
+            props.bpm = data_manager.beatmap_info["bpm"]
+            props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
+
+            props.formatted_mods = data_manager.replay_info["mods"]
+            props.accuracy = data_manager.replay_info["accuracy"]
+            props.misses = data_manager.replay_info["misses"]
+            props.max_combo = data_manager.replay_info["max_combo"]
+            props.total_score = data_manager.replay_info["total_score"]
+
+            return result
+
+        except Exception as e:
+            self.report({'ERROR'}, f"Error during import: {str(e)}")
+            return {'CANCELLED'}

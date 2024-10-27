@@ -46,11 +46,11 @@ class SliderCreator:
                 print("Punkte sind kolinear, können keinen Kreis bilden.")
                 return None
 
-            center = p1 + Vector(
+            center = p1 + Vector((
                 (temp2.y * a - temp.y * c) / d,
                 (temp.x * c - temp2.x * a) / d,
                 0
-            )
+            ))
             return center
 
         center = circle_center(p1, p2, p3)

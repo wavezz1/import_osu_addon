@@ -1,6 +1,7 @@
 # slider.py
 
 import bpy
+import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame
@@ -23,6 +24,63 @@ class SliderCreator:
         p0 = Vector(p0)
         p1 = Vector(p1)
         return p0.lerp(p1, t)
+
+    def create_perfect_circle_spline(self, points):
+        if len(points) != 3:
+            print("Perfekter Slider erfordert genau 3 Punkte.")
+            return points  # Fallback auf Originalpunkte
+
+        p1, p2, p3 = Vector(points[0]), Vector(points[1]), Vector(points[2])
+
+        # Berechnung des Kreismittelpunktes
+        def circle_center(p1, p2, p3):
+            temp = p2 - p1
+            temp2 = p3 - p1
+
+            a = temp.length_squared
+            b = temp.dot(temp2)
+            c = temp2.length_squared
+            d = 2 * (temp.x * temp2.y - temp.y * temp2.x)
+
+            if d == 0:
+                print("Punkte sind kolinear, können keinen Kreis bilden.")
+                return None
+
+            center = p1 + Vector(
+                (temp2.y * a - temp.y * c) / d,
+                (temp.x * c - temp2.x * a) / d,
+                0
+            )
+            return center
+
+        center = circle_center(p1, p2, p3)
+        if center is None:
+            return [p1, p3]  # Fallback auf eine Linie zwischen erstem und letztem Punkt
+
+        radius = (p1 - center).length
+
+        # Berechnung der Winkel
+        angle1 = (p1 - center).to_2d().angle_signed(Vector((1, 0)))
+        angle2 = (p2 - center).to_2d().angle_signed(Vector((1, 0)))
+        angle3 = (p3 - center).to_2d().angle_signed(Vector((1, 0)))
+
+        # Korrigiere Winkel für Kontinuität
+        angles = [angle1, angle2, angle3]
+        for i in range(1, len(angles)):
+            while angles[i] - angles[i - 1] > math.pi:
+                angles[i] -= 2 * math.pi
+            while angles[i] - angles[i - 1] < -math.pi:
+                angles[i] += 2 * math.pi
+
+        # Erstellen des Kreisbogens
+        num_points = 50  # Anzahl der Punkte für die Kurve
+        spline_points = []
+        for t in [i / (num_points - 1) for i in range(num_points)]:
+            angle = angles[0] + t * (angles[2] - angles[0])
+            point = center + Vector((math.cos(angle) * radius, math.sin(angle) * radius, 0))
+            spline_points.append(point)
+
+        return spline_points
 
     def create_catmull_rom_spline(self, points, tension=0.5):
         spline_points = []
@@ -112,46 +170,51 @@ class SliderCreator:
                         px, py = float(px_str), float(py_str)
                         points.append((px, py))
 
-                if slider_type == "P":
-                    points = self.create_catmull_rom_spline(points, tension=0.5)
-                elif slider_type == "L":
+                # Behandlung der Slider-Typen
+                if slider_type == "L":
                     points = self.create_linear_spline(points)
+                    curve_type = 'POLY'
+                elif slider_type == "P":
+                    points = self.create_perfect_circle_spline(points)
+                    curve_type = 'POLY'
                 elif slider_type == "B":
                     points = self.create_bezier_spline(points)
+                    curve_type = 'BEZIER'
+                elif slider_type == "C":
+                    points = self.create_catmull_rom_spline(points, tension=0.0)
+                    curve_type = 'NURBS'
+                else:
+                    print(f"Unbekannter Slider-Typ: {slider_type}. Verwende lineare Spline.")
+                    points = self.create_linear_spline(points)
+                    curve_type = 'POLY'
 
+                # Kurve erstellen
                 curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_slider_{time_ms}_{slider_type}_curve",
                                                  type='CURVE')
                 curve_data.dimensions = '3D'
-                spline = curve_data.splines.new('BEZIER')
-                spline.bezier_points.add(len(points) - 1)
 
-                for i, point in enumerate(points):
-                    bp = spline.bezier_points[i]
-                    corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                    bp.co = (corrected_x, corrected_y, corrected_z)
-
-                    if i > 0:
-                        prev_point = points[i - 1]
-                        prev_corrected_x, prev_corrected_y, prev_corrected_z = map_osu_to_blender(prev_point[0],
-                                                                                                  prev_point[1])
-                        bp.handle_left = (corrected_x + (prev_corrected_x - corrected_x) * 0.3,
-                                          corrected_y + (prev_corrected_y - corrected_y) * 0.3,
-                                          corrected_z + (prev_corrected_z - corrected_z) * 0.3)
-
-                    if i < len(points) - 1:
-                        next_point = points[i + 1]
-                        next_corrected_x, next_corrected_y, next_corrected_z = map_osu_to_blender(next_point[0],
-                                                                                                  next_point[1])
-                        bp.handle_right = (corrected_x + (next_corrected_x - corrected_x) * 0.3,
-                                           corrected_y + (next_corrected_y - corrected_y) * 0.3,
-                                           corrected_z + (next_corrected_z - corrected_z) * 0.3)
-
-                    if slider_type == "B" and i > 0 and i < len(points) - 1:
-                        bp.handle_left_type = 'VECTOR'
-                        bp.handle_right_type = 'VECTOR'
-                    else:
-                        bp.handle_left_type = 'FREE'
-                        bp.handle_right_type = 'FREE'
+                if curve_type == 'POLY':
+                    spline = curve_data.splines.new('POLY')
+                    spline.points.add(len(points) - 1)
+                    for i, point in enumerate(points):
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
+                elif curve_type == 'BEZIER':
+                    spline = curve_data.splines.new('BEZIER')
+                    spline.bezier_points.add(len(points) - 1)
+                    for i, point in enumerate(points):
+                        bp = spline.bezier_points[i]
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        bp.co = (corrected_x, corrected_y, corrected_z)
+                        bp.handle_left_type = 'AUTO'
+                        bp.handle_right_type = 'AUTO'
+                elif curve_type == 'NURBS':
+                    spline = curve_data.splines.new('NURBS')
+                    spline.points.add(len(points) - 1)
+                    for i, point in enumerate(points):
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
+                    spline.order_u = 3  # Ordnung der NURBS-Kurve
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{time_ms}_{slider_type}", curve_data)
                 slider["ar"] = approach_rate

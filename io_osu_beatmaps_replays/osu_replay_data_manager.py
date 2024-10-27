@@ -121,7 +121,7 @@ class OsuReplayDataManager:
 
         # Mods berücksichtigen
         if self.mods & MOD_HARD_ROCK:
-            od = min(10, od * 1.4)
+            od = od * 1.4
         elif self.mods & MOD_EASY:
             od = od * 0.5
 
@@ -206,13 +206,55 @@ class OsuReplayDataManager:
                     was_completed = keys_held
                 hitobject.was_hit = was_hit
                 hitobject.was_completed = was_completed
+
+            elif hitobject.hit_type & 8:  # Spinner
+                # Berechne die Spinner-Dauer
+                spinner_duration_ms = self.calculate_spinner_duration(hitobject)
+                spinner_end_time = (hitobject.time + spinner_duration_ms) / speed_multiplier + audio_lead_in
+
+                # Wir prüfen, ob der Spinner gestartet wurde
+                window_start = hitobject_time - hit_window
+                window_end = spinner_end_time + hit_window  # Etwas Puffer am Ende
+
+                for idx, kp_time in enumerate(key_press_times):
+                    if window_start <= kp_time <= window_end:
+                        kp = key_presses[idx]
+                        if any([kp['k1'], kp['k2'], kp['m1'], kp['m2']]):
+                            was_hit = True
+                            break
+                    elif kp_time > window_end:
+                        break
+
+                # Füge 'was_completed' hinzu
+                was_completed = False
+                if was_hit:
+                    # Prüfe, ob während der gesamten Spinner-Dauer die Tasten gehalten wurden
+                    spinner_window_start = hitobject_time
+                    spinner_window_end = spinner_end_time
+                    keys_held = True
+                    for idx, kp_time in enumerate(key_press_times):
+                        if kp_time > spinner_window_end:
+                            break
+                        if spinner_window_start <= kp_time <= spinner_window_end:
+                            kp = key_presses[idx]
+                            if not any([kp['k1'], kp['k2'], kp['m1'], kp['m2']]):
+                                keys_held = False
+                                break
+                    was_completed = keys_held
+                hitobject.was_hit = was_hit
+                hitobject.was_completed = was_completed
+
             else:
                 # Andere HitObject-Typen können ähnlich behandelt werden
                 hitobject.was_hit = False  # Standardmäßig False setzen
+
             # Debug-Ausgabe für jedes HitObject
             if hitobject.hit_type & 1:
                 print(f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}")
             elif hitobject.hit_type & 2:
+                print(
+                    f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}, was_completed: {hitobject.was_completed}")
+            elif hitobject.hit_type & 8:
                 print(
                     f"HitObject at time {hitobject.time} was_hit: {hitobject.was_hit}, was_completed: {hitobject.was_completed}")
             else:
@@ -248,13 +290,25 @@ class OsuReplayDataManager:
 
         return slider_duration_ms
 
+    def calculate_spinner_duration(self, hitobject):
+        start_time_ms = hitobject.time
+        if hitobject.extras:
+            end_time_ms = int(hitobject.extras[0])
+            spinner_duration_ms = (end_time_ms - start_time_ms)
+            speed_multiplier = calculate_speed_multiplier(self.mods)
+            spinner_duration_ms /= speed_multiplier
+            return spinner_duration_ms
+        else:
+            print(f"Keine Endzeit für Spinner bei {start_time_ms} ms gefunden.")
+            return 0  # Keine Dauer berechenbar
+
     def calculate_approach_rate(self):
         ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
         original_ar = ar  # Speichere die ursprüngliche AR für Debugging
 
         # Mods berücksichtigen
         if self.mods & MOD_HARD_ROCK:
-            ar = min(10, ar * 1.4)
+            ar = ar * 1.4
             print(f"[Debug] Hard Rock Mod aktiviert. Original AR: {original_ar}, Angepasste AR: {ar}")
         elif self.mods & MOD_EASY:
             ar = ar * 0.5

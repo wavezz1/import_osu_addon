@@ -61,8 +61,6 @@ class CircleCreator:
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-        #circle["show"] = False
-        #.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1))
 
         self.circles_collection.objects.link(circle)
         if circle.users_collection:

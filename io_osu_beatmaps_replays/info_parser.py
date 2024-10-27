@@ -16,6 +16,7 @@ class OsuParser:
         self.bpm = self.calculate_bpm()
         self.total_hitobjects = len(self.hitobjects)
 
+
     def parse_osu_file(self):
         try:
             with open(self.osu_file_path, 'r', encoding='utf-8') as file:
@@ -98,12 +99,16 @@ class OsrParser:
 
     def get_mods_list(self, mods):
         mod_constants = {
-            1 << 0: "NF", 1 << 1: "EZ", 1 << 2: "TD", 1 << 3: "HD", 1 << 4: "HR",
-            1 << 5: "SD", 1 << 6: "DT", 1 << 7: "RX", 1 << 8: "HT", 1 << 9: "NC",
-            1 << 10: "FL", 1 << 11: "AP", 1 << 12: "SO", 1 << 13: "AO", 1 << 14: "PF"
+            1 << 0: "NF",
+            1 << 1: "EZ",
+            1 << 3: "HD",
+            1 << 4: "HR",
+            1 << 5: "SD",
+            1 << 6: "DT",
+            1 << 8: "HT",
+            # ... weitere Mods ...
         }
         return [name for val, name in mod_constants.items() if mods & val]
-
     def parse_key_presses(self):
         key_presses = []
         for frame in self.replay_data:

@@ -25,6 +25,8 @@ def main_execution(context):
     data_manager.print_all_info()
     data_manager.import_audio()
 
+    data_manager.check_hits()
+
     import_hitobjects(data_manager, calculate_speed_multiplier(data_manager.mods))
 
     cursor_collection = create_collection("Cursor")

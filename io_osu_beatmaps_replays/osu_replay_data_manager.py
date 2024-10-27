@@ -3,7 +3,8 @@
 import bpy
 import os
 from .info_parser import OsuParser, OsrParser
-from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
+from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
+from .mod_functions import calculate_speed_multiplier
 
 class OsuReplayDataManager:
     def __init__(self, osu_file_path, osr_file_path):
@@ -108,3 +109,67 @@ class OsuReplayDataManager:
         speaker.data.pitch = pitch
 
         print(f"Audio-Datei '{audio_filename}' erfolgreich importiert und mit {pitch}x Pitch dem Speaker hinzugefügt.")
+
+    def calculate_hit_windows(self):
+        od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
+
+        # Mods berücksichtigen
+        if self.mods & MOD_HARD_ROCK:
+            od = min(10, od * 1.4)
+        elif self.mods & MOD_EASY:
+            od = od * 0.5
+
+        # Hit Windows berechnen
+        hit_window_300 = 80 - (6 * od)
+        hit_window_100 = 140 - (8 * od)
+        hit_window_50 = 200 - (10 * od)
+
+        # Negative Werte vermeiden
+        hit_window_300 = max(hit_window_300, 0)
+        hit_window_100 = max(hit_window_100, 0)
+        hit_window_50 = max(hit_window_50, 0)
+
+        return hit_window_300, hit_window_100, hit_window_50
+
+    def check_hits(self):
+        hit_window_300, hit_window_100, hit_window_50 = self.calculate_hit_windows()
+        hit_window = hit_window_50  # Wir verwenden das größte Fenster für die Treffererkennung
+
+        speed_multiplier = calculate_speed_multiplier(self.mods)
+        audio_lead_in = self.beatmap_info['audio_lead_in']
+
+        key_presses = self.key_presses
+        current_time = 0
+        event_index = 0
+        key_state = {'k1': False, 'k2': False, 'm1': False, 'm2': False}
+
+        for hitobject in self.hitobjects:
+            if not (hitobject.hit_type & 1):  # Nur Kreise
+                continue
+
+            hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in
+            window_start = hitobject_time - hit_window
+            window_end = hitobject_time + hit_window
+            was_hit = False
+
+            while event_index < len(key_presses) and current_time <= window_end:
+                kp = key_presses[event_index]
+                time_delta = kp['time'] / speed_multiplier
+                current_time += time_delta
+
+                # Tastenzustände aus den bereits geparsten Daten aktualisieren
+                key_state['k1'] = kp['k1']
+                key_state['k2'] = kp['k2']
+                key_state['m1'] = kp['m1']
+                key_state['m2'] = kp['m2']
+
+                if window_start <= current_time <= window_end:
+                    if any(key_state.values()):
+                        was_hit = True
+                        break
+                elif current_time > window_end:
+                    break
+
+                event_index += 1
+
+            hitobject.was_hit = was_hit

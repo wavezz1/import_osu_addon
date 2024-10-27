@@ -176,6 +176,8 @@ class SliderCreator:
 
         slider["slider_duration_ms"] = slider_duration_ms
 
+        slider["was_hit"] = self.hitobject.was_hit
+
         scene_fps = bpy.context.scene.render.fps
         slider_duration_frames = slider_duration_ms / (1000 / scene_fps)
         slider["slider_duration_frames"] = slider_duration_frames

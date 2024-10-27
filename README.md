@@ -42,7 +42,6 @@ The Driver system is based on the properties of individual hitobjects, whose val
 
 2. **Geometry Nodes Setup:**
    - The addon will create Geometry Nodes modifiers for different hitobject types (`Cursor`, `Circle`, `Slider`, `Spinner`), each storing relevant attributes.
-   - These attributes are driven by the properties of the hitobjects, allowing dynamic and flexible simulations within Blender.
 
 3. **Create Simulation Zones:**
    - Add separate Geometry Nodes objects to utilize the stored attributes.
@@ -55,11 +54,10 @@ The Driver system is based on the properties of individual hitobjects, whose val
   
 - **Geometry Nodes Modifiers:**
   - Each hitobject type (`Cursor`, `Circle`, `Slider`, `Spinner`) has a dedicated Geometry Nodes modifier.
-  - Attributes are stored and driven by object properties, allowing dynamic keyframing and simulation setups.
+  - Attributes are stored and driven by object properties
 
 - **Driver System:**
   - Utilizes Blender's driver system to link Geometry Nodes attributes with hitobject properties.
-  - Provides a flexible and efficient way to control Geometry Nodes behavior without excessive keyframing.
 
 ## Known Issues
 

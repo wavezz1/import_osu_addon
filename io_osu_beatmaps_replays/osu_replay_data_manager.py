@@ -359,7 +359,6 @@ class OsuReplayDataManager:
             cs = cs * 0.5
         return cs
 
-
     def calculate_preempt_time(self, ar):
         if ar < 5:
             preempt = 1800 - (120 * ar)

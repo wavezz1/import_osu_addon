@@ -17,9 +17,6 @@ def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        cursor["ar"] = data_manager.calculate_adjusted_ar()
-        cursor["cs"] = data_manager.calculate_adjusted_cs()
-
         create_geometry_nodes_modifier_cursor(cursor, "Cursor")
 
         return cursor

@@ -71,7 +71,7 @@ def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
     # Store Named Attribute Knoten hinzufügen (für "show", "ar", "cs")
-    for key in ["show", "ar", "cs", "was_hit"]:
+    for key in ["show", "was_hit"]:
         store_attribute_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node.location.x = input_node.location.x + 200
         store_attribute_node.inputs['Name'].default_value = key

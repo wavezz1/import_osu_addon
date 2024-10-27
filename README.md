@@ -43,7 +43,7 @@ The Driver system is based on the properties of individual hitobjects, whose val
 
 3. **Access the Attributes:**
 
-4. ![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
+   ![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
    *General Geometry Nodes setup.*
 
    ![Circle Geometry Nodes Setup](geo_setup/geo_nodes_setup_circle.png)

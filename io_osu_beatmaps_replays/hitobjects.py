@@ -1,6 +1,6 @@
 # hitobjects.py
 
-from .osu_replay_data_manager import OsuReplayDataManager
+#from .osu_replay_data_manager import OsuReplayDataManager
 
 
 class HitObject:
@@ -15,7 +15,7 @@ class HitObject:
 
 
 class HitObjectsProcessor:
-    def __init__(self, data_manager: OsuReplayDataManager):
+    def __init__(self, data_manager):
         self.data_manager = data_manager
         self.circles = []
         self.sliders = []

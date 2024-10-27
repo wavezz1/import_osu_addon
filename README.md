@@ -31,7 +31,7 @@ The Driver system is based on the properties of individual hitobjects, whose val
 3. **Install `osrparse`:**
    - Within the addon, click the "Install osrparse" button if you don't have it installed already. This ensures that the addon can correctly parse `.osr` replay files.
 
-## Blender Proof of Concept v0.5
+## Blender Proof of Concept v0.6
 
 - [Download the .blend file](blendfile/[blender_4.2]osu_in_blender_proof_of_concept.blend)
 

@@ -55,6 +55,67 @@ class OSUImporterProperties(PropertyGroup):
         description="Liste der aktiven Mods im Format DT,HD",
         default=""
     )
+    base_approach_rate: FloatProperty(
+        name="Approach Rate",
+        description="Base Approach Rate der Beatmap",
+        default=0.0
+    )
+    adjusted_approach_rate: FloatProperty(
+        name="Adjusted Approach Rate",
+        description="Adjusted Approach Rate der Beatmap mit Mods",
+        default=0.0
+    )
+    base_circle_size: FloatProperty(
+        name="Circle Size",
+        description="Base Circle Size der Beatmap",
+        default=0.0
+    )
+    adjusted_circle_size: FloatProperty(
+        name="Adjusted Circle Size",
+        description="Adjusted Circle Size der Beatmap mit Mods",
+        default=0.0
+    )
+    base_overall_difficulty: FloatProperty(
+        name="Overall Difficulty",
+        description="Base Overall Difficulty der Beatmap",
+        default=0.0
+    )
+    adjusted_overall_difficulty: FloatProperty(
+        name="Adjusted Overall Difficulty",
+        description="Adjusted Overall Difficulty der Beatmap mit Mods",
+        default=0.0
+    )
+    max_combo: IntProperty(
+        name="Max Combo",
+        description="Maximale Combo im Replay",
+        default=0
+    )
+    total_score: IntProperty(
+        name="Total Score",
+        description="Gesamtpunktzahl des Replays",
+        default=0
+    )
+    import_circles: BoolProperty(
+        name="Kreise importieren",
+        description="Importiert Kreise aus der Beatmap",
+        default=True
+    )
+    import_sliders: BoolProperty(
+        name="Slider importieren",
+        description="Importiert Slider aus der Beatmap",
+        default=True
+    )
+    import_spinners: BoolProperty(
+        name="Spinner importieren",
+        description="Importiert Spinner aus der Beatmap",
+        default=True
+    )
+    import_audio: BoolProperty(
+        name="Audio importieren",
+        description="Importiert die Audio-Datei der Beatmap",
+        default=True
+    )
+
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
     bl_idname = "OSU_PT_importer_panel"
@@ -66,21 +127,58 @@ class OSU_PT_ImporterPanel(Panel):
         layout = self.layout
         props = context.scene.osu_importer_props
 
-        layout.prop(props, "osu_file")
-        layout.prop(props, "osr_file")
+        # Dateiauswahl
+        box = layout.box()
+        box.label(text="Dateiauswahl", icon='FILE_FOLDER')
+        box.prop(props, "osu_file")
+        box.prop(props, "osr_file")
+        box.operator("osu_importer.import", text="Importieren", icon='IMPORT')
 
-        layout.operator("osu_importer.import", text="Importieren")
+        # Beatmap-Informationen
+        if props.bpm != 0.0:
+            box = layout.box()
+            box.label(text="Beatmap-Informationen", icon='INFO')
+            col = box.column(align=True)
+            col.label(text=f"BPM: {props.bpm:.2f}")
+            # AR
+            ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
+            if ar_modified:
+                col.label(text=f"AR: {props.base_approach_rate} ({props.adjusted_approach_rate:.1f})")
+            else:
+                col.label(text=f"AR: {props.base_approach_rate}")
+            # CS
+            cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
+            if cs_modified:
+                col.label(text=f"CS: {props.base_circle_size} ({props.adjusted_circle_size:.1f})")
+            else:
+                col.label(text=f"CS: {props.base_circle_size}")
+            # OD
+            od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
+            if od_modified:
+                col.label(text=f"OD: {props.base_overall_difficulty} ({props.adjusted_overall_difficulty:.1f})")
+            else:
+                col.label(text=f"OD: {props.base_overall_difficulty}")
+            col.label(text=f"HitObjects: {props.total_hitobjects}")
 
-        # Beatmap-Informationen anzeigen
-        if props.bpm != 0.0 or props.approach_rate != 0.0 or props.circle_size != 0.0 or props.total_hitobjects != 0:
-            beatmap_info = f"BPM: {props.bpm:.2f} | AR: {props.approach_rate} | CS: {props.circle_size} | HitObjects: {props.total_hitobjects}"
-            layout.label(text=beatmap_info)
+        # Replay-Informationen anzeigen
+        if props.formatted_mods != "Keine" or props.accuracy != 0.0 or props.misses != 0:
+            box = layout.box()
+            box.label(text="Replay-Informationen", icon='PLAY')
+            col = box.column(align=True)
+            col.label(text=f"Mods: {props.formatted_mods}")
+            col.label(text=f"Accuracy: {props.accuracy:.2f}%")
+            col.label(text=f"Misses: {props.misses}")
+            col.label(text=f"Max Combo: {props.max_combo}")
+            col.label(text=f"Total Score: {props.total_score}")
 
-        # Replay-Informationen direkt unter den Beatmap-Informationen anzeigen
-        if props.formatted_mods or props.accuracy != 0.0 or props.misses != 0:
-            replay_info = f"Mods: {props.formatted_mods} | Acc: {props.accuracy:.2f}% | Misses: {props.misses}"
-            layout.label(text=replay_info)
-
+        # Erweiterte Einstellungen
+        box = layout.box()
+        box.label(text="Einstellungen", icon='PREFERENCES')
+        col = box.column(align=True)
+        col.prop(props, "import_circles")
+        col.prop(props, "import_sliders")
+        col.prop(props, "import_spinners")
+        col.prop(props, "import_audio")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
@@ -99,8 +197,12 @@ class OSU_OT_Import(Operator):
 
         # Aktualisiere die UI-Properties mit den Daten aus data_manager
         props = context.scene.osu_importer_props
-        props.approach_rate = data_manager.beatmap_info["approach_rate"]
-        props.circle_size = data_manager.beatmap_info["circle_size"]
+        props.base_approach_rate = data_manager.get_base_ar()
+        props.adjusted_approach_rate = data_manager.calculate_adjusted_ar()
+        props.base_circle_size = data_manager.get_base_cs()
+        props.adjusted_circle_size = data_manager.calculate_adjusted_cs()
+        props.base_overall_difficulty = data_manager.get_base_od()
+        props.adjusted_overall_difficulty = data_manager.calculate_adjusted_od()
         props.bpm = data_manager.beatmap_info["bpm"]
         props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
 
@@ -108,5 +210,7 @@ class OSU_OT_Import(Operator):
         props.formatted_mods = data_manager.replay_info["mods"]
         props.accuracy = data_manager.replay_info["accuracy"]
         props.misses = data_manager.replay_info["misses"]
+        props.max_combo = data_manager.replay_info["max_combo"]
+        props.total_score = data_manager.replay_info["total_score"]
 
         return result

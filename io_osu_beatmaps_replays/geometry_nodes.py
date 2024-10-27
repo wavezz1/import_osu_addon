@@ -71,11 +71,11 @@ def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
     # Store Named Attribute Knoten hinzufügen (für "show", "ar", "cs")
-    for key in ["show", "ar", "cs"]:
+    for key in ["show", "ar", "cs", "was_hit"]:
         store_attribute_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node.location.x = input_node.location.x + 200
         store_attribute_node.inputs['Name'].default_value = key
-        store_attribute_node.data_type = 'BOOLEAN' if key == "show" else 'FLOAT'
+        store_attribute_node.data_type = 'BOOLEAN' if key in ["show", "was_hit"] else 'FLOAT'
         store_attribute_node.domain = 'POINT'
 
         # Driver auf Input setzen
@@ -115,11 +115,11 @@ def create_geometry_nodes_modifier_slider(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
     # Attribute für "show", "slider_duration", "slider_duration_frames", "ar", "cs", und "is_anchor" hinzufügen
-    for key in ["show", "slider_duration", "slider_duration_frames", "ar", "cs"]:
+    for key in ["show", "slider_duration", "slider_duration_frames", "ar", "cs", "was_hit", "was_completed"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node_key.location.x = input_node.location.x + 200 + (len(key) * 50)
         store_attribute_node_key.inputs['Name'].default_value = key
-        store_attribute_node_key.data_type = 'BOOLEAN' if key in ["show"] else 'FLOAT'
+        store_attribute_node_key.data_type = 'BOOLEAN' if key in ["show", "was_hit", "was_completed"] else 'FLOAT'
         store_attribute_node_key.domain = 'POINT'
 
         driver_key = store_attribute_node_key.inputs['Value'].driver_add('default_value').driver
@@ -158,11 +158,11 @@ def create_geometry_nodes_modifier_spinner(obj, driver_obj_name):
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
     # Attribute für "show", "spinner_duration_ms", und "spinner_duration_frames" hinzufügen
-    for key in ["show", "spinner_duration_ms", "spinner_duration_frames"]:
+    for key in ["show", "spinner_duration_ms", "spinner_duration_frames", "was_hit", "was_completed"]:
         store_attribute_node_key = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_attribute_node_key.location.x = 150 + (len(key) * 50)
         store_attribute_node_key.inputs['Name'].default_value = key
-        store_attribute_node_key.data_type = 'BOOLEAN' if key == "show" else 'FLOAT'
+        store_attribute_node_key.data_type = 'BOOLEAN' if key in ["show", "was_hit", "was_completed"] else 'FLOAT'
         store_attribute_node_key.domain = 'POINT'
 
         # Driver auf Input setzen

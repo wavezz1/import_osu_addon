@@ -1,7 +1,7 @@
 # hitobjects.py
 
-from .osu_replay_data_manager import OsuReplayDataManager
-
+#from .osu_replay_data_manager import OsuReplayDataManager
+from __future__ import annotations
 
 class HitObject:
     def __init__(self, x, y, time, hit_type, hit_sound, extras):
@@ -11,10 +11,11 @@ class HitObject:
         self.hit_type = hit_type
         self.hit_sound = hit_sound
         self.extras = extras
-
+        self.was_hit = False
+        self.was_completed = False
 
 class HitObjectsProcessor:
-    def __init__(self, data_manager: OsuReplayDataManager):
+    def __init__(self, data_manager):
         self.data_manager = data_manager
         self.circles = []
         self.sliders = []
@@ -23,7 +24,7 @@ class HitObjectsProcessor:
 
     def process_hitobjects(self):
         # Greife auf die hitobjects-Liste über data_manager zu
-        hitobjects = self.data_manager.hitobjects
+        hitobjects = self.data_manager.osu_parser.hitobjects
 
         for line in hitobjects:
             parts = line.split(',')

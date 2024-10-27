@@ -17,8 +17,11 @@ class CircleCreator:
         self.create_circle()
 
     def create_circle(self):
-        approach_rate = self.data_manager.beatmap_info["approach_rate"]
-        circle_size = self.data_manager.beatmap_info["circle_size"]
+        approach_rate = self.data_manager.calculate_adjusted_ar()
+        preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
+        preempt_frames = preempt_ms / get_ms_per_frame()
+
+        circle_size = self.data_manager.calculate_adjusted_cs()
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
         x = self.hitobject.x
@@ -26,7 +29,7 @@ class CircleCreator:
         time_ms = self.hitobject.time
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
         start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
-        early_start_frame = start_frame - self.settings.get('early_frames', 5)
+        early_start_frame = start_frame - preempt_frames
 
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
@@ -45,13 +48,19 @@ class CircleCreator:
         circle["ar"] = approach_rate
         circle["cs"] = osu_radius * SCALE_FACTOR
 
+        # Setze 'was_hit' initial auf False und keyframe es vor dem Start
+        circle["was_hit"] = False
+        circle.keyframe_insert(data_path='["was_hit"]', frame=(start_frame - 1))
+
+        # Setze 'was_hit' auf den tatsächlichen Wert zum Zeitpunkt des Hits
+        circle["was_hit"] = self.hitobject.was_hit
+        circle.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
+
         # Setzen der Keyframes und Eigenschaften
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
         circle["show"] = True
         circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-        circle["show"] = False
-        circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame + 1))
 
         self.circles_collection.objects.link(circle)
         if circle.users_collection:

@@ -23,9 +23,20 @@ def main_execution(context):
 
     data_manager = OsuReplayDataManager(osu_file_path, osr_file_path)
     data_manager.print_all_info()
-    data_manager.import_audio()
+    if props.import_audio:
+        data_manager.import_audio()
 
-    import_hitobjects(data_manager, calculate_speed_multiplier(data_manager.mods))
+    data_manager.check_hits()
+
+    speed_multiplier = calculate_speed_multiplier(data_manager.mods)
+
+    settings = {
+        'speed_multiplier': speed_multiplier,
+        'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
+        'early_frames': 5,  # Falls benötigt
+    }
+
+    import_hitobjects(data_manager, settings, props)
 
     cursor_collection = create_collection("Cursor")
     cursor = create_cursor(cursor_collection, data_manager)

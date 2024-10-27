@@ -75,6 +75,26 @@ class OSUImporterProperties(PropertyGroup):
         description="Adjusted Circle Size der Beatmap mit Mods",
         default=0.0
     )
+    base_overall_difficulty: FloatProperty(
+        name="Overall Difficulty",
+        description="Base Overall Difficulty der Beatmap",
+        default=0.0
+    )
+    adjusted_overall_difficulty: FloatProperty(
+        name="Adjusted Overall Difficulty",
+        description="Adjusted Overall Difficulty der Beatmap mit Mods",
+        default=0.0
+    )
+    max_combo: IntProperty(
+        name="Max Combo",
+        description="Maximale Combo im Replay",
+        default=0
+    )
+    total_score: IntProperty(
+        name="Total Score",
+        description="Gesamtpunktzahl des Replays",
+        default=0
+    )
     import_circles: BoolProperty(
         name="Kreise importieren",
         description="Importiert Kreise aus der Beatmap",
@@ -147,8 +167,8 @@ class OSU_PT_ImporterPanel(Panel):
                 col.label(text=f"OD: {props.base_overall_difficulty}")
             col.label(text=f"HitObjects: {props.total_hitobjects}")
 
-        # Replay-Informationen
-        if props.formatted_mods or props.accuracy != 0.0:
+        # Replay-Informationen anzeigen
+        if props.formatted_mods != "Keine" or props.accuracy != 0.0 or props.misses != 0:
             box = layout.box()
             box.label(text="Replay-Informationen", icon='PLAY')
             col = box.column(align=True)
@@ -189,6 +209,8 @@ class OSU_OT_Import(Operator):
         props.adjusted_approach_rate = data_manager.calculate_adjusted_ar()
         props.base_circle_size = data_manager.get_base_cs()
         props.adjusted_circle_size = data_manager.calculate_adjusted_cs()
+        props.base_overall_difficulty = data_manager.get_base_od()
+        props.adjusted_overall_difficulty = data_manager.calculate_adjusted_od()
         props.bpm = data_manager.beatmap_info["bpm"]
         props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
 
@@ -196,5 +218,7 @@ class OSU_OT_Import(Operator):
         props.formatted_mods = data_manager.replay_info["mods"]
         props.accuracy = data_manager.replay_info["accuracy"]
         props.misses = data_manager.replay_info["misses"]
+        props.max_combo = data_manager.replay_info["max_combo"]
+        props.total_score = data_manager.replay_info["total_score"]
 
         return result

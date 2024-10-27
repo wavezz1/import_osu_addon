@@ -75,6 +75,33 @@ class OSUImporterProperties(PropertyGroup):
         description="Adjusted Circle Size der Beatmap mit Mods",
         default=0.0
     )
+    import_circles: BoolProperty(
+        name="Kreise importieren",
+        description="Importiert Kreise aus der Beatmap",
+        default=True
+    )
+    import_sliders: BoolProperty(
+        name="Slider importieren",
+        description="Importiert Slider aus der Beatmap",
+        default=True
+    )
+    import_spinners: BoolProperty(
+        name="Spinner importieren",
+        description="Importiert Spinner aus der Beatmap",
+        default=True
+    )
+    import_audio: BoolProperty(
+        name="Audio importieren",
+        description="Importiert die Audio-Datei der Beatmap",
+        default=True
+    )
+    custom_speed_multiplier: FloatProperty(
+        name="Geschwindigkeitsmultiplikator",
+        description="Passt die Geschwindigkeit des Replays an",
+        default=1.0,
+        min=0.1,
+        max=3.0
+    )
 
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
@@ -87,36 +114,59 @@ class OSU_PT_ImporterPanel(Panel):
         layout = self.layout
         props = context.scene.osu_importer_props
 
-        layout.prop(props, "osu_file")
-        layout.prop(props, "osr_file")
+        # Dateiauswahl
+        box = layout.box()
+        box.label(text="Dateiauswahl", icon='FILE_FOLDER')
+        box.prop(props, "osu_file")
+        box.prop(props, "osr_file")
+        box.operator("osu_importer.import", text="Importieren", icon='IMPORT')
 
-        layout.operator("osu_importer.import", text="Importieren")
-
-        # Beatmap-Informationen anzeigen
-        if props.bpm != 0.0 or props.base_approach_rate != 0.0 or props.base_circle_size != 0.0 or props.total_hitobjects != 0:
-            # Prüfen, ob Mods aktiv sind, die AR oder CS beeinflussen
+        # Beatmap-Informationen
+        if props.bpm != 0.0:
+            box = layout.box()
+            box.label(text="Beatmap-Informationen", icon='INFO')
+            col = box.column(align=True)
+            col.label(text=f"BPM: {props.bpm:.2f}")
+            # AR
             ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
-            cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
-
-            # AR anzeigen
             if ar_modified:
-                ar_display = f"AR: {props.base_approach_rate} ({props.adjusted_approach_rate:.1f})"
+                col.label(text=f"AR: {props.base_approach_rate} ({props.adjusted_approach_rate:.1f})")
             else:
-                ar_display = f"AR: {props.base_approach_rate}"
-
-            # CS anzeigen
+                col.label(text=f"AR: {props.base_approach_rate}")
+            # CS
+            cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
             if cs_modified:
-                cs_display = f"CS: {props.base_circle_size} ({props.adjusted_circle_size:.1f})"
+                col.label(text=f"CS: {props.base_circle_size} ({props.adjusted_circle_size:.1f})")
             else:
-                cs_display = f"CS: {props.base_circle_size}"
+                col.label(text=f"CS: {props.base_circle_size}")
+            # OD
+            od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
+            if od_modified:
+                col.label(text=f"OD: {props.base_overall_difficulty} ({props.adjusted_overall_difficulty:.1f})")
+            else:
+                col.label(text=f"OD: {props.base_overall_difficulty}")
+            col.label(text=f"HitObjects: {props.total_hitobjects}")
 
-            beatmap_info = f"BPM: {props.bpm:.2f} | {ar_display} | {cs_display} | HitObjects: {props.total_hitobjects}"
-            layout.label(text=beatmap_info)
+        # Replay-Informationen
+        if props.formatted_mods or props.accuracy != 0.0:
+            box = layout.box()
+            box.label(text="Replay-Informationen", icon='PLAY')
+            col = box.column(align=True)
+            col.label(text=f"Mods: {props.formatted_mods}")
+            col.label(text=f"Accuracy: {props.accuracy:.2f}%")
+            col.label(text=f"Misses: {props.misses}")
+            col.label(text=f"Max Combo: {props.max_combo}")
+            col.label(text=f"Total Score: {props.total_score}")
 
-        # Replay-Informationen anzeigen
-        if props.formatted_mods != "Keine" or props.accuracy != 0.0 or props.misses != 0:
-            replay_info = f"Mods: {props.formatted_mods} | Acc: {props.accuracy:.2f}% | Misses: {props.misses}"
-            layout.label(text=replay_info)
+        # Erweiterte Einstellungen
+        box = layout.box()
+        box.label(text="Einstellungen", icon='PREFERENCES')
+        col = box.column(align=True)
+        col.prop(props, "import_circles")
+        col.prop(props, "import_sliders")
+        col.prop(props, "import_spinners")
+        col.prop(props, "import_audio")
+        col.prop(props, "custom_speed_multiplier")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

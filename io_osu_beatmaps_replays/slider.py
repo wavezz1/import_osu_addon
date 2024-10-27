@@ -176,11 +176,11 @@ class SliderCreator:
         slider["show"] = True
         slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
 
-        slider["show"] = True
-        slider.keyframe_insert(data_path='["show"]', frame=(end_frame - 1))
+        #slider["show"] = True
+        #slider.keyframe_insert(data_path='["show"]', frame=(end_frame - 1))
 
-        slider["show"] = False
-        slider.keyframe_insert(data_path='["show"]', frame=end_frame)
+        #slider["show"] = False
+        #slider.keyframe_insert(data_path='["show"]', frame=end_frame)
 
         slider["slider_duration_ms"] = slider_duration_ms
 

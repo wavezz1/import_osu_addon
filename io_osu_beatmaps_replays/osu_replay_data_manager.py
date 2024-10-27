@@ -117,15 +117,9 @@ class OsuReplayDataManager:
         print(f"Audio-Datei '{audio_filename}' erfolgreich importiert und mit {pitch}x Pitch dem Speaker hinzugefügt.")
 
     def calculate_hit_windows(self):
-        od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
+        od = self.calculate_adjusted_od()
 
-        # Mods berücksichtigen
-        if self.mods & MOD_HARD_ROCK:
-            od = min(10, od * 1.4)
-        elif self.mods & MOD_EASY:
-            od = od * 0.5
-
-        # Hit Windows berechnen
+        # Berechne die Hit Windows basierend auf dem angepassten OD
         hit_window_300 = 80 - (6 * od)
         hit_window_100 = 140 - (8 * od)
         hit_window_50 = 200 - (10 * od)
@@ -314,6 +308,17 @@ class OsuReplayDataManager:
     def get_base_cs(self):
         return float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
 
+    def get_base_od(self):
+        return float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
+
+    def calculate_adjusted_od(self):
+        od = self.get_base_od()
+        if self.mods & MOD_HARD_ROCK:
+            od = min(10, od * 1.4)
+        elif self.mods & MOD_EASY:
+            od = od * 0.5
+        return od
+
     def calculate_adjusted_ar(self):
         ar = self.get_base_ar()
         original_ar = ar
@@ -353,6 +358,7 @@ class OsuReplayDataManager:
         elif self.mods & MOD_EASY:
             cs = cs * 0.5
         return cs
+
 
     def calculate_preempt_time(self, ar):
         if ar < 5:

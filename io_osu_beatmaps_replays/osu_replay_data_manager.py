@@ -121,7 +121,7 @@ class OsuReplayDataManager:
 
         # Mods berücksichtigen
         if self.mods & MOD_HARD_ROCK:
-            od = od * 1.4
+            od = min(10, od * 1.4)
         elif self.mods & MOD_EASY:
             od = od * 0.5
 
@@ -129,6 +129,12 @@ class OsuReplayDataManager:
         hit_window_300 = 80 - (6 * od)
         hit_window_100 = 140 - (8 * od)
         hit_window_50 = 200 - (10 * od)
+
+        # Anpassung für DT/HT
+        speed_multiplier = calculate_speed_multiplier(self.mods)
+        hit_window_300 /= speed_multiplier
+        hit_window_100 /= speed_multiplier
+        hit_window_50 /= speed_multiplier
 
         # Negative Werte vermeiden
         hit_window_300 = max(hit_window_300, 0)
@@ -302,27 +308,60 @@ class OsuReplayDataManager:
             print(f"Keine Endzeit für Spinner bei {start_time_ms} ms gefunden.")
             return 0  # Keine Dauer berechenbar
 
-    def calculate_approach_rate(self):
-        ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
-        original_ar = ar  # Speichere die ursprüngliche AR für Debugging
+    def get_base_ar(self):
+        return float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
 
-        # Mods berücksichtigen
+    def get_base_cs(self):
+        return float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+
+    def calculate_adjusted_ar(self):
+        ar = self.get_base_ar()
+        original_ar = ar
+
+        # Apply HR/EZ mods
         if self.mods & MOD_HARD_ROCK:
-            ar = ar * 1.4
-            print(f"[Debug] Hard Rock Mod aktiviert. Original AR: {original_ar}, Angepasste AR: {ar}")
+            ar = min(10, ar * 1.4)
         elif self.mods & MOD_EASY:
             ar = ar * 0.5
-            print(f"[Debug] Easy Mod aktiviert. Original AR: {original_ar}, Angepasste AR: {ar}")
+
+        # Calculate preempt time
+        if ar < 5:
+            preempt = 1800 - (120 * ar)
         else:
-            print(f"[Debug] Keine AR-beeinflussenden Mods aktiviert. AR bleibt bei: {ar}")
+            preempt = 1200 - (150 * (ar - 5))
+
+        # Apply DT/HT mods to preempt time
+        speed_multiplier = calculate_speed_multiplier(self.mods)
+
+        preempt /= speed_multiplier
+
+        # Convert adjusted preempt time back to AR
+        if preempt > 1200:
+            ar = (1800 - preempt) / 120
+        else:
+            ar = (1200 - preempt) / 150 + 5
+
+        # Cap AR between 0 and 11
+        ar = max(0, min(11, ar))
 
         return ar
+
+    def calculate_adjusted_cs(self):
+        cs = self.get_base_cs()
+        if self.mods & MOD_HARD_ROCK:
+            cs = min(10, cs * 1.3)
+        elif self.mods & MOD_EASY:
+            cs = cs * 0.5
+        return cs
 
     def calculate_preempt_time(self, ar):
         if ar < 5:
             preempt = 1800 - (120 * ar)
-            print(f"[Debug] AR < 5. Berechnete Preempt-Zeit: {preempt} ms für AR: {ar}")
         else:
             preempt = 1200 - (150 * (ar - 5))
-            print(f"[Debug] AR >= 5. Berechnete Preempt-Zeit: {preempt} ms für AR: {ar}")
+
+        speed_multiplier = calculate_speed_multiplier(self.mods)
+
+        preempt /= speed_multiplier
+
         return preempt  # in Millisekunden

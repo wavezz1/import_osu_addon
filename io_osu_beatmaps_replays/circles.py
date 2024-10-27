@@ -17,11 +17,11 @@ class CircleCreator:
         self.create_circle()
 
     def create_circle(self):
-        approach_rate = self.data_manager.calculate_approach_rate()
+        approach_rate = self.data_manager.calculate_adjusted_ar()
         preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
         preempt_frames = preempt_ms / get_ms_per_frame()
 
-        circle_size = self.data_manager.beatmap_info["circle_size"]
+        circle_size = self.data_manager.calculate_adjusted_cs()
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
         x = self.hitobject.x

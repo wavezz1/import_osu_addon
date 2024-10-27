@@ -187,9 +187,10 @@ class SliderCreator:
         # Keyframe 'was_completed' auf False vor dem Ende des Sliders
         slider.keyframe_insert(data_path='["was_completed"]', frame=before_end_frame)
 
-        # Setze 'was_completed' auf den tatsächlichen Wert zum Ende des Sliders
-        slider["was_completed"] = self.hitobject.was_completed
+        # Setze 'was_completed' hartkodiert auf True am Ende des Sliders
+        slider["was_completed"] = True
         slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame_adjusted)
+
 
         slider["show"] = False
         slider.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))

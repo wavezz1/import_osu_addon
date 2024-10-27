@@ -162,7 +162,7 @@ class SliderCreator:
         end_time_ms = time_ms + slider_duration_ms
         end_frame = ((end_time_ms / speed_multiplier) / get_ms_per_frame())
 
-        slider["was_hit"] = self.hitobject.was_hit
+        slider["was_hit"] = False
         slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
         slider["show"] = False

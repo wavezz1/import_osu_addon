@@ -115,13 +115,6 @@ class OSUImporterProperties(PropertyGroup):
         description="Importiert die Audio-Datei der Beatmap",
         default=True
     )
-    custom_speed_multiplier: FloatProperty(
-        name="Geschwindigkeitsmultiplikator",
-        description="Passt die Geschwindigkeit des Replays an",
-        default=1.0,
-        min=0.1,
-        max=3.0
-    )
 
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
@@ -186,7 +179,6 @@ class OSU_PT_ImporterPanel(Panel):
         col.prop(props, "import_sliders")
         col.prop(props, "import_spinners")
         col.prop(props, "import_audio")
-        col.prop(props, "custom_speed_multiplier")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

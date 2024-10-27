@@ -28,7 +28,7 @@ def main_execution(context):
 
     data_manager.check_hits()
 
-    speed_multiplier = props.custom_speed_multiplier or calculate_speed_multiplier(data_manager.mods)
+    speed_multiplier = calculate_speed_multiplier(data_manager.mods)
 
     settings = {
         'speed_multiplier': speed_multiplier,

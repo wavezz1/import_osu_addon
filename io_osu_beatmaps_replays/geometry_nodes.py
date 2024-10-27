@@ -1,5 +1,3 @@
-# geometry_nodes.py
-
 import bpy
 
 def create_geometry_nodes_modifier(obj, driver_obj_name, attributes):
@@ -35,6 +33,8 @@ def create_geometry_nodes_modifier(obj, driver_obj_name, attributes):
         group.links.new(previous_node.outputs['Geometry'], store_node.inputs['Geometry'])
         previous_node = store_node
 
+    # Position the output_node to the right of the last store_node
+    output_node.location.x = previous_node.location.x + 200
     group.links.new(previous_node.outputs['Geometry'], output_node.inputs['Geometry'])
 
 def create_geometry_nodes_modifier_circle(obj, driver_obj_name):

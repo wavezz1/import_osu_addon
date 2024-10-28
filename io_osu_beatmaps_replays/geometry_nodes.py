@@ -17,10 +17,6 @@ def create_geometry_nodes_modifier(obj, node_group_name, attributes):
 
 
 def setup_node_group_interface(group, attributes):
-    # Löschen Sie alle Standard-Sockets
-    group.inputs.clear()
-    group.outputs.clear()
-
     # Füge einen Geometry Eingang und Ausgang hinzu
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')

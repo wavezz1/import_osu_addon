@@ -4,6 +4,7 @@ import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
 from .geometry_nodes import create_geometry_nodes_modifier_cursor
 from .osu_replay_data_manager import OsuReplayDataManager
+from .exec import connect_attributes_with_drivers
 
 def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
     try:
@@ -17,7 +18,13 @@ def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        create_geometry_nodes_modifier_cursor(cursor, "Cursor")
+        # Geometry Nodes Modifier hinzufügen
+        node_group_name = "Geometry Nodes Cursor"
+        create_geometry_nodes_modifier_cursor(cursor, node_group_name)
+
+        # Fahrer (Drivers) verbinden
+        connect_attributes_with_drivers(cursor, {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'})
+
         return cursor
     except Exception as e:
         print(f"Error creating cursor: {e}")

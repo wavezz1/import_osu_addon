@@ -7,6 +7,7 @@ from .geometry_nodes import create_geometry_nodes_modifier_spinner
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
+from .exec import connect_attributes_with_drivers
 
 class SpinnerCreator:
     def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict, data_manager: OsuReplayDataManager):
@@ -64,4 +65,15 @@ class SpinnerCreator:
                 if col != self.spinners_collection:
                     col.objects.unlink(spinner)
 
-        create_geometry_nodes_modifier_spinner(spinner, spinner.name)
+        # Geometry Nodes Modifier hinzufügen
+        node_group_name = f"Geometry Nodes Spinner {self.global_index:03d}"
+        create_geometry_nodes_modifier_spinner(spinner, node_group_name)
+
+        # Fahrer (Drivers) verbinden
+        connect_attributes_with_drivers(spinner, {
+            "show": 'BOOLEAN',
+            "spinner_duration_ms": 'FLOAT',
+            "spinner_duration_frames": 'FLOAT',
+            "was_hit": 'BOOLEAN',
+            "was_completed": 'BOOLEAN'
+        })

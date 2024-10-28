@@ -8,6 +8,7 @@ from .utils import map_osu_to_blender, get_ms_per_frame
 from .geometry_nodes import create_geometry_nodes_modifier_slider
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
+from .exec import connect_attributes_with_drivers
 
 
 class SliderCreator:
@@ -181,4 +182,17 @@ class SliderCreator:
                 if col != self.sliders_collection:
                     col.objects.unlink(slider)
 
-        create_geometry_nodes_modifier_slider(slider, slider.name)
+        # Geometry Nodes Modifier hinzufügen
+        node_group_name = f"Geometry Nodes Slider {self.global_index:03d}"
+        create_geometry_nodes_modifier_slider(slider, node_group_name)
+
+        # Fahrer (Drivers) verbinden
+        connect_attributes_with_drivers(slider, {
+            "show": 'BOOLEAN',
+            "slider_duration": 'FLOAT',
+            "slider_duration_frames": 'FLOAT',
+            "ar": 'FLOAT',
+            "cs": 'FLOAT',
+            "was_hit": 'BOOLEAN',
+            "was_completed": 'BOOLEAN'
+        })

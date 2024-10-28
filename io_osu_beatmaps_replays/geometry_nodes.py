@@ -1,59 +1,79 @@
+# geometry_nodes.py
+
 import bpy
 
-def create_geometry_nodes_modifier(obj, driver_obj_name, attributes):
+
+def create_geometry_nodes_modifier(obj, node_group_name, attributes):
+    # Überprüfen, ob die Node Group bereits existiert, sonst erstellen
+    if node_group_name in bpy.data.node_groups:
+        group = bpy.data.node_groups[node_group_name]
+    else:
+        group = bpy.data.node_groups.new(node_group_name, 'GeometryNodeTree')
+        setup_node_group_interface(group, attributes)
+
+    # Modifier hinzufügen und Node Group zuweisen
     modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
-    group = bpy.data.node_groups.new(f"Geometry Nodes {obj.name}", 'GeometryNodeTree')
     modifier.node_group = group
 
-    input_node = group.nodes.new('NodeGroupInput')
-    output_node = group.nodes.new('NodeGroupOutput')
-    input_node.location.x = 0
-    output_node.location.x = 1000
 
+def setup_node_group_interface(group, attributes):
+    # Löschen Sie alle Standard-Sockets
+    group.inputs.clear()
+    group.outputs.clear()
+
+    # Füge einen Geometry Eingang und Ausgang hinzu
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
-    previous_node = input_node
+    previous_node = group.nodes.new('NodeGroupInput')
+    previous_node.location = (0, 0)
+    output_node = group.nodes.new('NodeGroupOutput')
+    output_node.location = (400, 0)
 
-    for key, data_type in attributes.items():
-        store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
-        store_node.location.x = previous_node.location.x + 200
-        store_node.inputs['Name'].default_value = key
-        store_node.data_type = data_type
-        store_node.domain = 'POINT'
-
-        driver = store_node.inputs['Value'].driver_add('default_value').driver
-        driver.type = 'AVERAGE'
-        var = driver.variables.new()
-        var.name = 'var'
-        var.targets[0].id_type = 'OBJECT'
-        var.targets[0].id = bpy.data.objects[driver_obj_name]
-        var.targets[0].data_path = f'["{key}"]'
-
-        group.links.new(previous_node.outputs['Geometry'], store_node.inputs['Geometry'])
-        previous_node = store_node
-
-    output_node.location.x = previous_node.location.x + 200
     group.links.new(previous_node.outputs['Geometry'], output_node.inputs['Geometry'])
 
-def create_geometry_nodes_modifier_circle(obj, driver_obj_name):
+    # Für jedes Attribut einen Store Named Attribute Knoten hinzufügen
+    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+        store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
+        store_node.location = (200, -100 * i)
+        store_node.inputs['Name'].default_value = attr_name
+        store_node.data_type = attr_type
+        store_node.domain = 'POINT'
+
+        # Verbinden des vorherigen Knotens mit dem aktuellen Store Node
+        group.links.new(previous_node.outputs['Geometry'], store_node.inputs['Geometry'])
+        group.links.new(store_node.outputs['Geometry'], output_node.inputs['Geometry'])
+
+
+def create_geometry_nodes_modifier_circle(obj, node_group_name):
     attributes = {"show": 'BOOLEAN', "was_hit": 'BOOLEAN', "ar": 'FLOAT', "cs": 'FLOAT'}
-    create_geometry_nodes_modifier(obj, driver_obj_name, attributes)
+    create_geometry_nodes_modifier(obj, node_group_name, attributes)
 
-def create_geometry_nodes_modifier_cursor(obj, driver_obj_name):
-    attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'}
-    create_geometry_nodes_modifier(obj, driver_obj_name, attributes)
 
-def create_geometry_nodes_modifier_slider(obj, driver_obj_name):
+def create_geometry_nodes_modifier_slider(obj, node_group_name):
     attributes = {
-        "show": 'BOOLEAN', "slider_duration": 'FLOAT', "slider_duration_frames": 'FLOAT', "ar": 'FLOAT', "cs": 'FLOAT',
-        "was_hit": 'BOOLEAN', "was_completed": 'BOOLEAN'
-    }
-    create_geometry_nodes_modifier(obj, driver_obj_name, attributes)
-
-def create_geometry_nodes_modifier_spinner(obj, driver_obj_name):
-    attributes = {
-        "show": 'BOOLEAN', "spinner_duration_ms": 'FLOAT', "spinner_duration_frames": 'FLOAT', "was_hit": 'BOOLEAN',
+        "show": 'BOOLEAN',
+        "slider_duration": 'FLOAT',
+        "slider_duration_frames": 'FLOAT',
+        "ar": 'FLOAT',
+        "cs": 'FLOAT',
+        "was_hit": 'BOOLEAN',
         "was_completed": 'BOOLEAN'
     }
-    create_geometry_nodes_modifier(obj, driver_obj_name, attributes)
+    create_geometry_nodes_modifier(obj, node_group_name, attributes)
+
+
+def create_geometry_nodes_modifier_spinner(obj, node_group_name):
+    attributes = {
+        "show": 'BOOLEAN',
+        "spinner_duration_ms": 'FLOAT',
+        "spinner_duration_frames": 'FLOAT',
+        "was_hit": 'BOOLEAN',
+        "was_completed": 'BOOLEAN'
+    }
+    create_geometry_nodes_modifier(obj, node_group_name, attributes)
+
+
+def create_geometry_nodes_modifier_cursor(obj, node_group_name):
+    attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'}
+    create_geometry_nodes_modifier(obj, node_group_name, attributes)

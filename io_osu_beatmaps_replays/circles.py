@@ -4,9 +4,8 @@ import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .constants import SCALE_FACTOR
-from .geometry_nodes import create_geometry_nodes_modifier_circle
+from .geometry_nodes import create_geometry_nodes_modifier_circle, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
-from .exec import connect_attributes_with_drivers
 
 class CircleCreator:
     def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuReplayDataManager):

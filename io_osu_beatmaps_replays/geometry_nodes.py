@@ -77,3 +77,33 @@ def create_geometry_nodes_modifier_spinner(obj, node_group_name):
 def create_geometry_nodes_modifier_cursor(obj, node_group_name):
     attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'}
     create_geometry_nodes_modifier(obj, node_group_name, attributes)
+
+def connect_attributes_with_drivers(obj, attributes):
+    for attr_name, attr_type in attributes.items():
+        # Überprüfen, ob das Objekt die Property besitzt
+        if attr_name in obj:
+            # Erstellen eines Fahrers für das entsprechende Attribut im Node Group Input
+            modifier = obj.modifiers.get("GeometryNodes")
+            if not modifier:
+                continue
+            node_group = modifier.node_group
+            if not node_group:
+                continue
+
+            # Finden des entsprechenden Store Nodes
+            store_node = None
+            for node in node_group.nodes:
+                if isinstance(node, bpy.types.GeometryNodeStoreNamedAttribute) and node.inputs['Name'].default_value == attr_name:
+                    store_node = node
+                    break
+            if not store_node:
+                continue
+
+            # Hinzufügen des Fahrers
+            driver = store_node.inputs['Value'].driver_add('default_value').driver
+            driver.type = 'AVERAGE'
+            var = driver.variables.new()
+            var.name = 'var'
+            var.targets[0].id_type = 'OBJECT'
+            var.targets[0].id = obj
+            var.targets[0].data_path = f'["{attr_name}"]'

@@ -3,11 +3,10 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier_spinner
+from .geometry_nodes import create_geometry_nodes_modifier_spinner, connect_attributes_with_drivers
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
-from .exec import connect_attributes_with_drivers
 
 class SpinnerCreator:
     def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict, data_manager: OsuReplayDataManager):

@@ -87,26 +87,23 @@ def create_geometry_nodes_modifier_cursor(obj, node_group_name):
 
 
 def connect_attributes_with_drivers(obj, attributes):
+    modifier = obj.modifiers.get("GeometryNodes")
+    if not modifier:
+        return
+
     for attr_name, attr_type in attributes.items():
-        if attr_name in obj:
-            modifier = obj.modifiers.get("GeometryNodes")
-            if not modifier:
-                continue
-            node_group = modifier.node_group
-            if not node_group:
-                continue
+        # Überprüfen, ob das Attribut existiert
+        if attr_name not in obj:
+            continue
 
-            store_node = next(
-                (node for node in node_group.nodes if isinstance(node, bpy.types.GeometryNodeStoreNamedAttribute)
-                 and node.inputs['Name'].default_value == attr_name), None)
-            if not store_node:
-                continue
-
-            # Hinzufügen des Fahrers
-            driver = store_node.inputs['Value'].driver_add('default_value').driver
+        # Suchen nach dem passenden Modifier-Socket
+        try:
+            driver = modifier.driver_add(f'["{attr_name}"]').driver  # Verknüpfe den Driver direkt mit dem Socket
             driver.type = 'AVERAGE'
             var = driver.variables.new()
             var.name = 'var'
             var.targets[0].id_type = 'OBJECT'
             var.targets[0].id = obj
             var.targets[0].data_path = f'["{attr_name}"]'
+        except Exception as e:
+            print(f"Could not set driver for {attr_name}: {e}")

@@ -91,14 +91,17 @@ def connect_attributes_with_drivers(obj, attributes):
     if not modifier:
         return
 
-    for attr_name, attr_type in attributes.items():
-        # Überprüfen, ob das Attribut existiert
+    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+        # Überprüfen, ob die Objekt-Property für das Attribut existiert
         if attr_name not in obj:
             continue
 
-        # Suchen nach dem passenden Modifier-Socket
+        # Versuche, den vollständigen Data Path für den Socket zu finden
+        socket_path = f'["Socket_{i + 1}"]'  # Setzt voraus, dass die Sockets in der Reihenfolge der Attribute sind
+
         try:
-            driver = modifier.driver_add(f'["{attr_name}"]').driver  # Verknüpfe den Driver direkt mit dem Socket
+            # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
+            driver = modifier.driver_add(socket_path).driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()
             var.name = 'var'
@@ -106,4 +109,4 @@ def connect_attributes_with_drivers(obj, attributes):
             var.targets[0].id = obj
             var.targets[0].data_path = f'["{attr_name}"]'
         except Exception as e:
-            print(f"Could not set driver for {attr_name}: {e}")
+            print(f"Could not set driver for {attr_name} at {socket_path}: {e}")

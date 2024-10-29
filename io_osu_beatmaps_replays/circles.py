@@ -4,7 +4,7 @@ import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .constants import SCALE_FACTOR
-from .geometry_nodes import create_geometry_nodes_modifier_circle, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
 
 class CircleCreator:
@@ -68,9 +68,13 @@ class CircleCreator:
                 if col != self.circles_collection:
                     col.objects.unlink(circle)
 
-        # Geometry Nodes Modifier hinzufügen
-        node_group_name = "Geometry Nodes Cursor"
-        create_geometry_nodes_modifier_circle(circle, node_group_name)
+        # Bestehenden Geometry Nodes Modifier zuweisen
+        create_geometry_nodes_modifier(circle, "circle")
 
         # Fahrer (Drivers) verbinden
-        connect_attributes_with_drivers(circle, {"show": 'BOOLEAN', "was_hit": 'BOOLEAN', "ar": 'FLOAT', "cs": 'FLOAT'})
+        connect_attributes_with_drivers(circle, {
+            "show": 'BOOLEAN',
+            "was_hit": 'BOOLEAN',
+            "ar": 'FLOAT',
+            "cs": 'FLOAT'
+        })

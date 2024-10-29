@@ -5,7 +5,7 @@ import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier_slider, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
@@ -190,9 +190,7 @@ class SliderCreator:
                 if col != self.sliders_collection:
                     col.objects.unlink(slider)
 
-        # Geometry Nodes Modifier hinzufügen
-        node_group_name = f"Geometry Nodes Slider {self.global_index:03d}"
-        create_geometry_nodes_modifier_slider(slider, node_group_name)
+        create_geometry_nodes_modifier(slider, "slider")
 
         # Fahrer (Drivers) verbinden
         connect_attributes_with_drivers(slider, {

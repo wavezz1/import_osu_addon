@@ -3,7 +3,7 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier_spinner, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
@@ -75,7 +75,7 @@ class SpinnerCreator:
 
         # Geometry Nodes Modifier hinzufügen
         node_group_name = f"Geometry Nodes Spinner {self.global_index:03d}"
-        create_geometry_nodes_modifier_spinner(spinner, node_group_name)
+        create_geometry_nodes_modifier(spinner, "spinner")
 
         # Fahrer (Drivers) verbinden
         connect_attributes_with_drivers(spinner, {

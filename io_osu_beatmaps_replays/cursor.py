@@ -2,7 +2,7 @@
 
 import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
-from .geometry_nodes import create_geometry_nodes_modifier_cursor, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
 
 def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
@@ -17,12 +17,16 @@ def create_cursor(cursor_collection, data_manager: OsuReplayDataManager):
                 if col != cursor_collection:
                     col.objects.unlink(cursor)
 
-        # Geometry Nodes Modifier hinzufügen
-        node_group_name = "Geometry Nodes Cursor"
-        create_geometry_nodes_modifier_cursor(cursor, node_group_name)
+        # Bestehenden Geometry Nodes Modifier zuweisen
+        create_geometry_nodes_modifier(cursor, "cursor")
 
         # Fahrer (Drivers) verbinden
-        connect_attributes_with_drivers(cursor, {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'})
+        connect_attributes_with_drivers(cursor, {
+            "k1": 'BOOLEAN',
+            "k2": 'BOOLEAN',
+            "m1": 'BOOLEAN',
+            "m2": 'BOOLEAN'
+        })
 
         return cursor
     except Exception as e:

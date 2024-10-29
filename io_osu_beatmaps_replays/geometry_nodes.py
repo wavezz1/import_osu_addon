@@ -3,7 +3,6 @@ import bpy
 # Speichere die Node Groups in einem Dictionary, damit sie nur einmal erstellt werden
 node_groups = {}
 
-
 def setup_geometry_node_trees():
     """
     Initialisiert die vier Node Trees, falls sie noch nicht existieren.
@@ -41,7 +40,6 @@ def setup_geometry_node_trees():
             })
         }
 
-
 def create_geometry_nodes_tree(name, attributes):
     """
     Erstellt einen Geometry Node Tree, falls er noch nicht existiert, und fügt die erforderlichen Sockets hinzu.
@@ -52,7 +50,6 @@ def create_geometry_nodes_tree(name, attributes):
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes)
     return group
-
 
 def setup_node_group_interface(group, attributes):
     """
@@ -97,7 +94,6 @@ def setup_node_group_interface(group, attributes):
     # Verbinde den letzten Store Node mit dem Output
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
-
 def create_geometry_nodes_modifier(obj, obj_type):
     """
     Weist dem Objekt den entsprechenden Geometry Node Tree basierend auf dem Objekttyp zu.
@@ -116,7 +112,6 @@ def create_geometry_nodes_modifier(obj, obj_type):
     if not modifier:
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
-
 
 def connect_attributes_with_drivers(obj, attributes):
     """
@@ -149,25 +144,16 @@ def connect_attributes_with_drivers(obj, attributes):
             "spinner_duration_ms": "Socket_3",
             "was_completed": "Socket_6",
             "was_hit": "Socket_5"
-        },
-        "cursor": {
-            "k1": "k1",
-            "k2": "k2",
-            "m1": "m1",
-            "m2": "m2"
         }
     }
 
     # Bestimme den Objekttyp und die zugehörige Socket-Zuordnung
-    obj_name_lower = obj.name.lower()
-    if "circle" in obj_name_lower:
+    if "circle" in obj.name.lower():
         sockets = socket_mapping["circle"]
-    elif "slider" in obj_name_lower:
+    elif "slider" in obj.name.lower():
         sockets = socket_mapping["slider"]
-    elif "spinner" in obj_name_lower:
+    elif "spinner" in obj.name.lower():
         sockets = socket_mapping["spinner"]
-    elif "cursor" in obj_name_lower:
-        sockets = socket_mapping["cursor"]
     else:
         print(f"Unrecognized object type for {obj.name}. Skipping driver setup.")
         return
@@ -179,22 +165,47 @@ def connect_attributes_with_drivers(obj, attributes):
             continue
 
         try:
-            if "cursor" in obj_name_lower:
-                # Für Cursor, benutze den korrekten Datenpfad zu den Inputs
-                data_path = f'inputs["{socket_name}"].default_value'
-            else:
-                # Für andere Objekttypen, benutze die Socket Namen direkt
-                data_path = f'["{socket_name}"]'
-
-            print(f"Adding driver for {attr_name} on {data_path}")
-
             # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
-            driver = modifier.driver_add(data_path).driver
+            driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()
             var.name = 'var'
             var.targets[0].id_type = 'OBJECT'
             var.targets[0].id = obj
+            var.targets[0].data_path = f'["{attr_name}"]'
+        except Exception as e:
+            print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
+
+def connect_cursor_attributes_with_drivers(cursor):
+    """
+    Verbindet die Cursor-Eigenschaften mit den Geometry Node Tree-Sockets.
+    """
+    modifier = cursor.modifiers.get("GeometryNodes")
+    if not modifier:
+        return
+
+    # Socket-Zuordnung für den Cursor
+    socket_mapping = {
+        "k1": "Socket_2",
+        "k2": "Socket_3",
+        "m1": "Socket_4",
+        "m2": "Socket_5"
+    }
+
+    # Füge die Driver für jedes Attribut entsprechend der Socket-Zuordnung hinzu
+    for attr_name, socket_name in socket_mapping.items():
+        # Überprüfen, ob die Objekt-Property für das Attribut existiert
+        if attr_name not in cursor:
+            continue
+
+        try:
+            # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
+            driver = modifier.driver_add(f'["{socket_name}"]').driver
+            driver.type = 'AVERAGE'
+            var = driver.variables.new()
+            var.name = 'var'
+            var.targets[0].id_type = 'OBJECT'
+            var.targets[0].id = cursor
             var.targets[0].data_path = f'["{attr_name}"]'
         except Exception as e:
             print(f"Could not set driver for {attr_name} on {socket_name}: {e}")

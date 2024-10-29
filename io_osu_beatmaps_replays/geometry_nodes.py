@@ -94,26 +94,26 @@ def connect_attributes_with_drivers(obj, attributes):
     # Definiere die Socket-Zuordnungen je nach Objekttyp
     socket_mapping = {
         "circle": {
-            "ar": "Socket_2",
-            "cs": "Socket_3",
-            "show": "Socket_4",
-            "was_hit": "Socket_5"
+            "ar": "Socket_4",
+            "cs": "Socket_5",
+            "show": "Socket_2",
+            "was_hit": "Socket_3"
         },
         "slider": {
-            "ar": "Socket_2",
-            "cs": "Socket_3",
-            "show": "Socket_4",
-            "slider_duration_frames": "Socket_5",
-            "slider_duration_ms": "Socket_6",
-            "was_completed": "Socket_7",
-            "was_hit": "Socket_8"
+            "ar": "Socket_5",
+            "cs": "Socket_6",
+            "show": "Socket_2",
+            "slider_duration_frames": "Socket_4",
+            "slider_duration_ms": "Socket_3",
+            "was_completed": "Socket_8",
+            "was_hit": "Socket_7"
         },
         "spinner": {
             "show": "Socket_2",
-            "spinner_duration_frames": "Socket_3",
-            "spinner_duration_ms": "Socket_4",
-            "was_completed": "Socket_5",
-            "was_hit": "Socket_6"
+            "spinner_duration_frames": "Socket_4",
+            "spinner_duration_ms": "Socket_3",
+            "was_completed": "Socket_6",
+            "was_hit": "Socket_5"
         },
         "cursor": {
             "k1": "Socket_2",

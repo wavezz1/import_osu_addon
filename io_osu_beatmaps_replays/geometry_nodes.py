@@ -151,10 +151,10 @@ def connect_attributes_with_drivers(obj, attributes):
             "was_hit": "Socket_5"
         },
         "cursor": {
-            "k1": "k1",
-            "k2": "k2",
-            "m1": "m1",
-            "m2": "m2"
+            "k1": "Socket_2",
+            "k2": "Socket_3",
+            "m1": "Socket_4",
+            "m2": "Socket_5"
         }
     }
 

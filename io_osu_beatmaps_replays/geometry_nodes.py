@@ -14,22 +14,29 @@ def create_geometry_nodes_modifier(obj, node_group_name, attributes):
 
 
 def setup_node_group_interface(group, attributes):
-    # Füge einen Geometry Eingang und Ausgang hinzu
-    group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
-    group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
+    # Festlegen der Position der Nodes
+    x_offset = 200
 
-    input_node = group.nodes.new('NodeGroupInput')
-    input_node.location = (0, 0)
-    output_node = group.nodes.new('NodeGroupOutput')
-    output_node.location = (600, 0)
+    # Füge einen Geometry Eingang und Ausgang hinzu
+    group_input = group.nodes.new('NodeGroupInput')
+    group_input.location = (0, 0)
+    group_output = group.nodes.new('NodeGroupOutput')
+    group_output.location = (x_offset * (len(attributes) + 1), 0)
 
     # Verlinke direkt Geometry Input mit dem ersten Store Node
-    previous_node_output = input_node.outputs['Geometry']
+    previous_node_output = group_input.outputs['Geometry']
 
-    # Für jedes Attribut einen Store Named Attribute Knoten hinzufügen
+    # Definiere eine Map für die Socket-Typen
+    socket_map = {
+        "BOOLEAN": "NodeSocketBool",
+        "FLOAT": "NodeSocketFloat",
+        "INT": "NodeSocketInt"
+    }
+
+    # Füge für jedes Attribut einen Store Named Attribute Knoten hinzu
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
         store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
-        store_node.location = (200, -100 * i)
+        store_node.location = (x_offset * (i + 1), 0)  # Nur entlang der x-Achse verschoben
         store_node.inputs['Name'].default_value = attr_name
         store_node.data_type = attr_type
         store_node.domain = 'POINT'
@@ -39,12 +46,12 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         # Erstelle einen Group Input Socket für jeden Wert
-        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=f'NodeSocket{attr_type.capitalize()}')
-        group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
+        socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")  # Fallback auf Float
+        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+        group.links.new(group_input.outputs[new_socket.name], store_node.inputs['Value'])
 
-    # Verlinke den letzten Store Node mit dem Output
-    group.links.new(previous_node_output, output_node.inputs['Geometry'])
-
+    # Verlinke den letzten Store Node mit dem Group Output
+    group.links.new(previous_node_output, group_output.inputs['Geometry'])
 
 def create_geometry_nodes_modifier_circle(obj, node_group_name):
     attributes = {"show": 'BOOLEAN', "was_hit": 'BOOLEAN', "ar": 'FLOAT', "cs": 'FLOAT'}

@@ -20,10 +20,19 @@ import importlib.metadata
 from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import
 from bpy.types import Operator, AddonPreferences
 
+from .cursor import CursorCreator  # Importiere die CursorCreator Klasse
+from .circles import CircleCreator
+from .slider import SliderCreator
+from .spinner import SpinnerCreator
+
 classes = (
     OSUImporterProperties,
     OSU_PT_ImporterPanel,
     OSU_OT_Import,
+    CircleCreator,
+    SliderCreator,
+    SpinnerCreator,
+    CursorCreator,  # Füge CursorCreator zu den registrierten Klassen hinzu
 )
 
 def is_osrparse_installed():
@@ -68,7 +77,7 @@ class OSUImporterPreferences(AddonPreferences):
                 layout.label(text="osrparse not installed", icon='ERROR')
             layout.operator("osu_importer.install_osrparse", text="Install osrparse 6.0.2")
 
-        layout.separator()  # Optional separator for clarity
+        layout.separator()  # Optional separator für Klarheit
         layout.label(text="Credits", icon='INFO')
         layout.label(text="This addon utilizes osrparse (https://github.com/kszlim/osu-replay-parser),")
         layout.label(text="created by kszlim and contributors.")

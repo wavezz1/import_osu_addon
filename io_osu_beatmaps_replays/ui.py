@@ -5,28 +5,96 @@ from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
 
 class OSUImporterProperties(PropertyGroup):
-    osu_file: StringProperty(name="Beatmap (.osu)", description="Path to .osu Beatmap file", subtype='FILE_PATH')
-    osr_file: StringProperty(name="Replay (.osr)", description="Path to .osr Replay file", subtype='FILE_PATH')
-    approach_rate: FloatProperty(name="Approach Rate", description="Approach Rate of the Beatmap", default=0.0)
-    circle_size: FloatProperty(name="Circle Size", description="Circle Size of the Beatmap", default=0.0)
-    bpm: FloatProperty(name="BPM", description="Beats per Minute of the Beatmap", default=0.0)
-    total_hitobjects: IntProperty(name="Total HitObjects", description="Total HitObjects in the Beatmap", default=0)
-    mods: StringProperty(name="Active Mods", description="List of active mods", default="")
-    accuracy: FloatProperty(name="Accuracy", description="Replay accuracy in percent", default=0.0)
-    misses: IntProperty(name="Misses", description="Number of missed HitObjects in the Replay", default=0)
-    formatted_mods: StringProperty(name="Formatted Mods", description="Formatted list of active mods", default="")
-    base_approach_rate: FloatProperty(name="Approach Rate", description="Base Approach Rate of the Beatmap", default=0.0)
-    adjusted_approach_rate: FloatProperty(name="Adjusted Approach Rate", description="Adjusted Approach Rate with Mods", default=0.0)
-    base_circle_size: FloatProperty(name="Circle Size", description="Base Circle Size of the Beatmap", default=0.0)
-    adjusted_circle_size: FloatProperty(name="Adjusted Circle Size", description="Adjusted Circle Size with Mods", default=0.0)
-    base_overall_difficulty: FloatProperty(name="Overall Difficulty", description="Base Overall Difficulty of the Beatmap", default=0.0)
-    adjusted_overall_difficulty: FloatProperty(name="Adjusted Overall Difficulty", description="Adjusted Overall Difficulty with Mods", default=0.0)
-    max_combo: IntProperty(name="Max Combo", description="Maximum Combo in the Replay", default=0)
-    total_score: IntProperty(name="Total Score", description="Total Score of the Replay", default=0)
-    import_circles: BoolProperty(name="Import Circles", description="Import circles from the Beatmap", default=True)
-    import_sliders: BoolProperty(name="Import Sliders", description="Import sliders from the Beatmap", default=True)
-    import_spinners: BoolProperty(name="Import Spinners", description="Import spinners from the Beatmap", default=True)
-    import_audio: BoolProperty(name="Import Audio", description="Import the Beatmap's audio file", default=True)
+    osu_file: StringProperty(
+        name="osu! File",
+        description="Path to the .osu file",
+        default="",
+        subtype='FILE_PATH'
+    )
+    osr_file: StringProperty(
+        name="osr File",
+        description="Path to the .osr file",
+        default="",
+        subtype='FILE_PATH'
+    )
+    import_circles: BoolProperty(
+        name="Import Circles",
+        description="Import circle hit objects",
+        default=True
+    )
+    import_sliders: BoolProperty(
+        name="Import Sliders",
+        description="Import slider hit objects",
+        default=True
+    )
+    import_spinners: BoolProperty(
+        name="Import Spinners",
+        description="Import spinner hit objects",
+        default=True
+    )
+    import_cursors: BoolProperty(
+        name="Import Cursors",
+        description="Import cursor movements from the Replay",
+        default=True
+    )
+    import_audio: BoolProperty(
+        name="Import Audio",
+        description="Import the audio track associated with the Beatmap",
+        default=True
+    )
+    bpm: FloatProperty(
+        name="BPM",
+        default=0.0
+    )
+    base_approach_rate: FloatProperty(
+        name="Base AR",
+        default=0.0
+    )
+    adjusted_approach_rate: FloatProperty(
+        name="Adjusted AR",
+        default=0.0
+    )
+    base_circle_size: FloatProperty(
+        name="Base CS",
+        default=0.0
+    )
+    adjusted_circle_size: FloatProperty(
+        name="Adjusted CS",
+        default=0.0
+    )
+    base_overall_difficulty: FloatProperty(
+        name="Base OD",
+        default=0.0
+    )
+    adjusted_overall_difficulty: FloatProperty(
+        name="Adjusted OD",
+        default=0.0
+    )
+    total_hitobjects: IntProperty(
+        name="Total HitObjects",
+        default=0
+    )
+    formatted_mods: StringProperty(
+        name="Mods",
+        default="None"
+    )
+    accuracy: FloatProperty(
+        name="Accuracy",
+        default=0.0
+    )
+    misses: IntProperty(
+        name="Misses",
+        default=0
+    )
+    max_combo: IntProperty(
+        name="Max Combo",
+        default=0
+    )
+    total_score: IntProperty(
+        name="Total Score",
+        default=0
+    )
+
 
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
@@ -74,6 +142,7 @@ class OSU_PT_ImporterPanel(Panel):
         col.prop(props, "import_circles")
         col.prop(props, "import_sliders")
         col.prop(props, "import_spinners")
+        col.prop(props, "import_cursors")  # Neue Checkbox für Cursor
         col.prop(props, "import_audio")
 
 class OSU_OT_Import(Operator):

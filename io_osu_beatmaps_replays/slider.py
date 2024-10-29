@@ -163,11 +163,20 @@ class SliderCreator:
         end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
                                                                                    1.0) / get_ms_per_frame()
 
+        slider["was_hit"] = False
+        slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
         slider["was_hit"] = self.hitobject.was_hit
         slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        slider["was_completed"] = True
+        slider["was_completed"] = False
         slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame - 1)
+
+        # Füge einen zweiten Keyframe auf True hinzu, wenn nur ein Frame vorhanden ist
+        slider["was_completed"] = True
+        slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
+
+        slider["show"] = False
+        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
 
         slider["show"] = True
         slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)

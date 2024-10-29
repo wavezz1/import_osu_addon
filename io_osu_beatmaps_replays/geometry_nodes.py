@@ -91,25 +91,16 @@ def connect_attributes_with_drivers(obj, attributes):
     if not modifier:
         return
 
-    # Bestimme die Sockets im Modifier in der Reihenfolge der `attributes`:
-    modifier_sockets = [socket.name for socket in modifier.node_group.inputs]
-
     for attr_name, attr_type in attributes.items():
-        # Überprüfen, ob die Object-Property für das Attribut existiert
+        # Überprüfen, ob die Objekt-Property für das Attribut existiert
         if attr_name not in obj:
             continue
 
-        # Finde den korrekten Socket für das Attribut
-        socket_index = modifier_sockets.index(attr_name) if attr_name in modifier_sockets else None
-        if socket_index is None:
-            print(f"Socket for {attr_name} not found in modifier.")
-            continue
-
-        # Erstelle den vollständigen Data Path für den Modifier-Socket
-        socket_path = f'["{modifier_sockets[socket_index]}"]'
+        # Versuche, den vollständigen Data Path für den Socket zu finden
+        socket_path = f'["{attr_name}"]'  # Nutzt den Namen des Attributes direkt
 
         try:
-            # Füge den Driver hinzu, der die Object-Property mit dem Socket verbindet
+            # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
             driver = modifier.driver_add(socket_path).driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()

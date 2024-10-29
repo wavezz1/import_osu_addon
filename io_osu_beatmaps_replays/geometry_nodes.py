@@ -1,21 +1,63 @@
 import bpy
 
-def create_geometry_nodes_modifier(obj, node_group_name, attributes):
-    # Prüfen, ob die Node Group bereits existiert oder neu erstellt werden muss
-    if node_group_name in bpy.data.node_groups:
-        group = bpy.data.node_groups[node_group_name]
-    else:
-        group = bpy.data.node_groups.new(node_group_name, 'GeometryNodeTree')
-        setup_node_group_interface(group, attributes)
+# Speichere die Node Groups in einem Dictionary, damit sie nur einmal erstellt werden
+node_groups = {}
 
-    # Überprüfen, ob das Objekt bereits einen Modifier hat, der auf diesen Node Tree verweist
-    modifier = obj.modifiers.get("GeometryNodes")
-    if not modifier:
-        modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
-    modifier.node_group = group
+
+def setup_geometry_node_trees():
+    """
+    Initialisiert die vier Node Trees, falls sie noch nicht existieren.
+    """
+    global node_groups
+    if not node_groups:
+        node_groups = {
+            "circle": create_geometry_nodes_tree("Geometry Nodes Circle", {
+                "show": 'BOOLEAN',
+                "was_hit": 'BOOLEAN',
+                "ar": 'FLOAT',
+                "cs": 'FLOAT'
+            }),
+            "slider": create_geometry_nodes_tree("Geometry Nodes Slider", {
+                "show": 'BOOLEAN',
+                "slider_duration": 'FLOAT',
+                "slider_duration_frames": 'FLOAT',
+                "ar": 'FLOAT',
+                "cs": 'FLOAT',
+                "was_hit": 'BOOLEAN',
+                "was_completed": 'BOOLEAN'
+            }),
+            "spinner": create_geometry_nodes_tree("Geometry Nodes Spinner", {
+                "show": 'BOOLEAN',
+                "spinner_duration_ms": 'FLOAT',
+                "spinner_duration_frames": 'FLOAT',
+                "was_hit": 'BOOLEAN',
+                "was_completed": 'BOOLEAN'
+            }),
+            "cursor": create_geometry_nodes_tree("Geometry Nodes Cursor", {
+                "k1": 'BOOLEAN',
+                "k2": 'BOOLEAN',
+                "m1": 'BOOLEAN',
+                "m2": 'BOOLEAN'
+            })
+        }
+
+
+def create_geometry_nodes_tree(name, attributes):
+    """
+    Erstellt einen Geometry Node Tree, falls er noch nicht existiert, und fügt die erforderlichen Sockets hinzu.
+    """
+    if name in bpy.data.node_groups:
+        return bpy.data.node_groups[name]
+
+    group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
+    setup_node_group_interface(group, attributes)
+    return group
 
 
 def setup_node_group_interface(group, attributes):
+    """
+    Erstellt die Sockets für die Geometry Node Group und verbindet die Attribute.
+    """
     x_offset = 200
     # Füge einen Geometry Eingang und Ausgang hinzu
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
@@ -29,6 +71,7 @@ def setup_node_group_interface(group, attributes):
     # Verlinke direkt Geometry Input mit dem ersten Store Node
     previous_node_output = input_node.outputs['Geometry']
 
+    # Mapping für Socket-Typen
     socket_map = {
         "BOOLEAN": "NodeSocketBool",
         "FLOAT": "NodeSocketFloat",
@@ -42,54 +85,43 @@ def setup_node_group_interface(group, attributes):
         store_node.data_type = attr_type
         store_node.domain = 'POINT'
 
-        # Verlinken des vorherigen Knotens mit dem aktuellen Store Node
+        # Verbinde den vorherigen Knoten mit dem aktuellen Store Node
         group.links.new(previous_node_output, store_node.inputs['Geometry'])
         previous_node_output = store_node.outputs['Geometry']
 
-        # Hole den richtigen Socket-Typ aus der socket_map
-        socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")  # Fallback auf Float, falls nicht gefunden
+        # Erstelle den richtigen Socket und verbinde ihn
+        socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
         new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
-    # Verlinke den letzten Store Node mit dem Output
+
+    # Verbinde den letzten Store Node mit dem Output
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
 
-def create_geometry_nodes_modifier_circle(obj):
-    attributes = {"show": 'BOOLEAN', "was_hit": 'BOOLEAN', "ar": 'FLOAT', "cs": 'FLOAT'}
-    create_geometry_nodes_modifier(obj, "Geometry Nodes Circle", attributes)
+def create_geometry_nodes_modifier(obj, obj_type):
+    """
+    Weist dem Objekt den entsprechenden Geometry Node Tree basierend auf dem Objekttyp zu.
+    """
+    # Initialisiere die Node Trees einmalig
+    setup_geometry_node_trees()
 
-def create_geometry_nodes_modifier_slider(obj):
-    attributes = {
-        "show": 'BOOLEAN',
-        "slider_duration": 'FLOAT',
-        "slider_duration_frames": 'FLOAT',
-        "ar": 'FLOAT',
-        "cs": 'FLOAT',
-        "was_hit": 'BOOLEAN',
-        "was_completed": 'BOOLEAN'
-    }
-    create_geometry_nodes_modifier(obj, "Geometry Nodes Slider", attributes)
+    # Hole die passende Node Group für den gegebenen Objekttyp
+    node_group = node_groups.get(obj_type)
+    if not node_group:
+        print(f"Unrecognized object type for {obj_type}. Skipping modifier setup.")
+        return
 
-def create_geometry_nodes_modifier_spinner(obj):
-    attributes = {
-        "show": 'BOOLEAN',
-        "spinner_duration_ms": 'FLOAT',
-        "spinner_duration_frames": 'FLOAT',
-        "was_hit": 'BOOLEAN',
-        "was_completed": 'BOOLEAN'
-    }
-    create_geometry_nodes_modifier(obj, "Geometry Nodes Spinner", attributes)
+    # Erstelle den Modifier und weise die Node Group zu, falls sie nicht schon zugewiesen ist
+    modifier = obj.modifiers.get("GeometryNodes")
+    if not modifier:
+        modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
+    modifier.node_group = node_group
 
-def create_geometry_nodes_modifier_cursor(obj):
-    attributes = {
-        "k1": 'BOOLEAN',
-        "k2": 'BOOLEAN',
-        "m1": 'BOOLEAN',
-        "m2": 'BOOLEAN'
-    }
-    create_geometry_nodes_modifier(obj, "Geometry Nodes Cursor", attributes)
 
 def connect_attributes_with_drivers(obj, attributes):
+    """
+    Verbindet die Objekt-Properties mit den Geometry Node Tree-Sockets mittels Treibern.
+    """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         return

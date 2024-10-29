@@ -93,13 +93,37 @@ def connect_attributes_with_drivers(obj, attributes):
 
     # Definiere die Socket-Zuordnungen je nach Objekttyp
     socket_mapping = {
-        "circle": ["Socket_2", "Socket_3", "Socket_4", "Socket_5"],
-        "slider": ["Socket_2", "Socket_3", "Socket_4", "Socket_5", "Socket_6", "Socket_7", "Socket_8"],
-        "spinner": ["Socket_2", "Socket_3", "Socket_4", "Socket_5", "Socket_6"],
-        "cursor": ["Socket_2", "Socket_3", "Socket_4", "Socket_5"]
+        "circle": {
+            "ar": "Socket_2",
+            "cs": "Socket_3",
+            "show": "Socket_4",
+            "was_hit": "Socket_5"
+        },
+        "slider": {
+            "ar": "Socket_2",
+            "cs": "Socket_3",
+            "show": "Socket_4",
+            "slider_duration_frames": "Socket_5",
+            "slider_duration_ms": "Socket_6",
+            "was_completed": "Socket_7",
+            "was_hit": "Socket_8"
+        },
+        "spinner": {
+            "show": "Socket_2",
+            "spinner_duration_frames": "Socket_3",
+            "spinner_duration_ms": "Socket_4",
+            "was_completed": "Socket_5",
+            "was_hit": "Socket_6"
+        },
+        "cursor": {
+            "k1": "Socket_2",
+            "k2": "Socket_3",
+            "m1": "Socket_4",
+            "m2": "Socket_5"
+        }
     }
 
-    # Bestimme den Objekttyp und die zugehörige Socket-Liste
+    # Bestimme den Objekttyp und die zugehörige Socket-Zuordnung
     if "circle" in obj.name.lower():
         sockets = socket_mapping["circle"]
     elif "slider" in obj.name.lower():
@@ -113,7 +137,7 @@ def connect_attributes_with_drivers(obj, attributes):
         return
 
     # Füge die Driver für jedes Attribut entsprechend der Socket-Zuordnung hinzu
-    for socket_name, (attr_name, _) in zip(sockets, attributes.items()):
+    for attr_name, socket_name in sockets.items():
         # Überprüfen, ob die Objekt-Property für das Attribut existiert
         if attr_name not in obj:
             continue

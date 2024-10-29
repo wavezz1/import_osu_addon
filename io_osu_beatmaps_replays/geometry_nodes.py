@@ -1,15 +1,17 @@
 import bpy
 
 def create_geometry_nodes_modifier(obj, node_group_name, attributes):
-    # Überprüfen, ob die Node Group bereits existiert, sonst erstellen
+    # Prüfen, ob die Node Group bereits existiert oder neu erstellt werden muss
     if node_group_name in bpy.data.node_groups:
         group = bpy.data.node_groups[node_group_name]
     else:
         group = bpy.data.node_groups.new(node_group_name, 'GeometryNodeTree')
         setup_node_group_interface(group, attributes)
 
-    # Modifier hinzufügen und Node Group zuweisen
-    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
+    # Überprüfen, ob das Objekt bereits einen Modifier hat, der auf diesen Node Tree verweist
+    modifier = obj.modifiers.get("GeometryNodes")
+    if not modifier:
+        modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = group
 
 
@@ -52,12 +54,11 @@ def setup_node_group_interface(group, attributes):
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
 
-def create_geometry_nodes_modifier_circle(obj, node_group_name):
+def create_geometry_nodes_modifier_circle(obj):
     attributes = {"show": 'BOOLEAN', "was_hit": 'BOOLEAN', "ar": 'FLOAT', "cs": 'FLOAT'}
-    create_geometry_nodes_modifier(obj, node_group_name, attributes)
+    create_geometry_nodes_modifier(obj, "Geometry Nodes Circle", attributes)
 
-
-def create_geometry_nodes_modifier_slider(obj, node_group_name):
+def create_geometry_nodes_modifier_slider(obj):
     attributes = {
         "show": 'BOOLEAN',
         "slider_duration": 'FLOAT',
@@ -67,10 +68,9 @@ def create_geometry_nodes_modifier_slider(obj, node_group_name):
         "was_hit": 'BOOLEAN',
         "was_completed": 'BOOLEAN'
     }
-    create_geometry_nodes_modifier(obj, node_group_name, attributes)
+    create_geometry_nodes_modifier(obj, "Geometry Nodes Slider", attributes)
 
-
-def create_geometry_nodes_modifier_spinner(obj, node_group_name):
+def create_geometry_nodes_modifier_spinner(obj):
     attributes = {
         "show": 'BOOLEAN',
         "spinner_duration_ms": 'FLOAT',
@@ -78,19 +78,16 @@ def create_geometry_nodes_modifier_spinner(obj, node_group_name):
         "was_hit": 'BOOLEAN',
         "was_completed": 'BOOLEAN'
     }
-    create_geometry_nodes_modifier(obj, node_group_name, attributes)
+    create_geometry_nodes_modifier(obj, "Geometry Nodes Spinner", attributes)
 
-
-def create_geometry_nodes_modifier_cursor(obj, node_group_name):
-    # Definiert die spezifischen Attribute für den Cursor
+def create_geometry_nodes_modifier_cursor(obj):
     attributes = {
         "k1": 'BOOLEAN',
         "k2": 'BOOLEAN',
         "m1": 'BOOLEAN',
         "m2": 'BOOLEAN'
     }
-    # Erstellt den Modifier und ruft setup_node_group_interface mit den Cursor-spezifischen Attributen auf
-    create_geometry_nodes_modifier(obj, node_group_name, attributes)
+    create_geometry_nodes_modifier(obj, "Geometry Nodes Cursor", attributes)
 
 def connect_attributes_with_drivers(obj, attributes):
     modifier = obj.modifiers.get("GeometryNodes")

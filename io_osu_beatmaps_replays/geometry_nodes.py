@@ -159,13 +159,14 @@ def connect_attributes_with_drivers(obj, attributes):
     }
 
     # Bestimme den Objekttyp und die zugehörige Socket-Zuordnung
-    if "circle" in obj.name.lower():
+    obj_name_lower = obj.name.lower()
+    if "circle" in obj_name_lower:
         sockets = socket_mapping["circle"]
-    elif "slider" in obj.name.lower():
+    elif "slider" in obj_name_lower:
         sockets = socket_mapping["slider"]
-    elif "spinner" in obj.name.lower():
+    elif "spinner" in obj_name_lower:
         sockets = socket_mapping["spinner"]
-    elif "cursor" in obj.name.lower():
+    elif "cursor" in obj_name_lower:
         sockets = socket_mapping["cursor"]
     else:
         print(f"Unrecognized object type for {obj.name}. Skipping driver setup.")
@@ -178,8 +179,17 @@ def connect_attributes_with_drivers(obj, attributes):
             continue
 
         try:
+            if "cursor" in obj_name_lower:
+                # Für Cursor, benutze den korrekten Datenpfad zu den Inputs
+                data_path = f'inputs["{socket_name}"].default_value'
+            else:
+                # Für andere Objekttypen, benutze die Socket Namen direkt
+                data_path = f'["{socket_name}"]'
+
+            print(f"Adding driver for {attr_name} on {data_path}")
+
             # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
-            driver = modifier.driver_add(f'["{socket_name}"]').driver
+            driver = modifier.driver_add(data_path).driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()
             var.name = 'var'

@@ -1,7 +1,4 @@
-# geometry_nodes.py
-
 import bpy
-
 
 def create_geometry_nodes_modifier(obj, node_group_name, attributes):
     # Überprüfen, ob die Node Group bereits existiert, sonst erstellen
@@ -21,12 +18,13 @@ def setup_node_group_interface(group, attributes):
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
-    previous_node = group.nodes.new('NodeGroupInput')
-    previous_node.location = (0, 0)
+    input_node = group.nodes.new('NodeGroupInput')
+    input_node.location = (0, 0)
     output_node = group.nodes.new('NodeGroupOutput')
-    output_node.location = (400, 0)
+    output_node.location = (600, 0)
 
-    group.links.new(previous_node.outputs['Geometry'], output_node.inputs['Geometry'])
+    # Verlinke direkt Geometry Input mit dem ersten Store Node
+    previous_node_output = input_node.outputs['Geometry']
 
     # Für jedes Attribut einen Store Named Attribute Knoten hinzufügen
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
@@ -36,9 +34,16 @@ def setup_node_group_interface(group, attributes):
         store_node.data_type = attr_type
         store_node.domain = 'POINT'
 
-        # Verbinden des vorherigen Knotens mit dem aktuellen Store Node
-        group.links.new(previous_node.outputs['Geometry'], store_node.inputs['Geometry'])
-        group.links.new(store_node.outputs['Geometry'], output_node.inputs['Geometry'])
+        # Verlinken des vorherigen Knotens mit dem aktuellen Store Node
+        group.links.new(previous_node_output, store_node.inputs['Geometry'])
+        previous_node_output = store_node.outputs['Geometry']
+
+        # Erstelle einen Group Input Socket für jeden Wert
+        new_socket = group.interface.new_socket(attr_type.capitalize(), in_out='INPUT', socket_type=f'NodeSocket{attr_type.capitalize()}')
+        group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
+
+    # Verlinke den letzten Store Node mit dem Output
+    group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
 
 def create_geometry_nodes_modifier_circle(obj, node_group_name):
@@ -74,11 +79,10 @@ def create_geometry_nodes_modifier_cursor(obj, node_group_name):
     attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'}
     create_geometry_nodes_modifier(obj, node_group_name, attributes)
 
+
 def connect_attributes_with_drivers(obj, attributes):
     for attr_name, attr_type in attributes.items():
-        # Überprüfen, ob das Objekt die Property besitzt
         if attr_name in obj:
-            # Erstellen eines Fahrers für das entsprechende Attribut im Node Group Input
             modifier = obj.modifiers.get("GeometryNodes")
             if not modifier:
                 continue
@@ -86,12 +90,9 @@ def connect_attributes_with_drivers(obj, attributes):
             if not node_group:
                 continue
 
-            # Finden des entsprechenden Store Nodes
-            store_node = None
-            for node in node_group.nodes:
-                if isinstance(node, bpy.types.GeometryNodeStoreNamedAttribute) and node.inputs['Name'].default_value == attr_name:
-                    store_node = node
-                    break
+            store_node = next(
+                (node for node in node_group.nodes if isinstance(node, bpy.types.GeometryNodeStoreNamedAttribute)
+                 and node.inputs['Name'].default_value == attr_name), None)
             if not store_node:
                 continue
 

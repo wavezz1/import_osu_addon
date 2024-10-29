@@ -73,8 +73,8 @@ class CircleCreator:
 
         # Fahrer (Drivers) verbinden
         connect_attributes_with_drivers(circle, {
-            "k1": 'BOOLEAN',
-            "k2": 'BOOLEAN',
-            "m1": 'FLOAT',
-            "m2": 'FLOAT'
+            "show": 'BOOLEAN',
+            "was_hit": 'BOOLEAN',
+            "ar": 'FLOAT',
+            "cs": 'FLOAT'
         })

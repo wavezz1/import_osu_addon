@@ -82,9 +82,15 @@ def create_geometry_nodes_modifier_spinner(obj, node_group_name):
 
 
 def create_geometry_nodes_modifier_cursor(obj, node_group_name):
-    attributes = {"k1": 'BOOLEAN', "k2": 'BOOLEAN', "m1": 'BOOLEAN', "m2": 'BOOLEAN'}
+    # Definiert die spezifischen Attribute für den Cursor
+    attributes = {
+        "k1": 'BOOLEAN',
+        "k2": 'BOOLEAN',
+        "m1": 'BOOLEAN',
+        "m2": 'BOOLEAN'
+    }
+    # Erstellt den Modifier und ruft setup_node_group_interface mit den Cursor-spezifischen Attributen auf
     create_geometry_nodes_modifier(obj, node_group_name, attributes)
-
 
 def connect_attributes_with_drivers(obj, attributes):
     modifier = obj.modifiers.get("GeometryNodes")

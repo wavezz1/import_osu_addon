@@ -91,17 +91,36 @@ def connect_attributes_with_drivers(obj, attributes):
     if not modifier:
         return
 
-    for attr_name, attr_type in attributes.items():
+    # Definiere die Socket-Zuordnungen je nach Objekttyp
+    socket_mapping = {
+        "circle": ["Socket_2", "Socket_3", "Socket_4", "Socket_5"],
+        "slider": ["Socket_2", "Socket_3", "Socket_4", "Socket_5", "Socket_6", "Socket_7", "Socket_8"],
+        "spinner": ["Socket_2", "Socket_3", "Socket_4", "Socket_5", "Socket_6"],
+        "cursor": ["Socket_2", "Socket_3", "Socket_4", "Socket_5"]
+    }
+
+    # Bestimme den Objekttyp und die zugehörige Socket-Liste
+    if "circle" in obj.name.lower():
+        sockets = socket_mapping["circle"]
+    elif "slider" in obj.name.lower():
+        sockets = socket_mapping["slider"]
+    elif "spinner" in obj.name.lower():
+        sockets = socket_mapping["spinner"]
+    elif "cursor" in obj.name.lower():
+        sockets = socket_mapping["cursor"]
+    else:
+        print(f"Unrecognized object type for {obj.name}. Skipping driver setup.")
+        return
+
+    # Füge die Driver für jedes Attribut entsprechend der Socket-Zuordnung hinzu
+    for socket_name, (attr_name, _) in zip(sockets, attributes.items()):
         # Überprüfen, ob die Objekt-Property für das Attribut existiert
         if attr_name not in obj:
             continue
 
-        # Versuche, den vollständigen Data Path für den Socket zu finden
-        socket_path = f'["{attr_name}"]'  # Nutzt den Namen des Attributes direkt
-
         try:
             # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
-            driver = modifier.driver_add(socket_path).driver
+            driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()
             var.name = 'var'
@@ -109,4 +128,4 @@ def connect_attributes_with_drivers(obj, attributes):
             var.targets[0].id = obj
             var.targets[0].data_path = f'["{attr_name}"]'
         except Exception as e:
-            print(f"Could not set driver for {attr_name} at {socket_path}: {e}")
+            print(f"Could not set driver for {attr_name} on {socket_name}: {e}")

@@ -27,14 +27,6 @@ class CursorCreator:
             cursor["m1"] = False
             cursor["m2"] = False
 
-            # Setze 'show' auf False und keyframe es vor dem Start
-            cursor["show"] = False
-            cursor.keyframe_insert(data_path='["show"]', frame=1)
-
-            # Setze 'show' auf True zum Start
-            cursor["show"] = True
-            cursor.keyframe_insert(data_path='["show"]', frame=1)
-
             # Füge das Cursor-Objekt zur Collection hinzu
             self.cursor_collection.objects.link(cursor)
             if cursor.users_collection:

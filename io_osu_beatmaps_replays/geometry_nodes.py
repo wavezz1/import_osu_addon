@@ -39,7 +39,7 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         # Erstelle einen Group Input Socket für jeden Wert
-        new_socket = group.interface.new_socket(attr_type.capitalize(), in_out='INPUT', socket_type=f'NodeSocket{attr_type.capitalize()}')
+        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=f'NodeSocket{attr_type.capitalize()}')
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     # Verlinke den letzten Store Node mit dem Output

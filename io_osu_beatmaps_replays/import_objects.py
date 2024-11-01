@@ -10,6 +10,7 @@ from .utils import create_collection
 def import_hitobjects(data_manager, settings, props):
     circles_collection = create_collection("Circles")
     sliders_collection = create_collection("Sliders")
+    slider_balls_collection = create_collection("Slider Balls")  # Hinzugefügt
     spinners_collection = create_collection("Spinners")
     cursor_collection = create_collection("Cursor")
 
@@ -22,7 +23,7 @@ def import_hitobjects(data_manager, settings, props):
 
     if props.import_sliders:
         for hitobject in data_manager.hitobjects_processor.sliders:
-            SliderCreator(hitobject, global_index, sliders_collection, settings, data_manager)
+            SliderCreator(hitobject, global_index, sliders_collection, slider_balls_collection, settings, data_manager)
             global_index += 1
 
     if props.import_spinners:

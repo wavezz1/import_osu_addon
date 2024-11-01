@@ -3,12 +3,15 @@
 from .circles import CircleCreator
 from .slider import SliderCreator
 from .spinner import SpinnerCreator
+from .cursor import CursorCreator
 from .utils import create_collection
+
 
 def import_hitobjects(data_manager, settings, props):
     circles_collection = create_collection("Circles")
     sliders_collection = create_collection("Sliders")
     spinners_collection = create_collection("Spinners")
+    cursor_collection = create_collection("Cursor")
 
     global_index = 1
 
@@ -26,3 +29,7 @@ def import_hitobjects(data_manager, settings, props):
         for hitobject in data_manager.hitobjects_processor.spinners:
             SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager)
             global_index += 1
+
+    if props.import_cursors:
+        cursor_creator = CursorCreator(cursor_collection, settings, data_manager)
+        cursor_creator.animate_cursor()

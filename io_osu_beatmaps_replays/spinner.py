@@ -3,7 +3,7 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier_spinner
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
@@ -46,11 +46,20 @@ class SpinnerCreator:
         scene_fps = bpy.context.scene.render.fps
         spinner_duration_frames = spinner_duration_ms / (1000 / scene_fps)
 
+        spinner["was_hit"] = False
+        spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
+
         spinner["was_hit"] = self.hitobject.was_hit
         spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        spinner["was_completed"] = self.hitobject.was_completed
+        spinner["was_completed"] = False
+        spinner.keyframe_insert(data_path='["was_completed"]', frame=end_frame - 1)
+
+        spinner["was_completed"] = True
         spinner.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
+
+        spinner["show"] = False
+        spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
 
         spinner["show"] = True
         spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame)
@@ -64,4 +73,12 @@ class SpinnerCreator:
                 if col != self.spinners_collection:
                     col.objects.unlink(spinner)
 
-        create_geometry_nodes_modifier_spinner(spinner, spinner.name)
+        create_geometry_nodes_modifier(spinner, "spinner")
+
+        connect_attributes_with_drivers(spinner, {
+            "show": 'BOOLEAN',
+            "spinner_duration_ms": 'FLOAT',
+            "spinner_duration_frames": 'FLOAT',
+            "was_hit": 'BOOLEAN',
+            "was_completed": 'BOOLEAN'
+        })

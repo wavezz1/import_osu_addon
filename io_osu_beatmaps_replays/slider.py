@@ -5,7 +5,7 @@ import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier_slider
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
@@ -163,11 +163,20 @@ class SliderCreator:
         end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
                                                                                    1.0) / get_ms_per_frame()
 
+        slider["was_hit"] = False
+        slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
         slider["was_hit"] = self.hitobject.was_hit
         slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        slider["was_completed"] = True
+        slider["was_completed"] = False
         slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame - 1)
+
+        # Füge einen zweiten Keyframe auf True hinzu, wenn nur ein Frame vorhanden ist
+        slider["was_completed"] = True
+        slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
+
+        slider["show"] = False
+        slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
 
         slider["show"] = True
         slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
@@ -181,4 +190,14 @@ class SliderCreator:
                 if col != self.sliders_collection:
                     col.objects.unlink(slider)
 
-        create_geometry_nodes_modifier_slider(slider, slider.name)
+        create_geometry_nodes_modifier(slider, "slider")
+
+        connect_attributes_with_drivers(slider, {
+            "show": 'BOOLEAN',
+            "slider_duration": 'FLOAT',
+            "slider_duration_frames": 'FLOAT',
+            "ar": 'FLOAT',
+            "cs": 'FLOAT',
+            "was_hit": 'BOOLEAN',
+            "was_completed": 'BOOLEAN'
+        })

@@ -4,7 +4,7 @@ import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
 from .constants import SCALE_FACTOR
-from .geometry_nodes import create_geometry_nodes_modifier_circle
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
 
 class CircleCreator:
@@ -44,19 +44,15 @@ class CircleCreator:
         circle = bpy.context.object
         circle.name = f"{self.global_index:03d}_circle_{time_ms}"
 
-        # Füge "ar" und "cs" als Eigenschaften zum Kreis hinzu
         circle["ar"] = approach_rate
         circle["cs"] = osu_radius * SCALE_FACTOR
 
-        # Setze 'was_hit' initial auf False und keyframe es vor dem Start
         circle["was_hit"] = False
         circle.keyframe_insert(data_path='["was_hit"]', frame=(start_frame - 1))
 
-        # Setze 'was_hit' auf den tatsächlichen Wert zum Zeitpunkt des Hits
         circle["was_hit"] = self.hitobject.was_hit
         circle.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
 
-        # Setzen der Keyframes und Eigenschaften
         circle["show"] = False
         circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
         circle["show"] = True
@@ -68,4 +64,11 @@ class CircleCreator:
                 if col != self.circles_collection:
                     col.objects.unlink(circle)
 
-        create_geometry_nodes_modifier_circle(circle, circle.name)
+        create_geometry_nodes_modifier(circle, "circle")
+
+        connect_attributes_with_drivers(circle, {
+            "show": 'BOOLEAN',
+            "was_hit": 'BOOLEAN',
+            "ar": 'FLOAT',
+            "cs": 'FLOAT'
+        })

@@ -16,7 +16,7 @@ class SliderCreator:
         self.hitobject = hitobject
         self.global_index = global_index
         self.sliders_collection = sliders_collection
-        self.slider_balls_collection = slider_balls_collection
+        self.slider_balls_collection = slider_balls_collection  # Speichern der slider_balls_collection
         self.settings = settings
         self.data_manager = data_manager
         self.create_slider()
@@ -107,7 +107,7 @@ class SliderCreator:
         # Füge eine Follow Path Constraint zum Slider-Ball hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = slider
-        follow_path.use_fixed_location = False  # 1. Problem: Fixed Position deaktivieren
+        follow_path.use_fixed_location = False  # Fixed Position deaktivieren
 
         # Erstelle ein benutzerdefiniertes Attribut für die Slider-Position
         slider_ball["slider_position"] = 0.0
@@ -125,7 +125,8 @@ class SliderCreator:
             if repeat < repeat_count - 1:
                 # Rückbewegung nur, wenn weitere Wiederholungen vorhanden sind
                 slider_ball["slider_position"] = 0.0
-                slider_ball.keyframe_insert(data_path='["slider_position"]', frame=current_repeat_end_frame + slider_duration_frames)
+                slider_ball.keyframe_insert(data_path='["slider_position"]',
+                                            frame=current_repeat_end_frame + slider_duration_frames)
 
         # Verbinde die Slider-Position mit der Constraint
         driver = follow_path.driver_add("offset").driver
@@ -134,7 +135,7 @@ class SliderCreator:
         var.name = 'pos'
         var.targets[0].id = slider_ball
         var.targets[0].data_path = '["slider_position"]'
-        driver.expression = 'pos * -100'  # 2. Problem: Offset von 0 bis -100 animieren
+        driver.expression = 'pos * -100'  # Offset von 0 bis -100 animieren
 
         # Linke den Slider-Ball zur eigenen Collection
         self.slider_balls_collection.objects.link(slider_ball)

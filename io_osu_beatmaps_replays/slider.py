@@ -11,11 +11,12 @@ from .hitobjects import HitObject
 
 
 class SliderCreator:
-    def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, settings: dict,
+    def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, slider_balls_collection, settings: dict,
                  data_manager: OsuReplayDataManager):
         self.hitobject = hitobject
         self.global_index = global_index
         self.sliders_collection = sliders_collection
+        self.slider_balls_collection = slider_balls_collection
         self.settings = settings
         self.data_manager = data_manager
         self.create_slider()
@@ -100,14 +101,8 @@ class SliderCreator:
         slider_ball = bpy.context.object
         slider_ball.name = f"{slider.name}_ball"
 
-        # Erstelle eine Empty als Elternobjekt
-        bpy.ops.object.empty_add(type='PLAIN_AXES', location=slider.location)
-        empty = bpy.context.object
-        empty.name = f"{slider.name}_empty"
-
-        # Parent den Slider und den Slider-Ball an die Empty
-        slider.parent = empty
-        slider_ball.parent = empty
+        # Parent den Slider-Ball an das Slider-Objekt
+        slider_ball.parent = slider
 
         # Füge eine Follow Path Constraint zum Slider-Ball hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
@@ -118,6 +113,7 @@ class SliderCreator:
         slider_ball["slider_position"] = 0.0
         slider_ball.keyframe_insert(data_path='["slider_position"]', frame=start_frame)
 
+        # Animationslogik basierend auf repeat_count
         for repeat in range(repeat_count):
             # Hinbewegung
             current_repeat_start_frame = start_frame + (repeat * slider_duration_frames * 2)
@@ -126,9 +122,10 @@ class SliderCreator:
             slider_ball["slider_position"] = 1.0
             slider_ball.keyframe_insert(data_path='["slider_position"]', frame=current_repeat_end_frame)
 
-            # Rückbewegung
-            slider_ball["slider_position"] = 0.0
-            slider_ball.keyframe_insert(data_path='["slider_position"]', frame=current_repeat_end_frame + slider_duration_frames)
+            if repeat < repeat_count - 1:
+                # Rückbewegung nur, wenn weitere Wiederholungen vorhanden sind
+                slider_ball["slider_position"] = 0.0
+                slider_ball.keyframe_insert(data_path='["slider_position"]', frame=current_repeat_end_frame + slider_duration_frames)
 
         # Verbinde die Slider-Position mit der Constraint
         driver = follow_path.driver_add("offset").driver
@@ -138,6 +135,10 @@ class SliderCreator:
         var.targets[0].id = slider_ball
         var.targets[0].data_path = '["slider_position"]'
         driver.expression = 'pos * -100'  # 2. Problem: Offset von 0 bis -100 animieren
+
+        # Linke den Slider-Ball zur eigenen Collection
+        self.slider_balls_collection.objects.link(slider_ball)
+        bpy.context.collection.objects.unlink(slider_ball)  # Entferne den Ball aus der aktiven Collection
 
     def create_slider_ticks(self, slider, curve_object, slider_duration_ms, repeat_count):
         # Berechne die Anzahl der Ticks basierend auf der Dauer und einem festen Intervall (z.B. alle 100ms)
@@ -158,10 +159,7 @@ class SliderCreator:
 
             # Füge den Ticks die Sliders Collection hinzu
             self.sliders_collection.objects.link(tick_obj)
-            if tick_obj.users_collection:
-                for col in tick_obj.users_collection:
-                    if col != self.sliders_collection:
-                        col.objects.unlink(tick_obj)
+            bpy.context.collection.objects.unlink(tick_obj)  # Entferne den Tick aus der aktiven Collection
 
     def create_slider(self):
         approach_rate = self.data_manager.calculate_adjusted_ar()
@@ -264,10 +262,6 @@ class SliderCreator:
                 slider["slider_duration_ms"] = slider_duration_ms
                 slider["slider_duration_frames"] = slider_duration_ms / (1000 / bpy.context.scene.render.fps)
 
-                # Erstelle Slider-Ball und Slider-Ticks
-                self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
-                self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
-
                 # Verbinde Geometry Nodes
                 create_geometry_nodes_modifier(slider, "slider")
                 connect_attributes_with_drivers(slider, {
@@ -279,6 +273,10 @@ class SliderCreator:
                     "was_hit": 'BOOLEAN',
                     "was_completed": 'BOOLEAN'
                 })
+
+                # Erstelle Slider-Ball und Slider-Ticks
+                self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
+                self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
                 # Füge den Slider zu der Collection hinzu
                 self.sliders_collection.objects.link(slider)

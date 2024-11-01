@@ -94,26 +94,24 @@ class SliderCreator:
                      [j / 10.0 for j in range(11)]])
         return bezier_points
 
-    def create_slider_ball(self, slider, curve_object, start_frame, slider_duration_frames, repeat_count):
+    def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count):
         # Erstelle eine Kugel für den Slider-Ball
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=(0, 0, 0))
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
         slider_ball = bpy.context.object
         slider_ball.name = f"{slider.name}_ball"
 
-        # Setze die Position des Slider-Balls auf den Start des Slider-Pfades
-        slider_ball.location = slider.location  # Korrektur: Setze die Position auf das Slider-Objekt
+        # Erstelle eine Empty als Elternobjekt
+        bpy.ops.object.empty_add(type='PLAIN_AXES', location=slider.location)
+        empty = bpy.context.object
+        empty.name = f"{slider.name}_empty"
 
-        # Füge den Slider-Pfaden eine Empty hinzu, falls noch nicht vorhanden
-        if not any(child.type == 'EMPTY' and child.name == f"{slider.name}_empty" for child in slider.children):
-            bpy.ops.object.empty_add(type='PLAIN_AXES', location=slider.location)
-            empty = bpy.context.object
-            empty.name = f"{slider.name}_empty"
-            curve_object.parent = empty
-            slider_ball.parent = empty
+        # Parent den Slider und den Slider-Ball an die Empty
+        slider.parent = empty
+        slider_ball.parent = empty
 
-        # Füge eine Follow Path Constraint hinzu
+        # Füge eine Follow Path Constraint zum Slider-Ball hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
-        follow_path.target = slider  # Korrektur: Setze das Ziel auf das Slider-Objekt
+        follow_path.target = slider
         follow_path.use_fixed_location = True
 
         # Erstelle ein benutzerdefiniertes Attribut für die Slider-Position
@@ -151,7 +149,7 @@ class SliderCreator:
             t = min(max(t, 0.0), 1.0)  # Sicherstellen, dass t zwischen 0 und 1 liegt
 
             # Berechne die exakte Position entlang der Kurve
-            tick_position = evaluate_curve_at_t(curve_object, t)
+            tick_position = evaluate_curve_at_t(slider, t)
 
             # Erstelle eine kleine Kugel als Tick
             bpy.ops.mesh.primitive_uv_sphere_add(radius=0.05, location=(tick_position.x, tick_position.y, tick_position.z))
@@ -182,9 +180,8 @@ class SliderCreator:
             if len(slider_data) > 1:
                 slider_type, slider_control_points = slider_data[0], slider_data[1:]
                 # Extrahiere Wiederholungen und Slider-Pfad
-                slider_info = self.hitobject.extras
                 try:
-                    repeat_count = int(slider_info[1])
+                    repeat_count = int(slider_data[1])
                 except (IndexError, ValueError):
                     repeat_count = 1  # Standardwert, falls nicht angegeben
 
@@ -257,11 +254,9 @@ class SliderCreator:
                     "was_completed": 'BOOLEAN'
                 })
 
-                # Entferne die Material-Driver-Verbindung
-                # self.connect_material_drivers(slider)  # Nicht mehr benötigt
-
                 # Berechne die Slider-Dauer
                 slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
+                slider_duration_frames = int(slider_duration_ms / get_ms_per_frame())
                 end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
                                                                                            1.0) / get_ms_per_frame()
 
@@ -288,5 +283,5 @@ class SliderCreator:
                 slider["slider_duration_frames"] = slider_duration_ms / (1000 / bpy.context.scene.render.fps)
 
                 # Erstelle Slider-Ball und Slider-Ticks
-                self.create_slider_ball(slider, curve_data, start_frame, int(slider_duration_ms / get_ms_per_frame()), repeat_count)
+                self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)

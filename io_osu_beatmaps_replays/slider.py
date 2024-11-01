@@ -262,6 +262,13 @@ class SliderCreator:
                 slider["slider_duration_ms"] = slider_duration_ms
                 slider["slider_duration_frames"] = slider_duration_ms / (1000 / bpy.context.scene.render.fps)
 
+                # Füge den Slider zu der Collection hinzu
+                self.sliders_collection.objects.link(slider)
+                if slider.users_collection:
+                    for col in slider.users_collection:
+                        if col != self.sliders_collection:
+                            col.objects.unlink(slider)
+
                 # Verbinde Geometry Nodes
                 create_geometry_nodes_modifier(slider, "slider")
                 connect_attributes_with_drivers(slider, {
@@ -277,10 +284,3 @@ class SliderCreator:
                 # Erstelle Slider-Ball und Slider-Ticks
                 self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
-
-                # Füge den Slider zu der Collection hinzu
-                self.sliders_collection.objects.link(slider)
-                if slider.users_collection:
-                    for col in slider.users_collection:
-                        if col != self.sliders_collection:
-                            col.objects.unlink(slider)

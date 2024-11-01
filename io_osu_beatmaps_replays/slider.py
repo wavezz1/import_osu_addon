@@ -233,33 +233,14 @@ class SliderCreator:
 
                 slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_{slider_type}",
                                               curve_data)
-                slider["ar"], slider["cs"] = approach_rate, osu_radius * SCALE_FACTOR
-
-                # Füge den Slider zu der Collection hinzu
-                self.sliders_collection.objects.link(slider)
-                if slider.users_collection:
-                    for col in slider.users_collection:
-                        if col != self.sliders_collection:
-                            col.objects.unlink(slider)
-
-                # Verbinde Geometry Nodes
-                create_geometry_nodes_modifier(slider, "slider")
-                connect_attributes_with_drivers(slider, {
-                    "show": 'BOOLEAN',
-                    "slider_duration": 'FLOAT',
-                    "slider_duration_frames": 'FLOAT',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN'
-                })
 
                 # Berechne die Slider-Dauer
                 slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
                 slider_duration_frames = int(slider_duration_ms / get_ms_per_frame())
                 end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
                                                                                            1.0) / get_ms_per_frame()
-
+                slider["ar"]= approach_rate
+                slider["cs"] = osu_radius * SCALE_FACTOR
                 # Keyframes für 'was_hit' und 'was_completed'
                 slider["was_hit"] = False
                 slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
@@ -285,3 +266,22 @@ class SliderCreator:
                 # Erstelle Slider-Ball und Slider-Ticks
                 self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
+
+                # Verbinde Geometry Nodes
+                create_geometry_nodes_modifier(slider, "slider")
+                connect_attributes_with_drivers(slider, {
+                    "show": 'BOOLEAN',
+                    "slider_duration": 'FLOAT',
+                    "slider_duration_frames": 'FLOAT',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN'
+                })
+
+                # Füge den Slider zu der Collection hinzu
+                self.sliders_collection.objects.link(slider)
+                if slider.users_collection:
+                    for col in slider.users_collection:
+                        if col != self.sliders_collection:
+                            col.objects.unlink(slider)

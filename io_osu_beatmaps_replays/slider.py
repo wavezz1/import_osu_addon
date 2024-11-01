@@ -165,35 +165,35 @@ class SliderCreator:
                     if col != self.sliders_collection:
                         col.objects.unlink(tick_obj)
 
-    def create_slider_trail(self, slider, curve_object):
-        # Erstelle ein Material für den Slider-Trail
-        trail_mat = bpy.data.materials.new(name=f"{slider.name}_trail_mat")
-        trail_mat.use_nodes = True
-        bsdf = trail_mat.node_tree.nodes.get("Principled BSDF")
-        bsdf.inputs['Base Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # Grün als Beispiel
-        bsdf.inputs['Emission'].default_value = (0.0, 1.0, 0.0, 1.0)
-        bsdf.inputs['Emission Strength'].default_value = 5.0
+    # def create_slider_trail(self, slider, curve_object):
+    #     # Erstelle ein Material für den Slider-Trail
+    #     trail_mat = bpy.data.materials.new(name=f"{slider.name}_trail_mat")
+    #     trail_mat.use_nodes = True
+    #     bsdf = trail_mat.node_tree.nodes.get("Principled BSDF")
+    #     bsdf.inputs['Base Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # Grün als Beispiel
+    #     bsdf.inputs['Emission'].default_value = (0.0, 1.0, 0.0, 1.0)
+    #     bsdf.inputs['Emission Strength'].default_value = 5.0
+    #
+    #     # Weisen Sie das Material dem Slider zu
+    #     if curve_object.data.materials:
+    #         curve_object.data.materials[0] = trail_mat
+    #     else:
+    #         curve_object.data.materials.append(trail_mat)
 
-        # Weisen Sie das Material dem Slider zu
-        if curve_object.data.materials:
-            curve_object.data.materials[0] = trail_mat
-        else:
-            curve_object.data.materials.append(trail_mat)
-
-    def connect_material_drivers(self, slider):
-        try:
-            material = slider.data.materials[0]
-            if material:
-                # Beispiel: Farbe basierend auf "was_hit"
-                driver = material.node_tree.nodes["Principled BSDF"].inputs['Base Color'].driver_add("default_value").driver
-                driver.type = 'SCRIPTED'
-                var = driver.variables.new()
-                var.name = 'hit'
-                var.targets[0].id = slider
-                var.targets[0].data_path = '["was_hit"]'
-                driver.expression = 'pos * 1.0'  # Beispiel: Grün bei Hit, Rot bei Miss
-        except Exception as e:
-            print(f"Could not set driver for slider color: {e}")
+    # def connect_material_drivers(self, slider):
+    #     try:
+    #         material = slider.data.materials[0]
+    #         if material:
+    #             # Beispiel: Farbe basierend auf "was_hit"
+    #             driver = material.node_tree.nodes["Principled BSDF"].inputs['Base Color'].driver_add("default_value").driver
+    #             driver.type = 'SCRIPTED'
+    #             var = driver.variables.new()
+    #             var.name = 'hit'
+    #             var.targets[0].id = slider
+    #             var.targets[0].data_path = '["was_hit"]'
+    #             driver.expression = 'pos * 1.0'  # Beispiel: Grün bei Hit, Rot bei Miss
+    #     except Exception as e:
+    #         print(f"Could not set driver for slider color: {e}")
 
     def create_slider(self):
         approach_rate = self.data_manager.calculate_adjusted_ar()
@@ -290,8 +290,8 @@ class SliderCreator:
                     "was_completed": 'BOOLEAN'
                 })
 
-                # Verbinde Material Drivers
-                self.connect_material_drivers(slider)
+                # # Verbinde Material Drivers
+                # self.connect_material_drivers(slider)
 
                 # Berechne die Slider-Dauer
                 slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)

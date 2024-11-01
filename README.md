@@ -10,11 +10,9 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 
 ## What it Does
 
-This addon imports a rough version of both the replay and the beatmap, applying a Geometry Nodes modifier that stores attributes based on drivers referencing offset variables for keyframe timings, etc.
+This addon imports a rough version of both the replay and the beatmap, applying a Geometry Nodes modifier that stores attributes based on parsed keyframes and values.
 
-You can then add a separate Geometry Nodes object that, for example, takes all hitobjects and spawns them in a simulation zone according to the "show" attributes.
-
-The Driver system is based on the properties of individual hitobjects, whose values can be keyframed. I wanted to avoid using viewport and render keyframes and instead used a more flexible solution.
+I wanted to avoid using viewport and render keyframes and instead used a more flexible solution.
 
 ## Installation
 
@@ -71,7 +69,7 @@ The Driver system is based on the properties of individual hitobjects, whose val
 
 ### Slider Attributes
 - **show**: Boolean – Visibility of the hitobject
-- **slider_duration**: Float – Duration of the slider in seconds
+- **slider_duration**: Float – Duration of the slider in milliseconds
 - **slider_duration_frames**: Float – Duration of the slider in frames
 - **ar**: Float – Approach Rate
 - **cs**: Float – Circle Size
@@ -103,9 +101,6 @@ The Driver system is based on the properties of individual hitobjects, whose val
   - Replays with the intro skipped are broken due to an issue in the latest versions of `osrparse`.
   - Currently using `osrparse v6.0.2` to mitigate this issue.
   - Replays are sometimes flipped by 180° on the Z axis.
-
-- **Performance Problems**
-  - Geometry Nodes currently get created for every hitobject. This needs to be improved in future versions.
 
 ## Ending Words
 

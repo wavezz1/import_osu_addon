@@ -268,8 +268,8 @@ class SliderCreator:
                                               curve_data)
                 slider["ar"], slider["cs"] = approach_rate, osu_radius * SCALE_FACTOR
 
-                # Erstelle Slider-Trail
-                self.create_slider_trail(slider, curve_data)
+                # # Erstelle Slider-Trail
+                # self.create_slider_trail(slider, curve_data)
 
                 # Füge den Slider zu der Collection hinzu
                 self.sliders_collection.objects.link(slider)

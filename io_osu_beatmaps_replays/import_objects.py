@@ -3,9 +3,8 @@
 from .circles import CircleCreator
 from .slider import SliderCreator
 from .spinner import SpinnerCreator
-from .cursor import CursorCreator  # Importiere die CursorCreator Klasse
+from .cursor import CursorCreator
 from .utils import create_collection
-from .mod_functions import calculate_speed_multiplier
 
 
 def import_hitobjects(data_manager, settings, props):
@@ -31,6 +30,6 @@ def import_hitobjects(data_manager, settings, props):
             SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager)
             global_index += 1
 
-    if props.import_cursors:  # Füge eine neue Property für den Cursor hinzu
+    if props.import_cursors:
         cursor_creator = CursorCreator(cursor_collection, settings, data_manager)
-        cursor_creator.animate_cursor()  # Rufe die Animate-Methode auf
+        cursor_creator.animate_cursor()

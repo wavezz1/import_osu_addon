@@ -4,7 +4,6 @@ import bpy
 import os
 from .osu_replay_data_manager import OsuReplayDataManager
 from .import_objects import import_hitobjects
-from .utils import create_collection
 from .mod_functions import calculate_speed_multiplier
 
 
@@ -37,9 +36,7 @@ def main_execution(context):
 
     import_hitobjects(data_manager, settings, props)
 
-    # Set frame start and end based on animation
     scene = bpy.context.scene
-    # Sicherstellen, dass es Objekte mit Animationen gibt
     anim_objects = [obj for obj in bpy.data.objects if obj.animation_data and obj.animation_data.action]
     if anim_objects:
         scene.frame_start = int(min([action.frame_range[0] for obj in anim_objects for action in [obj.animation_data.action]]))

@@ -1,7 +1,6 @@
 # cursor.py
 
 import bpy
-import math
 from .utils import get_ms_per_frame, map_osu_to_blender
 from .geometry_nodes import create_geometry_nodes_modifier, connect_cursor_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
@@ -21,23 +20,19 @@ class CursorCreator:
             cursor = bpy.context.object
             cursor.name = "Cursor"
 
-            # Füge "k1", "k2", "m1", "m2" als Eigenschaften hinzu
             cursor["k1"] = False
             cursor["k2"] = False
             cursor["m1"] = False
             cursor["m2"] = False
 
-            # Füge das Cursor-Objekt zur Collection hinzu
             self.cursor_collection.objects.link(cursor)
             if cursor.users_collection:
                 for col in cursor.users_collection:
                     if col != self.cursor_collection:
                         col.objects.unlink(cursor)
 
-            # Geometry Nodes Modifier zuweisen
             create_geometry_nodes_modifier(cursor, "cursor")
 
-            # Treiber verbinden
             connect_cursor_attributes_with_drivers(cursor)
 
             self.cursor = cursor
@@ -72,13 +67,11 @@ class CursorCreator:
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
 
-                # Aktualisiere die Eigenschaften basierend auf den Key-Presses
                 self.cursor["k1"] = key_presses[i]['k1']
                 self.cursor["k2"] = key_presses[i]['k2']
                 self.cursor["m1"] = key_presses[i]['m1']
                 self.cursor["m2"] = key_presses[i]['m2']
 
-                # Füge Keyframes hinzu
                 self.cursor.keyframe_insert(data_path='location', frame=frame)
                 self.cursor.keyframe_insert(data_path='["k1"]', frame=frame)
                 self.cursor.keyframe_insert(data_path='["k2"]', frame=frame)

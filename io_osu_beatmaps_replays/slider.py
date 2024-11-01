@@ -192,7 +192,6 @@ class SliderCreator:
 
         create_geometry_nodes_modifier(slider, "slider")
 
-        # Fahrer (Drivers) verbinden
         connect_attributes_with_drivers(slider, {
             "show": 'BOOLEAN',
             "slider_duration": 'FLOAT',

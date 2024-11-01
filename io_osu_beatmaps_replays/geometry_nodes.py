@@ -1,12 +1,8 @@
 import bpy
 
-# Speichere die Node Groups in einem Dictionary, damit sie nur einmal erstellt werden
 node_groups = {}
 
 def setup_geometry_node_trees():
-    """
-    Initialisiert die vier Node Trees, falls sie noch nicht existieren.
-    """
     global node_groups
     if not node_groups:
         node_groups = {
@@ -41,9 +37,6 @@ def setup_geometry_node_trees():
         }
 
 def create_geometry_nodes_tree(name, attributes):
-    """
-    Erstellt einen Geometry Node Tree, falls er noch nicht existiert, und fügt die erforderlichen Sockets hinzu.
-    """
     if name in bpy.data.node_groups:
         return bpy.data.node_groups[name]
 
@@ -52,11 +45,7 @@ def create_geometry_nodes_tree(name, attributes):
     return group
 
 def setup_node_group_interface(group, attributes):
-    """
-    Erstellt die Sockets für die Geometry Node Group und verbindet die Attribute.
-    """
     x_offset = 200
-    # Füge einen Geometry Eingang und Ausgang hinzu
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
@@ -65,10 +54,8 @@ def setup_node_group_interface(group, attributes):
     output_node = group.nodes.new('NodeGroupOutput')
     output_node.location = (x_offset * (len(attributes) + 1), 0)
 
-    # Verlinke direkt Geometry Input mit dem ersten Store Node
     previous_node_output = input_node.outputs['Geometry']
 
-    # Mapping für Socket-Typen
     socket_map = {
         "BOOLEAN": "NodeSocketBool",
         "FLOAT": "NodeSocketFloat",
@@ -82,46 +69,33 @@ def setup_node_group_interface(group, attributes):
         store_node.data_type = attr_type
         store_node.domain = 'POINT'
 
-        # Verbinde den vorherigen Knoten mit dem aktuellen Store Node
         group.links.new(previous_node_output, store_node.inputs['Geometry'])
         previous_node_output = store_node.outputs['Geometry']
 
-        # Erstelle den richtigen Socket und verbinde ihn
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
         new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
-    # Verbinde den letzten Store Node mit dem Output
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
 def create_geometry_nodes_modifier(obj, obj_type):
-    """
-    Weist dem Objekt den entsprechenden Geometry Node Tree basierend auf dem Objekttyp zu.
-    """
-    # Initialisiere die Node Trees einmalig
     setup_geometry_node_trees()
 
-    # Hole die passende Node Group für den gegebenen Objekttyp
     node_group = node_groups.get(obj_type)
     if not node_group:
         print(f"Unrecognized object type for {obj_type}. Skipping modifier setup.")
         return
 
-    # Erstelle den Modifier und weise die Node Group zu, falls sie nicht schon zugewiesen ist
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
 def connect_attributes_with_drivers(obj, attributes):
-    """
-    Verbindet die Objekt-Properties mit den Geometry Node Tree-Sockets mittels Treibern.
-    """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         return
 
-    # Definiere die Socket-Zuordnungen je nach Objekttyp
     socket_mapping = {
         "circle": {
             "ar": "Socket_4",
@@ -147,7 +121,6 @@ def connect_attributes_with_drivers(obj, attributes):
         }
     }
 
-    # Bestimme den Objekttyp und die zugehörige Socket-Zuordnung
     if "circle" in obj.name.lower():
         sockets = socket_mapping["circle"]
     elif "slider" in obj.name.lower():
@@ -158,14 +131,11 @@ def connect_attributes_with_drivers(obj, attributes):
         print(f"Unrecognized object type for {obj.name}. Skipping driver setup.")
         return
 
-    # Füge die Driver für jedes Attribut entsprechend der Socket-Zuordnung hinzu
     for attr_name, socket_name in sockets.items():
-        # Überprüfen, ob die Objekt-Property für das Attribut existiert
         if attr_name not in obj:
             continue
 
         try:
-            # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
             driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()
@@ -177,14 +147,10 @@ def connect_attributes_with_drivers(obj, attributes):
             print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
 
 def connect_cursor_attributes_with_drivers(cursor):
-    """
-    Verbindet die Cursor-Eigenschaften mit den Geometry Node Tree-Sockets.
-    """
     modifier = cursor.modifiers.get("GeometryNodes")
     if not modifier:
         return
 
-    # Socket-Zuordnung für den Cursor
     socket_mapping = {
         "k1": "Socket_2",
         "k2": "Socket_3",
@@ -192,14 +158,11 @@ def connect_cursor_attributes_with_drivers(cursor):
         "m2": "Socket_5"
     }
 
-    # Füge die Driver für jedes Attribut entsprechend der Socket-Zuordnung hinzu
     for attr_name, socket_name in socket_mapping.items():
-        # Überprüfen, ob die Objekt-Property für das Attribut existiert
         if attr_name not in cursor:
             continue
 
         try:
-            # Füge den Driver hinzu, der den Object-Property-Wert an den Socket-Wert bindet
             driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
             var = driver.variables.new()

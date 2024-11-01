@@ -73,11 +73,8 @@ class SpinnerCreator:
                 if col != self.spinners_collection:
                     col.objects.unlink(spinner)
 
-        # Geometry Nodes Modifier hinzufügen
-        node_group_name = f"Geometry Nodes Spinner {self.global_index:03d}"
         create_geometry_nodes_modifier(spinner, "spinner")
 
-        # Fahrer (Drivers) verbinden
         connect_attributes_with_drivers(spinner, {
             "show": 'BOOLEAN',
             "spinner_duration_ms": 'FLOAT',

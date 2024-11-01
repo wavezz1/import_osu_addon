@@ -112,7 +112,7 @@ class SliderCreator:
         # Füge eine Follow Path Constraint zum Slider-Ball hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = slider
-        follow_path.use_fixed_location = True
+        follow_path.use_fixed_location = False  # 1. Problem: Fixed Position deaktivieren
 
         # Erstelle ein benutzerdefiniertes Attribut für die Slider-Position
         slider_ball["slider_position"] = 0.0
@@ -137,7 +137,7 @@ class SliderCreator:
         var.name = 'pos'
         var.targets[0].id = slider_ball
         var.targets[0].data_path = '["slider_position"]'
-        driver.expression = 'pos * 100'  # Skalierung anpassen
+        driver.expression = 'pos * -100'  # 2. Problem: Offset von 0 bis -100 animieren
 
     def create_slider_ticks(self, slider, curve_object, slider_duration_ms, repeat_count):
         # Berechne die Anzahl der Ticks basierend auf der Dauer und einem festen Intervall (z.B. alle 100ms)
@@ -239,8 +239,9 @@ class SliderCreator:
                 slider_duration_frames = int(slider_duration_ms / get_ms_per_frame())
                 end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
                                                                                            1.0) / get_ms_per_frame()
-                slider["ar"]= approach_rate
+                slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
+
                 # Keyframes für 'was_hit' und 'was_completed'
                 slider["was_hit"] = False
                 slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)

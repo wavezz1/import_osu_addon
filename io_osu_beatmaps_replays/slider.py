@@ -130,7 +130,8 @@ class SliderCreator:
 
             # Rückbewegung
             slider_ball["slider_position"] = 0.0
-            slider_ball.keyframe_insert(data_path='["slider_position"]', frame=current_repeat_end_frame + slider_duration_frames)
+            slider_ball.keyframe_insert(data_path='["slider_position"]',
+                                        frame=current_repeat_end_frame + slider_duration_frames)
 
         # Verbinde die Slider-Position mit der Constraint
         driver = follow_path.driver_add("offset").driver
@@ -154,7 +155,8 @@ class SliderCreator:
             tick_position = evaluate_curve_at_t(curve_object, t)
 
             # Erstelle eine kleine Kugel als Tick
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.05, location=(tick_position.x, tick_position.y, tick_position.z))
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.05,
+                                                 location=(tick_position.x, tick_position.y, tick_position.z))
             tick_obj = bpy.context.object
             tick_obj.name = f"{slider.name}_tick_{tick}"
 
@@ -165,36 +167,6 @@ class SliderCreator:
                     if col != self.sliders_collection:
                         col.objects.unlink(tick_obj)
 
-    # def create_slider_trail(self, slider, curve_object):
-    #     # Erstelle ein Material für den Slider-Trail
-    #     trail_mat = bpy.data.materials.new(name=f"{slider.name}_trail_mat")
-    #     trail_mat.use_nodes = True
-    #     bsdf = trail_mat.node_tree.nodes.get("Principled BSDF")
-    #     bsdf.inputs['Base Color'].default_value = (0.0, 1.0, 0.0, 1.0)  # Grün als Beispiel
-    #     bsdf.inputs['Emission'].default_value = (0.0, 1.0, 0.0, 1.0)
-    #     bsdf.inputs['Emission Strength'].default_value = 5.0
-    #
-    #     # Weisen Sie das Material dem Slider zu
-    #     if curve_object.data.materials:
-    #         curve_object.data.materials[0] = trail_mat
-    #     else:
-    #         curve_object.data.materials.append(trail_mat)
-
-    # def connect_material_drivers(self, slider):
-    #     try:
-    #         material = slider.data.materials[0]
-    #         if material:
-    #             # Beispiel: Farbe basierend auf "was_hit"
-    #             driver = material.node_tree.nodes["Principled BSDF"].inputs['Base Color'].driver_add("default_value").driver
-    #             driver.type = 'SCRIPTED'
-    #             var = driver.variables.new()
-    #             var.name = 'hit'
-    #             var.targets[0].id = slider
-    #             var.targets[0].data_path = '["was_hit"]'
-    #             driver.expression = 'pos * 1.0'  # Beispiel: Grün bei Hit, Rot bei Miss
-    #     except Exception as e:
-    #         print(f"Could not set driver for slider color: {e}")
-
     def create_slider(self):
         approach_rate = self.data_manager.calculate_adjusted_ar()
         preempt_frames = self.data_manager.calculate_preempt_time(approach_rate) / get_ms_per_frame()
@@ -202,7 +174,8 @@ class SliderCreator:
         osu_radius = (54.4 - 4.48 * circle_size) / 2
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
-        start_frame = (self.hitobject.time / self.settings.get('speed_multiplier', 1.0)) / get_ms_per_frame() + audio_lead_in_frames
+        start_frame = (self.hitobject.time / self.settings.get('speed_multiplier',
+                                                               1.0)) / get_ms_per_frame() + audio_lead_in_frames
         early_start_frame = start_frame - preempt_frames
 
         repeat_count = 1  # Standardwert
@@ -268,9 +241,6 @@ class SliderCreator:
                                               curve_data)
                 slider["ar"], slider["cs"] = approach_rate, osu_radius * SCALE_FACTOR
 
-                # # Erstelle Slider-Trail
-                # self.create_slider_trail(slider, curve_data)
-
                 # Füge den Slider zu der Collection hinzu
                 self.sliders_collection.objects.link(slider)
                 if slider.users_collection:
@@ -289,10 +259,6 @@ class SliderCreator:
                     "was_hit": 'BOOLEAN',
                     "was_completed": 'BOOLEAN'
                 })
-
-                # # Verbinde Material Drivers
-                # self.connect_material_drivers(slider)
-
                 # Berechne die Slider-Dauer
                 slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
                 end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
@@ -321,5 +287,6 @@ class SliderCreator:
                 slider["slider_duration_frames"] = slider_duration_ms / (1000 / bpy.context.scene.render.fps)
 
                 # Erstelle Slider-Ball und Slider-Ticks
-                self.create_slider_ball(slider, curve_data, start_frame, int(slider_duration_ms / get_ms_per_frame()), repeat_count)
+                self.create_slider_ball(slider, curve_data, start_frame, int(slider_duration_ms / get_ms_per_frame()),
+                                        repeat_count)
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)

@@ -162,7 +162,7 @@ class SliderCreator:
             slider["slider_duration_ms"] = slider_duration_ms
             slider["slider_duration_frames"] = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier
             slider["repeat_count"] = repeat_count
-            #slider["slider_type"] = slider_type
+            # 'slider_type' wird nicht mehr benötigt und daher entfernt
             slider["pixel_length"] = pixel_length
 
             # Füge den Slider zu der Collection hinzu
@@ -295,7 +295,7 @@ class SliderCreator:
         # Stelle sicher, dass die Kurve die Pfadanimation aktiviert hat
         total_duration_frames = slider_duration_frames * repeat_count
         slider.data.use_path = True
-        slider.data.path_duration = total_duration_frames  # Wichtig für den Constraint
+        slider.data.path_duration = int(total_duration_frames)  # Wichtig für den Constraint
 
         # Animiere den offset_factor des Follow Path Constraints
         # Für Wiederholungen müssen wir den Offset entsprechend anpassen

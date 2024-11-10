@@ -92,44 +92,30 @@ class SliderCreator:
                             corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
                             spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
             elif slider_type == "B":
-                # Bezier-Spline mit Segmenten erstellen
+                # Bezier-Kurve evaluieren und POLY-Spline erstellen
                 for segment in segments:
                     if len(segment) < 2:
-                        continue  # Mindestens zwei Punkte erforderlich
+                        continue
 
-                    spline = curve_data.splines.new('BEZIER')
-                    spline.bezier_points.add(len(segment) - 1)
-                    spline.resolution_u = 12  # Erhöhe die Auflösung für eine glattere Kurve
-
-                    # Extrahiere die Kontrollpunkte
+                    # Kontrollpunkte extrahieren und konvertieren
                     control_points = []
                     for point in segment:
                         x, y = point
                         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
                         control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
 
-                    # Setze die Bezier-Punkte und ihre Handles
-                    bezier_points = spline.bezier_points
-                    for i in range(len(control_points)):
-                        bp = bezier_points[i]
-                        bp.co = control_points[i]
+                    # Anzahl der Punkte für eine glatte Kurve
+                    num_points = 100
+                    evaluated_points = []
+                    for t in [i / num_points for i in range(num_points + 1)]:
+                        point = self.evaluate_bezier_curve(control_points, t)
+                        evaluated_points.append(point)
 
-                        # Berechne die Tangentenvektoren
-                        if i == 0:
-                            tangent = (control_points[i + 1] - control_points[i])
-                        elif i == len(control_points) - 1:
-                            tangent = (control_points[i] - control_points[i - 1])
-                        else:
-                            tangent = (control_points[i + 1] - control_points[i - 1]) * 0.5
-
-                        # Setze die Handles
-                        bp.handle_left_type = 'FREE'
-                        bp.handle_right_type = 'FREE'
-                        bp.handle_left = bp.co - tangent * (1 / 3)
-                        bp.handle_right = bp.co + tangent * (1 / 3)
-
-                    spline.use_cyclic_u = False
-
+                    # POLY-Spline mit den ausgewerteten Punkten erstellen
+                    spline = curve_data.splines.new('POLY')
+                    spline.points.add(len(evaluated_points) - 1)
+                    for i, point in enumerate(evaluated_points):
+                        spline.points[i].co = (point.x, point.y, point.z, 1)
             elif slider_type == "C":
                 # Catmull-Rom-Spline erstellen
                 for segment in segments:
@@ -204,6 +190,12 @@ class SliderCreator:
             if self.settings.get('import_slider_ticks', False):
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
+    def evaluate_bezier_curve(self, points, t):
+        if len(points) == 1:
+            return points[0]
+        new_points = [points[i].lerp(points[i + 1], t) for i in range(len(points) - 1)]
+        return self.evaluate_bezier_curve(new_points, t)
+
     def create_perfect_circle_spline(self, points):
         if len(points) < 3:
             return points
@@ -235,7 +227,6 @@ class SliderCreator:
 
         # Berechne die Winkel zwischen dem Mittelpunkt und den Punkten
         angle_start = math.atan2(p1.y - center.y, p1.x - center.x)
-        angle_mid = math.atan2(p2.y - center.y, p2.x - center.x)
         angle_end = math.atan2(p3.y - center.y, p3.x - center.x)
 
         # Bestimme die Richtung des Bogens

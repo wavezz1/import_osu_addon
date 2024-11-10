@@ -110,7 +110,7 @@ class SliderCreator:
                         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
                         control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
                     # Evaluate the Bezier curve iteratively
-                    curve_points = self.evaluate_bezier_curve(control_points, num_points=100)
+                    curve_points = self.evaluate_bezier_curve(control_points)
                     all_points.extend(curve_points)
                 elif segment_type == "C":
                     # Catmull-Rom-Segmente
@@ -193,8 +193,8 @@ class SliderCreator:
 
     def evaluate_bezier_curve(self, control_points, num_points=None):
         if num_points is None:
-            num_points = self.settings.get('slider_resolution', 100)  # Use slider_resolution from settings
-        n = len(control_points) - 1  # Degree of the curve
+            num_points = self.settings.get('slider_resolution', 100)  # Verwende slider_resolution aus settings
+        n = len(control_points) - 1  # Grad der Kurve
         curve_points = []
 
         for t in [i / num_points for i in range(num_points + 1)]:
@@ -254,7 +254,7 @@ class SliderCreator:
                 angle_end += 2 * math.pi
 
         # Generiere Punkte entlang des Kreisbogens
-        num_points = 50
+        num_points = self.settings.get('slider_resolution', 50)
         arc_points = []
         for i in range(num_points + 1):
             t = i / num_points
@@ -271,13 +271,14 @@ class SliderCreator:
 
         spline_points = []
         n = len(points)
+        num_points = self.settings.get('slider_resolution', 20)
         for i in range(n - 1):
             p0 = Vector(points[i - 1]) if i > 0 else Vector(points[i])
             p1 = Vector(points[i])
             p2 = Vector(points[i + 1])
             p3 = Vector(points[i + 2]) if i + 2 < n else Vector(points[i + 1])
 
-            for t in [j / 20.0 for j in range(21)]:
+            for t in [j / num_points for j in range(int(num_points) + 1)]:
                 t0 = ((-tension * t + 2 * tension * t ** 2 - tension * t ** 3) / 2)
                 t1 = ((1 + (tension - 3) * t ** 2 + (2 - tension) * t ** 3) / 2)
                 t2 = ((tension * t + (3 - 2 * tension) * t ** 2 + (tension - 2) * t ** 3) / 2)

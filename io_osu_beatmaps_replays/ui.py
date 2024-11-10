@@ -52,6 +52,13 @@ class OSUImporterProperties(PropertyGroup):
         description="Import the audio track associated with the Beatmap",
         default=True
     )
+    slider_resolution: IntProperty(
+        name="Slider Resolution",
+        description="Number of points used to define slider curves (higher values result in smoother sliders but may impact performance)",
+        default=12,
+        min=4,
+        max=50
+    )
     bpm: FloatProperty(
         name="BPM",
         default=0.0
@@ -117,12 +124,28 @@ class OSU_PT_ImporterPanel(Panel):
         layout = self.layout
         props = context.scene.osu_importer_props
 
+        # File Selection
         box = layout.box()
         box.label(text="File Selection", icon='FILE_FOLDER')
         box.prop(props, "osu_file")
         box.prop(props, "osr_file")
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
 
+        # Import Options
+        box = layout.box()
+        box.label(text="Import Options", icon='IMPORT')
+        col = box.column(align=True)
+        col.prop(props, "import_circles")
+        col.prop(props, "import_sliders")
+        if props.import_sliders:
+            col.prop(props, "import_slider_ticks")
+            col.prop(props, "import_slider_balls")
+            col.prop(props, "slider_resolution")  # Added Slider Resolution
+        col.prop(props, "import_spinners")
+        col.prop(props, "import_cursors")
+        col.prop(props, "import_audio")
+
+        # Beatmap Information
         if props.bpm != 0.0:
             box = layout.box()
             box.label(text="Beatmap Information", icon='INFO')
@@ -136,6 +159,7 @@ class OSU_PT_ImporterPanel(Panel):
             col.label(text=f"OD: {props.base_overall_difficulty} ({props.adjusted_overall_difficulty:.1f})" if od_modified else f"OD: {props.base_overall_difficulty}")
             col.label(text=f"HitObjects: {props.total_hitobjects}")
 
+        # Replay Information
         if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
             box = layout.box()
             box.label(text="Replay Information", icon='PLAY')
@@ -145,17 +169,6 @@ class OSU_PT_ImporterPanel(Panel):
             col.label(text=f"Misses: {props.misses}")
             col.label(text=f"Max Combo: {props.max_combo}")
             col.label(text=f"Total Score: {props.total_score}")
-
-        box = layout.box()
-        box.label(text="Settings", icon='PREFERENCES')
-        col = box.column(align=True)
-        col.prop(props, "import_circles")
-        col.prop(props, "import_sliders")
-        col.prop(props, "import_slider_ticks")
-        col.prop(props, "import_slider_balls")
-        col.prop(props, "import_spinners")
-        col.prop(props, "import_cursors")  # Neue Checkbox für Cursor
-        col.prop(props, "import_audio")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

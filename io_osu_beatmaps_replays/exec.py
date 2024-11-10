@@ -33,6 +33,7 @@ def main_execution(context):
         'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
         'import_slider_balls': props.import_slider_balls,
         'import_slider_ticks': props.import_slider_ticks,
+        'slider_resolution': props.slider_resolution,  # Added this line
     }
 
     import_hitobjects(data_manager, settings, props)

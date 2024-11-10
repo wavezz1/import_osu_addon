@@ -191,7 +191,9 @@ class SliderCreator:
             if self.settings.get('import_slider_ticks', False):
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
-    def evaluate_bezier_curve(self, control_points, num_points=100):
+    def evaluate_bezier_curve(self, control_points, num_points=None):
+        if num_points is None:
+            num_points = self.settings.get('slider_resolution', 100)  # Use slider_resolution from settings
         n = len(control_points) - 1  # Degree of the curve
         curve_points = []
 

@@ -52,19 +52,14 @@ class SliderCreator:
             # Verarbeite Ankerpunkte (doppelte Punkte)
             segments = []
             current_segment = [points[0]]
-            current_slider_type = slider_type  # Speichere den aktuellen Slider-Typ
             for i in range(1, len(points)):
                 if points[i] == points[i - 1]:
-                    segments.append((current_slider_type, current_segment))
+                    segments.append((slider_type, current_segment))
                     current_segment = [points[i]]
-                    # Aktualisiere den Slider-Typ, falls erforderlich
-                    if i + 1 < len(points):
-                        # In osu! wird der Slider-Typ nicht innerhalb eines Sliders geändert, daher behalten wir den aktuellen Typ bei
-                        pass
                 else:
                     current_segment.append(points[i])
             if current_segment:
-                segments.append((current_slider_type, current_segment))
+                segments.append((slider_type, current_segment))
 
             # Erstelle die Kurve basierend auf dem Slider-Typ
             curve_data = bpy.data.curves.new(
@@ -77,30 +72,11 @@ class SliderCreator:
             all_points = []
 
             for segment_type, segment_points in segments:
-                # Für alle Segmente, unabhängig vom Typ, evaluieren wir die Punkte
-                if len(segment_points) < 2:
-                    continue
-
-                # Kontrollpunkte extrahieren und konvertieren
-                control_points = []
-                for point in segment_points:
-                    x, y = point
-                    corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-                    control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-
-                # Anzahl der Punkte für eine glatte Kurve
-                num_points = 100
-
                 if segment_type == "L":
-                    # Lineare Segmente: Evaluieren zwischen den Punkten
-                    for i in range(len(control_points) - 1):
-                        p0 = control_points[i]
-                        p1 = control_points[i + 1]
-                        for t in [j / num_points for j in range(num_points)]:
-                            point = p0.lerp(p1, t)
-                            all_points.append(point)
-                    # Füge den letzten Punkt hinzu
-                    all_points.append(control_points[-1])
+                    # Lineare Segmente: Nur die Kontrollpunkte hinzufügen
+                    for point in segment_points:
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
                 elif segment_type == "P":
                     # Perfekte Kreis-Segmente
                     if len(segment_points) >= 3:
@@ -109,16 +85,22 @@ class SliderCreator:
                             corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
                             all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
                     else:
-                        # Fallback auf lineare Interpolation
-                        for i in range(len(control_points) - 1):
-                            p0 = control_points[i]
-                            p1 = control_points[i + 1]
-                            for t in [j / num_points for j in range(num_points)]:
-                                point = p0.lerp(p1, t)
-                                all_points.append(point)
-                        all_points.append(control_points[-1])
+                        # Fallback auf lineare Punkte (Kontrollpunkte)
+                        for point in segment_points:
+                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
                 elif segment_type == "B":
                     # Bezier-Segmente
+                    if len(segment_points) < 2:
+                        continue
+                    # Kontrollpunkte extrahieren und konvertieren
+                    control_points = []
+                    for point in segment_points:
+                        x, y = point
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+                        control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+                    # Evaluierung der Bezier-Kurve
+                    num_points = 100
                     for t in [i / num_points for i in range(num_points + 1)]:
                         point = self.evaluate_bezier_curve(control_points, t)
                         all_points.append(point)
@@ -129,14 +111,10 @@ class SliderCreator:
                         corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
                         all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
                 else:
-                    # Standardmäßig lineare Interpolation
-                    for i in range(len(control_points) - 1):
-                        p0 = control_points[i]
-                        p1 = control_points[i + 1]
-                        for t in [j / num_points for j in range(num_points)]:
-                            point = p0.lerp(p1, t)
-                            all_points.append(point)
-                    all_points.append(control_points[-1])
+                    # Standardmäßig lineare Segmente (nur Kontrollpunkte)
+                    for point in segment_points:
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
 
             # Punkte zum Spline hinzufügen
             spline.points.add(len(all_points) - 1)
@@ -200,13 +178,10 @@ class SliderCreator:
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
     def evaluate_bezier_curve(self, points, t):
-        n = len(points) - 1
-        point = Vector((0.0, 0.0, 0.0))
-        for i in range(n + 1):
-            bin_coeff = math.comb(n, i)
-            bernstein = bin_coeff * (t ** i) * ((1 - t) ** (n - i))
-            point += points[i] * bernstein
-        return point
+        if len(points) == 1:
+            return points[0]
+        new_points = [points[i].lerp(points[i + 1], t) for i in range(len(points) - 1)]
+        return self.evaluate_bezier_curve(new_points, t)
 
     def create_perfect_circle_spline(self, points):
         if len(points) < 3:
@@ -307,11 +282,13 @@ class SliderCreator:
         slider.data.path_duration = total_duration_frames  # Wichtig für den Constraint
 
         # Animiere den offset_factor des Follow Path Constraints
-        follow_path.offset_factor = 0.0
-        follow_path.keyframe_insert(data_path="offset_factor", frame=start_frame)
-
-        follow_path.offset_factor = 1.0
-        follow_path.keyframe_insert(data_path="offset_factor", frame=start_frame + total_duration_frames)
+        # Für Wiederholungen müssen wir den Offset entsprechend anpassen
+        for repeat in range(repeat_count):
+            repeat_start_frame = start_frame + repeat * slider_duration_frames
+            follow_path.offset_factor = 0.0 if repeat % 2 == 0 else 1.0
+            follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+            follow_path.offset_factor = 1.0 if repeat % 2 == 0 else 0.0
+            follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame + slider_duration_frames)
 
         # Linke den Slider-Ball zur eigenen Collection
         self.slider_balls_collection.objects.link(slider_ball)

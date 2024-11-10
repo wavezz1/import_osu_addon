@@ -99,6 +99,7 @@ class SliderCreator:
 
                     spline = curve_data.splines.new('BEZIER')
                     spline.bezier_points.add(len(segment) - 1)
+                    spline.resolution_u = 12  # Erhöhe die Auflösung für eine glattere Kurve
 
                     # Extrahiere die Kontrollpunkte
                     control_points = []
@@ -112,30 +113,20 @@ class SliderCreator:
                     for i in range(len(control_points)):
                         bp = bezier_points[i]
                         bp.co = control_points[i]
+
+                        # Berechne die Tangentenvektoren
+                        if i == 0:
+                            tangent = (control_points[i + 1] - control_points[i])
+                        elif i == len(control_points) - 1:
+                            tangent = (control_points[i] - control_points[i - 1])
+                        else:
+                            tangent = (control_points[i + 1] - control_points[i - 1]) * 0.5
+
+                        # Setze die Handles
                         bp.handle_left_type = 'FREE'
                         bp.handle_right_type = 'FREE'
-
-                        # Setze die Handles für den Bezier-Punkt
-                        if i == 0:
-                            # Erster Punkt: Handle rechts berechnen
-                            next_point = control_points[i + 1]
-                            delta = (next_point - bp.co) * (1 / 3)
-                            bp.handle_left = bp.co
-                            bp.handle_right = bp.co + delta
-                        elif i == len(control_points) - 1:
-                            # Letzter Punkt: Handle links berechnen
-                            prev_point = control_points[i - 1]
-                            delta = (prev_point - bp.co) * (1 / 3)
-                            bp.handle_left = bp.co + delta
-                            bp.handle_right = bp.co
-                        else:
-                            # Mittlere Punkte: Beide Handles berechnen
-                            prev_point = control_points[i - 1]
-                            next_point = control_points[i + 1]
-                            delta_prev = (prev_point - bp.co) * (1 / 3)
-                            delta_next = (next_point - bp.co) * (1 / 3)
-                            bp.handle_left = bp.co + delta_prev
-                            bp.handle_right = bp.co + delta_next
+                        bp.handle_left = bp.co - tangent * (1 / 3)
+                        bp.handle_right = bp.co + tangent * (1 / 3)
 
                     spline.use_cyclic_u = False
 

@@ -27,7 +27,6 @@ This addon imports a comprehensive version of both the replay and the beatmap, a
   
 - **Audio Integration:**
   - Import the associated audio track as a speaker object in Blender.
-  - Adjust pitch based on speed-modifying mods (Double Time, Half Time).
 
 ## Installation
 
@@ -70,8 +69,7 @@ This addon imports a comprehensive version of both the replay and the beatmap, a
 
 4. **Import:**
    - Click the **"Import"** button to start the import process.
-   - Upon successful import, the beatmap and replay data will appear in your Blender scene, organized into respective collections.
-
+   - 
 ### Cursor Attributes
 
 - **k1** (`Boolean`): Key status for K1.

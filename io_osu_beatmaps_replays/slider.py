@@ -54,85 +54,76 @@ class SliderCreator:
             current_segment = [points[0]]
             for i in range(1, len(points)):
                 if points[i] == points[i - 1]:
-                    segments.append(current_segment)
+                    segments.append((slider_type, current_segment))
                     current_segment = [points[i]]
+                    # Aktualisiere den Slider-Typ, falls erforderlich
+                    if i + 1 < len(points):
+                        next_slider_type = slider_data[i].split('|')[0]
+                        slider_type = next_slider_type if next_slider_type else slider_type
                 else:
                     current_segment.append(points[i])
             if current_segment:
-                segments.append(current_segment)
+                segments.append((slider_type, current_segment))
 
             # Erstelle die Kurve basierend auf dem Slider-Typ
             curve_data = bpy.data.curves.new(
-                name=f"{self.global_index:03d}_slider_{self.hitobject.time}_{slider_type}_curve", type='CURVE')
+                name=f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", type='CURVE')
             curve_data.dimensions = '3D'
+            curve_data.resolution_u = 64  # Höhere Auflösung für glattere Kurven
 
-            if slider_type == "L":
-                # Lineare Slider
-                for segment in segments:
-                    spline = curve_data.splines.new('POLY')
-                    spline.points.add(len(segment) - 1)
-                    for i, point in enumerate(segment):
+            # Erstelle einen einzigen Spline für die gesamte Kurve
+            spline = curve_data.splines.new('POLY')
+            all_points = []
+
+            for segment_type, segment_points in segments:
+                if segment_type == "L":
+                    # Lineare Segmente: Nur die Kontrollpunkte hinzufügen
+                    for point in segment_points:
                         corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                        spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
-            elif slider_type == "P":
-                # Perfekte Kreis-Slider
-                for segment in segments:
-                    if len(segment) >= 3:
-                        spline_points = self.create_perfect_circle_spline(segment)
-                        spline = curve_data.splines.new('POLY')
-                        spline.points.add(len(spline_points) - 1)
-                        for i, point in enumerate(spline_points):
+                        all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+                elif segment_type == "P":
+                    # Perfekte Kreis-Segmente
+                    if len(segment_points) >= 3:
+                        spline_points = self.create_perfect_circle_spline(segment_points)
+                        for point in spline_points:
                             corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
+                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
                     else:
-                        # Fallback auf lineare Spline
-                        spline = curve_data.splines.new('POLY')
-                        spline.points.add(len(segment) - 1)
-                        for i, point in enumerate(segment):
+                        # Fallback auf lineare Punkte
+                        for point in segment_points:
                             corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
-            elif slider_type == "B":
-                # Bezier-Kurve evaluieren und POLY-Spline erstellen
-                for segment in segments:
-                    if len(segment) < 2:
+                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+                elif segment_type == "B":
+                    # Bezier-Segmente
+                    if len(segment_points) < 2:
                         continue
-
                     # Kontrollpunkte extrahieren und konvertieren
                     control_points = []
-                    for point in segment:
+                    for point in segment_points:
                         x, y = point
                         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
                         control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-
-                    # Anzahl der Punkte für eine glatte Kurve
+                    # Evaluierung der Bezier-Kurve
                     num_points = 100
-                    evaluated_points = []
                     for t in [i / num_points for i in range(num_points + 1)]:
                         point = self.evaluate_bezier_curve(control_points, t)
-                        evaluated_points.append(point)
+                        all_points.append(point)
+                elif segment_type == "C":
+                    # Catmull-Rom-Segmente
+                    spline_points = self.create_catmull_rom_spline(segment_points)
+                    for point in spline_points:
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+                else:
+                    # Standardmäßig lineare Punkte
+                    for point in segment_points:
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
+                        all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
 
-                    # POLY-Spline mit den ausgewerteten Punkten erstellen
-                    spline = curve_data.splines.new('POLY')
-                    spline.points.add(len(evaluated_points) - 1)
-                    for i, point in enumerate(evaluated_points):
-                        spline.points[i].co = (point.x, point.y, point.z, 1)
-            elif slider_type == "C":
-                # Catmull-Rom-Spline erstellen
-                for segment in segments:
-                    spline_points = self.create_catmull_rom_spline(segment)
-                    spline = curve_data.splines.new('POLY')
-                    spline.points.add(len(spline_points) - 1)
-                    for i, point in enumerate(spline_points):
-                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                        spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
-            else:
-                # Standardmäßig lineare Spline
-                for segment in segments:
-                    spline = curve_data.splines.new('POLY')
-                    spline.points.add(len(segment) - 1)
-                    for i, point in enumerate(segment):
-                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                        spline.points[i].co = (corrected_x, corrected_y, corrected_z, 1)
+            # Punkte zum Spline hinzufügen
+            spline.points.add(len(all_points) - 1)
+            for i, point in enumerate(all_points):
+                spline.points[i].co = (point.x, point.y, point.z, 1)
 
             # Erstelle das Slider-Objekt
             slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_{slider_type}",

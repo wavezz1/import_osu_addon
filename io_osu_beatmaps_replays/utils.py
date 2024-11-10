@@ -1,7 +1,7 @@
 # utils.py
 
 import bpy
-from mathutils import Vector
+import mathutils
 from .constants import SCALE_FACTOR
 
 def get_ms_per_frame():
@@ -22,45 +22,65 @@ def map_osu_to_blender(x, y):
     return corrected_x, corrected_y, corrected_z
 
 def evaluate_curve_at_t(curve_object, t):
-    spline = curve_object.data.splines[0]
+    # Ensure 't' is within [0, 1]
+    t = max(0.0, min(1.0, t))
+
+    # Get the evaluated curve object to include any modifiers
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_curve_object = curve_object.evaluated_get(depsgraph)
+    eval_curve = eval_curve_object.data
+
+    # Get the first spline (assuming only one spline)
+    spline = eval_curve.splines[0]
+
+    # Calculate the total length of the spline
+    spline_length = spline.calc_length()
+
+    # Desired length along the spline
+    desired_length = t * spline_length
+
+    # Accumulate lengths to find the segment where the desired length falls
+    accumulated_length = 0.0
+
+    # Prepare variables depending on spline type
+    points = []
     if spline.type == 'BEZIER':
-        # Berechne die Position auf einer Bezier-Kurve
-        num_segments = len(spline.bezier_points) - 1
-        segment_length = 1.0 / num_segments
-        segment_index = min(int(t / segment_length), num_segments - 1)
-        local_t = (t - (segment_index * segment_length)) / segment_length
+        # For Bezier splines, sample using control points
+        bezier_points = spline.bezier_points
+        num_segments = len(bezier_points) - 1
+        for i in range(num_segments):
+            bp0 = bezier_points[i]
+            bp1 = bezier_points[i + 1]
 
-        p0 = spline.bezier_points[segment_index].co.to_3d()
-        p1 = spline.bezier_points[segment_index].handle_right.to_3d()
-        p2 = spline.bezier_points[segment_index + 1].handle_left.to_3d()
-        p3 = spline.bezier_points[segment_index + 1].co.to_3d()
+            p0 = bp0.co.xyz
+            p1 = bp0.handle_right.xyz
+            p2 = bp1.handle_left.xyz
+            p3 = bp1.co.xyz
 
-        # Bezier-Kurve Formel
-        return ( (1 - local_t)**3 * p0 +
-                 3 * (1 - local_t)**2 * local_t * p1 +
-                 3 * (1 - local_t) * local_t**2 * p2 +
-                 local_t**3 * p3 )
-    elif spline.type == 'POLY':
-        # Für POLY-Kurven (lineare Segmente)
-        num_points = len(spline.points)
-        segment_length = 1.0 / (num_points - 1)
-        segment_index = min(int(t / segment_length), num_points - 2)
-        local_t = (t - (segment_index * segment_length)) / segment_length
+            # Sample the segment at multiple points
+            segment_samples = 10  # Adjust for accuracy
+            for j in range(segment_samples):
+                s = j / segment_samples
+                point = mathutils.geometry.interpolate_bezier(p0, p1, p2, p3, s)
+                points.append(point)
+    else:
+        # For POLY and NURBS splines, use the points directly
+        spline_points = spline.points
+        points = [p.co.xyz for p in spline_points]
 
-        p0 = spline.points[segment_index].co.to_3d()
-        p1 = spline.points[segment_index + 1].co.to_3d()
+    # Now iterate over the points to find the position at desired_length
+    for i in range(len(points) - 1):
+        p0 = points[i]
+        p1 = points[i + 1]
+        segment_length = (p1 - p0).length
+        if accumulated_length + segment_length >= desired_length:
+            remaining_length = desired_length - accumulated_length
+            local_t = remaining_length / segment_length
+            position = p0.lerp(p1, local_t)
+            # Transform the position by the object's world matrix
+            return curve_object.matrix_world @ position
+        accumulated_length += segment_length
 
-        return p0.lerp(p1, local_t)
-    elif spline.type == 'NURBS':
-        # Für NURBS-Kurven
-        # NURBS-Kurvenberechnung ist komplex; hier eine einfache Approximation
-        num_points = len(spline.points)
-        segment_length = 1.0 / (num_points - 1)
-        segment_index = min(int(t / segment_length), num_points - 2)
-        local_t = (t - (segment_index * segment_length)) / segment_length
-
-        p0 = spline.points[segment_index].co.to_3d()
-        p1 = spline.points[segment_index + 1].co.to_3d()
-
-        return p0.lerp(p1, local_t)
-    return Vector((0, 0, 0))
+    # If not found, return the last point
+    last_point = points[-1]
+    return curve_object.matrix_world @ last_point

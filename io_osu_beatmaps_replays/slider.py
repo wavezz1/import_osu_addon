@@ -103,17 +103,15 @@ class SliderCreator:
                     # Bezier-Segmente
                     if len(segment_points) < 2:
                         continue
-                    # Kontrollpunkte extrahieren und konvertieren
+                    # Extract and convert control points
                     control_points = []
                     for point in segment_points:
                         x, y = point
                         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
                         control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    # Evaluierung der Bezier-Kurve
-                    num_points = 100
-                    for t in [i / num_points for i in range(num_points + 1)]:
-                        point = self.evaluate_bezier_curve(control_points, t)
-                        all_points.append(point)
+                    # Evaluate the Bezier curve iteratively
+                    curve_points = self.evaluate_bezier_curve(control_points, num_points=100)
+                    all_points.extend(curve_points)
                 elif segment_type == "C":
                     # Catmull-Rom-Segmente
                     spline_points = self.create_catmull_rom_spline(segment_points)

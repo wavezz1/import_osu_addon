@@ -230,7 +230,6 @@ class OSU_OT_Import(Operator):
 
             result, data_manager = main_execution(context)
 
-            # Update beatmap information
             props.base_approach_rate = data_manager.get_base_ar()
             props.adjusted_approach_rate = data_manager.calculate_adjusted_ar()
             props.base_circle_size = data_manager.get_base_cs()
@@ -240,12 +239,10 @@ class OSU_OT_Import(Operator):
             props.bpm = data_manager.beatmap_info["bpm"]
             props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
 
-            # Update metadata (e.g., title, artist, difficulty)
             props.title = data_manager.beatmap_info["metadata"].get("Title", "")
             props.artist = data_manager.beatmap_info["metadata"].get("Artist", "")
             props.difficulty_name = data_manager.beatmap_info["metadata"].get("Version", "")
 
-            # Update replay information
             props.formatted_mods = data_manager.replay_info["mods"]
             props.accuracy = data_manager.replay_info["accuracy"]
             props.misses = data_manager.replay_info["misses"]

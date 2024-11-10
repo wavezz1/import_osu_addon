@@ -22,30 +22,22 @@ def map_osu_to_blender(x, y):
     return corrected_x, corrected_y, corrected_z
 
 def evaluate_curve_at_t(curve_object, t):
-    # Ensure 't' is within [0, 1]
     t = max(0.0, min(1.0, t))
 
-    # Get the evaluated curve object to include any modifiers
     depsgraph = bpy.context.evaluated_depsgraph_get()
     eval_curve_object = curve_object.evaluated_get(depsgraph)
     eval_curve = eval_curve_object.data
 
-    # Get the first spline (assuming only one spline)
     spline = eval_curve.splines[0]
 
-    # Calculate the total length of the spline
     spline_length = spline.calc_length()
 
-    # Desired length along the spline
     desired_length = t * spline_length
 
-    # Accumulate lengths to find the segment where the desired length falls
     accumulated_length = 0.0
 
-    # Prepare variables depending on spline type
     points = []
     if spline.type == 'BEZIER':
-        # For Bezier splines, sample using control points
         bezier_points = spline.bezier_points
         num_segments = len(bezier_points) - 1
         for i in range(num_segments):
@@ -57,18 +49,15 @@ def evaluate_curve_at_t(curve_object, t):
             p2 = bp1.handle_left.xyz
             p3 = bp1.co.xyz
 
-            # Sample the segment at multiple points
             segment_samples = 10  # Adjust for accuracy
             for j in range(segment_samples):
                 s = j / segment_samples
                 point = mathutils.geometry.interpolate_bezier(p0, p1, p2, p3, s)
                 points.append(point)
     else:
-        # For POLY and NURBS splines, use the points directly
         spline_points = spline.points
         points = [p.co.xyz for p in spline_points]
 
-    # Now iterate over the points to find the position at desired_length
     for i in range(len(points) - 1):
         p0 = points[i]
         p1 = points[i + 1]
@@ -77,10 +66,8 @@ def evaluate_curve_at_t(curve_object, t):
             remaining_length = desired_length - accumulated_length
             local_t = remaining_length / segment_length
             position = p0.lerp(p1, local_t)
-            # Transform the position by the object's world matrix
             return curve_object.matrix_world @ position
         accumulated_length += segment_length
 
-    # If not found, return the last point
     last_point = points[-1]
     return curve_object.matrix_world @ last_point

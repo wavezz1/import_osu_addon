@@ -94,15 +94,51 @@ class SliderCreator:
             elif slider_type == "B":
                 # Bezier-Spline mit Segmenten erstellen
                 for segment in segments:
+                    if len(segment) < 2:
+                        continue  # Mindestens zwei Punkte erforderlich
+
                     spline = curve_data.splines.new('BEZIER')
                     spline.bezier_points.add(len(segment) - 1)
-                    for i, point in enumerate(segment):
-                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                        bp = spline.bezier_points[i]
-                        bp.co = (corrected_x, corrected_y, corrected_z)
-                        bp.handle_left_type = 'AUTO'
-                        bp.handle_right_type = 'AUTO'
+
+                    # Extrahiere die Kontrollpunkte
+                    control_points = []
+                    for point in segment:
+                        x, y = point
+                        corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
+                        control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+
+                    # Setze die Bezier-Punkte und ihre Handles
+                    bezier_points = spline.bezier_points
+                    for i in range(len(control_points)):
+                        bp = bezier_points[i]
+                        bp.co = control_points[i]
+                        bp.handle_left_type = 'FREE'
+                        bp.handle_right_type = 'FREE'
+
+                        # Setze die Handles für den Bezier-Punkt
+                        if i == 0:
+                            # Erster Punkt: Handle rechts berechnen
+                            next_point = control_points[i + 1]
+                            delta = (next_point - bp.co) * (1 / 3)
+                            bp.handle_left = bp.co
+                            bp.handle_right = bp.co + delta
+                        elif i == len(control_points) - 1:
+                            # Letzter Punkt: Handle links berechnen
+                            prev_point = control_points[i - 1]
+                            delta = (prev_point - bp.co) * (1 / 3)
+                            bp.handle_left = bp.co + delta
+                            bp.handle_right = bp.co
+                        else:
+                            # Mittlere Punkte: Beide Handles berechnen
+                            prev_point = control_points[i - 1]
+                            next_point = control_points[i + 1]
+                            delta_prev = (prev_point - bp.co) * (1 / 3)
+                            delta_next = (next_point - bp.co) * (1 / 3)
+                            bp.handle_left = bp.co + delta_prev
+                            bp.handle_right = bp.co + delta_next
+
                     spline.use_cyclic_u = False
+
             elif slider_type == "C":
                 # Catmull-Rom-Spline erstellen
                 for segment in segments:

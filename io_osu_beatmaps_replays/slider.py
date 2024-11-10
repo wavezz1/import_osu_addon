@@ -22,7 +22,7 @@ class SliderCreator:
         self.create_slider()
 
     def create_slider(self):
-        with timeit(f"Erstellen von Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
+        with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
             approach_rate = self.data_manager.calculate_adjusted_ar()
             circle_size = self.data_manager.calculate_adjusted_cs()
             osu_radius = (54.4 - 4.48 * circle_size) / 2

@@ -213,7 +213,7 @@ class SliderCreator:
 
         # Bestimme die Richtung des Bogens
         cross = (p2 - p1).cross(p3 - p2)
-        clockwise = cross.z < 0
+        clockwise = cross < 0
 
         # Passe die Winkel basierend auf der Richtung an
         if clockwise:

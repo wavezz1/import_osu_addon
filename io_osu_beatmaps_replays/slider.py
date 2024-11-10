@@ -281,27 +281,20 @@ class SliderCreator:
         slider_ball = bpy.context.object
         slider_ball.name = f"{slider.name}_ball"
 
-        # Parent den Slider-Ball an das Slider-Objekt
-        slider_ball.parent = slider
-
         # Füge eine Follow Path Constraint zum Slider-Ball hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = slider
         follow_path.use_fixed_location = True
-        follow_path.forward_axis = 'FORWARD_Y'
-        follow_path.up_axis = 'UP_Z'
         follow_path.use_curve_follow = True
 
-        # Animationslogik basierend auf repeat_count
+        # Animiere den offset_factor des Follow Path Constraints
         total_duration_frames = slider_duration_frames * repeat_count
-        slider.data.use_path = True
-        slider.data.path_duration = total_duration_frames
 
-        slider.data.eval_time = 0.0
-        slider.data.keyframe_insert(data_path='eval_time', frame=start_frame)
+        follow_path.offset_factor = 0.0
+        follow_path.keyframe_insert(data_path="offset_factor", frame=start_frame)
 
-        slider.data.eval_time = total_duration_frames
-        slider.data.keyframe_insert(data_path='eval_time', frame=start_frame + total_duration_frames)
+        follow_path.offset_factor = 1.0
+        follow_path.keyframe_insert(data_path="offset_factor", frame=start_frame + total_duration_frames)
 
         # Linke den Slider-Ball zur eigenen Collection
         self.slider_balls_collection.objects.link(slider_ball)

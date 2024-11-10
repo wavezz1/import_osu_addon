@@ -31,7 +31,6 @@ def main_execution(context):
     settings = {
         'speed_multiplier': speed_multiplier,
         'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
-        'early_frames': 5,
         'import_slider_balls': props.import_slider_balls,
         'import_slider_ticks': props.import_slider_ticks,
     }

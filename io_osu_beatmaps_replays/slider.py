@@ -23,12 +23,22 @@ class SliderCreator:
 
     def create_slider(self):
         approach_rate = self.data_manager.calculate_adjusted_ar()
-        preempt_frames = self.data_manager.calculate_preempt_time(approach_rate) / get_ms_per_frame()
         circle_size = self.data_manager.calculate_adjusted_cs()
         osu_radius = (54.4 - 4.48 * circle_size) / 2
+
+        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
         audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
 
-        start_frame = (self.hitobject.time / self.settings.get('speed_multiplier', 1.0)) / get_ms_per_frame() + audio_lead_in_frames
+        # Berechnung der Start- und Endzeiten in Millisekunden
+        start_time_ms = self.hitobject.time / speed_multiplier
+        slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
+        end_time_ms = (self.hitobject.time + slider_duration_ms) / speed_multiplier
+
+        # Umrechnung in Frames
+        start_frame = start_time_ms / get_ms_per_frame() + audio_lead_in_frames
+        end_frame = end_time_ms / get_ms_per_frame() + audio_lead_in_frames
+
+        preempt_frames = self.data_manager.calculate_preempt_time(approach_rate) / get_ms_per_frame()
         early_start_frame = start_frame - preempt_frames
 
         if self.hitobject.extras:
@@ -125,15 +135,19 @@ class SliderCreator:
             slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",
                                           curve_data)
 
-            # Berechne die Slider-Dauer
-            slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
-            slider_duration_frames = int(slider_duration_ms / get_ms_per_frame())
-            end_frame = (self.hitobject.time + slider_duration_ms) / self.settings.get('speed_multiplier',
-                                                                                       1.0) / get_ms_per_frame()
             slider["ar"] = approach_rate
             slider["cs"] = osu_radius * SCALE_FACTOR
 
-            # Keyframes für 'was_hit' und 'was_completed'
+            # Setze die Sichtbarkeit des Sliders basierend auf Start- und Endframe
+            slider["show"] = False
+            slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
+            slider["show"] = True
+            slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+            slider.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+            slider["show"] = False
+            slider.keyframe_insert(data_path='["show"]', frame=end_frame)
+
+            # Keyframes für 'was_hit' und 'was_completed' beibehalten
             slider["was_hit"] = False
             slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
             slider["was_hit"] = self.hitobject.was_hit
@@ -144,13 +158,12 @@ class SliderCreator:
             slider["was_completed"] = self.hitobject.was_completed
             slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
 
-            slider["show"] = False
-            slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
-            slider["show"] = True
-            slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-
+            # Zusätzliche Attribute für Geometry Nodes
             slider["slider_duration_ms"] = slider_duration_ms
-            slider["slider_duration_frames"] = slider_duration_ms / (1000 / bpy.context.scene.render.fps)
+            slider["slider_duration_frames"] = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier
+            slider["repeat_count"] = repeat_count
+            #slider["slider_type"] = slider_type
+            slider["pixel_length"] = pixel_length
 
             # Füge den Slider zu der Collection hinzu
             self.sliders_collection.objects.link(slider)
@@ -163,16 +176,19 @@ class SliderCreator:
             create_geometry_nodes_modifier(slider, "slider")
             connect_attributes_with_drivers(slider, {
                 "show": 'BOOLEAN',
-                "slider_duration": 'FLOAT',
+                "slider_duration_ms": 'FLOAT',
                 "slider_duration_frames": 'FLOAT',
                 "ar": 'FLOAT',
                 "cs": 'FLOAT',
                 "was_hit": 'BOOLEAN',
-                "was_completed": 'BOOLEAN'
+                "was_completed": 'BOOLEAN',
+                "repeat_count": 'INT',
+                "pixel_length": 'FLOAT',
             })
 
             # Erstelle Slider-Ball und Slider-Ticks
             if self.settings.get('import_slider_balls', False):
+                slider_duration_frames = slider["slider_duration_frames"]
                 self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
             if self.settings.get('import_slider_ticks', False):
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
@@ -285,10 +301,18 @@ class SliderCreator:
         # Für Wiederholungen müssen wir den Offset entsprechend anpassen
         for repeat in range(repeat_count):
             repeat_start_frame = start_frame + repeat * slider_duration_frames
-            follow_path.offset_factor = 0.0 if repeat % 2 == 0 else 1.0
-            follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
-            follow_path.offset_factor = 1.0 if repeat % 2 == 0 else 0.0
-            follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame + slider_duration_frames)
+            if repeat % 2 == 0:
+                # Vorwärtsbewegung
+                follow_path.offset_factor = 0.0
+                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+                follow_path.offset_factor = 1.0
+                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame + slider_duration_frames)
+            else:
+                # Rückwärtsbewegung
+                follow_path.offset_factor = 1.0
+                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+                follow_path.offset_factor = 0.0
+                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame + slider_duration_frames)
 
         # Linke den Slider-Ball zur eigenen Collection
         self.slider_balls_collection.objects.link(slider_ball)

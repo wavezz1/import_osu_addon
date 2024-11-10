@@ -27,6 +27,16 @@ class OSUImporterProperties(PropertyGroup):
         description="Import slider hit objects",
         default=True
     )
+    import_slider_ticks: BoolProperty(
+        name="Import Slider Ticks",
+        description="Import slider ticks",
+        default=False
+    )
+    import_slider_balls: BoolProperty(
+        name="Import Slider Balls",
+        description="Import slider balls",
+        default=False
+    )
     import_spinners: BoolProperty(
         name="Import Spinners",
         description="Import spinner hit objects",
@@ -141,6 +151,8 @@ class OSU_PT_ImporterPanel(Panel):
         col = box.column(align=True)
         col.prop(props, "import_circles")
         col.prop(props, "import_sliders")
+        col.prop(props, "import_slider_ticks")
+        col.prop(props, "import_slider_balls")
         col.prop(props, "import_spinners")
         col.prop(props, "import_cursors")  # Neue Checkbox für Cursor
         col.prop(props, "import_audio")

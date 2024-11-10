@@ -172,8 +172,10 @@ class SliderCreator:
             })
 
             # Erstelle Slider-Ball und Slider-Ticks
-            self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
-            self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
+            if self.settings.get('import_slider_balls', False):
+                self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
+            if self.settings.get('import_slider_ticks', False):
+                self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
     def create_perfect_circle_spline(self, points):
         if len(points) < 3:
@@ -182,20 +184,21 @@ class SliderCreator:
         p1, p2, p3 = [Vector((pt[0], pt[1])) for pt in points[:3]]
 
         def circle_center(p1, p2, p3):
-            x1, y1 = p1.x, p1.y
-            x2, y2 = p2.x, p2.y
-            x3, y3 = p3.x, p3.y
+            temp = p2 - p1
+            temp2 = p3 - p1
 
-            D = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
-            if D == 0:
+            a = temp.length_squared
+            b = temp.dot(temp2)
+            c = temp2.length_squared
+            d = 2 * (temp.x * temp2.y - temp.y * temp2.x)
+
+            if d == 0:
                 return None
 
-            Ux = ((x1 ** 2 + y1 ** 2) * (y2 - y3) + (x2 ** 2 + y2 ** 2) * (y3 - y1) + (x3 ** 2 + y3 ** 2) * (
-                        y1 - y2)) / D
-            Uy = ((x1 ** 2 + y1 ** 2) * (x3 - x2) + (x2 ** 2 + y2 ** 2) * (x1 - x3) + (x3 ** 2 + y3 ** 2) * (
-                        x2 - x1)) / D
+            center_x = p1.x + (temp2.y * a - temp.y * c) / d
+            center_y = p1.y + (temp.x * c - temp2.x * a) / d
 
-            return Vector((Ux, Uy))
+            return Vector((center_x, center_y))
 
         center = circle_center(p1, p2, p3)
         if center is None:
@@ -204,32 +207,28 @@ class SliderCreator:
         radius = (p1 - center).length
 
         # Berechne die Winkel zwischen dem Mittelpunkt und den Punkten
-        angles = []
-        for pt in [p1, p2, p3]:
-            vector = pt - center
-            angle = math.atan2(vector.y, vector.x)
-            angles.append(angle)
-
-        # Stelle sicher, dass die Winkel kontinuierlich sind
-        angles = [a % (2 * math.pi) for a in angles]
+        angle_start = math.atan2(p1.y - center.y, p1.x - center.x)
+        angle_mid = math.atan2(p2.y - center.y, p2.x - center.x)
+        angle_end = math.atan2(p3.y - center.y, p3.x - center.x)
 
         # Bestimme die Richtung des Bogens
-        angle_diff1 = (angles[1] - angles[0]) % (2 * math.pi)
-        angle_diff2 = (angles[2] - angles[1]) % (2 * math.pi)
-        total_angle = (angles[2] - angles[0]) % (2 * math.pi)
+        cross = (p2 - p1).cross(p3 - p2)
+        clockwise = cross.z < 0
 
-        # Wenn die Gesamtwinkeländerung größer als pi, dann in die andere Richtung gehen
-        if total_angle > math.pi:
-            angles[2] -= 2 * math.pi
-            angles[1] -= 2 * math.pi
-            angles = [a % (2 * math.pi) for a in angles]
+        # Passe die Winkel basierend auf der Richtung an
+        if clockwise:
+            if angle_end > angle_start:
+                angle_end -= 2 * math.pi
+        else:
+            if angle_end < angle_start:
+                angle_end += 2 * math.pi
 
         # Generiere Punkte entlang des Kreisbogens
         num_points = 50
         arc_points = []
         for i in range(num_points + 1):
             t = i / num_points
-            angle = angles[0] + t * (angles[2] - angles[0])
+            angle = angle_start + t * (angle_end - angle_start)
             x = center.x + radius * math.cos(angle)
             y = center.y + radius * math.sin(angle)
             arc_points.append((x, y))

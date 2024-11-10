@@ -1,40 +1,43 @@
 import bpy
+from .utils import timeit
+import time
 
 node_groups = {}
 
 def setup_geometry_node_trees():
     global node_groups
     if not node_groups:
-        node_groups = {
-            "circle": create_geometry_nodes_tree("Geometry Nodes Circle", {
-                "show": 'BOOLEAN',
-                "was_hit": 'BOOLEAN',
-                "ar": 'FLOAT',
-                "cs": 'FLOAT'
-            }),
-            "slider": create_geometry_nodes_tree("Geometry Nodes Slider", {
-                "show": 'BOOLEAN',
-                "slider_duration": 'FLOAT',
-                "slider_duration_frames": 'FLOAT',
-                "ar": 'FLOAT',
-                "cs": 'FLOAT',
-                "was_hit": 'BOOLEAN',
-                "was_completed": 'BOOLEAN'
-            }),
-            "spinner": create_geometry_nodes_tree("Geometry Nodes Spinner", {
-                "show": 'BOOLEAN',
-                "spinner_duration_ms": 'FLOAT',
-                "spinner_duration_frames": 'FLOAT',
-                "was_hit": 'BOOLEAN',
-                "was_completed": 'BOOLEAN'
-            }),
-            "cursor": create_geometry_nodes_tree("Geometry Nodes Cursor", {
-                "k1": 'BOOLEAN',
-                "k2": 'BOOLEAN',
-                "m1": 'BOOLEAN',
-                "m2": 'BOOLEAN'
-            })
-        }
+        with timeit("Einrichten der Geometry Node Trees"):
+            node_groups = {
+                "circle": create_geometry_nodes_tree("Geometry Nodes Circle", {
+                    "show": 'BOOLEAN',
+                    "was_hit": 'BOOLEAN',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT'
+                }),
+                "slider": create_geometry_nodes_tree("Geometry Nodes Slider", {
+                    "show": 'BOOLEAN',
+                    "slider_duration": 'FLOAT',
+                    "slider_duration_frames": 'FLOAT',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN'
+                }),
+                "spinner": create_geometry_nodes_tree("Geometry Nodes Spinner", {
+                    "show": 'BOOLEAN',
+                    "spinner_duration_ms": 'FLOAT',
+                    "spinner_duration_frames": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN'
+                }),
+                "cursor": create_geometry_nodes_tree("Geometry Nodes Cursor", {
+                    "k1": 'BOOLEAN',
+                    "k2": 'BOOLEAN',
+                    "m1": 'BOOLEAN',
+                    "m2": 'BOOLEAN'
+                })
+            }
 
 def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:

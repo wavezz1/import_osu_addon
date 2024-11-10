@@ -1,8 +1,28 @@
 # utils.py
 
+import time
 import bpy
 import mathutils
 from .constants import SCALE_FACTOR
+
+def timeit(label):
+    class Timer:
+        def __init__(self, label):
+            self.label = label
+            self.start = None
+            self.end = None
+            self.duration = None
+
+        def __enter__(self):
+            self.start = time.perf_counter()
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.end = time.perf_counter()
+            self.duration = self.end - self.start
+            print(f"[osu! Importer] {self.label}: {self.duration:.4f} Sekunden")
+
+    return Timer(label)
 
 def get_ms_per_frame():
     fps = bpy.context.scene.render.fps

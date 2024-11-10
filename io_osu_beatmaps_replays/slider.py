@@ -193,11 +193,20 @@ class SliderCreator:
             if self.settings.get('import_slider_ticks', False):
                 self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
-    def evaluate_bezier_curve(self, points, t):
-        if len(points) == 1:
-            return points[0]
-        new_points = [points[i].lerp(points[i + 1], t) for i in range(len(points) - 1)]
-        return self.evaluate_bezier_curve(new_points, t)
+    def evaluate_bezier_curve(self, control_points, num_points=100):
+        n = len(control_points) - 1  # Degree of the curve
+        curve_points = []
+
+        for t in [i / num_points for i in range(num_points + 1)]:
+            point = Vector((0.0, 0.0, 0.0))
+            for i in range(n + 1):
+                bernstein = self.bernstein_polynomial(i, n, t)
+                point += bernstein * control_points[i]
+            curve_points.append(point)
+        return curve_points
+
+    def bernstein_polynomial(self, i, n, t):
+        return math.comb(n, i) * (t ** i) * ((1 - t) ** (n - i))
 
     def create_perfect_circle_spline(self, points):
         if len(points) < 3:

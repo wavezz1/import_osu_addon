@@ -286,10 +286,15 @@ class SliderCreator:
         follow_path.target = slider
         follow_path.use_fixed_location = True
         follow_path.use_curve_follow = True
+        follow_path.forward_axis = 'FORWARD_Y'
+        follow_path.up_axis = 'UP_Z'
+
+        # Stelle sicher, dass die Kurve die Pfadanimation aktiviert hat
+        total_duration_frames = slider_duration_frames * repeat_count
+        slider.data.use_path = True
+        slider.data.path_duration = total_duration_frames  # Wichtig für den Constraint
 
         # Animiere den offset_factor des Follow Path Constraints
-        total_duration_frames = slider_duration_frames * repeat_count
-
         follow_path.offset_factor = 0.0
         follow_path.keyframe_insert(data_path="offset_factor", frame=start_frame)
 
@@ -298,7 +303,7 @@ class SliderCreator:
 
         # Linke den Slider-Ball zur eigenen Collection
         self.slider_balls_collection.objects.link(slider_ball)
-        bpy.context.collection.objects.unlink(slider_ball)  # Entferne den Ball aus der aktiven Collection
+        bpy.context.collection.objects.unlink(slider_ball)
 
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         # Berechne die Anzahl der Ticks basierend auf der Dauer und einem festen Intervall (z.B. alle 100ms)

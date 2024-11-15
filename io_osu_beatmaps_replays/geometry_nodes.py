@@ -100,7 +100,6 @@ def connect_attributes_with_drivers(obj, attributes):
     if not modifier:
         return
 
-    # Zugriff auf die Node Group des Modifiers
     node_group = modifier.node_group
     if not node_group:
         print(f"Keine Node Group für Modifier 'GeometryNodes' auf Objekt '{obj.name}' gefunden.")
@@ -109,22 +108,18 @@ def connect_attributes_with_drivers(obj, attributes):
     for attr_name, attr_type in attributes.items():
         socket_name = attr_name  # Sockets sind nach Attributnamen benannt
 
-        # Überprüfen, ob der Socket existiert
         if socket_name not in node_group.interface.inputs:
             print(f"Socket '{socket_name}' nicht in der Geometry Nodes Gruppe gefunden.")
             continue
 
         try:
-            # Treiber hinzufügen
             driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
 
-            # Variable für den Treiber erstellen
             var = driver.variables.new()
             var.name = 'var'
             var.type = 'SINGLE_PROP'
 
-            # Ziel des Treibers setzen
             target = var.targets[0]
             target.id_type = 'OBJECT'
             target.id = obj

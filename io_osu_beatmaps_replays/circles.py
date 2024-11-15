@@ -4,7 +4,7 @@ import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame, timeit
 from .constants import SCALE_FACTOR
-from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 
 class CircleCreator:
@@ -67,9 +67,28 @@ class CircleCreator:
 
             create_geometry_nodes_modifier(circle, "circle")
 
-            connect_attributes_with_drivers(circle, {
+            # Define keyframe values
+            frame_values = {
+                "show": [
+                    (int(early_start_frame - 1), False),
+                    (int(early_start_frame), True)
+                ],
+                "was_hit": [
+                    (int(start_frame - 1), False),
+                    (int(start_frame), self.hitobject.was_hit)
+                ],
+                "ar": [
+                    (int(start_frame), approach_rate)
+                ],
+                "cs": [
+                    (int(start_frame), osu_radius * SCALE_FACTOR)
+                ]
+            }
+
+            # Set modifier inputs with keyframes
+            set_modifier_inputs_with_keyframes(circle, {
                 "show": 'BOOLEAN',
                 "was_hit": 'BOOLEAN',
                 "ar": 'FLOAT',
                 "cs": 'FLOAT'
-            })
+            }, frame_values)

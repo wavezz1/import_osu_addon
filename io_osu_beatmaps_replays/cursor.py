@@ -2,7 +2,7 @@
 
 import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
-from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 
 
@@ -20,10 +20,33 @@ class CursorCreator:
             cursor = bpy.context.object
             cursor.name = "Cursor"
 
-            cursor["k1"] = False
-            cursor["k2"] = False
-            cursor["m1"] = False
-            cursor["m2"] = False
+            # Add Geometry Nodes modifier
+            create_geometry_nodes_modifier(cursor, "cursor")
+
+            # Define initial keyframe values (optional)
+            frame_values = {
+                "k1": [
+                    (1, False),
+                    # Weitere Keyframes werden in animate_cursor gesetzt
+                ],
+                "k2": [
+                    (1, False),
+                ],
+                "m1": [
+                    (1, False),
+                ],
+                "m2": [
+                    (1, False),
+                ]
+            }
+
+            # Set initial modifier inputs with keyframes
+            set_modifier_inputs_with_keyframes(cursor, {
+                "k1": 'BOOLEAN',
+                "k2": 'BOOLEAN',
+                "m1": 'BOOLEAN',
+                "m2": 'BOOLEAN'
+            }, frame_values)
 
             self.cursor_collection.objects.link(cursor)
             if cursor.users_collection:
@@ -31,16 +54,6 @@ class CursorCreator:
                     if col != self.cursor_collection:
                         col.objects.unlink(cursor)
 
-            # Nachdem die Geometrie Nodes Modifier erstellt wurde
-            create_geometry_nodes_modifier(cursor, "cursor")
-
-            # Dynamisches Verbinden der Attribute mit den Treibern
-            connect_attributes_with_drivers(cursor, {
-                "k1": 'BOOLEAN',
-                "k2": 'BOOLEAN',
-                "m1": 'BOOLEAN',
-                "m2": 'BOOLEAN'
-            })
             self.cursor = cursor
             print(f"Cursor '{cursor.name}' created successfully.")
             return cursor
@@ -73,16 +86,32 @@ class CursorCreator:
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
 
-                self.cursor["k1"] = key_presses[i]['k1']
-                self.cursor["k2"] = key_presses[i]['k2']
-                self.cursor["m1"] = key_presses[i]['m1']
-                self.cursor["m2"] = key_presses[i]['m2']
+                # Define keyframe values for cursor attributes
+                frame_values = {
+                    "k1": [
+                        (int(frame), bool(key_presses[i]['k1']))
+                    ],
+                    "k2": [
+                        (int(frame), bool(key_presses[i]['k2']))
+                    ],
+                    "m1": [
+                        (int(frame), bool(key_presses[i]['m1']))
+                    ],
+                    "m2": [
+                        (int(frame), bool(key_presses[i]['m2']))
+                    ]
+                }
 
+                # Set modifier inputs with keyframes
+                set_modifier_inputs_with_keyframes(self.cursor, {
+                    "k1": 'BOOLEAN',
+                    "k2": 'BOOLEAN',
+                    "m1": 'BOOLEAN',
+                    "m2": 'BOOLEAN'
+                }, frame_values)
+
+                # Set location keyframe
                 self.cursor.keyframe_insert(data_path='location', frame=frame)
-                self.cursor.keyframe_insert(data_path='["k1"]', frame=frame)
-                self.cursor.keyframe_insert(data_path='["k2"]', frame=frame)
-                self.cursor.keyframe_insert(data_path='["m1"]', frame=frame)
-                self.cursor.keyframe_insert(data_path='["m2"]', frame=frame)
 
             print(f"Cursor '{self.cursor.name}' animated successfully.")
         except Exception as e:

@@ -5,7 +5,7 @@ import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame, evaluate_curve_at_t, timeit
-from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
@@ -149,7 +149,44 @@ class SliderCreator:
                             col.objects.unlink(slider)
 
                 create_geometry_nodes_modifier(slider, "slider")
-                connect_attributes_with_drivers(slider, {
+                # Define keyframe values
+                frame_values = {
+                    "show": [
+                        (int(early_start_frame - 1), False),
+                        (int(early_start_frame), True),
+                        (int(end_frame - 1), True),
+                        (int(end_frame), False)
+                    ],
+                    "slider_duration_ms": [
+                        (int(start_frame), self.settings['slider_duration_ms'])
+                    ],
+                    "slider_duration_frames": [
+                        (int(start_frame), self.settings['slider_duration_frames'])
+                    ],
+                    "ar": [
+                        (int(start_frame), approach_rate)
+                    ],
+                    "cs": [
+                        (int(start_frame), osu_radius * SCALE_FACTOR)
+                    ],
+                    "was_hit": [
+                        (int(start_frame - 1), False),
+                        (int(start_frame), self.hitobject.was_hit)
+                    ],
+                    "was_completed": [
+                        (int(end_frame - 1), False),
+                        (int(end_frame), self.hitobject.was_completed)
+                    ],
+                    "repeat_count": [
+                        (int(start_frame), repeat_count)
+                    ],
+                    "pixel_length": [
+                        (int(start_frame), pixel_length)
+                    ]
+                }
+
+                # Set modifier inputs with keyframes
+                set_modifier_inputs_with_keyframes(slider, {
                     "show": 'BOOLEAN',
                     "slider_duration_ms": 'FLOAT',
                     "slider_duration_frames": 'FLOAT',
@@ -159,7 +196,7 @@ class SliderCreator:
                     "was_completed": 'BOOLEAN',
                     "repeat_count": 'INT',
                     "pixel_length": 'FLOAT',
-                })
+                }, frame_values)
 
                 if self.settings.get('import_slider_balls', False):
                     slider_duration_frames = slider["slider_duration_frames"]

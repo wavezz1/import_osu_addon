@@ -1,8 +1,10 @@
+# geometry_nodes.py
+
 import bpy
 from .utils import timeit
-import time
 
 node_groups = {}
+
 
 def setup_geometry_node_trees():
     global node_groups
@@ -41,6 +43,7 @@ def setup_geometry_node_trees():
                 })
             }
 
+
 def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:
         return bpy.data.node_groups[name]
@@ -49,8 +52,10 @@ def create_geometry_nodes_tree(name, attributes):
     setup_node_group_interface(group, attributes)
     return group
 
+
 def setup_node_group_interface(group, attributes):
     x_offset = 200
+    # Hinzufügen der Input- und Output-Sockets für Geometry
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
@@ -78,10 +83,12 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+        # Dynamische Benennung der Sockets: Socket_2, Socket_3, usw.
+        new_socket = group.interface.new_socket(name=f"Socket_{i + 2}", in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
+
 
 def create_geometry_nodes_modifier(obj, obj_type):
     setup_geometry_node_trees()
@@ -96,43 +103,26 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
-def connect_attributes_with_drivers(obj, attributes):
+
+def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
+    """
+    Set the modifier's inputs directly and insert keyframes.
+
+    :param obj: The Blender object.
+    :param attributes: Dict of attribute names and their types.
+    :param frame_values: Dict of attribute names and list of (frame, value) tuples.
+    """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         return
 
-    node_group = modifier.node_group
-    if not node_group:
-        print(f"No node group for GeometryNodes modifier on object '{obj.name}' found.")
-        return
-
-    # Start mapping from Socket_2 onwards
-    socket_index = 2
-    for attr_name, attr_type in attributes.items():
-        socket_name = f"Socket_{socket_index}"
-        #socket = node_group.inputs.get(socket_name)
-        # if not socket:
-        #     print(f"Socket '{socket_name}' not found in node group '{node_group.name}'.")
-        #     socket_index += 1
-        #     continue
-
+    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+        socket_index = i  # inputs[0] corresponds to Socket_2
         try:
-            # Add driver to the socket
-            driver = modifier.driver_add(f'["{socket_name}"]').driver
-            driver.type = 'AVERAGE'
-
-            # Create a new variable for the driver
-            var = driver.variables.new()
-            var.name = 'var'
-            var.type = 'SINGLE_PROP'
-
-            # Set the target for the driver
-            target = var.targets[0]
-            target.id_type = 'OBJECT'
-            target.id = obj
-            target.data_path = f'["{attr_name}"]'
-
+            input_socket = modifier.inputs[socket_index]
+            if attr_name in frame_values:
+                for frame, value in frame_values[attr_name]:
+                    input_socket.default_value = value
+                    input_socket.keyframe_insert("default_value", frame=frame)
         except Exception as e:
-            print(f"Error setting driver for attribute '{attr_name}' on socket '{socket_name}': {e}")
-
-        socket_index += 1
+            print(f"Error setting attribute '{attr_name}' on modifier input {socket_index}: {e}")

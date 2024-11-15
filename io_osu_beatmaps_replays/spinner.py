@@ -3,7 +3,7 @@
 import bpy
 import math
 from .utils import map_osu_to_blender, get_ms_per_frame
-from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
@@ -75,10 +75,33 @@ class SpinnerCreator:
 
         create_geometry_nodes_modifier(spinner, "spinner")
 
-        connect_attributes_with_drivers(spinner, {
+        # Define keyframe values
+        frame_values = {
+            "show": [
+                (int(early_start_frame - 1), False),
+                (int(early_start_frame), True)
+            ],
+            "spinner_duration_ms": [
+                (int(start_frame), spinner_duration_ms)
+            ],
+            "spinner_duration_frames": [
+                (int(start_frame), spinner_duration_frames)
+            ],
+            "was_hit": [
+                (int(start_frame - 1), False),
+                (int(start_frame), self.hitobject.was_hit)
+            ],
+            "was_completed": [
+                (int(end_frame - 1), False),
+                (int(end_frame), True)
+            ]
+        }
+
+        # Set modifier inputs with keyframes
+        set_modifier_inputs_with_keyframes(spinner, {
             "show": 'BOOLEAN',
             "spinner_duration_ms": 'FLOAT',
             "spinner_duration_frames": 'FLOAT',
             "was_hit": 'BOOLEAN',
             "was_completed": 'BOOLEAN'
-        })
+        }, frame_values)

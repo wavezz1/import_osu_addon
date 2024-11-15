@@ -78,6 +78,7 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
+        # Dynamische Benennung der Sockets: Socket_2, Socket_3, usw.
         new_socket = group.interface.new_socket(name=f"Socket_{i + 2}", in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
@@ -110,23 +111,24 @@ def connect_attributes_with_drivers(obj, attributes):
     socket_index = 2
     for attr_name, attr_type in attributes.items():
         socket_name = f"Socket_{socket_index}"
-        socket = node_group.interface.inputs.get(socket_name)
+        # Zugriff auf die Sockets über node_group.inputs
+        socket = node_group.inputs.get(socket_name)
         if not socket:
             print(f"Socket '{socket_name}' not found in node group '{node_group.name}'.")
             socket_index += 1
             continue
 
         try:
-            # Add driver to the socket
+            # Treiber hinzufügen
             driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
 
-            # Create a new variable for the driver
+            # Variable für den Treiber erstellen
             var = driver.variables.new()
             var.name = 'var'
             var.type = 'SINGLE_PROP'
 
-            # Set the target for the driver
+            # Ziel des Treibers setzen
             target = var.targets[0]
             target.id_type = 'OBJECT'
             target.id = obj

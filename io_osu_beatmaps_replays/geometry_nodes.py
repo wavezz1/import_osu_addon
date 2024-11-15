@@ -102,13 +102,6 @@ def create_geometry_nodes_modifier(obj, obj_type):
     modifier.node_group = node_group
 
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
-    """
-    Set the modifier's inputs directly and insert keyframes.
-
-    :param obj: The Blender object.
-    :param attributes: Dict of attribute names and their types.
-    :param frame_values: Dict of attribute names and list of (frame, value) tuples.
-    """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
@@ -116,7 +109,6 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
-        socket_name = attr_name
         socket_count = f"Socket_{socket_index}"
         if attr_name not in frame_values:
             print(f"No frame values provided for attribute '{attr_name}'.")
@@ -125,10 +117,11 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
             for frame, value in frame_values[attr_name]:
                 if attr_type == 'BOOLEAN':
                     modifier[socket_count] = value
+                    modifier.prop(socket_count, "description")
                 elif attr_type == 'FLOAT':
                     modifier[socket_count] = float(value)
                 elif attr_type == 'INT':
                     modifier[socket_count] = int(value)
                 modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
         except Exception as e:
-            print(f"Error setting attribute '{attr_name}' on socket '{socket_name}': {e}")
+            print(f"Error setting attribute '{attr_name}' on socket '{socket_count}': {e}")

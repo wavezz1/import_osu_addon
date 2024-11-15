@@ -117,12 +117,18 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
         return
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        socket_index = i  # inputs[0] corresponds to Socket_2
+        socket_index = i + 2  # Socket_2 corresponds to the first attribute
+        socket_name = f"Socket_{socket_index}"
+        if attr_name not in frame_values:
+            continue
         try:
-            input_socket = modifier.inputs[socket_index]
-            if attr_name in frame_values:
-                for frame, value in frame_values[attr_name]:
-                    input_socket.default_value = value
-                    input_socket.keyframe_insert("default_value", frame=frame)
+            for frame, value in frame_values[attr_name]:
+                if attr_type == 'BOOLEAN':
+                    modifier[socket_name] = value
+                elif attr_type == 'FLOAT':
+                    modifier[socket_name] = float(value)
+                elif attr_type == 'INT':
+                    modifier[socket_name] = int(value)
+                modifier.keyframe_insert(data_path=f'["{socket_name}"]', frame=frame)
         except Exception as e:
-            print(f"Error setting attribute '{attr_name}' on modifier input {socket_index}: {e}")
+            print(f"Error setting attribute '{attr_name}' on socket '{socket_name}': {e}")

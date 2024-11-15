@@ -80,10 +80,7 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        # Benennung der Sockets nach Index
-        socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
-        socket_name = f"Socket_{socket_index}"
-        new_socket = group.interface.new_socket(name=socket_name, in_out='INPUT', socket_type=socket_type)
+        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
@@ -109,7 +106,7 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
-        socket_count = f"Test"
+        socket_count = f"Socket_{socket_index}"
         if attr_name not in frame_values:
             print(f"No frame values provided for attribute '{attr_name}'.")
             continue

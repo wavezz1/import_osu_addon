@@ -1,6 +1,7 @@
+# geometry_nodes.py
+
 import bpy
-from .utils import timeit
-import time
+from .utils import create_geometry_nodes_tree, timeit
 
 node_groups = {}
 
@@ -17,12 +18,14 @@ def setup_geometry_node_trees():
                 }),
                 "slider": create_geometry_nodes_tree("Geometry Nodes Slider", {
                     "show": 'BOOLEAN',
-                    "slider_duration": 'FLOAT',
+                    "slider_duration_ms": 'FLOAT',
                     "slider_duration_frames": 'FLOAT',
                     "ar": 'FLOAT',
                     "cs": 'FLOAT',
                     "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN'
+                    "was_completed": 'BOOLEAN',
+                    "repeat_count": 'INT',
+                    "pixel_length": 'FLOAT',
                 }),
                 "spinner": create_geometry_nodes_tree("Geometry Nodes Spinner", {
                     "show": 'BOOLEAN',
@@ -76,7 +79,7 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+        new_socket = group.interface.new_socket(name=f"Socket_{i + 2}", in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
@@ -94,7 +97,6 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
-
 def connect_attributes_with_drivers(obj, attributes):
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
@@ -102,55 +104,36 @@ def connect_attributes_with_drivers(obj, attributes):
 
     node_group = modifier.node_group
     if not node_group:
-        print(f"Keine Node Group für Modifier 'GeometryNodes' auf Objekt '{obj.name}' gefunden.")
+        print(f"No node group for GeometryNodes modifier on object '{obj.name}' found.")
         return
 
+    # Start mapping from Socket_2 onwards
+    socket_index = 2
     for attr_name, attr_type in attributes.items():
-        socket_name = attr_name  # Sockets sind nach Attributnamen benannt
-
-        if socket_name not in node_group.interface.inputs:
-            print(f"Socket '{socket_name}' nicht in der Geometry Nodes Gruppe gefunden.")
+        socket_name = f"Socket_{socket_index}"
+        socket = node_group.interface.inputs.get(socket_name)
+        if not socket:
+            print(f"Socket '{socket_name}' not found in node group '{node_group.name}'.")
+            socket_index += 1
             continue
 
         try:
+            # Add driver to the socket
             driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
 
+            # Create a new variable for the driver
             var = driver.variables.new()
             var.name = 'var'
             var.type = 'SINGLE_PROP'
 
+            # Set the target for the driver
             target = var.targets[0]
             target.id_type = 'OBJECT'
             target.id = obj
             target.data_path = f'["{attr_name}"]'
 
         except Exception as e:
-            print(f"Fehler beim Setzen des Treibers für Attribut '{attr_name}' auf Socket '{socket_name}': {e}")
+            print(f"Error setting driver for attribute '{attr_name}' on socket '{socket_name}': {e}")
 
-# def connect_cursor_attributes_with_drivers(cursor):
-#     modifier = cursor.modifiers.get("GeometryNodes")
-#     if not modifier:
-#         return
-#
-#     socket_mapping = {
-#         "k1": "Socket_2",
-#         "k2": "Socket_3",
-#         "m1": "Socket_4",
-#         "m2": "Socket_5"
-#     }
-#
-#     for attr_name, socket_name in socket_mapping.items():
-#         if attr_name not in cursor:
-#             continue
-#
-#         try:
-#             driver = modifier.driver_add(f'["{socket_name}"]').driver
-#             driver.type = 'AVERAGE'
-#             var = driver.variables.new()
-#             var.name = 'var'
-#             var.targets[0].id_type = 'OBJECT'
-#             var.targets[0].id = cursor
-#             var.targets[0].data_path = f'["{attr_name}"]'
-#         except Exception as e:
-#             print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
+        socket_index += 1

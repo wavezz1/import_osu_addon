@@ -109,7 +109,7 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
-        socket_count = f"Socket_{socket_index}"
+        socket_count = f"Test"
         if attr_name not in frame_values:
             print(f"No frame values provided for attribute '{attr_name}'.")
             continue
@@ -117,7 +117,6 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
             for frame, value in frame_values[attr_name]:
                 if attr_type == 'BOOLEAN':
                     modifier[socket_count] = value
-                    modifier.prop(socket_count, "description")
                 elif attr_type == 'FLOAT':
                     modifier[socket_count] = float(value)
                 elif attr_type == 'INT':

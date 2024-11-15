@@ -46,24 +46,6 @@ class SpinnerCreator:
         scene_fps = bpy.context.scene.render.fps
         spinner_duration_frames = spinner_duration_ms / (1000 / scene_fps)
 
-        # spinner["was_hit"] = False
-        # spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
-        #
-        # spinner["was_hit"] = self.hitobject.was_hit
-        # spinner.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
-        #
-        # spinner["was_completed"] = False
-        # spinner.keyframe_insert(data_path='["was_completed"]', frame=end_frame - 1)
-        #
-        # spinner["was_completed"] = True
-        # spinner.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
-        #
-        # spinner["show"] = False
-        # spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
-        #
-        # spinner["show"] = True
-        # spinner.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-
         spinner["spinner_duration_ms"] = spinner_duration_ms
         spinner["spinner_duration_frames"] = spinner_duration_frames
 

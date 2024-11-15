@@ -48,17 +48,6 @@ class CircleCreator:
             circle["ar"] = approach_rate
             circle["cs"] = osu_radius * SCALE_FACTOR
 
-            # circle["was_hit"] = False
-            # circle.keyframe_insert(data_path='["was_hit"]', frame=(start_frame - 1))
-            #
-            # circle["was_hit"] = self.hitobject.was_hit
-            # circle.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
-            #
-            # circle["show"] = False
-            # circle.keyframe_insert(data_path='["show"]', frame=(early_start_frame - 1))
-            # circle["show"] = True
-            # circle.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-
             self.circles_collection.objects.link(circle)
             if circle.users_collection:
                 for col in circle.users_collection:

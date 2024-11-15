@@ -1,10 +1,9 @@
 # geometry_nodes.py
 
 import bpy
-from .utils import timeit
+from .utils import create_geometry_nodes_tree, timeit
 
 node_groups = {}
-
 
 def setup_geometry_node_trees():
     global node_groups
@@ -43,7 +42,6 @@ def setup_geometry_node_trees():
                 })
             }
 
-
 def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:
         return bpy.data.node_groups[name]
@@ -51,7 +49,6 @@ def create_geometry_nodes_tree(name, attributes):
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes)
     return group
-
 
 def setup_node_group_interface(group, attributes):
     x_offset = 200
@@ -83,12 +80,13 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        # Benennung der Sockets nach Attributnamen
-        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+        # Benennung der Sockets nach Index
+        socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
+        socket_name = f"Socket_{socket_index}"
+        new_socket = group.interface.new_socket(name=socket_name, in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
-
 
 def create_geometry_nodes_modifier(obj, obj_type):
     setup_geometry_node_trees()
@@ -103,7 +101,6 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
-
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
     """
     Set the modifier's inputs directly and insert keyframes.
@@ -116,17 +113,19 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
     if not modifier:
         return
 
-    for attr_name, attr_type in attributes.items():
+    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+        socket_index = i + 2  # Socket_2 corresponds to the first attribute
+        socket_name = f"Socket_{socket_index}"
         if attr_name not in frame_values:
             continue
         try:
             for frame, value in frame_values[attr_name]:
                 if attr_type == 'BOOLEAN':
-                    modifier[attr_name] = value
+                    modifier[socket_name] = value
                 elif attr_type == 'FLOAT':
-                    modifier[attr_name] = float(value)
+                    modifier[socket_name] = float(value)
                 elif attr_type == 'INT':
-                    modifier[attr_name] = int(value)
-                modifier.keyframe_insert(data_path=f'["{attr_name}"]', frame=frame)
+                    modifier[socket_name] = int(value)
+                modifier.keyframe_insert(data_path=f'["{socket_name}"]', frame=frame)
         except Exception as e:
-            print(f"Error setting attribute '{attr_name}' on socket '{attr_name}': {e}")
+            print(f"Error setting attribute '{attr_name}' on socket '{socket_name}': {e}")

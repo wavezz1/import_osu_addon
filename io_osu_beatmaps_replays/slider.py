@@ -158,10 +158,10 @@ class SliderCreator:
                         (int(end_frame), False)
                     ],
                     "slider_duration_ms": [
-                        (int(start_frame), self.settings['slider_duration_ms'])
+                        (int(start_frame), slider_duration_ms)
                     ],
                     "slider_duration_frames": [
-                        (int(start_frame), self.settings['slider_duration_frames'])
+                        (int(start_frame), slider_duration_frames)
                     ],
                     "ar": [
                         (int(start_frame), approach_rate)

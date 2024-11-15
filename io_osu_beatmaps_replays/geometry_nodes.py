@@ -83,8 +83,8 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        # Dynamische Benennung der Sockets: Socket_2, Socket_3, usw.
-        new_socket = group.interface.new_socket(name=f"Socket_{i + 2}", in_out='INPUT', socket_type=socket_type)
+        # Benennung der Sockets nach Attributnamen
+        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])

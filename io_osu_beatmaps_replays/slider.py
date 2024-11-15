@@ -40,6 +40,8 @@ class SliderCreator:
             preempt_frames = self.data_manager.calculate_preempt_time(approach_rate) / get_ms_per_frame()
             early_start_frame = start_frame - preempt_frames
 
+            slider_duration_frames = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier
+
             if self.hitobject.extras:
                 curve_data_str = self.hitobject.extras[0]
                 repeat_count = int(self.hitobject.extras[1]) if len(self.hitobject.extras) > 1 else 1
@@ -119,23 +121,23 @@ class SliderCreator:
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
-                slider["show"] = False
-                slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
-                slider["show"] = True
-                slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
-                slider.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
-                slider["show"] = False
-                slider.keyframe_insert(data_path='["show"]', frame=end_frame)
-
-                slider["was_hit"] = False
-                slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
-                slider["was_hit"] = self.hitobject.was_hit
-                slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
-
-                slider["was_completed"] = False
-                slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame - 1)
-                slider["was_completed"] = self.hitobject.was_completed
-                slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
+                # slider["show"] = False
+                # slider.keyframe_insert(data_path='["show"]', frame=early_start_frame - 1)
+                # slider["show"] = True
+                # slider.keyframe_insert(data_path='["show"]', frame=early_start_frame)
+                # slider.keyframe_insert(data_path='["show"]', frame=end_frame - 1)
+                # slider["show"] = False
+                # slider.keyframe_insert(data_path='["show"]', frame=end_frame)
+                #
+                # slider["was_hit"] = False
+                # slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame - 1)
+                # slider["was_hit"] = self.hitobject.was_hit
+                # slider.keyframe_insert(data_path='["was_hit"]', frame=start_frame)
+                #
+                # slider["was_completed"] = False
+                # slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame - 1)
+                # slider["was_completed"] = self.hitobject.was_completed
+                # slider.keyframe_insert(data_path='["was_completed"]', frame=end_frame)
 
                 slider["slider_duration_ms"] = slider_duration_ms
                 slider["slider_duration_frames"] = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier

@@ -1,7 +1,7 @@
 # geometry_nodes.py
 
 import bpy
-from .utils import create_geometry_nodes_tree, timeit
+from .utils import timeit
 
 node_groups = {}
 
@@ -111,12 +111,14 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
     """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
+        print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        socket_index = i + 2  # Socket_2 corresponds to the first attribute
+        socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
         socket_name = f"Socket_{socket_index}"
         if attr_name not in frame_values:
+            print(f"No frame values provided for attribute '{attr_name}'.")
             continue
         try:
             for frame, value in frame_values[attr_name]:

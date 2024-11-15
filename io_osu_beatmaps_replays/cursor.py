@@ -2,7 +2,7 @@
 
 import bpy
 from .utils import get_ms_per_frame, map_osu_to_blender
-from .geometry_nodes import create_geometry_nodes_modifier, connect_cursor_attributes_with_drivers
+from .geometry_nodes import create_geometry_nodes_modifier, connect_attributes_with_drivers
 from .osu_replay_data_manager import OsuReplayDataManager
 
 
@@ -31,10 +31,16 @@ class CursorCreator:
                     if col != self.cursor_collection:
                         col.objects.unlink(cursor)
 
+            # Nachdem die Geometrie Nodes Modifier erstellt wurde
             create_geometry_nodes_modifier(cursor, "cursor")
 
-            connect_cursor_attributes_with_drivers(cursor)
-
+            # Dynamisches Verbinden der Attribute mit den Treibern
+            connect_attributes_with_drivers(cursor, {
+                "k1": 'BOOLEAN',
+                "k2": 'BOOLEAN',
+                "m1": 'BOOLEAN',
+                "m2": 'BOOLEAN'
+            })
             self.cursor = cursor
             print(f"Cursor '{cursor.name}' created successfully.")
             return cursor

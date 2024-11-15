@@ -94,84 +94,68 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
+
 def connect_attributes_with_drivers(obj, attributes):
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         return
 
-    socket_mapping = {
-        "circle": {
-            "ar": "Socket_4",
-            "cs": "Socket_5",
-            "show": "Socket_2",
-            "was_hit": "Socket_3"
-        },
-        "slider": {
-            "ar": "Socket_5",
-            "cs": "Socket_6",
-            "show": "Socket_2",
-            "slider_duration_frames": "Socket_4",
-            "slider_duration_ms": "Socket_3",
-            "was_completed": "Socket_8",
-            "was_hit": "Socket_7"
-        },
-        "spinner": {
-            "show": "Socket_2",
-            "spinner_duration_frames": "Socket_4",
-            "spinner_duration_ms": "Socket_3",
-            "was_completed": "Socket_6",
-            "was_hit": "Socket_5"
-        }
-    }
-
-    if "circle" in obj.name.lower():
-        sockets = socket_mapping["circle"]
-    elif "slider" in obj.name.lower():
-        sockets = socket_mapping["slider"]
-    elif "spinner" in obj.name.lower():
-        sockets = socket_mapping["spinner"]
-    else:
-        print(f"Unrecognized object type for {obj.name}. Skipping driver setup.")
+    # Zugriff auf die Node Group des Modifiers
+    node_group = modifier.node_group
+    if not node_group:
+        print(f"Keine Node Group für Modifier 'GeometryNodes' auf Objekt '{obj.name}' gefunden.")
         return
 
-    for attr_name, socket_name in sockets.items():
-        if attr_name not in obj:
+    for attr_name, attr_type in attributes.items():
+        socket_name = attr_name  # Sockets sind nach Attributnamen benannt
+
+        # Überprüfen, ob der Socket existiert
+        if socket_name not in node_group.interface.inputs:
+            print(f"Socket '{socket_name}' nicht in der Geometry Nodes Gruppe gefunden.")
             continue
 
         try:
+            # Treiber hinzufügen
             driver = modifier.driver_add(f'["{socket_name}"]').driver
             driver.type = 'AVERAGE'
+
+            # Variable für den Treiber erstellen
             var = driver.variables.new()
             var.name = 'var'
-            var.targets[0].id_type = 'OBJECT'
-            var.targets[0].id = obj
-            var.targets[0].data_path = f'["{attr_name}"]'
+            var.type = 'SINGLE_PROP'
+
+            # Ziel des Treibers setzen
+            target = var.targets[0]
+            target.id_type = 'OBJECT'
+            target.id = obj
+            target.data_path = f'["{attr_name}"]'
+
         except Exception as e:
-            print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
+            print(f"Fehler beim Setzen des Treibers für Attribut '{attr_name}' auf Socket '{socket_name}': {e}")
 
-def connect_cursor_attributes_with_drivers(cursor):
-    modifier = cursor.modifiers.get("GeometryNodes")
-    if not modifier:
-        return
-
-    socket_mapping = {
-        "k1": "Socket_2",
-        "k2": "Socket_3",
-        "m1": "Socket_4",
-        "m2": "Socket_5"
-    }
-
-    for attr_name, socket_name in socket_mapping.items():
-        if attr_name not in cursor:
-            continue
-
-        try:
-            driver = modifier.driver_add(f'["{socket_name}"]').driver
-            driver.type = 'AVERAGE'
-            var = driver.variables.new()
-            var.name = 'var'
-            var.targets[0].id_type = 'OBJECT'
-            var.targets[0].id = cursor
-            var.targets[0].data_path = f'["{attr_name}"]'
-        except Exception as e:
-            print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
+# def connect_cursor_attributes_with_drivers(cursor):
+#     modifier = cursor.modifiers.get("GeometryNodes")
+#     if not modifier:
+#         return
+#
+#     socket_mapping = {
+#         "k1": "Socket_2",
+#         "k2": "Socket_3",
+#         "m1": "Socket_4",
+#         "m2": "Socket_5"
+#     }
+#
+#     for attr_name, socket_name in socket_mapping.items():
+#         if attr_name not in cursor:
+#             continue
+#
+#         try:
+#             driver = modifier.driver_add(f'["{socket_name}"]').driver
+#             driver.type = 'AVERAGE'
+#             var = driver.variables.new()
+#             var.name = 'var'
+#             var.targets[0].id_type = 'OBJECT'
+#             var.targets[0].id = cursor
+#             var.targets[0].data_path = f'["{attr_name}"]'
+#         except Exception as e:
+#             print(f"Could not set driver for {attr_name} on {socket_name}: {e}")

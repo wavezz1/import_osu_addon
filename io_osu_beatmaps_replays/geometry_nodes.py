@@ -99,13 +99,12 @@ def create_geometry_nodes_modifier(obj, obj_type):
     modifier.node_group = node_group
 
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
-    """
-    Set the modifier's inputs and insert keyframes only if needed, using socket_count.
+    # Liste von Attributen, die direkt ohne Keyframes gesetzt werden
+    direct_values = {
+        "ar", "cs", "slider_duration_ms", "slider_duration_frames",
+        "repeat_count", "pixel_length", "spinner_duration_ms", "spinner_duration_frames"
+    }
 
-    :param obj: The Blender object.
-    :param attributes: Dict of attribute names and their types.
-    :param frame_values: Dict of attribute names and list of (frame, value) tuples.
-    """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
@@ -116,7 +115,18 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
         socket_count = f"Socket_{socket_index}"
 
-        if attr_name in frame_values:  # Animierte Werte
+        if attr_name in direct_values:  # Direkte Werte ohne Keyframes
+            try:
+                if attr_type == 'BOOLEAN':
+                    modifier[socket_count] = False  # Standardwert für BOOLEAN
+                elif attr_type == 'FLOAT':
+                    modifier[socket_count] = 0.0  # Standardwert für FLOAT
+                elif attr_type == 'INT':
+                    modifier[socket_count] = 0  # Standardwert für INT
+                print(f"Set direct value for '{attr_name}' on socket '{socket_count}'")
+            except Exception as e:
+                print(f"Error setting fixed value for attribute '{attr_name}' on socket '{socket_count}': {e}")
+        elif attr_name in frame_values:  # Animierte Werte
             try:
                 for frame, value in frame_values[attr_name]:
                     if attr_type == 'BOOLEAN':
@@ -128,13 +138,5 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
                     modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
             except Exception as e:
                 print(f"Error setting keyframe for attribute '{attr_name}' on socket '{socket_count}': {e}")
-        else:  # Feste Werte
-            try:
-                if attr_type == 'BOOLEAN':
-                    modifier[socket_count] = False  # Standardwert für BOOLEAN
-                elif attr_type == 'FLOAT':
-                    modifier[socket_count] = 0.0  # Standardwert für FLOAT
-                elif attr_type == 'INT':
-                    modifier[socket_count] = 0  # Standardwert für INT
-            except Exception as e:
-                print(f"Error setting fixed value for attribute '{attr_name}' on socket '{socket_count}': {e}")
+        else:
+            print(f"No values provided for attribute '{attr_name}'. Skipping.")

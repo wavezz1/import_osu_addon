@@ -115,7 +115,7 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
         socket_count = f"Socket_{socket_index}"
 
-        if attr_name in attributes and direct_values:  # Direkte Werte ohne Keyframes
+        if attr_name == direct_values:  # Direkte Werte ohne Keyframes
             try:
                 # Setze den geparsten Wert direkt
                 value = attributes[attr_name]

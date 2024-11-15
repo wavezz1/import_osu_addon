@@ -115,15 +115,17 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
         socket_count = f"Socket_{socket_index}"
 
-        if attr_name in direct_values:  # Direkte Werte ohne Keyframes
+        if attr_name in attributes and direct_values:  # Direkte Werte ohne Keyframes
             try:
+                # Setze den geparsten Wert direkt
+                value = attributes[attr_name]
                 if attr_type == 'BOOLEAN':
-                    modifier[socket_count] = False  # Standardwert für BOOLEAN
+                    modifier[socket_count] = bool(value)
                 elif attr_type == 'FLOAT':
-                    modifier[socket_count] = 0.0  # Standardwert für FLOAT
+                    modifier[socket_count] = float(value)
                 elif attr_type == 'INT':
-                    modifier[socket_count] = 0  # Standardwert für INT
-                print(f"Set direct value for '{attr_name}' on socket '{socket_count}'")
+                    modifier[socket_count] = int(value)
+                print(f"Set direct value for '{attr_name}' on socket '{socket_count}' to {value}")
             except Exception as e:
                 print(f"Error setting fixed value for attribute '{attr_name}' on socket '{socket_count}': {e}")
         elif attr_name in frame_values:  # Animierte Werte

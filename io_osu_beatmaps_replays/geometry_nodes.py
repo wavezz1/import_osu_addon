@@ -1,7 +1,6 @@
-# geometry_nodes.py
-
 import bpy
-from .utils import create_geometry_nodes_tree, timeit
+from .utils import timeit
+import time
 
 node_groups = {}
 

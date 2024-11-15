@@ -80,8 +80,9 @@ def setup_node_group_interface(group, attributes):
         previous_node_output = store_node.outputs['Geometry']
 
         socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        # Benennung der Sockets mit Attributnamen
-        socket_name = attr_name  # Statt f"Socket_{socket_index}"
+        # Benennung der Sockets nach Index
+        socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
+        socket_name = f"Socket_{socket_index}"
         new_socket = group.interface.new_socket(name=socket_name, in_out='INPUT', socket_type=socket_type)
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
@@ -113,14 +114,14 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
-    for attr_name, attr_type in attributes.items():
-        socket_name = attr_name  # Statt f"Socket_{socket_index}"
+    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+        socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
+        socket_name = f"Socket_{socket_index}"
         if attr_name not in frame_values:
             print(f"No frame values provided for attribute '{attr_name}'.")
             continue
         try:
             for frame, value in frame_values[attr_name]:
-                print(f"Setting '{socket_name}' to '{value}' at frame {frame}.")
                 if attr_type == 'BOOLEAN':
                     modifier[socket_name] = value
                 elif attr_type == 'FLOAT':

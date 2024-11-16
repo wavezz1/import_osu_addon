@@ -49,6 +49,12 @@ def setup_geometry_node_trees():
                     "m2": 'BOOLEAN'
                 }
             },
+            "slider_ball": {
+                "name": "Geometry Nodes Slider Ball",
+                "attributes": {
+                    "show": 'BOOLEAN'
+                }
+            },
         }
 
         for key, node_def in node_definitions.items():

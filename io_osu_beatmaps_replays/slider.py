@@ -339,6 +339,27 @@ class SliderCreator:
             slider_ball = bpy.data.objects.new(f"{slider.name}_ball", mesh)
             slider_ball.location = slider.location
 
+            create_geometry_nodes_modifier(slider_ball, "slider_ball")
+
+            end_frame = start_frame + slider_duration_frames
+
+            frame_values = {
+                "show": [
+                    (int(start_frame - 1), False),
+                    (int(start_frame), True),
+                    (int(end_frame), False)
+                ]
+            }
+
+            set_modifier_inputs_with_keyframes(
+                slider_ball,
+                {
+                    "show": 'BOOLEAN',
+                },
+                frame_values,
+                fixed_values=None
+            )
+
         elif self.import_type == 'FULL':
             bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
             slider_ball = bpy.context.object

@@ -7,13 +7,16 @@ from .constants import SCALE_FACTOR
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 
+
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuReplayDataManager):
+    def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuReplayDataManager,
+                 import_type):
         self.hitobject = hitobject
         self.global_index = global_index
         self.circles_collection = circles_collection
         self.settings = settings
         self.data_manager = data_manager
+        self.import_type = import_type
         self.create_circle()
 
     def create_circle(self):
@@ -36,13 +39,19 @@ class CircleCreator:
 
             osu_radius = (54.4 - 4.48 * circle_size) / 2
 
-            bpy.ops.mesh.primitive_circle_add(
-                fill_type='NGON',
-                radius=0.5,
-                location=(corrected_x, corrected_y, corrected_z),
-                rotation=(math.radians(90), 0, 0)
-            )
-            circle = bpy.context.object
+            if self.import_type == 'FULL':
+                bpy.ops.mesh.primitive_circle_add(
+                    fill_type='NGON',
+                    radius=0.5,
+                    location=(corrected_x, corrected_y, corrected_z),
+                    rotation=(math.radians(90), 0, 0)
+                )
+                circle = bpy.context.object
+            elif self.import_type == 'BASE':
+                mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{time_ms}")
+                circle = bpy.data.objects.new(f"{self.global_index:03d}_circle_{time_ms}", mesh)
+                circle.location = (corrected_x, corrected_y, corrected_z)
+
             circle.name = f"{self.global_index:03d}_circle_{time_ms}"
 
             circle["ar"] = approach_rate
@@ -56,28 +65,74 @@ class CircleCreator:
 
             create_geometry_nodes_modifier(circle, "circle")
 
-            # Define keyframe values
-            frame_values = {
-                "show": [
-                    (int(early_start_frame - 1), False),
-                    (int(early_start_frame), True)
-                ],
-                "was_hit": [
-                    (int(start_frame - 1), False),
-                    (int(start_frame), self.hitobject.was_hit)
-                ]
-            }
+            if self.import_type == 'BASE':
+                # Set Geometry Nodes as usual without adding mesh geometry
+                frame_values = {
+                    "show": [
+                        (int(early_start_frame - 1), False),
+                        (int(early_start_frame), True)
+                    ],
+                    "was_hit": [
+                        (int(start_frame - 1), False),
+                        (int(start_frame), self.hitobject.was_hit)
+                    ]
+                }
 
-            # Define fixed values
-            fixed_values = {
-                "ar": approach_rate,
-                "cs": osu_radius * SCALE_FACTOR
-            }
+                fixed_values = {
+                    "ar": approach_rate,
+                    "cs": osu_radius * SCALE_FACTOR
+                }
 
-            # Set modifier inputs with keyframes
-            set_modifier_inputs_with_keyframes(circle, {
-                "show": 'BOOLEAN',
-                "was_hit": 'BOOLEAN',
-                "ar": 'FLOAT',
-                "cs": 'FLOAT'
-            }, frame_values, fixed_values)
+                set_modifier_inputs_with_keyframes(circle, {
+                    "show": 'BOOLEAN',
+                    "was_hit": 'BOOLEAN',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT'
+                }, frame_values, fixed_values)
+
+            elif self.import_type == 'FULL':
+                # Apply keyframes to viewport and render visibility
+                frame_values = {
+                    "show": [
+                        (int(early_start_frame - 1), False),
+                        (int(early_start_frame), True)
+                    ],
+                    "was_hit": [
+                        (int(start_frame - 1), False),
+                        (int(start_frame), self.hitobject.was_hit)
+                    ]
+                }
+
+                fixed_values = {
+                    "ar": approach_rate,
+                    "cs": osu_radius * SCALE_FACTOR
+                }
+
+                set_modifier_inputs_with_keyframes(circle, {
+                    "show": 'BOOLEAN',
+                    "was_hit": 'BOOLEAN',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT'
+                }, frame_values, fixed_values)
+
+                # Set visibility keyframes
+                circle.hide_viewport = True
+                circle.hide_render = True
+                circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                circle.hide_viewport = False
+                circle.hide_render = False
+                circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+                circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
+                if self.hitobject.was_hit:
+                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
+                    circle.hide_viewport = False
+                    circle.hide_render = False
+                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
+                    circle.keyframe_insert(data_path="hide_render", frame=int(start_frame))
+                else:
+                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
+                    circle.hide_viewport = True
+                    circle.hide_render = True
+                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
+                    circle.keyframe_insert(data_path="hide_render", frame=int(start_frame))

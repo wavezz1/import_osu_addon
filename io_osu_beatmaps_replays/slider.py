@@ -9,16 +9,16 @@ from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
 
-
 class SliderCreator:
     def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, slider_balls_collection, settings: dict,
-                 data_manager: OsuReplayDataManager):
+                 data_manager: OsuReplayDataManager, import_type):
         self.hitobject = hitobject
         self.global_index = global_index
         self.sliders_collection = sliders_collection
         self.slider_balls_collection = slider_balls_collection
         self.settings = settings
         self.data_manager = data_manager
+        self.import_type = import_type
         self.create_slider()
 
     def create_slider(self):
@@ -115,8 +115,12 @@ class SliderCreator:
                 for i, point in enumerate(all_points):
                     spline.points[i].co = (point.x, point.y, point.z, 1)
 
-                slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",
-                                              curve_data)
+                if self.import_type == 'FULL':
+                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
+                elif self.import_type == 'BASE':
+                    mesh = bpy.data.meshes.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve")
+                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", mesh)
+                    slider.location = (0, 0, 0)  # Position anpassen falls nötig
 
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
@@ -133,51 +137,111 @@ class SliderCreator:
                             col.objects.unlink(slider)
 
                 create_geometry_nodes_modifier(slider, "slider")
-                # Define keyframe values
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True),
-                        (int(end_frame - 1), True),
-                        (int(end_frame), False)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ],
-                    "was_completed": [
-                        (int(end_frame - 1), False),
-                        (int(end_frame), self.hitobject.was_completed)
-                    ],
-                }
 
-                # Define fixed values
-                fixed_values = {
-                    "ar": approach_rate,
-                    "cs": osu_radius * SCALE_FACTOR,
-                    "slider_duration_ms": slider_duration_ms,
-                    "slider_duration_frames": slider_duration_frames,
-                    "repeat_count": repeat_count,
-                    "pixel_length": pixel_length
-                }
+                if self.import_type == 'BASE':
+                    frame_values = {
+                        "show": [
+                            (int(early_start_frame - 1), False),
+                            (int(early_start_frame), True),
+                            (int(end_frame - 1), True),
+                            (int(end_frame), False)
+                        ],
+                        "was_hit": [
+                            (int(start_frame - 1), False),
+                            (int(start_frame), self.hitobject.was_hit)
+                        ],
+                        "was_completed": [
+                            (int(end_frame - 1), False),
+                            (int(end_frame), self.hitobject.was_completed)
+                        ],
+                    }
 
-                # Set modifier inputs with keyframes
-                set_modifier_inputs_with_keyframes(slider, {
-                    "show": 'BOOLEAN',
-                    "slider_duration_ms": 'FLOAT',
-                    "slider_duration_frames": 'FLOAT',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN',
-                    "repeat_count": 'INT',
-                    "pixel_length": 'FLOAT',
-                }, frame_values, fixed_values)
+                    fixed_values = {
+                        "ar": approach_rate,
+                        "cs": osu_radius * SCALE_FACTOR,
+                        "slider_duration_ms": slider_duration_ms,
+                        "slider_duration_frames": slider_duration_frames,
+                        "repeat_count": repeat_count,
+                        "pixel_length": pixel_length
+                    }
 
-                if self.settings.get('import_slider_balls', False):
+                    set_modifier_inputs_with_keyframes(slider, {
+                        "show": 'BOOLEAN',
+                        "slider_duration_ms": 'FLOAT',
+                        "slider_duration_frames": 'FLOAT',
+                        "ar": 'FLOAT',
+                        "cs": 'FLOAT',
+                        "was_hit": 'BOOLEAN',
+                        "was_completed": 'BOOLEAN',
+                        "repeat_count": 'INT',
+                        "pixel_length": 'FLOAT',
+                    }, frame_values, fixed_values)
+
+                elif self.import_type == 'FULL':
+                    frame_values = {
+                        "show": [
+                            (int(early_start_frame - 1), False),
+                            (int(early_start_frame), True),
+                            (int(end_frame - 1), True),
+                            (int(end_frame), False)
+                        ],
+                        "was_hit": [
+                            (int(start_frame - 1), False),
+                            (int(start_frame), self.hitobject.was_hit)
+                        ],
+                        "was_completed": [
+                            (int(end_frame - 1), False),
+                            (int(end_frame), self.hitobject.was_completed)
+                        ],
+                    }
+
+                    fixed_values = {
+                        "ar": approach_rate,
+                        "cs": osu_radius * SCALE_FACTOR,
+                        "slider_duration_ms": slider_duration_ms,
+                        "slider_duration_frames": slider_duration_frames,
+                        "repeat_count": repeat_count,
+                        "pixel_length": pixel_length
+                    }
+
+                    set_modifier_inputs_with_keyframes(slider, {
+                        "show": 'BOOLEAN',
+                        "slider_duration_ms": 'FLOAT',
+                        "slider_duration_frames": 'FLOAT',
+                        "ar": 'FLOAT',
+                        "cs": 'FLOAT',
+                        "was_hit": 'BOOLEAN',
+                        "was_completed": 'BOOLEAN',
+                        "repeat_count": 'INT',
+                        "pixel_length": 'FLOAT',
+                    }, frame_values, fixed_values)
+
+                    # Set visibility keyframes
+                    slider.hide_viewport = True
+                    slider.hide_render = True
+                    slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                    slider.hide_viewport = False
+                    slider.hide_render = False
+                    slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+                    slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
+                    if self.hitobject.was_hit:
+                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
+                        slider.hide_viewport = False
+                        slider.hide_render = False
+                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
+                        slider.keyframe_insert(data_path="hide_render", frame=int(start_frame))
+                    else:
+                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
+                        slider.hide_viewport = True
+                        slider.hide_render = True
+                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
+                        slider.keyframe_insert(data_path="hide_render", frame=int(start_frame))
+
+                if self.settings.get('import_slider_balls', False) and self.import_type == 'BASE':
                     slider_duration_frames = slider["slider_duration_frames"]
                     self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
-                if self.settings.get('import_slider_ticks', False):
+                if self.settings.get('import_slider_ticks', False) and self.import_type == 'BASE':
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
     def evaluate_bezier_curve(self, control_points, num_points=None):

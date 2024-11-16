@@ -42,6 +42,7 @@ def main_execution(context):
         'import_slider_balls': props.import_slider_balls,
         'import_slider_ticks': props.import_slider_ticks,
         'slider_resolution': props.slider_resolution,  # Added this line
+        'import_type': props.import_type  # Added import_type
     }
 
     with timeit("Hitobjects Importieren"):

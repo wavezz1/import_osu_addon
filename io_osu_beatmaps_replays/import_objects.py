@@ -17,21 +17,26 @@ def import_hitobjects(data_manager, settings, props):
 
         global_index = 1
 
+        import_type = settings.get('import_type', 'FULL')
+
         if props.import_circles:
             for hitobject in data_manager.hitobjects_processor.circles:
-                CircleCreator(hitobject, global_index, circles_collection, settings, data_manager)
+                CircleCreator(hitobject, global_index, circles_collection, settings, data_manager, import_type)
                 global_index += 1
 
         if props.import_sliders:
             for hitobject in data_manager.hitobjects_processor.sliders:
-                SliderCreator(hitobject, global_index, sliders_collection, slider_balls_collection, settings, data_manager)
+                SliderCreator(hitobject, global_index, sliders_collection, slider_balls_collection, settings, data_manager, import_type)
                 global_index += 1
 
         if props.import_spinners:
             for hitobject in data_manager.hitobjects_processor.spinners:
-                SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager)
+                SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager, import_type)
                 global_index += 1
 
-        if props.import_cursors:
-            cursor_creator = CursorCreator(cursor_collection, settings, data_manager)
+        if props.import_cursors and import_type == 'BASE':
+            cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
             cursor_creator.animate_cursor()
+        elif props.import_cursors and import_type == 'FULL':
+            cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
+            cursor_creator.animate_cursor_full()

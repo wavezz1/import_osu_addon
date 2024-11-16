@@ -1,5 +1,3 @@
-# ui.py
-
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
@@ -180,6 +178,10 @@ class OSU_PT_ImporterPanel(Panel):
         col.separator()
         col.label(text="Audio Options:", icon='SPEAKER')
         col.prop(props, "import_audio")
+
+        # Delete Button
+        layout.separator()
+        layout.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
         # Beatmap Information
         if props.bpm != 0.0:

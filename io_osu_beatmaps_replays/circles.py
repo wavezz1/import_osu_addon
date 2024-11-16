@@ -49,9 +49,16 @@ class CircleCreator:
                 circle = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{time_ms}")
+
+                # Füge den Vertex direkt in den Mesh-Daten hinzu
+                mesh.vertices.add(1)  # Einen Vertex hinzufügen
+                mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+
+                # Erstelle das Objekt und setze die Position
                 circle = bpy.data.objects.new(f"{self.global_index:03d}_circle_{time_ms}", mesh)
                 circle.location = (corrected_x, corrected_y, corrected_z)
-                # Set Viewport Display to Bounds and Display Type to Sphere
+
+                # Setze Viewport Display auf Bounds und Sphere
                 circle.display_type = 'BOUNDS'
                 circle.display_bounds_type = 'SPHERE'
 

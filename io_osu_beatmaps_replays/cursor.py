@@ -22,7 +22,16 @@ class CursorCreator:
                 cursor = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
+
+                # Füge den Vertex direkt in den Mesh-Daten hinzu
+                mesh.vertices.add(1)
+                mesh.vertices[0].co = (0, 0, 0)
+
+                # Erstelle das Objekt und setze die Position
                 cursor = bpy.data.objects.new("Cursor", mesh)
+                cursor.location = (0, 0, 0)
+
+                # Setze Viewport Display auf Bounds und Sphere
                 cursor.display_type = 'BOUNDS'
                 cursor.display_bounds_type = 'SPHERE'
 

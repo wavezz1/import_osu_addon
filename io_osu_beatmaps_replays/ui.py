@@ -2,7 +2,7 @@
 
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
-from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
+from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
 
 
 class OSUImporterProperties(PropertyGroup):
@@ -18,6 +18,16 @@ class OSUImporterProperties(PropertyGroup):
         description="Path to the .osr replay file",
         default="",
         subtype='FILE_PATH'
+    )
+    # Import Type
+    import_type: EnumProperty(
+        name="Import Type",
+        description="Choose the import type",
+        items=[
+            ('BASE', "Base Map/Replay", "Import empty meshes with Geometry Nodes"),
+            ('FULL', "Full Map", "Import full meshes with visibility keyframes")
+        ],
+        default='BASE'
     )
     # Import Options
     import_circles: BoolProperty(
@@ -44,7 +54,7 @@ class OSUImporterProperties(PropertyGroup):
     import_slider_balls: BoolProperty(
         name="Slider Balls",
         description="Import slider balls",
-        default=False
+        default=True
     )
     slider_resolution: IntProperty(
         name="Slider Resolution",
@@ -132,7 +142,6 @@ class OSUImporterProperties(PropertyGroup):
         default=0
     )
 
-
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
     bl_idname = "OSU_PT_importer_panel"
@@ -154,6 +163,9 @@ class OSU_PT_ImporterPanel(Panel):
         # Import Options
         box = layout.box()
         box.label(text="Import Options", icon='IMPORT')
+
+        # Import Type Selection
+        box.prop(props, "import_type")
 
         # Hit Objects Import Options
         col = box.column(align=True)
@@ -180,6 +192,10 @@ class OSU_PT_ImporterPanel(Panel):
         col.separator()
         col.label(text="Audio Options:", icon='SPEAKER')
         col.prop(props, "import_audio")
+
+        # Delete Button
+        layout.separator()
+        layout.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
         # Beatmap Information
         if props.bpm != 0.0:
@@ -209,7 +225,6 @@ class OSU_PT_ImporterPanel(Panel):
             col.label(text=f"Misses: {props.misses}")
             col.label(text=f"Max Combo: {props.max_combo}")
             col.label(text=f"Total Score: {props.total_score}")
-
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

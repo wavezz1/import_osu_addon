@@ -1,40 +1,70 @@
 import bpy
+from .utils import timeit
 
 node_groups = {}
 
 def setup_geometry_node_trees():
     global node_groups
-    if not node_groups:
-        node_groups = {
-            "circle": create_geometry_nodes_tree("Geometry Nodes Circle", {
-                "show": 'BOOLEAN',
-                "was_hit": 'BOOLEAN',
-                "ar": 'FLOAT',
-                "cs": 'FLOAT'
-            }),
-            "slider": create_geometry_nodes_tree("Geometry Nodes Slider", {
-                "show": 'BOOLEAN',
-                "slider_duration": 'FLOAT',
-                "slider_duration_frames": 'FLOAT',
-                "ar": 'FLOAT',
-                "cs": 'FLOAT',
-                "was_hit": 'BOOLEAN',
-                "was_completed": 'BOOLEAN'
-            }),
-            "spinner": create_geometry_nodes_tree("Geometry Nodes Spinner", {
-                "show": 'BOOLEAN',
-                "spinner_duration_ms": 'FLOAT',
-                "spinner_duration_frames": 'FLOAT',
-                "was_hit": 'BOOLEAN',
-                "was_completed": 'BOOLEAN'
-            }),
-            "cursor": create_geometry_nodes_tree("Geometry Nodes Cursor", {
-                "k1": 'BOOLEAN',
-                "k2": 'BOOLEAN',
-                "m1": 'BOOLEAN',
-                "m2": 'BOOLEAN'
-            })
+    with timeit("Einrichten der Geometry Node Trees"):
+        node_definitions = {
+            "circle": {
+                "name": "Geometry Nodes Circle",
+                "attributes": {
+                    "show": 'BOOLEAN',
+                    "was_hit": 'BOOLEAN',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT'
+                }
+            },
+            "slider": {
+                "name": "Geometry Nodes Slider",
+                "attributes": {
+                    "show": 'BOOLEAN',
+                    "slider_duration_ms": 'FLOAT',
+                    "slider_duration_frames": 'FLOAT',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN',
+                    "repeat_count": 'INT',
+                    "pixel_length": 'FLOAT',
+                }
+            },
+            "spinner": {
+                "name": "Geometry Nodes Spinner",
+                "attributes": {
+                    "show": 'BOOLEAN',
+                    "spinner_duration_ms": 'FLOAT',
+                    "spinner_duration_frames": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN'
+                }
+            },
+            "cursor": {
+                "name": "Geometry Nodes Cursor",
+                "attributes": {
+                    "k1": 'BOOLEAN',
+                    "k2": 'BOOLEAN',
+                    "m1": 'BOOLEAN',
+                    "m2": 'BOOLEAN'
+                }
+            },
+            "slider_ball": {
+                "name": "Geometry Nodes Slider Ball",
+                "attributes": {
+                    "show": 'BOOLEAN'
+                }
+            },
         }
+
+        for key, node_def in node_definitions.items():
+            name = node_def["name"]
+            attributes = node_def["attributes"]
+            if name not in bpy.data.node_groups:
+                node_groups[key] = create_geometry_nodes_tree(name, attributes)
+            else:
+                node_groups[key] = bpy.data.node_groups[name]
+
 
 def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:
@@ -44,8 +74,10 @@ def create_geometry_nodes_tree(name, attributes):
     setup_node_group_interface(group, attributes)
     return group
 
+
 def setup_node_group_interface(group, attributes):
     x_offset = 200
+
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
@@ -78,6 +110,7 @@ def setup_node_group_interface(group, attributes):
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
+
 def create_geometry_nodes_modifier(obj, obj_type):
     setup_geometry_node_trees()
 
@@ -91,84 +124,40 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
-def connect_attributes_with_drivers(obj, attributes):
+
+def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values=None):
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
+        print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
-    socket_mapping = {
-        "circle": {
-            "ar": "Socket_4",
-            "cs": "Socket_5",
-            "show": "Socket_2",
-            "was_hit": "Socket_3"
-        },
-        "slider": {
-            "ar": "Socket_5",
-            "cs": "Socket_6",
-            "show": "Socket_2",
-            "slider_duration_frames": "Socket_4",
-            "slider_duration_ms": "Socket_3",
-            "was_completed": "Socket_8",
-            "was_hit": "Socket_7"
-        },
-        "spinner": {
-            "show": "Socket_2",
-            "spinner_duration_frames": "Socket_4",
-            "spinner_duration_ms": "Socket_3",
-            "was_completed": "Socket_6",
-            "was_hit": "Socket_5"
-        }
-    }
+    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+        socket_index = i + 2
+        socket_count = f"Socket_{socket_index}"
 
-    if "circle" in obj.name.lower():
-        sockets = socket_mapping["circle"]
-    elif "slider" in obj.name.lower():
-        sockets = socket_mapping["slider"]
-    elif "spinner" in obj.name.lower():
-        sockets = socket_mapping["spinner"]
-    else:
-        print(f"Unrecognized object type for {obj.name}. Skipping driver setup.")
-        return
-
-    for attr_name, socket_name in sockets.items():
-        if attr_name not in obj:
-            continue
-
-        try:
-            driver = modifier.driver_add(f'["{socket_name}"]').driver
-            driver.type = 'AVERAGE'
-            var = driver.variables.new()
-            var.name = 'var'
-            var.targets[0].id_type = 'OBJECT'
-            var.targets[0].id = obj
-            var.targets[0].data_path = f'["{attr_name}"]'
-        except Exception as e:
-            print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
-
-def connect_cursor_attributes_with_drivers(cursor):
-    modifier = cursor.modifiers.get("GeometryNodes")
-    if not modifier:
-        return
-
-    socket_mapping = {
-        "k1": "Socket_2",
-        "k2": "Socket_3",
-        "m1": "Socket_4",
-        "m2": "Socket_5"
-    }
-
-    for attr_name, socket_name in socket_mapping.items():
-        if attr_name not in cursor:
-            continue
-
-        try:
-            driver = modifier.driver_add(f'["{socket_name}"]').driver
-            driver.type = 'AVERAGE'
-            var = driver.variables.new()
-            var.name = 'var'
-            var.targets[0].id_type = 'OBJECT'
-            var.targets[0].id = cursor
-            var.targets[0].data_path = f'["{attr_name}"]'
-        except Exception as e:
-            print(f"Could not set driver for {attr_name} on {socket_name}: {e}")
+        if attr_name in frame_values:
+            for frame, value in frame_values[attr_name]:
+                try:
+                    if attr_type == 'BOOLEAN':
+                        modifier[socket_count] = bool(value)
+                    elif attr_type == 'FLOAT':
+                        modifier[socket_count] = float(value)
+                    elif attr_type == 'INT':
+                        modifier[socket_count] = int(value)
+                    modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
+                except Exception as e:
+                    print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
+        elif fixed_values and attr_name in fixed_values:
+            try:
+                value = fixed_values[attr_name]
+                if attr_type == 'BOOLEAN':
+                    modifier[socket_count] = bool(value)
+                elif attr_type == 'FLOAT':
+                    modifier[socket_count] = float(value)
+                elif attr_type == 'INT':
+                    modifier[socket_count] = int(value)
+                print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
+            except Exception as e:
+                print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
+        else:
+            print(f"No values provided for attribute '{attr_name}'. Skipping.")

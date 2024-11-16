@@ -118,12 +118,7 @@ class SliderCreator:
                 if self.import_type == 'FULL':
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
                 elif self.import_type == 'BASE':
-                    curve_data = bpy.data.curves.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",
-                                                     'CURVE')
-                    curve_data.dimensions = '3D'
-                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",
-                                                  curve_data)
-                    slider.location = (0, 0, 0)
+                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",curve_data)
 
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR

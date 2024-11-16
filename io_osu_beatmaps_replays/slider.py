@@ -454,6 +454,35 @@ class SliderCreator:
         # Füge den Slider Ball zur entsprechenden Collection hinzu
         self.slider_balls_collection.objects.link(slider_ball)
 
+        # Füge Sichtbarkeits-Keyframes hinzu, nur für FULL Import
+        if self.import_type == 'FULL':
+            # Berechnung der frühen Startframe und Endframe, ähnlich wie bei den Slidern
+            early_start_frame = start_frame - (slider_duration_frames / speed_multiplier)
+            end_frame = start_frame + slider_duration_frames
+
+            # Initial verstecken
+            slider_ball.hide_viewport = True
+            slider_ball.hide_render = True
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
+            # Sichtbar ab early_start_frame
+            slider_ball.hide_viewport = False
+            slider_ball.hide_render = False
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
+            # Sichtbar bis end_frame
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+
+            # Verstecken nach end_frame
+            slider_ball.hide_viewport = True
+            slider_ball.hide_render = True
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+
+
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         tick_interval_ms = 100
         total_ticks = int(slider_duration_ms / tick_interval_ms) * repeat_count

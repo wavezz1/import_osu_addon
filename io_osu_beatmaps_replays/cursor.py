@@ -27,13 +27,11 @@ class CursorCreator:
                 mesh.vertices.add(1)
                 mesh.vertices[0].co = (0, 0, 0)
 
+                mesh.use_auto_texspace = True
+
                 # Erstelle das Objekt und setze die Position
                 cursor = bpy.data.objects.new("Cursor", mesh)
                 cursor.location = (0, 0, 0)
-
-                # Setze Viewport Display auf Bounds und Sphere
-                cursor.display_type = 'BOUNDS'
-                cursor.display_bounds_type = 'SPHERE'
 
             cursor.name = "Cursor"
 

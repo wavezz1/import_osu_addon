@@ -285,34 +285,12 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Berechnung der Slider-Geschwindigkeit basierend auf Timing Points
-        timing_points = self.data_manager.beatmap_info["timing_points"]
-        slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
-        start_time_ms = self.hitobject.time
-
-        inherited_multiplier = 1.0
-        base_beat_length = 500  # Standardwert, falls keine Timing Points definiert sind
-        current_beat_length = base_beat_length
-
-        # Finde die passenden Timing Points für den Slider
-        for offset, beat_length in timing_points:
-            if start_time_ms >= offset:
-                if beat_length < 0:  # Inherited Timing Point
-                    inherited_multiplier = -100 / beat_length
-                else:  # Base Timing Point
-                    current_beat_length = beat_length
-            else:
-                break
-
-        # Berechne die effektive Geschwindigkeit
-        effective_speed = slider_multiplier * inherited_multiplier
-        adjusted_duration_frames = slider_duration_frames / effective_speed
-
+        # Nutze die bereits berechnete Sliderdauer
         slider.data.use_path = True
-        slider.data.path_duration = int(adjusted_duration_frames)
+        slider.data.path_duration = int(slider_duration_frames)
 
         # Berechnung der Repeats
-        repeat_duration_frames = adjusted_duration_frames / repeat_count if repeat_count > 0 else adjusted_duration_frames
+        repeat_duration_frames = slider_duration_frames / repeat_count if repeat_count > 0 else slider_duration_frames
 
         for repeat in range(repeat_count):
             repeat_start_frame = start_frame + repeat * repeat_duration_frames

@@ -64,7 +64,7 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
    - Enable/disable cursor animation and audio import.
 4. Click **Import** and enjoy!
 
-## General Geometry Nodes Setup (TBD for 0.8)
+## General Geometry Nodes Setup (Blender 4.2)
 ##### General Overview:
 ![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
 

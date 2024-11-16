@@ -132,6 +132,6 @@ This addon utilizes [`osrparse`](https://github.com/kszlim/osu-replay-parser) by
 
 ## Ending Words
 
-I only have basic Python knowledge, so please don’t murder me over bad code. Any help to make this work correctly is highly appreciated. Feel free to do whatever you want with the code.
+I only have basic Python knowledge, so please don’t murder me over bad code. Any help to make this work correctly is highly appreciated.
 
 At the end of the day, getting osu! replays and beatmaps into Blender for dynamic 3D replays would be really cool, right?

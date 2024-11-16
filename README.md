@@ -108,6 +108,21 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 3. **Performance**: High slider resolution can impact performance with complex beatmaps.
 4. **Slider Ticks**: Slider ticks are not calculated and implemented correctly at the moment.
 
+## Roadmap
+
+### 1.0 Release Goals
+The 1.0 release will include all **basic functionalities** required for importing osu! beatmaps and replays into Blender:
+- Full support for hitobjects (circles, sliders, spinners, slider balls, approach circles).
+- Replay cursor animations.
+- Integration of Geometry Nodes for customization.
+- Accurate synchronization of audio and replay data.
+- Detect flipped maps/cursor.
+- Crash fixes.
+- Fully optimized import and timeline playback.
+
+### Post-1.0 Features
+- **Full Skin Import Support**: Import all visual elements from osu! skins, including custom slider balls, hitcircle overlays, and spinner graphics.
+
 ## Support
 
 Feel free to report issues or contribute via the [GitHub repository](https://github.com/wavezz1/import_osu_addon/issues).

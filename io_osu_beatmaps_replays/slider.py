@@ -528,7 +528,7 @@ class SliderCreator:
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
             self.slider_balls_collection.objects.link(slider_ball)
-            bpy.context.collection.objects.unlink(slider_ball)
+            #bpy.context.collection.objects.unlink(slider_ball)
 
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         tick_interval_ms = 100

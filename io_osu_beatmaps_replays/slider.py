@@ -307,7 +307,12 @@ class SliderCreator:
                 follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor",
+
                                             frame=repeat_start_frame + repeat_duration_frames)
+            # Setze die Keyframe-Interpolation auf Linear
+            for fcurve in slider_ball.animation_data.action.fcurves:
+                for keyframe in fcurve.keyframe_points:
+                    keyframe.interpolation = 'LINEAR'
 
         self.slider_balls_collection.objects.link(slider_ball)
         bpy.context.collection.objects.unlink(slider_ball)

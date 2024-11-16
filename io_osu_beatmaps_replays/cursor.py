@@ -108,7 +108,7 @@ class CursorCreator:
                     "k2": 'BOOLEAN',
                     "m1": 'BOOLEAN',
                     "m2": 'BOOLEAN'
-                }, frame_values)
+                }, frame_values, fixed_values=None)
 
                 # Set location keyframe
                 self.cursor.keyframe_insert(data_path='location', frame=frame)

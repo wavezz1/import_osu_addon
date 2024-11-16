@@ -27,7 +27,7 @@ class OSUImporterProperties(PropertyGroup):
             ('BASE', "Base Map/Replay", "Import empty meshes with Geometry Nodes"),
             ('FULL', "Full Map", "Import full meshes with visibility keyframes")
         ],
-        default='FULL'
+        default='BASE'
     )
     # Import Options
     import_circles: BoolProperty(
@@ -54,7 +54,7 @@ class OSUImporterProperties(PropertyGroup):
     import_slider_balls: BoolProperty(
         name="Slider Balls",
         description="Import slider balls",
-        default=False
+        default=True
     )
     slider_resolution: IntProperty(
         name="Slider Resolution",

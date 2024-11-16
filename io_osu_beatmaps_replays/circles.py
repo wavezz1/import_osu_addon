@@ -93,49 +93,73 @@ class CircleCreator:
                     "cs": 'FLOAT'
                 }, frame_values, fixed_values)
 
+
             elif self.import_type == 'FULL':
-                # Apply keyframes to viewport and render visibility
+
                 frame_values = {
+
                     "show": [
+
                         (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
+
+                        (int(early_start_frame), True),
+
+                        (int(start_frame + 1), False)  # Set visibility to False after click
+
                     ],
+
                     "was_hit": [
+
                         (int(start_frame - 1), False),
+
                         (int(start_frame), self.hitobject.was_hit)
+
                     ]
+
                 }
 
                 fixed_values = {
+
                     "ar": approach_rate,
+
                     "cs": osu_radius * SCALE_FACTOR
+
                 }
 
                 set_modifier_inputs_with_keyframes(circle, {
+
                     "show": 'BOOLEAN',
+
                     "was_hit": 'BOOLEAN',
+
                     "ar": 'FLOAT',
+
                     "cs": 'FLOAT'
+
                 }, frame_values, fixed_values)
 
                 # Set visibility keyframes
+
                 circle.hide_viewport = True
+
                 circle.hide_render = True
+
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+
                 circle.hide_viewport = False
+
                 circle.hide_render = False
+
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+
                 circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-                if self.hitobject.was_hit:
-                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
-                    circle.hide_viewport = False
-                    circle.hide_render = False
-                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
-                    circle.keyframe_insert(data_path="hide_render", frame=int(start_frame))
-                else:
-                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
-                    circle.hide_viewport = True
-                    circle.hide_render = True
-                    circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
-                    circle.keyframe_insert(data_path="hide_render", frame=int(start_frame))
+                # Hide after click
+
+                circle.hide_viewport = True
+
+                circle.hide_render = True
+
+                circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame + 1))
+
+                circle.keyframe_insert(data_path="hide_render", frame=int(start_frame + 1))

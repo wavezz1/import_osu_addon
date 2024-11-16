@@ -175,66 +175,104 @@ class SliderCreator:
                         "pixel_length": 'FLOAT',
                     }, frame_values, fixed_values)
 
+
                 elif self.import_type == 'FULL':
+
                     frame_values = {
+
                         "show": [
+
                             (int(early_start_frame - 1), False),
+
                             (int(early_start_frame), True),
+
                             (int(end_frame - 1), True),
-                            (int(end_frame), False)
+
+                            (int(end_frame), False)  # Set visibility to False after slider duration
+
                         ],
+
                         "was_hit": [
+
                             (int(start_frame - 1), False),
+
                             (int(start_frame), self.hitobject.was_hit)
+
                         ],
+
                         "was_completed": [
+
                             (int(end_frame - 1), False),
+
                             (int(end_frame), self.hitobject.was_completed)
-                        ],
+
+                        ]
+
                     }
 
                     fixed_values = {
+
                         "ar": approach_rate,
+
                         "cs": osu_radius * SCALE_FACTOR,
+
                         "slider_duration_ms": slider_duration_ms,
+
                         "slider_duration_frames": slider_duration_frames,
+
                         "repeat_count": repeat_count,
+
                         "pixel_length": pixel_length
+
                     }
 
                     set_modifier_inputs_with_keyframes(slider, {
+
                         "show": 'BOOLEAN',
+
                         "slider_duration_ms": 'FLOAT',
+
                         "slider_duration_frames": 'FLOAT',
+
                         "ar": 'FLOAT',
+
                         "cs": 'FLOAT',
+
                         "was_hit": 'BOOLEAN',
+
                         "was_completed": 'BOOLEAN',
+
                         "repeat_count": 'INT',
-                        "pixel_length": 'FLOAT',
+
+                        "pixel_length": 'FLOAT'
+
                     }, frame_values, fixed_values)
 
                     # Set visibility keyframes
+
                     slider.hide_viewport = True
+
                     slider.hide_render = True
+
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+
                     slider.hide_viewport = False
+
                     slider.hide_render = False
+
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+
                     slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-                    if self.hitobject.was_hit:
-                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
-                        slider.hide_viewport = False
-                        slider.hide_render = False
-                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
-                        slider.keyframe_insert(data_path="hide_render", frame=int(start_frame))
-                    else:
-                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
-                        slider.hide_viewport = True
-                        slider.hide_render = True
-                        slider.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
-                        slider.keyframe_insert(data_path="hide_render", frame=int(start_frame))
+                    # Hide after slider duration
+
+                    slider.hide_viewport = True
+
+                    slider.hide_render = True
+
+                    slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+
+                    slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False) and self.import_type == 'BASE':
                     slider_duration_frames = slider["slider_duration_frames"]

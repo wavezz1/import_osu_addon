@@ -285,7 +285,10 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Timing Points bereinigen und sortieren
+        # Hole den Speed-Multiplikator (für DT, HT, etc.)
+        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
+
+        # Bereinigung und Sortierung der Timing Points
         timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
 
         # Geschwindigkeit basierend auf Timing Points berechnen
@@ -306,15 +309,15 @@ class SliderCreator:
             else:
                 break
 
-        # Berechne die effektive Geschwindigkeit
+        # Berechne die effektive Geschwindigkeit und korrigiere mit dem Speed-Multiplikator
         effective_speed = slider_multiplier * inherited_multiplier
-        interpolated_duration_frames = slider_duration_frames / effective_speed
+        adjusted_duration_frames = (slider_duration_frames / effective_speed) / speed_multiplier
 
         slider.data.use_path = True
-        slider.data.path_duration = int(interpolated_duration_frames)
+        slider.data.path_duration = int(adjusted_duration_frames)
 
         # Berechnung der Repeats
-        repeat_duration_frames = interpolated_duration_frames / repeat_count if repeat_count > 0 else interpolated_duration_frames
+        repeat_duration_frames = adjusted_duration_frames / repeat_count if repeat_count > 0 else adjusted_duration_frames
 
         for repeat in range(repeat_count):
             repeat_start_frame = start_frame + repeat * repeat_duration_frames

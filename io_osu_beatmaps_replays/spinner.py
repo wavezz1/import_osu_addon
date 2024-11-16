@@ -41,15 +41,22 @@ class SpinnerCreator:
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 
             if self.import_type == 'FULL':
-                bpy.ops.mesh.primitive_cylinder_add(
-                    radius=1,
-                    depth=0.1,
+                bpy.ops.mesh.primitive_circle_add(
+                    fill_type='NGON',
+                    radius=4,
                     location=(corrected_x, corrected_y, corrected_z),
                     rotation=(math.radians(90), 0, 0)
                 )
                 spinner = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new(f"{self.global_index:03d}_spinner_{self.hitobject.time}")
+
+                # Füge den Vertex direkt in den Mesh-Daten hinzu
+                mesh.vertices.add(1)  # Einen Vertex hinzufügen
+                mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+
+                mesh.use_auto_texspace = True
+
                 spinner = bpy.data.objects.new(f"{self.global_index:03d}_spinner_{self.hitobject.time}", mesh)
                 spinner.location = (corrected_x, corrected_y, corrected_z)
 

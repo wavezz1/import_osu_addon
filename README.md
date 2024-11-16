@@ -77,7 +77,7 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 
 ##### Spinners:
 ![Spinner Geometry Nodes Setup](geo_setup/geo_nodes_setup_spinner.png)
-[Download Proof of Concept .blend](blendfile/%5Bblender_4.2%5Dosu_in_blender_proof_of_concept.blend)
+[Download Proof of Concept .blend (Blender 4.2](blendfile/%5Bblender_4.2%5Dosu_in_blender_proof_of_concept.blend)
 
 ## Attributes Overview
 

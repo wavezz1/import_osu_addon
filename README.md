@@ -8,8 +8,6 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 
 **CAUTION: Replays with the intro skipped are broken due to an issue in osrparse's latest versions. osrparse v6.0.2 is currently used**
 
----
-
 ## Features
 
 ### Hitobject Importing
@@ -44,8 +42,6 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 - Adjustable slider resolution to balance performance and smoothness.
 - Deletes imported data and associated resources with a single click.
 
----
-
 ## Installation
 
 ### Step 1: Install the Addon
@@ -58,8 +54,6 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 1. In the addon preferences, locate the **Install osrparse** button.
 2. Click the button to install `osrparse v6.0.2`. If a higher version is installed, it will be replaced.
 
----
-
 ## Usage
 
 1. Open the **osu! Importer** panel in the sidebar (`N` key).
@@ -69,8 +63,6 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
    - Adjust slider options (ticks, balls, resolution).
    - Enable/disable cursor animation and audio import.
 4. Click **Import** and enjoy!
-
----
 
 ## General Geometry Nodes Setup (TBD for 0.8)
 ![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
@@ -109,8 +101,6 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 ### Cursor
 - `k1`, `k2`, `m1`, `m2` (`Boolean`): Key press states.
 
----
-
 ## Known Issues
 
 1. **osrparse Limitations**: Skipped replay intros may result in broken animations.
@@ -118,13 +108,9 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 3. **Performance**: High slider resolution can impact performance with complex beatmaps.
 4. **Slider Ticks**: Slider ticks are not calculated and implemented correctly at the moment.
 
----
-
 ## Support
 
 Feel free to report issues or contribute via the [GitHub repository](https://github.com/wavezz1/import_osu_addon/issues).
-
----
 
 ## Credits
 

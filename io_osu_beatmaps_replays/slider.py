@@ -285,24 +285,31 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        total_duration_frames = slider_duration_frames * repeat_count
+        # Gesamtanzahl an Frames für alle Repeats
+        total_duration_frames = slider_duration_frames
+
         slider.data.use_path = True
         slider.data.path_duration = int(total_duration_frames)
 
-        for repeat in range(repeat_count):
-            repeat_start_frame = start_frame + repeat * slider_duration_frames
+        # Berechnung für die Repeats
+        repeat_duration_frames = slider_duration_frames / repeat_count if repeat_count > 0 else slider_duration_frames
+
+        for repeat in range(repeat_count + 1):  # +1, da ein Slider mit 0 Repeats 1 Bewegung hat
+            repeat_start_frame = start_frame + repeat * repeat_duration_frames
             if repeat % 2 == 0:
-                # forwards
+                # Vorwärts
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
                 follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame + slider_duration_frames)
+                follow_path.keyframe_insert(data_path="offset_factor",
+                                            frame=repeat_start_frame + repeat_duration_frames)
             else:
-                # backwards
+                # Rückwärts
                 follow_path.offset_factor = 1.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
                 follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame + slider_duration_frames)
+                follow_path.keyframe_insert(data_path="offset_factor",
+                                            frame=repeat_start_frame + repeat_duration_frames)
 
         self.slider_balls_collection.objects.link(slider_ball)
         bpy.context.collection.objects.unlink(slider_ball)

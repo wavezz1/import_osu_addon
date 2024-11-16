@@ -375,25 +375,17 @@ class SliderCreator:
 
     def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count):
         if self.import_type == 'BASE':
-            # Erstelle ein leeres Mesh mit einem Vertex
+            # Erstelle ein Mesh mit einem einzigen Vertex
             mesh = bpy.data.meshes.new(f"{slider.name}_ball")
             mesh.vertices.add(1)
-            mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+            mesh.vertices[0].co = (0, 0, 0)  # Vertex im Ursprung
             mesh.use_auto_texspace = True
 
-            # Erstelle das Objekt und setze die Position
+            # Erstelle das Objekt
             slider_ball = bpy.data.objects.new(f"{slider.name}_ball", mesh)
             slider_ball.location = slider.location
 
-            # Füge den Slider Ball zur entsprechenden Collection hinzu
-            self.slider_balls_collection.objects.link(slider_ball)
-
-        elif self.import_type == 'FULL':
-            # Standardlogik für den FULL-Import
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
-            slider_ball = bpy.context.object
-            slider_ball.name = f"{slider.name}_ball"
-
+            # Füge ein FOLLOW_PATH Constraint hinzu
             follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
             follow_path.target = slider
             follow_path.use_fixed_location = True
@@ -401,31 +393,23 @@ class SliderCreator:
             follow_path.forward_axis = 'FORWARD_Y'
             follow_path.up_axis = 'UP_Z'
 
-            # Hole den Speed-Multiplikator (für DT, HT, etc.)
+            # Berechnung der effektiven Geschwindigkeit und Dauer
             speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-
-            # Bereinigung und Sortierung der Timing Points
-            timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
-
-            # Geschwindigkeit basierend auf Timing Points berechnen
             slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
+            inherited_multiplier = 1.0
+
+            timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
             start_time_ms = self.hitobject.time
 
-            inherited_multiplier = 1.0
-            base_beat_length = 500  # Standardwert, falls keine Timing Points definiert sind
-            current_beat_length = base_beat_length
-
-            # Finde die relevanten Timing Points
+            # Bestimme Timing Points für den Slider
             for offset, beat_length in timing_points:
                 if start_time_ms >= offset:
                     if beat_length < 0:  # Inherited Timing Point
                         inherited_multiplier = -100 / beat_length
-                    else:  # Base Timing Point
-                        current_beat_length = beat_length
                 else:
                     break
 
-            # Berechne die effektive Geschwindigkeit und korrigiere mit dem Speed-Multiplikator
+            # Berechne effektive Geschwindigkeit
             effective_speed = slider_multiplier * inherited_multiplier
             adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
 
@@ -457,6 +441,91 @@ class SliderCreator:
                     for fcurve in slider_ball.animation_data.action.fcurves:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.interpolation = 'LINEAR'
+
+            # Füge den Slider Ball zur entsprechenden Collection hinzu
+            self.slider_balls_collection.objects.link(slider_ball)
+
+        elif self.import_type == 'FULL':
+            # Erstelle einen Slider Ball mit einer UV-Sphere
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
+            slider_ball = bpy.context.object
+            slider_ball.name = f"{slider.name}_ball"
+
+            follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
+            follow_path.target = slider
+            follow_path.use_fixed_location = True
+            follow_path.use_curve_follow = True
+            follow_path.forward_axis = 'FORWARD_Y'
+            follow_path.up_axis = 'UP_Z'
+
+            # Berechnung der effektiven Geschwindigkeit und Dauer
+            speed_multiplier = self.settings.get('speed_multiplier', 1.0)
+            slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
+            inherited_multiplier = 1.0
+
+            timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
+            start_time_ms = self.hitobject.time
+
+            # Bestimme Timing Points für den Slider
+            for offset, beat_length in timing_points:
+                if start_time_ms >= offset:
+                    if beat_length < 0:  # Inherited Timing Point
+                        inherited_multiplier = -100 / beat_length
+                else:
+                    break
+
+            # Berechne effektive Geschwindigkeit
+            effective_speed = slider_multiplier * inherited_multiplier
+            adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
+
+            slider.data.use_path = True
+            slider.data.path_duration = int(adjusted_duration_frames)
+
+            # Berechnung der Repeats
+            repeat_duration_frames = adjusted_duration_frames / repeat_count if repeat_count > 0 else adjusted_duration_frames
+
+            for repeat in range(repeat_count):
+                repeat_start_frame = start_frame + repeat * repeat_duration_frames
+                if repeat % 2 == 0:
+                    # Vorwärts
+                    follow_path.offset_factor = 0.0
+                    follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+                    follow_path.offset_factor = 1.0
+                    follow_path.keyframe_insert(data_path="offset_factor",
+                                                frame=repeat_start_frame + repeat_duration_frames)
+                else:
+                    # Rückwärts
+                    follow_path.offset_factor = 1.0
+                    follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+                    follow_path.offset_factor = 0.0
+                    follow_path.keyframe_insert(data_path="offset_factor",
+                                                frame=repeat_start_frame + repeat_duration_frames)
+
+                # Setze Keyframe-Interpolation auf LINEAR
+                if slider_ball.animation_data and slider_ball.animation_data.action:
+                    for fcurve in slider_ball.animation_data.action.fcurves:
+                        for keyframe in fcurve.keyframe_points:
+                            keyframe.interpolation = 'LINEAR'
+
+            # Sichtbarkeits-Keyframes (wie Slider-Kurve)
+            early_start_frame = start_frame - (slider_duration_frames / speed_multiplier)
+            end_frame = start_frame + slider_duration_frames
+
+            slider_ball.hide_viewport = True
+            slider_ball.hide_render = True
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
+            slider_ball.hide_viewport = False
+            slider_ball.hide_render = False
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+            slider_ball.hide_viewport = True
+            slider_ball.hide_render = True
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
             self.slider_balls_collection.objects.link(slider_ball)
             bpy.context.collection.objects.unlink(slider_ball)

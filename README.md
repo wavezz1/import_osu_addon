@@ -1,3 +1,4 @@
+![Logo](Logo%20v0.2_1280x640.png)
 # Blender Importer for osu! Beatmaps and Replays
 
 First and foremost, I don’t know what I’m doing, but I had a goal: importing [`osu!`](https://osu.ppy.sh/) beatmaps and replays into [`Blender`](https://www.blender.org/), ready for Geometry Nodes, so I can create some fancy simulation node setups.

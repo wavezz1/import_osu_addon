@@ -292,6 +292,15 @@ class SliderCreator:
         # Berechnung der Repeats
         repeat_duration_frames = slider_duration_frames / repeat_count if repeat_count > 0 else slider_duration_frames
 
+        # Finde Timing Points und entferne doppelte/überlappende
+        timing_points = self.data_manager.beatmap_info["timing_points"]
+        unique_timing_points = []
+        last_offset = -1
+        for offset, beat_length in sorted(timing_points, key=lambda tp: tp[0]):
+            if offset != last_offset:
+                unique_timing_points.append((offset, beat_length))
+                last_offset = offset
+
         for repeat in range(repeat_count):
             repeat_start_frame = start_frame + repeat * repeat_duration_frames
             if repeat % 2 == 0:
@@ -307,15 +316,20 @@ class SliderCreator:
                 follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor",
-
                                             frame=repeat_start_frame + repeat_duration_frames)
+
             # Setze die Keyframe-Interpolation auf Linear
-            for fcurve in slider_ball.animation_data.action.fcurves:
-                for keyframe in fcurve.keyframe_points:
-                    keyframe.interpolation = 'LINEAR'
+            if slider_ball.animation_data:
+                for fcurve in slider_ball.animation_data.action.fcurves:
+                    for keyframe in fcurve.keyframe_points:
+                        keyframe.interpolation = 'LINEAR'
 
         self.slider_balls_collection.objects.link(slider_ball)
         bpy.context.collection.objects.unlink(slider_ball)
+
+        # Debugging: Timing Points überprüfen
+        for i, (offset, beat_length) in enumerate(unique_timing_points):
+            print(f"Timing Point {i}: Offset={offset}, Beat Length={beat_length}")
 
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         tick_interval_ms = 100

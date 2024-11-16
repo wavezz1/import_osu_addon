@@ -51,6 +51,9 @@ class CircleCreator:
                 mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{time_ms}")
                 circle = bpy.data.objects.new(f"{self.global_index:03d}_circle_{time_ms}", mesh)
                 circle.location = (corrected_x, corrected_y, corrected_z)
+                # Set Viewport Display to Bounds and Display Type to Sphere
+                circle.display_type = 'BOUNDS'
+                circle.display_bounds_type = 'SPHERE'
 
             circle.name = f"{self.global_index:03d}_circle_{time_ms}"
 

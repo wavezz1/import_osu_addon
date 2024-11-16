@@ -23,7 +23,8 @@ class CursorCreator:
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
                 cursor = bpy.data.objects.new("Cursor", mesh)
-                cursor.location = (0, 0, 0)
+                cursor.display_type = 'BOUNDS'
+                cursor.display_bounds_type = 'SPHERE'
 
             cursor.name = "Cursor"
 

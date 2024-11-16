@@ -65,13 +65,13 @@ class CircleCreator:
                 "was_hit": [
                     (int(start_frame - 1), False),
                     (int(start_frame), self.hitobject.was_hit)
-                ],
-                "ar": [
-                    (int(start_frame), approach_rate)
-                ],
-                "cs": [
-                    (int(start_frame), osu_radius * SCALE_FACTOR)
                 ]
+            }
+
+            # Define fixed values
+            fixed_values = {
+                "ar": approach_rate,
+                "cs": osu_radius * SCALE_FACTOR
             }
 
             # Set modifier inputs with keyframes
@@ -80,4 +80,4 @@ class CircleCreator:
                 "was_hit": 'BOOLEAN',
                 "ar": 'FLOAT',
                 "cs": 'FLOAT'
-            }, frame_values)
+            }, frame_values, fixed_values)

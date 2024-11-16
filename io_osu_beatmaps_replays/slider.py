@@ -141,18 +141,6 @@ class SliderCreator:
                         (int(end_frame - 1), True),
                         (int(end_frame), False)
                     ],
-                    "slider_duration_ms": [
-                        (int(start_frame), slider_duration_ms)
-                    ],
-                    "slider_duration_frames": [
-                        (int(start_frame), slider_duration_frames)
-                    ],
-                    "ar": [
-                        (int(start_frame), approach_rate)
-                    ],
-                    "cs": [
-                        (int(start_frame), osu_radius * SCALE_FACTOR)
-                    ],
                     "was_hit": [
                         (int(start_frame - 1), False),
                         (int(start_frame), self.hitobject.was_hit)
@@ -161,12 +149,16 @@ class SliderCreator:
                         (int(end_frame - 1), False),
                         (int(end_frame), self.hitobject.was_completed)
                     ],
-                    "repeat_count": [
-                        (int(start_frame), repeat_count)
-                    ],
-                    "pixel_length": [
-                        (int(start_frame), pixel_length)
-                    ]
+                }
+
+                # Define fixed values
+                fixed_values = {
+                    "ar": approach_rate,
+                    "cs": osu_radius * SCALE_FACTOR,
+                    "slider_duration_ms": slider_duration_ms,
+                    "slider_duration_frames": slider_duration_frames,
+                    "repeat_count": repeat_count,
+                    "pixel_length": pixel_length
                 }
 
                 # Set modifier inputs with keyframes
@@ -180,7 +172,7 @@ class SliderCreator:
                     "was_completed": 'BOOLEAN',
                     "repeat_count": 'INT',
                     "pixel_length": 'FLOAT',
-                }, frame_values)
+                }, frame_values, fixed_values)
 
                 if self.settings.get('import_slider_balls', False):
                     slider_duration_frames = slider["slider_duration_frames"]

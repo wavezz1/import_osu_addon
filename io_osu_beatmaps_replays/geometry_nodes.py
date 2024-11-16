@@ -98,14 +98,15 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
-def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
+def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values=None):
     """
-    Set the modifier's inputs and insert keyframes only if needed, using socket_count.
-    Certain attributes are set directly with parsed values from attributes.
+    Set the modifier's inputs and insert keyframes only for attributes in frame_values.
+    Attributes not in frame_values are set to fixed_values if provided.
 
     :param obj: The Blender object.
-    :param attributes: Dict of attribute names and their parsed values.
+    :param attributes: Dict of attribute names and their types.
     :param frame_values: Dict of attribute names and list of (frame, value) tuples.
+    :param fixed_values: Optional dict of attribute names and fixed values.
     """
     # Liste von Attributen, die direkt ohne Keyframes gesetzt werden
     direct_values = {
@@ -119,38 +120,34 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values):
         return
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        # Socket Name anhand der Index-Logik
         socket_index = i + 2  # Socket_2 entspricht dem ersten Attribut
         socket_count = f"Socket_{socket_index}"
 
-        if attr_name in direct_values:  # Direkte Werte
-            try:
-                # Setze den geparsten Wert direkt
-                value = attributes.get(attr_name)
-                if value is not None:  # Wert muss vorhanden sein
+        if attr_name in frame_values:
+            # Setze Keyframes für dieses Attribut
+            for frame, value in frame_values[attr_name]:
+                try:
                     if attr_type == 'BOOLEAN':
                         modifier[socket_count] = bool(value)
                     elif attr_type == 'FLOAT':
                         modifier[socket_count] = float(value)
                     elif attr_type == 'INT':
                         modifier[socket_count] = int(value)
-                    print(f"Set direct value for '{attr_name}' on socket '{socket_count}' to {value}")
-                else:
-                    print(f"Warning: No value provided for direct attribute '{attr_name}'.")
-            except Exception as e:
-                print(f"Error setting direct value for attribute '{attr_name}' on socket '{socket_count}': {e}")
-        elif attr_name in frame_values:  # Animierte Werte
-            try:
-                for frame, value in frame_values[attr_name]:
-                    if attr_type == 'BOOLEAN':
-                        modifier[socket_count] = value
-                    elif attr_type == 'FLOAT':
-                        modifier[socket_count] = float(value)
-                    elif attr_type == 'INT':
-                        modifier[socket_count] = int(value)
                     modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
-                print(f"Set keyframes for '{attr_name}' on socket '{socket_count}'.")
+                except Exception as e:
+                    print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
+        elif fixed_values and attr_name in fixed_values:
+            # Setze festen Wert für dieses Attribut
+            try:
+                value = fixed_values[attr_name]
+                if attr_type == 'BOOLEAN':
+                    modifier[socket_count] = bool(value)
+                elif attr_type == 'FLOAT':
+                    modifier[socket_count] = float(value)
+                elif attr_type == 'INT':
+                    modifier[socket_count] = int(value)
+                print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
             except Exception as e:
-                print(f"Error setting keyframes for attribute '{attr_name}' on socket '{socket_count}': {e}")
+                print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
         else:
             print(f"No values provided for attribute '{attr_name}'. Skipping.")

@@ -63,12 +63,6 @@ class SpinnerCreator:
                 (int(early_start_frame - 1), False),
                 (int(early_start_frame), True)
             ],
-            "spinner_duration_ms": [
-                (int(start_frame), spinner_duration_ms)
-            ],
-            "spinner_duration_frames": [
-                (int(start_frame), spinner_duration_frames)
-            ],
             "was_hit": [
                 (int(start_frame - 1), False),
                 (int(start_frame), self.hitobject.was_hit)
@@ -79,6 +73,11 @@ class SpinnerCreator:
             ]
         }
 
+        fixed_values = {
+            "slider_duration_ms": spinner_duration_ms,
+            "slider_duration_frames": spinner_duration_frames
+        }
+
         # Set modifier inputs with keyframes
         set_modifier_inputs_with_keyframes(spinner, {
             "show": 'BOOLEAN',
@@ -86,4 +85,4 @@ class SpinnerCreator:
             "spinner_duration_frames": 'FLOAT',
             "was_hit": 'BOOLEAN',
             "was_completed": 'BOOLEAN'
-        }, frame_values)
+        }, frame_values, fixed_values)

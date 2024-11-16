@@ -275,10 +275,10 @@ class SliderCreator:
 
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
-                if self.settings.get('import_slider_balls', False) and self.import_type == 'BASE':
+                if self.settings.get('import_slider_balls', False):
                     slider_duration_frames = slider["slider_duration_frames"]
                     self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
-                if self.settings.get('import_slider_ticks', False) and self.import_type == 'BASE':
+                if self.settings.get('import_slider_ticks', False):
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
     def evaluate_bezier_curve(self, control_points, num_points=None):
@@ -378,24 +378,21 @@ class SliderCreator:
         if self.import_type == 'BASE':
             # Erstelle ein Mesh mit einem einzigen Vertex
             mesh = bpy.data.meshes.new(f"{slider.name}_ball")
-            mesh.from_pydata([(0, 0, 0)], [], [])
-            mesh.update()
+
+            mesh.vertices.add(1)  # Einen Vertex hinzufügen
+            mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+
+            mesh.use_auto_texspace = True
 
             # Erstelle das Objekt
             slider_ball = bpy.data.objects.new(f"{slider.name}_ball", mesh)
             slider_ball.location = slider.location
 
         elif self.import_type == 'FULL':
-            # Erstelle eine UV-Sphere programmgesteuert
-            mesh = bpy.data.meshes.new(f"{slider.name}_ball_mesh")
-            bm = bmesh.new()
-            bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=8, radius=0.1)
-            bm.to_mesh(mesh)
-            bm.free()
-
             # Erstelle das Objekt
-            slider_ball = bpy.data.objects.new(f"{slider.name}_ball", mesh)
-            slider_ball.location = slider.location
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
+            slider_ball = bpy.context.object
+            slider_ball.name = f"{slider.name}_ball"
 
         # Füge ein FOLLOW_PATH Constraint hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')

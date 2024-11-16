@@ -65,15 +65,16 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 4. Click **Import** and enjoy!
 
 ## General Geometry Nodes Setup (TBD for 0.8)
+##### General Overview:
 ![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
 
-##### Circle Hitobjects
+##### Circle Hitobjects:
 ![Circle Geometry Nodes Setup](geo_setup/geo_nodes_setup_circle.png)
 
-##### Sliders
+##### Sliders:
 ![Slider Geometry Nodes Setup](geo_setup/geo_nodes_setup_slider.png)
 
-##### Spinners
+##### Spinners:
 ![Spinner Geometry Nodes Setup](geo_setup/geo_nodes_setup_spinner.png)
 
 ## Attributes Overview

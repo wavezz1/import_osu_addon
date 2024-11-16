@@ -454,6 +454,12 @@ class SliderCreator:
         # Füge den Slider Ball zur entsprechenden Collection hinzu
         self.slider_balls_collection.objects.link(slider_ball)
 
+        # Entferne das Objekt aus der aktuellen Collection, falls nötig
+        if slider_ball.users_collection:
+            for col in slider_ball.users_collection:
+                if col != self.slider_balls_collection:
+                    col.objects.unlink(slider_ball)
+
         # Füge Sichtbarkeits-Keyframes hinzu, nur für FULL Import
         if self.import_type == 'FULL':
             # Berechnung der frühen Startframe und Endframe, ähnlich wie bei den Slidern

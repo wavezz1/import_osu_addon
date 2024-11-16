@@ -1,6 +1,5 @@
 import bpy
 
-
 class OSU_OT_Delete(bpy.types.Operator):
     bl_idname = "osu_importer.delete"
     bl_label = "Delete Imported Data"
@@ -11,8 +10,7 @@ class OSU_OT_Delete(bpy.types.Operator):
             # Remove all objects
             bpy.ops.object.select_all(action='DESELECT')
             for obj in bpy.data.objects:
-                if obj.name.startswith("Circle") or obj.name.startswith("Slider") or obj.name.startswith(
-                        "Spinner") or obj.name == "Cursor":
+                if obj.name.startswith("Circle") or obj.name.startswith("Slider") or obj.name.startswith("Spinner") or obj.name == "Cursor" or obj.name == "OsuAudioSpeaker":
                     obj.select_set(True)
                     bpy.data.objects.remove(obj, do_unlink=True)
 
@@ -27,7 +25,12 @@ class OSU_OT_Delete(bpy.types.Operator):
                 if gn_tree.name.startswith("Geometry Nodes"):
                     bpy.data.node_groups.remove(gn_tree)
 
-            self.report({'INFO'}, "All osu! data removed successfully.")
+            # Remove the audio data if present
+            for sound in bpy.data.sounds:
+                if sound.name.startswith("OsuAudioSpeaker"):
+                    bpy.data.sounds.remove(sound)
+
+            self.report({'INFO'}, "All osu! data removed successfully, including audio.")
             return {'FINISHED'}
 
         except Exception as e:

@@ -294,7 +294,7 @@ class SliderCreator:
         # Berechnung für die Repeats
         repeat_duration_frames = slider_duration_frames / repeat_count if repeat_count > 0 else slider_duration_frames
 
-        for repeat in range(repeat_count + 1):  # +1, da ein Slider mit 0 Repeats 1 Bewegung hat
+        for repeat in range(repeat_count):  # +1, da ein Slider mit 0 Repeats 1 Bewegung hat
             repeat_start_frame = start_frame + repeat * repeat_duration_frames
             if repeat % 2 == 0:
                 # Vorwärts

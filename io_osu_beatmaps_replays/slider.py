@@ -361,7 +361,9 @@ class SliderCreator:
             )
 
         elif self.import_type == 'FULL':
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
+            circle_size = self.data_manager.calculate_adjusted_cs()
+            osu_radius = (54.4 - 4.48 * circle_size) / 2
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=osu_radius * SCALE_FACTOR * 2, location=slider.location)
             slider_ball = bpy.context.object
             slider_ball.name = f"{slider.name}_ball"
 

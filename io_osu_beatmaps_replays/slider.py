@@ -157,7 +157,7 @@ class SliderCreator:
 
                     fixed_values = {
                         "ar": approach_rate,
-                        "cs": 1 + osu_radius * SCALE_FACTOR,
+                        "cs": osu_radius * SCALE_FACTOR,
                         "slider_duration_ms": slider_duration_ms,
                         "slider_duration_frames": slider_duration_frames,
                         "repeat_count": repeat_count,

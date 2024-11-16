@@ -85,7 +85,7 @@ class CircleCreator:
 
                 fixed_values = {
                     "ar": approach_rate,
-                    "cs": 1 + osu_radius * SCALE_FACTOR
+                    "cs": osu_radius * SCALE_FACTOR * 2
                 }
 
                 set_modifier_inputs_with_keyframes(circle, {

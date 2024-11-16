@@ -69,7 +69,7 @@ def evaluate_curve_at_t(curve_object, t):
             p2 = bp1.handle_left.xyz
             p3 = bp1.co.xyz
 
-            segment_samples = 10  # Adjust for accuracy
+            segment_samples = 10
             for j in range(segment_samples):
                 s = j / segment_samples
                 point = mathutils.geometry.interpolate_bezier(p0, p1, p2, p3, s)

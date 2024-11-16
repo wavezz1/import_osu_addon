@@ -23,26 +23,21 @@ class CursorCreator:
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
 
-                # Füge den Vertex direkt in den Mesh-Daten hinzu
                 mesh.vertices.add(1)
                 mesh.vertices[0].co = (0, 0, 0)
 
                 mesh.use_auto_texspace = True
 
-                # Erstelle das Objekt und setze die Position
                 cursor = bpy.data.objects.new("Cursor", mesh)
                 cursor.location = (0, 0, 0)
 
             cursor.name = "Cursor"
 
-            # Add Geometry Nodes modifier
             create_geometry_nodes_modifier(cursor, "cursor")
 
-            # Define initial keyframe values (optional)
             frame_values = {
                 "k1": [
                     (1, False),
-                    # Weitere Keyframes werden in animate_cursor gesetzt
                 ],
                 "k2": [
                     (1, False),
@@ -55,7 +50,6 @@ class CursorCreator:
                 ]
             }
 
-            # Set initial modifier inputs with keyframes
             set_modifier_inputs_with_keyframes(cursor, {
                 "k1": 'BOOLEAN',
                 "k2": 'BOOLEAN',
@@ -93,7 +87,7 @@ class CursorCreator:
             for i, event in enumerate(replay_data):
                 total_time += event.time_delta
                 if event.x == -256 and event.y == -256:
-                    continue  # Ignoriere spezielle Cursor-Events, falls vorhanden
+                    continue
 
                 corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
                 self.cursor.location = (corrected_x, corrected_y, corrected_z)
@@ -101,7 +95,6 @@ class CursorCreator:
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
 
-                # Define keyframe values for cursor attributes
                 frame_values = {
                     "k1": [
                         (int(frame), bool(key_presses[i]['k1']))
@@ -117,7 +110,6 @@ class CursorCreator:
                     ]
                 }
 
-                # Set modifier inputs with keyframes
                 set_modifier_inputs_with_keyframes(self.cursor, {
                     "k1": 'BOOLEAN',
                     "k2": 'BOOLEAN',
@@ -125,7 +117,6 @@ class CursorCreator:
                     "m2": 'BOOLEAN'
                 }, frame_values, fixed_values=None)
 
-                # Set location keyframe
                 self.cursor.keyframe_insert(data_path='location', frame=frame)
 
             print(f"Cursor '{self.cursor.name}' animated successfully.")
@@ -149,7 +140,7 @@ class CursorCreator:
             for i, event in enumerate(replay_data):
                 total_time += event.time_delta
                 if event.x == -256 and event.y == -256:
-                    continue  # Ignoriere spezielle Cursor-Events, falls vorhanden
+                    continue
 
                 corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
                 self.cursor.location = (corrected_x, corrected_y, corrected_z)
@@ -157,7 +148,6 @@ class CursorCreator:
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
 
-                # Define keyframe values for cursor attributes
                 frame_values = {
                     "k1": [
                         (int(frame), bool(key_presses[i]['k1']))
@@ -173,7 +163,6 @@ class CursorCreator:
                     ]
                 }
 
-                # Set modifier inputs with keyframes
                 set_modifier_inputs_with_keyframes(self.cursor, {
                     "k1": 'BOOLEAN',
                     "k2": 'BOOLEAN',
@@ -181,12 +170,7 @@ class CursorCreator:
                     "m2": 'BOOLEAN'
                 }, frame_values, fixed_values=None)
 
-                # Set location keyframe
                 self.cursor.keyframe_insert(data_path='location', frame=frame)
-
-                # Optionally, handle visibility keyframes if needed for FULL import
-                # For example, show cursor only during active frames
-                # This can be customized based on specific requirements
 
             print(f"Cursor '{self.cursor.name}' animated successfully.")
         except Exception as e:

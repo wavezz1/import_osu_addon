@@ -50,13 +50,11 @@ class CircleCreator:
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{time_ms}")
 
-                # Füge den Vertex direkt in den Mesh-Daten hinzu
-                mesh.vertices.add(1)  # Einen Vertex hinzufügen
-                mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+                mesh.vertices.add(1)
+                mesh.vertices[0].co = (0, 0, 0)
 
                 mesh.use_auto_texspace = True
 
-                # Erstelle das Objekt und setze die Position
                 circle = bpy.data.objects.new(f"{self.global_index:03d}_circle_{time_ms}", mesh)
                 circle.location = (corrected_x, corrected_y, corrected_z)
 
@@ -74,7 +72,6 @@ class CircleCreator:
             create_geometry_nodes_modifier(circle, "circle")
 
             if self.import_type == 'BASE':
-                # Set Geometry Nodes as usual without adding mesh geometry
                 frame_values = {
                     "show": [
                         (int(early_start_frame - 1), False),
@@ -98,73 +95,39 @@ class CircleCreator:
                     "cs": 'FLOAT'
                 }, frame_values, fixed_values)
 
-
             elif self.import_type == 'FULL':
-
                 frame_values = {
-
                     "show": [
-
                         (int(early_start_frame - 1), False),
-
                         (int(early_start_frame), True),
-
-                        (int(start_frame + 1), False)  # Set visibility to False after click
-
+                        (int(start_frame + 1), False)
                     ],
-
                     "was_hit": [
-
                         (int(start_frame - 1), False),
-
                         (int(start_frame), self.hitobject.was_hit)
-
                     ]
-
                 }
 
                 fixed_values = {
-
                     "ar": approach_rate,
-
                     "cs": osu_radius * SCALE_FACTOR
-
                 }
 
                 set_modifier_inputs_with_keyframes(circle, {
-
                     "show": 'BOOLEAN',
-
                     "was_hit": 'BOOLEAN',
-
                     "ar": 'FLOAT',
-
                     "cs": 'FLOAT'
-
                 }, frame_values, fixed_values)
 
-                # Set visibility keyframes
-
                 circle.hide_viewport = True
-
                 circle.hide_render = True
-
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
-
                 circle.hide_viewport = False
-
                 circle.hide_render = False
-
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
-
                 circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
-
-                # Hide after click
-
                 circle.hide_viewport = True
-
                 circle.hide_render = True
-
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame + 1))
-
                 circle.keyframe_insert(data_path="hide_render", frame=int(start_frame + 1))

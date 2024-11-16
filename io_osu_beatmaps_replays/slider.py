@@ -2,7 +2,6 @@
 
 import bpy
 import math
-import bmesh
 from mathutils import Vector
 from .constants import SCALE_FACTOR
 from .utils import map_osu_to_blender, get_ms_per_frame, evaluate_curve_at_t, timeit
@@ -178,101 +177,54 @@ class SliderCreator:
 
 
                 elif self.import_type == 'FULL':
-
                     frame_values = {
-
                         "show": [
-
                             (int(early_start_frame - 1), False),
-
                             (int(early_start_frame), True),
-
                             (int(end_frame - 1), True),
-
                             (int(end_frame), False)  # Set visibility to False after slider duration
-
                         ],
-
                         "was_hit": [
-
                             (int(start_frame - 1), False),
-
                             (int(start_frame), self.hitobject.was_hit)
-
                         ],
-
                         "was_completed": [
-
                             (int(end_frame - 1), False),
-
                             (int(end_frame), self.hitobject.was_completed)
-
                         ]
-
                     }
 
                     fixed_values = {
-
                         "ar": approach_rate,
-
                         "cs": osu_radius * SCALE_FACTOR,
-
                         "slider_duration_ms": slider_duration_ms,
-
                         "slider_duration_frames": slider_duration_frames,
-
                         "repeat_count": repeat_count,
-
                         "pixel_length": pixel_length
-
                     }
 
                     set_modifier_inputs_with_keyframes(slider, {
-
                         "show": 'BOOLEAN',
-
                         "slider_duration_ms": 'FLOAT',
-
                         "slider_duration_frames": 'FLOAT',
-
                         "ar": 'FLOAT',
-
                         "cs": 'FLOAT',
-
                         "was_hit": 'BOOLEAN',
-
                         "was_completed": 'BOOLEAN',
-
                         "repeat_count": 'INT',
-
                         "pixel_length": 'FLOAT'
-
                     }, frame_values, fixed_values)
 
-                    # Set visibility keyframes
-
                     slider.hide_viewport = True
-
                     slider.hide_render = True
-
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
-
                     slider.hide_viewport = False
-
                     slider.hide_render = False
-
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
-
                     slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
-
-                    # Hide after slider duration
-
                     slider.hide_viewport = True
-
                     slider.hide_render = True
-
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False):
@@ -283,8 +235,8 @@ class SliderCreator:
 
     def evaluate_bezier_curve(self, control_points, num_points=None):
         if num_points is None:
-            num_points = self.settings.get('slider_resolution', 100)  # Verwende slider_resolution aus settings
-        n = len(control_points) - 1  # Grad der Kurve
+            num_points = self.settings.get('slider_resolution', 100)
+        n = len(control_points) - 1
         curve_points = []
 
         for t in [i / num_points for i in range(num_points + 1)]:
@@ -376,25 +328,21 @@ class SliderCreator:
 
     def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count):
         if self.import_type == 'BASE':
-            # Erstelle ein Mesh mit einem einzigen Vertex
             mesh = bpy.data.meshes.new(f"{slider.name}_ball")
 
-            mesh.vertices.add(1)  # Einen Vertex hinzufügen
-            mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+            mesh.vertices.add(1)
+            mesh.vertices[0].co = (0, 0, 0)
 
             mesh.use_auto_texspace = True
 
-            # Erstelle das Objekt
             slider_ball = bpy.data.objects.new(f"{slider.name}_ball", mesh)
             slider_ball.location = slider.location
 
         elif self.import_type == 'FULL':
-            # Erstelle das Objekt
             bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=slider.location)
             slider_ball = bpy.context.object
             slider_ball.name = f"{slider.name}_ball"
 
-        # Füge ein FOLLOW_PATH Constraint hinzu
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = slider
         follow_path.use_fixed_location = True
@@ -402,7 +350,6 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Berechnung der effektiven Geschwindigkeit und Dauer
         speed_multiplier = self.settings.get('speed_multiplier', 1.0)
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         inherited_multiplier = 1.0
@@ -410,79 +357,65 @@ class SliderCreator:
         timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
         start_time_ms = self.hitobject.time
 
-        # Bestimme Timing Points für den Slider
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:
-                if beat_length < 0:  # Inherited Timing Point
+                if beat_length < 0:
                     inherited_multiplier = -100 / beat_length
             else:
                 break
 
-        # Berechne effektive Geschwindigkeit
         effective_speed = slider_multiplier * inherited_multiplier
         adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
 
         slider.data.use_path = True
         slider.data.path_duration = int(adjusted_duration_frames)
 
-        # Berechnung der Repeats
         repeat_duration_frames = adjusted_duration_frames / repeat_count if repeat_count > 0 else adjusted_duration_frames
 
         for repeat in range(repeat_count):
             repeat_start_frame = start_frame + repeat * repeat_duration_frames
             if repeat % 2 == 0:
-                # Vorwärts
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
                 follow_path.offset_factor = 1.0
                 follow_path.keyframe_insert(data_path="offset_factor",
                                             frame=repeat_start_frame + repeat_duration_frames)
             else:
-                # Rückwärts
                 follow_path.offset_factor = 1.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor",
                                             frame=repeat_start_frame + repeat_duration_frames)
 
-            # Setze Keyframe-Interpolation auf LINEAR
             if slider_ball.animation_data and slider_ball.animation_data.action:
                 for fcurve in slider_ball.animation_data.action.fcurves:
                     for keyframe in fcurve.keyframe_points:
                         keyframe.interpolation = 'LINEAR'
 
-        # Füge den Slider Ball zur entsprechenden Collection hinzu
         self.slider_balls_collection.objects.link(slider_ball)
 
-        # Entferne das Objekt aus der aktuellen Collection, falls nötig
         if slider_ball.users_collection:
             for col in slider_ball.users_collection:
                 if col != self.slider_balls_collection:
                     col.objects.unlink(slider_ball)
 
-        # Füge Sichtbarkeits-Keyframes hinzu, nur für FULL Import
         if self.import_type == 'FULL':
-            # Berechnung der frühen Startframe und Endframe, ähnlich wie bei den Slidern
             early_start_frame = start_frame - (slider_duration_frames / speed_multiplier)
             end_frame = start_frame + slider_duration_frames
 
-            # Initial verstecken
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
 
-            # Sichtbar ab early_start_frame
             slider_ball.hide_viewport = False
             slider_ball.hide_render = False
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-            # Sichtbar bis end_frame
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
-            # Verstecken nach end_frame
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))

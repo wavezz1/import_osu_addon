@@ -1,7 +1,7 @@
 bl_info = {
     "name": "osu! Beatmap and Replay Importer",
     "author": "wavezz",
-    "version": (0, 7),
+    "version": (0, 8),
     "blender": (4, 2, 0),
     "location": "View3D > Sidebar > osu! Importer",
     "description": "Imports osu! Beatmaps and Replays into Blender",
@@ -16,14 +16,14 @@ import subprocess
 import sys
 import importlib.metadata
 from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import
-from .delete import OSU_OT_Delete  # Import the delete operator
+from .delete import OSU_OT_Delete
 from bpy.types import Operator, AddonPreferences
 
 classes = (
     OSUImporterProperties,
     OSU_PT_ImporterPanel,
     OSU_OT_Import,
-    OSU_OT_Delete,  # Register the delete operator
+    OSU_OT_Delete,
 )
 
 def is_osrparse_installed():

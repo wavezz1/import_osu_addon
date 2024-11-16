@@ -4,12 +4,8 @@ from .utils import timeit
 node_groups = {}
 
 def setup_geometry_node_trees():
-    """
-    Set up all required Geometry Node Trees. Re-creates any missing Node Trees dynamically.
-    """
     global node_groups
     with timeit("Einrichten der Geometry Node Trees"):
-        # Node tree definitions
         node_definitions = {
             "circle": {
                 "name": "Geometry Nodes Circle",
@@ -55,26 +51,16 @@ def setup_geometry_node_trees():
             },
         }
 
-        # Create or reassign Node Trees
         for key, node_def in node_definitions.items():
             name = node_def["name"]
             attributes = node_def["attributes"]
             if name not in bpy.data.node_groups:
-                # Create Node Tree if missing
                 node_groups[key] = create_geometry_nodes_tree(name, attributes)
             else:
-                # Reassign existing Node Tree
                 node_groups[key] = bpy.data.node_groups[name]
 
 
 def create_geometry_nodes_tree(name, attributes):
-    """
-    Create a new Geometry Node Tree with the specified attributes.
-
-    :param name: Name of the Node Tree.
-    :param attributes: Dictionary of attribute names and their data types.
-    :return: Created Node Tree.
-    """
     if name in bpy.data.node_groups:
         return bpy.data.node_groups[name]
 
@@ -84,15 +70,8 @@ def create_geometry_nodes_tree(name, attributes):
 
 
 def setup_node_group_interface(group, attributes):
-    """
-    Set up the input and output sockets for the Geometry Node Tree.
-
-    :param group: The Node Tree to configure.
-    :param attributes: Dictionary of attribute names and their data types.
-    """
     x_offset = 200
 
-    # Add Geometry input and output sockets
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     group.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
 
@@ -127,12 +106,6 @@ def setup_node_group_interface(group, attributes):
 
 
 def create_geometry_nodes_modifier(obj, obj_type):
-    """
-    Add a Geometry Nodes modifier to the specified object.
-
-    :param obj: The Blender object to add the modifier to.
-    :param obj_type: The type of Geometry Node Tree to use (e.g., 'circle', 'slider').
-    """
     setup_geometry_node_trees()
 
     node_group = node_groups.get(obj_type)
@@ -147,26 +120,16 @@ def create_geometry_nodes_modifier(obj, obj_type):
 
 
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values=None):
-    """
-    Set the modifier's inputs and insert keyframes only for attributes in frame_values.
-    Attributes not in frame_values are set to fixed_values if provided.
-
-    :param obj: The Blender object.
-    :param attributes: Dict of attribute names and their types.
-    :param frame_values: Dict of attribute names and list of (frame, value) tuples.
-    :param fixed_values: Optional dict of attribute names and fixed values.
-    """
     modifier = obj.modifiers.get("GeometryNodes")
     if not modifier:
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        socket_index = i + 2  # Socket_2 corresponds to the first attribute
+        socket_index = i + 2
         socket_count = f"Socket_{socket_index}"
 
         if attr_name in frame_values:
-            # Set keyframes for this attribute
             for frame, value in frame_values[attr_name]:
                 try:
                     if attr_type == 'BOOLEAN':
@@ -179,7 +142,6 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                 except Exception as e:
                     print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
         elif fixed_values and attr_name in fixed_values:
-            # Set fixed value for this attribute
             try:
                 value = fixed_values[attr_name]
                 if attr_type == 'BOOLEAN':

@@ -48,7 +48,6 @@ def main_execution(context):
     with timeit("Hitobjects Importieren"):
         import_hitobjects(data_manager, settings, props)
 
-    # Setze die Frame-Range basierend auf den Animationen
     with timeit("Frame-Range Setzen"):
         scene = bpy.context.scene
         anim_objects = [obj for obj in bpy.data.objects if obj.animation_data and obj.animation_data.action]

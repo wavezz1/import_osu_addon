@@ -51,9 +51,8 @@ class SpinnerCreator:
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new(f"{self.global_index:03d}_spinner_{self.hitobject.time}")
 
-                # Füge den Vertex direkt in den Mesh-Daten hinzu
-                mesh.vertices.add(1)  # Einen Vertex hinzufügen
-                mesh.vertices[0].co = (0, 0, 0)  # Positioniere den Vertex im Ursprung
+                mesh.vertices.add(1)
+                mesh.vertices[0].co = (0, 0, 0)
 
                 mesh.use_auto_texspace = True
 
@@ -130,7 +129,6 @@ class SpinnerCreator:
                     "was_completed": 'BOOLEAN'
                 }, frame_values, fixed_values)
 
-                # Set visibility keyframes
                 spinner.hide_viewport = True
                 spinner.hide_render = True
                 spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))

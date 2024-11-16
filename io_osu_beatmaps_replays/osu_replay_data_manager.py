@@ -39,7 +39,6 @@ class OsuReplayDataManager:
 
     @property
     def hitobjects(self):
-        # Kombiniere alle verarbeiteten HitObjects aus dem HitObjectsProcessor
         return (
                 self.hitobjects_processor.circles +
                 self.hitobjects_processor.sliders +
@@ -193,7 +192,7 @@ class OsuReplayDataManager:
         slider_multiplier = float(self.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         timing_points = self.osu_parser.timing_points
 
-        beat_duration = 500  # Standardwert
+        beat_duration = 500
         inherited_multiplier = 1.0
         current_beat_length = None
 

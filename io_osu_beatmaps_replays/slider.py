@@ -285,21 +285,36 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Nutze die bereits berechnete Sliderdauer
+        # Timing Points bereinigen und sortieren
+        timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
+
+        # Geschwindigkeit basierend auf Timing Points berechnen
+        slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
+        start_time_ms = self.hitobject.time
+
+        inherited_multiplier = 1.0
+        base_beat_length = 500  # Standardwert, falls keine Timing Points definiert sind
+        current_beat_length = base_beat_length
+
+        # Finde die relevanten Timing Points
+        for offset, beat_length in timing_points:
+            if start_time_ms >= offset:
+                if beat_length < 0:  # Inherited Timing Point
+                    inherited_multiplier = -100 / beat_length
+                else:  # Base Timing Point
+                    current_beat_length = beat_length
+            else:
+                break
+
+        # Berechne die effektive Geschwindigkeit
+        effective_speed = slider_multiplier * inherited_multiplier
+        interpolated_duration_frames = slider_duration_frames / effective_speed
+
         slider.data.use_path = True
-        slider.data.path_duration = int(slider_duration_frames)
+        slider.data.path_duration = int(interpolated_duration_frames)
 
         # Berechnung der Repeats
-        repeat_duration_frames = slider_duration_frames / repeat_count if repeat_count > 0 else slider_duration_frames
-
-        # Finde Timing Points und entferne doppelte/überlappende
-        timing_points = self.data_manager.beatmap_info["timing_points"]
-        unique_timing_points = []
-        last_offset = -1
-        for offset, beat_length in sorted(timing_points, key=lambda tp: tp[0]):
-            if offset != last_offset:
-                unique_timing_points.append((offset, beat_length))
-                last_offset = offset
+        repeat_duration_frames = interpolated_duration_frames / repeat_count if repeat_count > 0 else interpolated_duration_frames
 
         for repeat in range(repeat_count):
             repeat_start_frame = start_frame + repeat * repeat_duration_frames
@@ -318,18 +333,14 @@ class SliderCreator:
                 follow_path.keyframe_insert(data_path="offset_factor",
                                             frame=repeat_start_frame + repeat_duration_frames)
 
-            # Setze die Keyframe-Interpolation auf Linear
-            if slider_ball.animation_data:
+            # Setze Keyframe-Interpolation auf LINEAR
+            if slider_ball.animation_data and slider_ball.animation_data.action:
                 for fcurve in slider_ball.animation_data.action.fcurves:
                     for keyframe in fcurve.keyframe_points:
                         keyframe.interpolation = 'LINEAR'
 
         self.slider_balls_collection.objects.link(slider_ball)
         bpy.context.collection.objects.unlink(slider_ball)
-
-        # Debugging: Timing Points überprüfen
-        for i, (offset, beat_length) in enumerate(unique_timing_points):
-            print(f"Timing Point {i}: Offset={offset}, Beat Length={beat_length}")
 
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         tick_interval_ms = 100

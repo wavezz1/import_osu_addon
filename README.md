@@ -36,7 +36,7 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 ### Flexible Import Options
 - Choose between:
   - **Base Import**: Lightweight meshes with Geometry Nodes for customization.
-  - **Full Import**: Fully rendered meshes with keyframed visibility.
+  - **Full Import**: Fully rendered meshes with keyframed visibility. No Geometry Nodes applied.
 
 ### Performance Considerations
 - Adjustable slider resolution to balance performance and smoothness.

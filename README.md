@@ -8,151 +8,127 @@ This addon builds on [`osrparse`](https://github.com/kszlim/osu-replay-parser), 
 
 **CAUTION: Replays with the intro skipped are broken due to an issue in osrparse's latest versions. osrparse v6.0.2 is currently used**
 
-## What it Does
+---
 
-This addon imports a comprehensive version of both the replay and the beatmap, applying Geometry Nodes modifiers that store attributes based on parsed keyframes and values.
+## Features
 
-### Key Features
+### Hitobject Importing
+- **Circles**: Fully animated circles with keyframe visibility and hit detection.
+- **Sliders**: Supports slider ticks, slider balls, and various spline types (Bezier, Catmull-Rom, etc.).
+- **Spinners**: Visualizes spinners with animation and hit detection.
 
-- **Hitobject Importing:**
-  - **Circles:** Import and visualize circle hitobjects.
-  - **Sliders:** Import sliders with options for slider ticks and slider balls.
-  - **Spinners:** Import spinner hitobjects.
-  
-- **Cursor Movements:**
-  - Animate the cursor based on replay data, reflecting key presses and mouse movements.
-  
-- **Geometry Nodes Integration:**
-  - Each hitobject type (`Cursor`, `Circle`, `Slider`, `Spinner`) comes with a dedicated Geometry Nodes modifier.
-  
-- **Audio Integration:**
-  - Import the associated audio track as a speaker object in Blender.
+### Replay Data
+- **Cursor Movements**: Animates the cursor with replay data, including keypress states (`k1`, `k2`, `m1`, `m2`).
+
+### Geometry Nodes Integration
+- Dedicated Geometry Nodes modifiers for:
+  - Cursor
+  - Circle
+  - Slider
+  - Spinner
+- Attributes like `show`, `was_hit`, `slider_duration_frames`, and more are accessible for custom setups.
+
+### Audio Import
+- Imports and synchronizes the beatmap's audio file.
+- Adjusts pitch for mods like Double Time (1.5x) and Half Time (0.75x).
+
+### Beatmap and Replay Information
+- Displays metadata such as title, artist, difficulty, BPM, total hitobjects, and mods used.
+
+### Flexible Import Options
+- Choose between:
+  - **Base Import**: Lightweight meshes with Geometry Nodes for customization.
+  - **Full Import**: Fully rendered meshes with keyframed visibility.
+
+### Performance Considerations
+- Adjustable slider resolution to balance performance and smoothness.
+- Deletes imported data and associated resources with a single click.
+
+---
 
 ## Installation
 
-1. **Download the Addon:**
-   - Download the `.zip` file of this addon from the [Releases](https://github.com/wavezz1/import_osu_addon/releases) page.
+### Step 1: Install the Addon
+1. Download the latest `.zip` file from the [Releases](https://github.com/wavezz1/import_osu_addon/releases).
+2. In Blender, navigate to `Edit > Preferences > Add-ons`.
+3. Click **Install...** and select the downloaded `.zip` file.
+4. Enable the addon by checking its box.
 
-2. **Install the Addon in Blender:**
-   - Open Blender.
-   - Go to `Edit` > `Preferences` > `Add-ons`.
-   - Click `Install...` at the top-right corner.
-   - Select the downloaded `.zip` file.
-   - Enable the addon by checking the box next to its name.
+### Step 2: Install `osrparse`
+1. In the addon preferences, locate the **Install osrparse** button.
+2. Click the button to install `osrparse v6.0.2`. If a higher version is installed, it will be replaced.
 
-3. **Install `osrparse`:**
-   - Within the addon preferences, click the **"Install osrparse"** button if you don't have it installed already. This ensures that the addon can correctly parse `.osr` replay files.
-   
+---
+
 ## Usage
 
-1. **Access the osu! Importer Panel:**
-   - In the 3D Viewport, open the Sidebar (`N` key).
-   - Navigate to the **"osu! Importer"** tab.
+1. Open the **osu! Importer** panel in the sidebar (`N` key).
+2. Provide the paths to your `.osu` (beatmap) and `.osr` (replay) files.
+3. Configure your import preferences:
+   - Select hitobject types (circles, sliders, spinners).
+   - Adjust slider options (ticks, balls, resolution).
+   - Enable/disable cursor animation and audio import.
+4. Click **Import** and enjoy!
 
-2. **Select Files:**
-   - **Beatmap (.osu) File:** Click the file selector and choose your `.osu` beatmap file.
-   - **Replay (.osr) File:** Click the file selector and choose your `.osr` replay file.
+---
 
-3. **Configure Import Options:**
-   - **Hit Objects:**
-     - **Circles:** Toggle to import circle hitobjects.
-     - **Sliders:** Toggle to import slider hitobjects.
-     - **Spinners:** Toggle to import spinner hitobjects.
-   - **Slider Options:** *(Visible only if sliders are enabled)*
-     - **Slider Ticks:** Toggle to import slider ticks.
-     - **Slider Balls:** Toggle to import slider balls.
-     - **Slider Resolution:** Adjust the smoothness of sliders (higher values = smoother but more performance-intensive).
-   - **Replay Options:**
-     - **Cursor Movements:** Toggle to import cursor movements from the replay.
-   - **Audio Options:**
-     - **Audio Track:** Toggle to import the audio track associated with the beatmap.
+## General Geometry Nodes Setup (TBD for 0.8)
+![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
 
-4. **Import:**
-   - Click the **"Import"** button to start the import process.
-   - 
-### Cursor Attributes
+##### Circle Hitobjects
+![Circle Geometry Nodes Setup](geo_setup/geo_nodes_setup_circle.png)
 
-- **k1** (`Boolean`): Key status for K1.
-- **k2** (`Boolean`): Key status for K2.
-- **m1** (`Boolean`): Mouse button M1 status.
-- **m2** (`Boolean`): Mouse button M2 status.
+##### Sliders
+![Slider Geometry Nodes Setup](geo_setup/geo_nodes_setup_slider.png)
 
-### Circle Attributes
+##### Spinners
+![Spinner Geometry Nodes Setup](geo_setup/geo_nodes_setup_spinner.png)
 
-- **show** (`Boolean`): Visibility of the hitobject.
-- **was_hit** (`Boolean`): Whether the hitobject was hit.
-- **ar** (`Float`): Approach Rate.
-- **cs** (`Float`): Circle Size.
+## Attributes Overview
 
-### Slider Attributes
+### General
+- `show` (`Boolean`): Visibility state of objects.
+- `ar` (`Float`): Approach rate.
+- `cs` (`Float`): Circle size.
 
-- **show** (`Boolean`): Visibility of the hitobject.
-- **slider_duration_ms** (`Float`): Duration of the slider in milliseconds.
-- **slider_duration_frames** (`Float`): Duration of the slider in frames.
-- **ar** (`Float`): Approach Rate.
-- **cs** (`Float`): Circle Size.
-- **was_hit** (`Boolean`): Whether the slider was hit.
-- **was_completed** (`Boolean`): Whether the slider was fully played.
-- **repeat_count** (`Int`): Number of repeats in the slider.
-- **pixel_length** (`Float`): Pixel length of the slider.
+### Circles
+- `was_hit` (`Boolean`): Whether the circle was hit.
 
-### Spinner Attributes
+### Sliders
+- `slider_duration_ms` (`Float`): Duration in milliseconds.
+- `slider_duration_frames` (`Float`): Duration in frames.
+- `was_completed` (`Boolean`): Whether the slider was fully played.
+- `repeat_count` (`Int`): Number of repeats.
+- `pixel_length` (`Float`): Length in osu! units.
 
-- **show** (`Boolean`): Visibility of the hitobject.
-- **spinner_duration_ms** (`Float`): Duration of the spinner in milliseconds.
-- **spinner_duration_frames** (`Float`): Duration of the spinner in frames.
-- **was_hit** (`Boolean`): Whether the spinner was hit.
-- **was_completed** (`Boolean`): Whether the spinner was fully played.
+### Spinners
+- `spinner_duration_ms` (`Float`): Duration in milliseconds.
+- `spinner_duration_frames` (`Float`): Duration in frames.
+- `was_completed` (`Boolean`): Whether the spinner was fully played.
 
-## Beatmap and Replay Information
+### Cursor
+- `k1`, `k2`, `m1`, `m2` (`Boolean`): Key press states.
 
-After importing, the addon displays detailed information about the beatmap and the replay:
-
-### Beatmap Information
-
-- **Title:** The title of the beatmap.
-- **Artist:** The artist of the song.
-- **Difficulty:** The difficulty level of the beatmap.
-- **BPM:** Beats Per Minute of the song.
-- **AR (Approach Rate):** Base and adjusted approach rate based on applied mods.
-- **CS (Circle Size):** Base and adjusted circle size based on applied mods.
-- **OD (Overall Difficulty):** Base and adjusted overall difficulty based on applied mods.
-- **Total HitObjects:** The total number of hitobjects in the beatmap.
-
-### Replay Information
-
-- **Mods:** Mods applied during the replay (e.g., Double Time, Half Time).
-- **Accuracy:** Player's accuracy percentage.
-- **Misses:** Number of misses.
-- **Max Combo:** Maximum combo achieved.
-- **Total Score:** Total score obtained.
+---
 
 ## Known Issues
 
-- **osrparse Limitations:**
-  - Replays with the intro skipped are broken due to an issue in higher versions of `osrparse`. This addon specifically uses `osrparse v6.0.2` to mitigate this issue.
-  
-- **Replay Orientation:**
-  - Replays may sometimes appear flipped by 180° on the Z-axis.
-  
-- **Performance:**
-  - High slider resolution settings may impact Blender's performance, especially with complex beatmaps.
+1. **osrparse Limitations**: Skipped replay intros may result in broken animations.
+2. **Replay Orientation**: Replays may appear flipped on the Z-axis.
+3. **Performance**: High slider resolution can impact performance with complex beatmaps.
+4. **Slider Ticks**: Slider ticks are not calculated and implemented correctly at the moment.
 
-## Geometry Nodes Setup (TBD for v0.7)
+---
 
-The addon creates Geometry Nodes modifiers for different hitobject types, each storing relevant attributes. Below are examples of the Geometry Nodes setups:
+## Support
 
-![General Geometry Nodes Setup](geo_setup/geo_nodes_setup_general.png)
-*General Geometry Nodes setup.*
+Feel free to report issues or contribute via the [GitHub repository](https://github.com/wavezz1/import_osu_addon/issues).
 
-![Circle Geometry Nodes Setup](geo_setup/geo_nodes_setup_circle.png)
-*Geometry Nodes setup for Circle hitobjects.*
+---
 
-![Slider Geometry Nodes Setup](geo_setup/geo_nodes_setup_slider.png)
-*Geometry Nodes setup for Slider hitobjects.*
+## Credits
 
-![Spinner Geometry Nodes Setup](geo_setup/geo_nodes_setup_spinner.png)
-*Geometry Nodes setup for Spinner hitobjects.*
+This addon utilizes [`osrparse`](https://github.com/kszlim/osu-replay-parser) by kszlim and contributors. Blender version 4.2+ is required.
 
 ## Ending Words
 

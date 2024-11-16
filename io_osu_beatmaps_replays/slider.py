@@ -117,7 +117,7 @@ class SliderCreator:
 
                 if self.import_type == 'FULL':
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
-                    curve_data.extrude = osu_radius * SCALE_FACTOR
+                    curve_data.extrude = osu_radius * SCALE_FACTOR * 2
                 elif self.import_type == 'BASE':
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",curve_data)
 

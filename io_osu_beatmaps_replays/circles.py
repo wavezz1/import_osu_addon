@@ -42,7 +42,7 @@ class CircleCreator:
             if self.import_type == 'FULL':
                 bpy.ops.mesh.primitive_circle_add(
                     fill_type='NGON',
-                    radius=osu_radius * SCALE_FACTOR,
+                    radius=osu_radius * SCALE_FACTOR * 2,
                     location=(corrected_x, corrected_y, corrected_z),
                     rotation=(math.radians(90), 0, 0)
                 )

@@ -1,10 +1,9 @@
 # cursor.py
 
 import bpy
-from .utils import get_ms_per_frame, map_osu_to_blender, timeit
+from .utils import map_osu_to_blender, timeit
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
-
 
 class CursorCreator:
     def __init__(self, cursor_collection, settings, data_manager: OsuReplayDataManager, import_type):
@@ -12,7 +11,7 @@ class CursorCreator:
         self.settings = settings
         self.data_manager = data_manager
         self.import_type = import_type
-        self.cursor = None  # Speichert das Cursor-Objekt
+        self.cursor = None  # Stores the cursor object
         self.create_cursor()
 
     def create_cursor(self):
@@ -77,10 +76,9 @@ class CursorCreator:
 
         replay_data = self.data_manager.replay_data
         key_presses = self.data_manager.key_presses
-        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        audio_lead_in = self.data_manager.beatmap_info.get("audio_lead_in", 0)
-
-        audio_lead_in_frames = audio_lead_in / get_ms_per_frame()
+        speed_multiplier = self.data_manager.speed_multiplier
+        ms_per_frame = self.data_manager.ms_per_frame
+        audio_lead_in_frames = self.data_manager.audio_lead_in_frames
         total_time = 0
 
         try:
@@ -93,7 +91,7 @@ class CursorCreator:
                 self.cursor.location = (corrected_x, corrected_y, corrected_z)
 
                 adjusted_time_ms = total_time / speed_multiplier
-                frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
+                frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
 
                 frame_values = {
                     "k1": [
@@ -130,10 +128,9 @@ class CursorCreator:
 
         replay_data = self.data_manager.replay_data
         key_presses = self.data_manager.key_presses
-        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-        audio_lead_in = self.data_manager.beatmap_info.get("audio_lead_in", 0)
-
-        audio_lead_in_frames = audio_lead_in / get_ms_per_frame()
+        speed_multiplier = self.data_manager.speed_multiplier
+        ms_per_frame = self.data_manager.ms_per_frame
+        audio_lead_in_frames = self.data_manager.audio_lead_in_frames
         total_time = 0
 
         try:
@@ -146,7 +143,7 @@ class CursorCreator:
                 self.cursor.location = (corrected_x, corrected_y, corrected_z)
 
                 adjusted_time_ms = total_time / speed_multiplier
-                frame = (adjusted_time_ms / get_ms_per_frame()) + audio_lead_in_frames
+                frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
 
                 frame_values = {
                     "k1": [

@@ -6,12 +6,17 @@ from .info_parser import OsuParser, OsrParser
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from .mod_functions import calculate_speed_multiplier
 from .hitobjects import HitObjectsProcessor
+from .utils import get_ms_per_frame
 
 class OsuReplayDataManager:
     def __init__(self, osu_file_path, osr_file_path):
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
         self.hitobjects_processor = HitObjectsProcessor(self)
+        self.speed_multiplier = calculate_speed_multiplier(self.mods)
+        self.ms_per_frame = get_ms_per_frame()
+        self.calculate_adjusted_values()  # Call the new method here
+
 
     @property
     def beatmap_info(self):
@@ -74,6 +79,15 @@ class OsuReplayDataManager:
         print("\n--- Key Presses (First 10 Presses) ---")
         print(self.key_presses[:10])
 
+    def calculate_adjusted_values(self):
+        self.adjusted_ar = self.calculate_adjusted_ar()
+        self.adjusted_cs = self.calculate_adjusted_cs()
+        self.adjusted_od = self.calculate_adjusted_od()
+        self.preempt_ms = self.calculate_preempt_time(self.adjusted_ar)
+        self.preempt_frames = self.preempt_ms / self.ms_per_frame
+        self.osu_radius = (54.4 - 4.48 * self.adjusted_cs) / 2
+        self.audio_lead_in_frames = self.beatmap_info["audio_lead_in"] / self.ms_per_frame
+
     def import_audio(self):
         audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")
         if not audio_filename:
@@ -99,19 +113,17 @@ class OsuReplayDataManager:
         print(f"Audio file '{audio_filename}' imported with {pitch}x pitch.")
 
     def calculate_hit_windows(self):
-        od = self.calculate_adjusted_od()
+        od = self.adjusted_od  # Use precomputed adjusted OD
 
         hit_window_300 = max(80 - (6 * od), 0)
         hit_window_100 = max(140 - (8 * od), 0)
         hit_window_50 = max(200 - (10 * od), 0)
 
-        speed_multiplier = calculate_speed_multiplier(self.mods)
         return (
-            hit_window_300 / speed_multiplier,
-            hit_window_100 / speed_multiplier,
-            hit_window_50 / speed_multiplier,
+            hit_window_300 / self.speed_multiplier,
+            hit_window_100 / self.speed_multiplier,
+            hit_window_50 / self.speed_multiplier,
         )
-
     def check_hits(self):
         hit_window_300, hit_window_100, hit_window_50 = self.calculate_hit_windows()
         hit_window = hit_window_50
@@ -263,3 +275,4 @@ class OsuReplayDataManager:
     def calculate_preempt_time(self, ar):
         preempt = 1800 - (120 * ar) if ar < 5 else 1200 - (150 * (ar - 5))
         return preempt / calculate_speed_multiplier(self.mods)
+

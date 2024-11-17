@@ -37,12 +37,12 @@ def main_execution(context):
         speed_multiplier = calculate_speed_multiplier(data_manager.mods)
 
     settings = {
-        'speed_multiplier': speed_multiplier,
+        'speed_multiplier': data_manager.speed_multiplier,
         'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
         'import_slider_balls': props.import_slider_balls,
         'import_slider_ticks': props.import_slider_ticks,
-        'slider_resolution': props.slider_resolution,  # Added this line
-        'import_type': props.import_type  # Added import_type
+        'slider_resolution': props.slider_resolution,
+        'import_type': props.import_type
     }
 
     with timeit("Hitobjects Importieren"):

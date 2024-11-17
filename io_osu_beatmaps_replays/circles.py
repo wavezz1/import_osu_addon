@@ -21,23 +21,24 @@ class CircleCreator:
 
     def create_circle(self):
         with timeit(f"Erstellen von Kreis {self.global_index:03d}_circle_{self.hitobject.time}"):
-            approach_rate = self.data_manager.calculate_adjusted_ar()
-            preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
-            preempt_frames = preempt_ms / get_ms_per_frame()
+            data_manager = self.data_manager
 
-            circle_size = self.data_manager.calculate_adjusted_cs()
-            audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+            approach_rate = data_manager.adjusted_ar
+            preempt_frames = data_manager.preempt_frames
+            circle_size = data_manager.adjusted_cs
+            audio_lead_in_frames = data_manager.audio_lead_in_frames
+            osu_radius = data_manager.osu_radius
 
             x = self.hitobject.x
             y = self.hitobject.y
             time_ms = self.hitobject.time
-            speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-            start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
+            speed_multiplier = data_manager.speed_multiplier
+            ms_per_frame = data_manager.ms_per_frame
+
+            start_frame = ((time_ms / speed_multiplier) / ms_per_frame) + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-
-            osu_radius = (54.4 - 4.48 * circle_size) / 2
 
             if self.import_type == 'FULL':
                 bpy.ops.mesh.primitive_circle_add(

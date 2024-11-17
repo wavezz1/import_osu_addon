@@ -20,23 +20,25 @@ class SpinnerCreator:
 
     def create_spinner(self):
         with timeit(f"Erstellen von Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
-            approach_rate = self.data_manager.calculate_adjusted_ar()
-            preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
-            preempt_frames = preempt_ms / get_ms_per_frame()
+            data_manager = self.data_manager
 
-            audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+            approach_rate = data_manager.adjusted_ar
+            preempt_frames = data_manager.preempt_frames
+            audio_lead_in_frames = data_manager.audio_lead_in_frames
+            speed_multiplier = data_manager.speed_multiplier
+            ms_per_frame = data_manager.ms_per_frame
 
-            start_time_ms = self.hitobject.time / self.settings.get('speed_multiplier', 1.0)
+            start_time_ms = self.hitobject.time / speed_multiplier
             if self.hitobject.extras:
                 end_time_ms = int(self.hitobject.extras[0])
-                spinner_duration_ms = (end_time_ms - self.hitobject.time) / self.settings.get('speed_multiplier', 1.0)
+                spinner_duration_ms = (end_time_ms - self.hitobject.time) / speed_multiplier
             else:
                 print(f"No end time found for spinner at {self.hitobject.time} ms.")
                 return
 
-            end_frame = (end_time_ms / self.settings.get('speed_multiplier', 1.0)) / get_ms_per_frame() + audio_lead_in_frames
-            start_frame = start_time_ms / get_ms_per_frame() + audio_lead_in_frames
+            start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
+            end_frame = (end_time_ms / speed_multiplier) / ms_per_frame + audio_lead_in_frames
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 

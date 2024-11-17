@@ -94,32 +94,60 @@ def evaluate_curve_at_t(curve_object, t):
     last_point = points[-1]
     return curve_object.matrix_world @ last_point
 
-def get_keyframe_values(hitobject, import_type, start_frame, end_frame, early_start_frame, approach_rate, osu_radius, extra_params=None):
-    frame_values = {
-        "show": [
+
+# utils.py
+
+def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_frame, early_start_frame, approach_rate,
+                        osu_radius, extra_params=None):
+    frame_values = {}
+    fixed_values = {}
+
+    # Gemeinsame frame_values für alle Objekttypen
+    frame_values["show"] = [
+        (int(early_start_frame - 1), False),
+        (int(early_start_frame), True),
+    ]
+    frame_values["was_hit"] = [
+        (int(start_frame - 1), False),
+        (int(start_frame), hitobject.was_hit)
+    ]
+
+    # Gemeinsame fixed_values für alle Objekttypen
+    fixed_values["ar"] = approach_rate
+    fixed_values["cs"] = osu_radius * SCALE_FACTOR * (2 if import_type == 'BASE' else 1)
+
+    # Objekttyp-spezifische Anpassungen
+    if object_type == 'circle':
+        if import_type == 'FULL':
+            frame_values["show"].append((int(start_frame + 1), False))
+    elif object_type == 'slider':
+        frame_values["show"].extend([
+            (int(end_frame - 1), True),
+            (int(end_frame), False)
+        ])
+        frame_values["was_completed"] = [
+            (int(end_frame - 1), False),
+            (int(end_frame), hitobject.was_completed)
+        ]
+        # Slider-spezifische fixed_values
+        if extra_params:
+            fixed_values.update(extra_params)
+    elif object_type == 'spinner':
+        frame_values["was_completed"] = [
+            (int(end_frame - 1), False),
+            (int(end_frame), hitobject.was_completed)
+        ]
+        # Spinner-spezifische fixed_values
+        if extra_params:
+            fixed_values.update(extra_params)
+
+    # Bei 'BASE' Importtyp keine zusätzlichen 'show' Keyframes
+    if import_type == 'BASE' and object_type != 'circle':
+        frame_values["show"] = [
             (int(early_start_frame - 1), False),
             (int(early_start_frame), True),
             (int(end_frame - 1), True),
             (int(end_frame), False)
-        ],
-        "was_hit": [
-            (int(start_frame - 1), False),
-            (int(start_frame), hitobject.was_hit)
-        ]
-    }
-
-    fixed_values = {
-        "ar": approach_rate,
-        "cs": osu_radius * SCALE_FACTOR * 2
-    }
-
-    if extra_params:
-        fixed_values.update(extra_params)
-
-    if hitobject.hit_type & 2 or hitobject.hit_type & 8:  # Slider oder Spinner
-        frame_values["was_completed"] = [
-            (int(end_frame - 1), False),
-            (int(end_frame), hitobject.was_completed)
         ]
 
     return frame_values, fixed_values

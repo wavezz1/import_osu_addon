@@ -72,63 +72,42 @@ class CircleCreator:
 
             create_geometry_nodes_modifier(circle, "circle")
 
-            if self.import_type == 'BASE':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ]
-                }
+            end_frame = start_frame + 1
 
-                fixed_values = {
-                    "ar": approach_rate,
-                    "cs": osu_radius * SCALE_FACTOR * 2
-                }
+            # Verwendung der generischen get_keyframe_values-Funktion
+            frame_values, fixed_values = get_keyframe_values(
+                self.hitobject,
+                'circle',
+                self.import_type,
+                start_frame,
+                end_frame,
+                early_start_frame,
+                approach_rate,
+                osu_radius
+            )
 
-                set_modifier_inputs_with_keyframes(circle, {
-                    "show": 'BOOLEAN',
-                    "was_hit": 'BOOLEAN',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT'
-                }, frame_values, fixed_values)
+            attributes = {
+                "show": 'BOOLEAN',
+                "was_hit": 'BOOLEAN',
+                "ar": 'FLOAT',
+                "cs": 'FLOAT'
+            }
 
-            elif self.import_type == 'FULL':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True),
-                        (int(start_frame + 1), False)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ]
-                }
+            set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 
-                fixed_values = {
-                    "ar": approach_rate,
-                    "cs": osu_radius * SCALE_FACTOR
-                }
-
-                set_modifier_inputs_with_keyframes(circle, {
-                    "show": 'BOOLEAN',
-                    "was_hit": 'BOOLEAN',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT'
-                }, frame_values, fixed_values)
-
+            # Setzen der Sichtbarkeits-Keyframes für 'FULL' Importtyp
+            if self.import_type == 'FULL':
                 circle.hide_viewport = True
                 circle.hide_render = True
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
                 circle.hide_viewport = False
                 circle.hide_render = False
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                 circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
                 circle.hide_viewport = True
                 circle.hide_render = True
-                circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame + 1))
-                circle.keyframe_insert(data_path="hide_render", frame=int(start_frame + 1))
+                circle.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+                circle.keyframe_insert(data_path="hide_render", frame=int(end_frame))

@@ -64,64 +64,10 @@ class CursorCreator:
 
             self.cursor = cursor
             print(f"Cursor '{cursor.name}' created successfully.")
-            return cursor
         except Exception as e:
             print(f"Error creating cursor: {e}")
-            return None
 
     def animate_cursor(self):
-        if self.cursor is None:
-            print("Cursor object is None, skipping animation.")
-            return
-
-        replay_data = self.data_manager.replay_data
-        key_presses = self.data_manager.key_presses
-        speed_multiplier = self.data_manager.speed_multiplier
-        ms_per_frame = self.data_manager.ms_per_frame
-        audio_lead_in_frames = self.data_manager.audio_lead_in_frames
-        total_time = 0
-
-        try:
-            for i, event in enumerate(replay_data):
-                total_time += event.time_delta
-                if event.x == -256 and event.y == -256:
-                    continue
-
-                corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
-                self.cursor.location = (corrected_x, corrected_y, corrected_z)
-
-                adjusted_time_ms = total_time / speed_multiplier
-                frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
-
-                frame_values = {
-                    "k1": [
-                        (int(frame), bool(key_presses[i]['k1']))
-                    ],
-                    "k2": [
-                        (int(frame), bool(key_presses[i]['k2']))
-                    ],
-                    "m1": [
-                        (int(frame), bool(key_presses[i]['m1']))
-                    ],
-                    "m2": [
-                        (int(frame), bool(key_presses[i]['m2']))
-                    ]
-                }
-
-                set_modifier_inputs_with_keyframes(self.cursor, {
-                    "k1": 'BOOLEAN',
-                    "k2": 'BOOLEAN',
-                    "m1": 'BOOLEAN',
-                    "m2": 'BOOLEAN'
-                }, frame_values, fixed_values=None)
-
-                self.cursor.keyframe_insert(data_path='location', frame=frame)
-
-            print(f"Cursor '{self.cursor.name}' animated successfully.")
-        except Exception as e:
-            print(f"Error animating cursor: {e}")
-
-    def animate_cursor_full(self):
         if self.cursor is None:
             print("Cursor object is None, skipping animation.")
             return

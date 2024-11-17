@@ -1,9 +1,36 @@
 # cursor.py
 
 import bpy
-from .utils import map_osu_to_blender, timeit, set_cursor_keyframes
+from .utils import map_osu_to_blender
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
+
+def set_cursor_keyframes(cursor, frame, location, key_presses):
+    # Setze die Positions-Keyframes
+    cursor.location = location
+    cursor.keyframe_insert(data_path='location', frame=frame)
+
+    # Setze die Keyframes für die Tasten
+    frame_values = {
+        "k1": [
+            (int(frame), bool(key_presses['k1']))
+        ],
+        "k2": [
+            (int(frame), bool(key_presses['k2']))
+        ],
+        "m1": [
+            (int(frame), bool(key_presses['m1']))
+        ],
+        "m2": [
+            (int(frame), bool(key_presses['m2']))
+        ]
+    }
+    set_modifier_inputs_with_keyframes(cursor, {
+        "k1": 'BOOLEAN',
+        "k2": 'BOOLEAN',
+        "m1": 'BOOLEAN',
+        "m2": 'BOOLEAN'
+    }, frame_values, fixed_values=None)
 
 class CursorCreator:
     def __init__(self, cursor_collection, settings, data_manager: OsuReplayDataManager, import_type):

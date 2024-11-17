@@ -275,7 +275,7 @@ class SliderCreator:
         angle_start = math.atan2(p1.y - center.y, p1.x - center.x)
         angle_end = math.atan2(p3.y - center.y, p3.x - center.x)
 
-        cross = (p2 - p1).cross(Vector((0, 0, 1))).dot(p3 - p2)
+        cross = (p2 - p1).cross(p3 - p2)
         clockwise = cross < 0
 
         if clockwise:

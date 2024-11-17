@@ -151,7 +151,8 @@ class OsuReplayDataManager:
         ]
 
         # Sicherstellen, dass key_press_times sortiert sind
-        key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses)))
+        key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses), key=lambda x: x[0]))
+
 
         for hitobject in self.hitobjects:
             hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in

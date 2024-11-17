@@ -19,6 +19,9 @@ class SliderCreator:
         self.settings = settings
         self.data_manager = data_manager
         self.import_type = import_type
+        self.slider_resolution = settings.get('slider_resolution', 100)
+        self.import_slider_balls = settings.get('import_slider_balls', False)
+        self.import_slider_ticks = settings.get('import_slider_ticks', False)
         self.create_slider()
 
     def create_slider(self):
@@ -185,7 +188,7 @@ class SliderCreator:
 
     def evaluate_bezier_curve(self, control_points_osu, num_points=None):
         if num_points is None:
-            num_points = self.settings.get('slider_resolution', 100)
+            num_points = self.slider_resolution
         n = len(control_points_osu) - 1
         curve_points = []
 
@@ -332,7 +335,7 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
+        speed_multiplier = self.data_manager.speed_multiplier
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         inherited_multiplier = 1.0
 

@@ -14,10 +14,9 @@ class OsuReplayDataManager:
         self.hitobjects_processor = HitObjectsProcessor(self)
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
         self.ms_per_frame = self.get_ms_per_frame()
-        self.calculate_adjusted_values()  # Call the new method here
-        self.audio_lead_in = self.osu_parser.audio_lead_in
 
         # Initialisierung der Instanzattribute
+        self.audio_lead_in = self.osu_parser.audio_lead_in
         self.adjusted_ar = None
         self.adjusted_cs = None
         self.adjusted_od = None
@@ -25,6 +24,8 @@ class OsuReplayDataManager:
         self.preempt_frames = None
         self.osu_radius = None
         self.audio_lead_in_frames = None
+
+        self.calculate_adjusted_values()  # Call the new method here
 
     @property
     def beatmap_info(self):

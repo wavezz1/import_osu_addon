@@ -26,8 +26,12 @@ class OsuReplayDataManager:
         self.osu_radius = None
         self.audio_lead_in_frames = None
 
-        self.calculate_adjusted_values()  # Call the new method here
+        # Speichern der Basiswerte
+        self.base_ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        self.base_cs = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        self.base_od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
 
+        self.calculate_adjusted_values()
     @property
     def beatmap_info(self):
         return {
@@ -263,13 +267,13 @@ class OsuReplayDataManager:
         return 0
 
     def get_base_ar(self):
-        return float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        return self.base_ar
 
     def get_base_cs(self):
-        return float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        return self.base_cs
 
     def get_base_od(self):
-        return float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
+        return self.base_od
 
     def calculate_adjusted_od(self):
         od = self.get_base_od()

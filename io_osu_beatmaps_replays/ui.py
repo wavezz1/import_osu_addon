@@ -245,12 +245,13 @@ class OSU_OT_Import(Operator):
 
             result, data_manager = main_execution(context)
 
-            props.base_approach_rate = data_manager.get_base_ar()
-            props.adjusted_approach_rate = data_manager.calculate_adjusted_ar()
-            props.base_circle_size = data_manager.get_base_cs()
-            props.adjusted_circle_size = data_manager.calculate_adjusted_cs()
-            props.base_overall_difficulty = data_manager.get_base_od()
-            props.adjusted_overall_difficulty = data_manager.calculate_adjusted_od()
+            # Verwenden der gespeicherten Eigenschaften aus data_manager
+            props.base_approach_rate = data_manager.base_ar
+            props.adjusted_approach_rate = data_manager.adjusted_ar
+            props.base_circle_size = data_manager.base_cs
+            props.adjusted_circle_size = data_manager.adjusted_cs
+            props.base_overall_difficulty = data_manager.base_od
+            props.adjusted_overall_difficulty = data_manager.adjusted_od
             props.bpm = data_manager.beatmap_info["bpm"]
             props.total_hitobjects = data_manager.beatmap_info["total_hitobjects"]
 

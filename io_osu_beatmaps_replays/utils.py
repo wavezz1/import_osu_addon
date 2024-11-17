@@ -93,3 +93,33 @@ def evaluate_curve_at_t(curve_object, t):
 
     last_point = points[-1]
     return curve_object.matrix_world @ last_point
+
+def get_keyframe_values(hitobject, import_type, start_frame, end_frame, early_start_frame, approach_rate, osu_radius, extra_params=None):
+    frame_values = {
+        "show": [
+            (int(early_start_frame - 1), False),
+            (int(early_start_frame), True),
+            (int(end_frame - 1), True),
+            (int(end_frame), False)
+        ],
+        "was_hit": [
+            (int(start_frame - 1), False),
+            (int(start_frame), hitobject.was_hit)
+        ]
+    }
+
+    fixed_values = {
+        "ar": approach_rate,
+        "cs": osu_radius * SCALE_FACTOR * 2
+    }
+
+    if extra_params:
+        fixed_values.update(extra_params)
+
+    if hitobject.hit_type & 2 or hitobject.hit_type & 8:  # Slider oder Spinner
+        frame_values["was_completed"] = [
+            (int(end_frame - 1), False),
+            (int(end_frame), hitobject.was_completed)
+        ]
+
+    return frame_values, fixed_values

@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, timeit
+from .utils import map_osu_to_blender, timeit, get_keyframe_values
 from .constants import SCALE_FACTOR
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager

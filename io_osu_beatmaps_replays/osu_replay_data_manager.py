@@ -175,33 +175,23 @@ class OsuReplayDataManager:
                         break
                 hitobject.was_hit = was_hit
 
+
             elif hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 slider_end_time = (hitobject.time + slider_duration_ms) / speed_multiplier + audio_lead_in
-
                 # Update window_end for slider
                 window_end = slider_end_time + hit_window
-
                 end_idx = bisect.bisect_right(key_press_times, window_end)
-
                 # Überprüfen, ob der Slider zu irgendeinem Zeitpunkt getroffen wurde
+                was_hit = False
                 for idx in range(start_idx, end_idx):
                     if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
                         was_hit = True
                         break
                 hitobject.was_hit = was_hit
-
-                # Überprüfung, ob der Slider vollständig gespielt wurde
-                if was_hit:
-                    # Überprüfen, ob der Spieler die Taste am Ende des Sliders noch gedrückt hält
-                    end_press_idx = bisect.bisect_left(key_press_times, slider_end_time)
-                    was_completed = False
-                    if end_press_idx < len(key_press_times):
-                        if any(key_presses[end_press_idx - 1][k] for k in ('k1', 'k2', 'm1', 'm2')):
-                            was_completed = True
-                    hitobject.was_completed = was_completed
-                else:
-                    hitobject.was_completed = False
+                # Setzen von was_completed auf False hier
+                hitobject.was_completed = False  # Wir setzen es später basierend auf der Slider-Dauer
+                hitobject.slider_end_time = slider_end_time  # Speichern der Endzeit des Sliders
 
             elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)

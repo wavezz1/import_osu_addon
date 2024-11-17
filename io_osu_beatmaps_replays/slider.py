@@ -130,7 +130,9 @@ class SliderCreator:
                     early_start_frame,
                     approach_rate,
                     osu_radius,
-                    extra_params
+                    extra_params,
+                    ms_per_frame=ms_per_frame,
+                    audio_lead_in_frames=audio_lead_in_frames
                 )
 
                 attributes = {

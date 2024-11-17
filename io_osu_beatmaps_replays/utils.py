@@ -95,7 +95,7 @@ def evaluate_curve_at_t(curve_object, t):
     return curve_object.matrix_world @ last_point
 
 def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_frame, early_start_frame, approach_rate,
-                        osu_radius, extra_params=None):
+                        osu_radius, extra_params=None, ms_per_frame=None, audio_lead_in_frames=None):
     frame_values = {}
     fixed_values = {}
 
@@ -122,9 +122,11 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
             (int(end_frame - 1), True),
             (int(end_frame), False)
         ])
+        # Berechnung des Frames, an dem der Slider endet
+        slider_end_frame = (hitobject.slider_end_time / ms_per_frame) + audio_lead_in_frames
         frame_values["was_completed"] = [
-            (int(end_frame - 1), False),
-            (int(end_frame), True)
+            (int(slider_end_frame - 1), False),
+            (int(slider_end_frame), True)
         ]
         # Slider-spezifische fixed_values
         if extra_params:

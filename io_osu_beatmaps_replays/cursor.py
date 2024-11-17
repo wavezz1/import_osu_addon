@@ -1,7 +1,7 @@
 # cursor.py
 
 import bpy
-from .utils import map_osu_to_blender, timeit
+from .utils import map_osu_to_blender, timeit, set_cursor_keyframes
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 
@@ -34,7 +34,8 @@ class CursorCreator:
 
             create_geometry_nodes_modifier(cursor, "cursor")
 
-            frame_values = {
+            # Initiale Keyframes setzen
+            initial_frame_values = {
                 "k1": [
                     (1, False),
                 ],
@@ -48,13 +49,12 @@ class CursorCreator:
                     (1, False),
                 ]
             }
-
             set_modifier_inputs_with_keyframes(cursor, {
                 "k1": 'BOOLEAN',
                 "k2": 'BOOLEAN',
                 "m1": 'BOOLEAN',
                 "m2": 'BOOLEAN'
-            }, frame_values)
+            }, initial_frame_values)
 
             self.cursor_collection.objects.link(cursor)
             if cursor.users_collection:
@@ -86,34 +86,18 @@ class CursorCreator:
                     continue
 
                 corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
-                self.cursor.location = (corrected_x, corrected_y, corrected_z)
+                location = (corrected_x, corrected_y, corrected_z)
 
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
 
-                frame_values = {
-                    "k1": [
-                        (int(frame), bool(key_presses[i]['k1']))
-                    ],
-                    "k2": [
-                        (int(frame), bool(key_presses[i]['k2']))
-                    ],
-                    "m1": [
-                        (int(frame), bool(key_presses[i]['m1']))
-                    ],
-                    "m2": [
-                        (int(frame), bool(key_presses[i]['m2']))
-                    ]
-                }
-
-                set_modifier_inputs_with_keyframes(self.cursor, {
-                    "k1": 'BOOLEAN',
-                    "k2": 'BOOLEAN',
-                    "m1": 'BOOLEAN',
-                    "m2": 'BOOLEAN'
-                }, frame_values, fixed_values=None)
-
-                self.cursor.keyframe_insert(data_path='location', frame=frame)
+                # Verwende die neue Utility-Funktion
+                set_cursor_keyframes(
+                    self.cursor,
+                    frame,
+                    location,
+                    key_presses[i]
+                )
 
             print(f"Cursor '{self.cursor.name}' animated successfully.")
         except Exception as e:

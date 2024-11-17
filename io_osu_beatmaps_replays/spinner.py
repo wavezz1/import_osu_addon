@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, timeit
+from .utils import map_osu_to_blender, timeit, get_keyframe_values
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
@@ -40,6 +40,8 @@ class SpinnerCreator:
             early_start_frame = start_frame - preempt_frames
             end_frame = (end_time_ms / speed_multiplier) / ms_per_frame + audio_lead_in_frames
 
+            spinner_duration_frames = spinner_duration_ms / data_manager.get_ms_per_frame()
+
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 
             if self.import_type == 'FULL':
@@ -73,81 +75,53 @@ class SpinnerCreator:
 
             create_geometry_nodes_modifier(spinner, "spinner")
 
-            if self.import_type == 'BASE':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ],
-                    "was_completed": [
-                        (int(end_frame - 1), False),
-                        (int(end_frame), self.hitobject.was_completed)
-                    ]
-                }
+            # Vorbereitung der extra_params für get_keyframe_values
+            extra_params = {
+                "spinner_duration_ms": spinner_duration_ms,
+                "spinner_duration_frames": spinner_duration_frames
+            }
 
-                fixed_values = {
-                    "spinner_duration_ms": spinner_duration_ms,
-                    "spinner_duration_frames": spinner_duration_ms / data_manager.get_ms_per_frame()
-                }
+            # Verwendung der generischen get_keyframe_values-Funktion
+            frame_values, fixed_values = get_keyframe_values(
+                self.hitobject,
+                'spinner',
+                self.import_type,
+                start_frame,
+                end_frame,
+                early_start_frame,
+                approach_rate,
+                osu_radius=0,  # osu_radius wird für Spinner nicht benötigt
+                extra_params=extra_params
+            )
 
-                set_modifier_inputs_with_keyframes(spinner, {
-                    "show": 'BOOLEAN',
-                    "spinner_duration_ms": 'FLOAT',
-                    "spinner_duration_frames": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN'
-                }, frame_values, fixed_values)
+            attributes = {
+                "show": 'BOOLEAN',
+                "spinner_duration_ms": 'FLOAT',
+                "spinner_duration_frames": 'FLOAT',
+                "was_hit": 'BOOLEAN',
+                "was_completed": 'BOOLEAN'
+            }
 
-            elif self.import_type == 'FULL':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ],
-                    "was_completed": [
-                        (int(end_frame - 1), False),
-                        (int(end_frame), self.hitobject.was_completed)
-                    ]
-                }
+            set_modifier_inputs_with_keyframes(spinner, attributes, frame_values, fixed_values)
 
-                fixed_values = {
-                    "spinner_duration_ms": spinner_duration_ms,
-                    "spinner_duration_frames": spinner_duration_ms / data_manager.get_ms_per_frame()
-                }
-
-                set_modifier_inputs_with_keyframes(spinner, {
-                    "show": 'BOOLEAN',
-                    "spinner_duration_ms": 'FLOAT',
-                    "spinner_duration_frames": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN'
-                }, frame_values, fixed_values)
-
+            # Setzen der Sichtbarkeits-Keyframes für 'FULL' Importtyp
+            if self.import_type == 'FULL':
                 spinner.hide_viewport = True
                 spinner.hide_render = True
                 spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
                 spinner.hide_viewport = False
                 spinner.hide_render = False
                 spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                 spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
+                # Sichtbarkeit am Ende hängt von was_completed ab
                 if self.hitobject.was_completed:
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
                     spinner.hide_viewport = False
                     spinner.hide_render = False
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-                    spinner.keyframe_insert(data_path="hide_render", frame=int(end_frame))
                 else:
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
                     spinner.hide_viewport = True
                     spinner.hide_render = True
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-                    spinner.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+                spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+                spinner.keyframe_insert(data_path="hide_render", frame=int(end_frame))

@@ -4,6 +4,7 @@ import time
 import bpy
 import mathutils
 from .constants import SCALE_FACTOR
+from .geometry_nodes import set_modifier_inputs_with_keyframes
 
 def timeit(label):
     class Timer:
@@ -94,9 +95,6 @@ def evaluate_curve_at_t(curve_object, t):
     last_point = points[-1]
     return curve_object.matrix_world @ last_point
 
-
-# utils.py
-
 def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_frame, early_start_frame, approach_rate,
                         osu_radius, extra_params=None):
     frame_values = {}
@@ -151,3 +149,30 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
         ]
 
     return frame_values, fixed_values
+
+def set_cursor_keyframes(cursor, frame, location, key_presses):
+    # Setze die Positions-Keyframes
+    cursor.location = location
+    cursor.keyframe_insert(data_path='location', frame=frame)
+
+    # Setze die Keyframes für die Tasten
+    frame_values = {
+        "k1": [
+            (int(frame), bool(key_presses['k1']))
+        ],
+        "k2": [
+            (int(frame), bool(key_presses['k2']))
+        ],
+        "m1": [
+            (int(frame), bool(key_presses['m1']))
+        ],
+        "m2": [
+            (int(frame), bool(key_presses['m2']))
+        ]
+    }
+    set_modifier_inputs_with_keyframes(cursor, {
+        "k1": 'BOOLEAN',
+        "k2": 'BOOLEAN',
+        "m1": 'BOOLEAN',
+        "m2": 'BOOLEAN'
+    }, frame_values, fixed_values=None)

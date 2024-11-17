@@ -4,7 +4,7 @@ import bpy
 import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
-from .utils import map_osu_to_blender, evaluate_curve_at_t, timeit
+from .utils import map_osu_to_blender, evaluate_curve_at_t, timeit, get_keyframe_values
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
@@ -97,7 +97,7 @@ class SliderCreator:
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
                 slider["slider_duration_ms"] = slider_duration_ms
-                slider["slider_duration_frames"] = (slider_duration_ms / data_manager.get_ms_per_frame()) / speed_multiplier
+                slider["slider_duration_frames"] = slider_duration_frames
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 
@@ -109,99 +109,59 @@ class SliderCreator:
 
                 create_geometry_nodes_modifier(slider, "slider")
 
-                if self.import_type == 'BASE':
-                    frame_values = {
-                        "show": [
-                            (int(early_start_frame - 1), False),
-                            (int(early_start_frame), True),
-                            (int(end_frame - 1), True),
-                            (int(end_frame), False)
-                        ],
-                        "was_hit": [
-                            (int(start_frame - 1), False),
-                            (int(start_frame), self.hitobject.was_hit)
-                        ],
-                        "was_completed": [
-                            (int(end_frame - 1), False),
-                            (int(end_frame), self.hitobject.was_completed)
-                        ],
-                    }
+                # Vorbereitung der extra_params für get_keyframe_values
+                extra_params = {
+                    "slider_duration_ms": slider_duration_ms,
+                    "slider_duration_frames": slider_duration_frames,
+                    "repeat_count": repeat_count,
+                    "pixel_length": pixel_length
+                }
 
-                    fixed_values = {
-                        "ar": approach_rate,
-                        "cs": osu_radius * SCALE_FACTOR * 2,
-                        "slider_duration_ms": slider_duration_ms,
-                        "slider_duration_frames": slider_duration_frames,
-                        "repeat_count": repeat_count,
-                        "pixel_length": pixel_length
-                    }
+                # Verwendung der generischen get_keyframe_values-Funktion
+                frame_values, fixed_values = get_keyframe_values(
+                    self.hitobject,
+                    'slider',
+                    self.import_type,
+                    start_frame,
+                    end_frame,
+                    early_start_frame,
+                    approach_rate,
+                    osu_radius,
+                    extra_params
+                )
 
-                    set_modifier_inputs_with_keyframes(slider, {
-                        "show": 'BOOLEAN',
-                        "slider_duration_ms": 'FLOAT',
-                        "slider_duration_frames": 'FLOAT',
-                        "ar": 'FLOAT',
-                        "cs": 'FLOAT',
-                        "was_hit": 'BOOLEAN',
-                        "was_completed": 'BOOLEAN',
-                        "repeat_count": 'INT',
-                        "pixel_length": 'FLOAT',
-                    }, frame_values, fixed_values)
+                attributes = {
+                    "show": 'BOOLEAN',
+                    "slider_duration_ms": 'FLOAT',
+                    "slider_duration_frames": 'FLOAT',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN',
+                    "repeat_count": 'INT',
+                    "pixel_length": 'FLOAT'
+                }
 
+                set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
-                elif self.import_type == 'FULL':
-                    frame_values = {
-                        "show": [
-                            (int(early_start_frame - 1), False),
-                            (int(early_start_frame), True),
-                            (int(end_frame - 1), True),
-                            (int(end_frame), False)
-                        ],
-                        "was_hit": [
-                            (int(start_frame - 1), False),
-                            (int(start_frame), self.hitobject.was_hit)
-                        ],
-                        "was_completed": [
-                            (int(end_frame - 1), False),
-                            (int(end_frame), self.hitobject.was_completed)
-                        ]
-                    }
-
-                    fixed_values = {
-                        "ar": approach_rate,
-                        "cs": osu_radius * SCALE_FACTOR,
-                        "slider_duration_ms": slider_duration_ms,
-                        "slider_duration_frames": slider_duration_frames,
-                        "repeat_count": repeat_count,
-                        "pixel_length": pixel_length
-                    }
-
-                    set_modifier_inputs_with_keyframes(slider, {
-                        "show": 'BOOLEAN',
-                        "slider_duration_ms": 'FLOAT',
-                        "slider_duration_frames": 'FLOAT',
-                        "ar": 'FLOAT',
-                        "cs": 'FLOAT',
-                        "was_hit": 'BOOLEAN',
-                        "was_completed": 'BOOLEAN',
-                        "repeat_count": 'INT',
-                        "pixel_length": 'FLOAT'
-                    }, frame_values, fixed_values)
-
+                # Setzen der Sichtbarkeits-Keyframes für 'FULL' Importtyp
+                if self.import_type == 'FULL':
                     slider.hide_viewport = True
                     slider.hide_render = True
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                    slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
                     slider.hide_viewport = False
                     slider.hide_render = False
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                     slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
                     slider.hide_viewport = True
                     slider.hide_render = True
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False):
-                    slider_duration_frames = slider["slider_duration_frames"]
                     self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
                 if self.settings.get('import_slider_ticks', False):
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)

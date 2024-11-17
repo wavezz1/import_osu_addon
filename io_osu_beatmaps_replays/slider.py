@@ -4,7 +4,7 @@ import bpy
 import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
-from .utils import map_osu_to_blender, get_ms_per_frame, evaluate_curve_at_t, timeit
+from .utils import map_osu_to_blender, evaluate_curve_at_t, timeit, get_keyframe_values
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject
@@ -19,28 +19,31 @@ class SliderCreator:
         self.settings = settings
         self.data_manager = data_manager
         self.import_type = import_type
+        self.slider_resolution = settings.get('slider_resolution', 100)
+        self.import_slider_balls = settings.get('import_slider_balls', False)
+        self.import_slider_ticks = settings.get('import_slider_ticks', False)
         self.create_slider()
 
     def create_slider(self):
         with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
-            approach_rate = self.data_manager.calculate_adjusted_ar()
-            circle_size = self.data_manager.calculate_adjusted_cs()
-            osu_radius = (54.4 - 4.48 * circle_size) / 2
+            data_manager = self.data_manager
 
-            speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-            audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+            approach_rate = data_manager.adjusted_ar
+            osu_radius = data_manager.osu_radius
+            preempt_frames = data_manager.preempt_frames
+            audio_lead_in_frames = data_manager.audio_lead_in_frames
+            speed_multiplier = data_manager.speed_multiplier
+            ms_per_frame = data_manager.ms_per_frame
 
             start_time_ms = self.hitobject.time / speed_multiplier
-            slider_duration_ms = self.data_manager.calculate_slider_duration(self.hitobject)
+            slider_duration_ms = data_manager.calculate_slider_duration(self.hitobject)
             end_time_ms = (self.hitobject.time + slider_duration_ms) / speed_multiplier
 
-            start_frame = start_time_ms / get_ms_per_frame() + audio_lead_in_frames
-            end_frame = end_time_ms / get_ms_per_frame() + audio_lead_in_frames
-
-            preempt_frames = self.data_manager.calculate_preempt_time(approach_rate) / get_ms_per_frame()
+            start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
+            end_frame = end_time_ms / ms_per_frame + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
 
-            slider_duration_frames = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier
+            slider_duration_frames = slider_duration_ms / ms_per_frame
 
             if self.hitobject.extras:
                 curve_data_str = self.hitobject.extras[0]
@@ -77,39 +80,10 @@ class SliderCreator:
                 all_points = []
 
                 for segment_type, segment_points in segments:
-                    if segment_type == "L":
-                        for point in segment_points:
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    elif segment_type == "P":
-                        if len(segment_points) >= 3:
-                            spline_points = self.create_perfect_circle_spline(segment_points)
-                            for point in spline_points:
-                                corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                                all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                        else:
-                            for point in segment_points:
-                                corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                                all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    elif segment_type == "B":
-                        if len(segment_points) < 2:
-                            continue
-                        control_points = []
-                        for point in segment_points:
-                            x, y = point
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-                            control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                        curve_points = self.evaluate_bezier_curve(control_points)
-                        all_points.extend(curve_points)
-                    elif segment_type == "C":
-                        spline_points = self.create_catmull_rom_spline(segment_points)
-                        for point in spline_points:
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    else:
-                        for point in segment_points:
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+                    if len(segment_points) == 0:
+                        continue
+                    curve_points = self.evaluate_curve(segment_type, segment_points)
+                    all_points.extend(curve_points)
 
                 spline.points.add(len(all_points) - 1)
                 for i, point in enumerate(all_points):
@@ -119,13 +93,13 @@ class SliderCreator:
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
                     curve_data.extrude = osu_radius * SCALE_FACTOR * 2
                 elif self.import_type == 'BASE':
-                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",curve_data)
+                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
 
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
                 slider["slider_duration_ms"] = slider_duration_ms
-                slider["slider_duration_frames"] = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier
+                slider["slider_duration_frames"] = slider_duration_frames
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 
@@ -137,108 +111,81 @@ class SliderCreator:
 
                 create_geometry_nodes_modifier(slider, "slider")
 
-                if self.import_type == 'BASE':
-                    frame_values = {
-                        "show": [
-                            (int(early_start_frame - 1), False),
-                            (int(early_start_frame), True),
-                            (int(end_frame - 1), True),
-                            (int(end_frame), False)
-                        ],
-                        "was_hit": [
-                            (int(start_frame - 1), False),
-                            (int(start_frame), self.hitobject.was_hit)
-                        ],
-                        "was_completed": [
-                            (int(end_frame - 1), False),
-                            (int(end_frame), self.hitobject.was_completed)
-                        ],
-                    }
+                extra_params = {
+                    "slider_duration_ms": slider_duration_ms,
+                    "slider_duration_frames": slider_duration_frames,
+                    "repeat_count": repeat_count,
+                    "pixel_length": pixel_length
+                }
 
-                    fixed_values = {
-                        "ar": approach_rate,
-                        "cs": osu_radius * SCALE_FACTOR * 2,
-                        "slider_duration_ms": slider_duration_ms,
-                        "slider_duration_frames": slider_duration_frames,
-                        "repeat_count": repeat_count,
-                        "pixel_length": pixel_length
-                    }
+                frame_values, fixed_values = get_keyframe_values(
+                    self.hitobject,
+                    'slider',
+                    self.import_type,
+                    start_frame,
+                    end_frame,
+                    early_start_frame,
+                    approach_rate,
+                    osu_radius,
+                    extra_params,
+                    ms_per_frame=ms_per_frame,
+                    audio_lead_in_frames=audio_lead_in_frames
+                )
 
-                    set_modifier_inputs_with_keyframes(slider, {
-                        "show": 'BOOLEAN',
-                        "slider_duration_ms": 'FLOAT',
-                        "slider_duration_frames": 'FLOAT',
-                        "ar": 'FLOAT',
-                        "cs": 'FLOAT',
-                        "was_hit": 'BOOLEAN',
-                        "was_completed": 'BOOLEAN',
-                        "repeat_count": 'INT',
-                        "pixel_length": 'FLOAT',
-                    }, frame_values, fixed_values)
+                attributes = {
+                    "show": 'BOOLEAN',
+                    "slider_duration_ms": 'FLOAT',
+                    "slider_duration_frames": 'FLOAT',
+                    "ar": 'FLOAT',
+                    "cs": 'FLOAT',
+                    "was_hit": 'BOOLEAN',
+                    "was_completed": 'BOOLEAN',
+                    "repeat_count": 'INT',
+                    "pixel_length": 'FLOAT'
+                }
 
+                set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
-                elif self.import_type == 'FULL':
-                    frame_values = {
-                        "show": [
-                            (int(early_start_frame - 1), False),
-                            (int(early_start_frame), True),
-                            (int(end_frame - 1), True),
-                            (int(end_frame), False)  # Set visibility to False after slider duration
-                        ],
-                        "was_hit": [
-                            (int(start_frame - 1), False),
-                            (int(start_frame), self.hitobject.was_hit)
-                        ],
-                        "was_completed": [
-                            (int(end_frame - 1), False),
-                            (int(end_frame), self.hitobject.was_completed)
-                        ]
-                    }
-
-                    fixed_values = {
-                        "ar": approach_rate,
-                        "cs": osu_radius * SCALE_FACTOR,
-                        "slider_duration_ms": slider_duration_ms,
-                        "slider_duration_frames": slider_duration_frames,
-                        "repeat_count": repeat_count,
-                        "pixel_length": pixel_length
-                    }
-
-                    set_modifier_inputs_with_keyframes(slider, {
-                        "show": 'BOOLEAN',
-                        "slider_duration_ms": 'FLOAT',
-                        "slider_duration_frames": 'FLOAT',
-                        "ar": 'FLOAT',
-                        "cs": 'FLOAT',
-                        "was_hit": 'BOOLEAN',
-                        "was_completed": 'BOOLEAN',
-                        "repeat_count": 'INT',
-                        "pixel_length": 'FLOAT'
-                    }, frame_values, fixed_values)
-
+                if self.import_type == 'FULL':
                     slider.hide_viewport = True
                     slider.hide_render = True
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                    slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
                     slider.hide_viewport = False
                     slider.hide_render = False
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                     slider.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
                     slider.hide_viewport = True
                     slider.hide_render = True
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False):
-                    slider_duration_frames = slider["slider_duration_frames"]
                     self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
                 if self.settings.get('import_slider_ticks', False):
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
-    def evaluate_bezier_curve(self, control_points, num_points=None):
+    def evaluate_curve(self, segment_type, segment_points):
+        if segment_type == "L":
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
+        elif segment_type == "P":
+            return self.evaluate_perfect_circle(segment_points)
+        elif segment_type == "B":
+            return self.evaluate_bezier_curve(segment_points)
+        elif segment_type == "C":
+            return self.evaluate_catmull_rom_spline(segment_points)
+        else:
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
+
+    def evaluate_bezier_curve(self, control_points_osu, num_points=None):
         if num_points is None:
-            num_points = self.settings.get('slider_resolution', 100)
-        n = len(control_points) - 1
+            num_points = self.slider_resolution
+        n = len(control_points_osu) - 1
         curve_points = []
+
+        control_points = [Vector(map_osu_to_blender(x, y)) for x, y in control_points_osu]
 
         for t in [i / num_points for i in range(num_points + 1)]:
             point = Vector((0.0, 0.0, 0.0))
@@ -251,11 +198,11 @@ class SliderCreator:
     def bernstein_polynomial(self, i, n, t):
         return math.comb(n, i) * (t ** i) * ((1 - t) ** (n - i))
 
-    def create_perfect_circle_spline(self, points):
-        if len(points) < 3:
-            return points
+    def evaluate_perfect_circle(self, points_osu):
+        if len(points_osu) < 3:
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
-        p1, p2, p3 = [Vector((pt[0], pt[1])) for pt in points[:3]]
+        p1, p2, p3 = [Vector(point) for point in points_osu[:3]]
 
         def circle_center(p1, p2, p3):
             temp = p2 - p1
@@ -276,7 +223,7 @@ class SliderCreator:
 
         center = circle_center(p1, p2, p3)
         if center is None:
-            return points
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         radius = (p1 - center).length
 
@@ -300,22 +247,27 @@ class SliderCreator:
             angle = angle_start + t * (angle_end - angle_start)
             x = center.x + radius * math.cos(angle)
             y = center.y + radius * math.sin(angle)
-            arc_points.append((x, y))
+            arc_points.append(Vector(map_osu_to_blender(x, y)))
 
         return arc_points
 
-    def create_catmull_rom_spline(self, points, tension=0.0):
-        if len(points) < 2:
-            return points
+    def evaluate_catmull_rom_spline(self, points_osu, tension=0.0):
+        if len(points_osu) < 2:
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         spline_points = []
-        n = len(points)
+        n = len(points_osu)
         num_points = self.settings.get('slider_resolution', 20)
         for i in range(n - 1):
-            p0 = Vector(points[i - 1]) if i > 0 else Vector(points[i])
-            p1 = Vector(points[i])
-            p2 = Vector(points[i + 1])
-            p3 = Vector(points[i + 2]) if i + 2 < n else Vector(points[i + 1])
+            p0 = Vector(points_osu[i - 1]) if i > 0 else Vector(points_osu[i])
+            p1 = Vector(points_osu[i])
+            p2 = Vector(points_osu[i + 1])
+            p3 = Vector(points_osu[i + 2]) if i + 2 < n else Vector(points_osu[i + 1])
+
+            p0 = Vector(map_osu_to_blender(p0.x, p0.y))
+            p1 = Vector(map_osu_to_blender(p1.x, p1.y))
+            p2 = Vector(map_osu_to_blender(p2.x, p2.y))
+            p3 = Vector(map_osu_to_blender(p3.x, p3.y))
 
             for t in [j / num_points for j in range(int(num_points) + 1)]:
                 t0 = ((-tension * t + 2 * tension * t ** 2 - tension * t ** 3) / 2)
@@ -323,7 +275,7 @@ class SliderCreator:
                 t2 = ((tension * t + (3 - 2 * tension) * t ** 2 + (tension - 2) * t ** 3) / 2)
                 t3 = ((-tension * t ** 2 + tension * t ** 3) / 2)
                 point = t0 * p0 + t1 * p1 + t2 * p2 + t3 * p3
-                spline_points.append((point.x, point.y))
+                spline_points.append(point)
 
         return spline_points
 
@@ -374,7 +326,7 @@ class SliderCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        speed_multiplier = self.settings.get('speed_multiplier', 1.0)
+        speed_multiplier = self.data_manager.speed_multiplier
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         inherited_multiplier = 1.0
 
@@ -390,6 +342,8 @@ class SliderCreator:
 
         effective_speed = slider_multiplier * inherited_multiplier
         adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
+
+        end_frame = start_frame + adjusted_duration_frames
 
         slider.data.use_path = True
         slider.data.path_duration = int(adjusted_duration_frames)
@@ -424,8 +378,8 @@ class SliderCreator:
                     col.objects.unlink(slider_ball)
 
         if self.import_type == 'FULL':
-            early_start_frame = start_frame - (slider_duration_frames / speed_multiplier)
-            end_frame = start_frame + slider_duration_frames
+            preempt_frames = self.data_manager.preempt_frames
+            early_start_frame = start_frame - preempt_frames
 
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
@@ -437,14 +391,15 @@ class SliderCreator:
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+            slider_ball.hide_viewport = False
+            slider_ball.hide_render = False
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame - 1))
 
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
-
 
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         tick_interval_ms = 100

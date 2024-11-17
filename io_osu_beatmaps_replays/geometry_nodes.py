@@ -60,11 +60,10 @@ def setup_geometry_node_trees():
         for key, node_def in node_definitions.items():
             name = node_def["name"]
             attributes = node_def["attributes"]
-            if name not in bpy.data.node_groups:
-                node_groups[key] = create_geometry_nodes_tree(name, attributes)
-            else:
-                node_groups[key] = bpy.data.node_groups[name]
-
+            node_group = bpy.data.node_groups.get(name)
+            if node_group is None:
+                node_group = create_geometry_nodes_tree(name, attributes)
+            node_groups[key] = node_group
 
 def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:

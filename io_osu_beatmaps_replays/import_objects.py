@@ -34,9 +34,6 @@ def import_hitobjects(data_manager, settings, props):
                 SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager, import_type)
                 global_index += 1
 
-        if props.import_cursors and import_type == 'BASE':
+        if props.import_cursors:
             cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
             cursor_creator.animate_cursor()
-        elif props.import_cursors and import_type == 'FULL':
-            cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
-            cursor_creator.animate_cursor_full()

@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, get_ms_per_frame, timeit
+from .utils import map_osu_to_blender, timeit, get_keyframe_values
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
@@ -20,23 +20,27 @@ class SpinnerCreator:
 
     def create_spinner(self):
         with timeit(f"Erstellen von Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
-            approach_rate = self.data_manager.calculate_adjusted_ar()
-            preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
-            preempt_frames = preempt_ms / get_ms_per_frame()
+            data_manager = self.data_manager
 
-            audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+            approach_rate = data_manager.adjusted_ar
+            preempt_frames = data_manager.preempt_frames
+            audio_lead_in_frames = data_manager.audio_lead_in_frames
+            speed_multiplier = data_manager.speed_multiplier
+            ms_per_frame = data_manager.ms_per_frame
 
-            start_time_ms = self.hitobject.time / self.settings.get('speed_multiplier', 1.0)
+            start_time_ms = self.hitobject.time / speed_multiplier
             if self.hitobject.extras:
                 end_time_ms = int(self.hitobject.extras[0])
-                spinner_duration_ms = (end_time_ms - self.hitobject.time) / self.settings.get('speed_multiplier', 1.0)
+                spinner_duration_ms = (end_time_ms - self.hitobject.time) / speed_multiplier
             else:
                 print(f"No end time found for spinner at {self.hitobject.time} ms.")
                 return
 
-            end_frame = (end_time_ms / self.settings.get('speed_multiplier', 1.0)) / get_ms_per_frame() + audio_lead_in_frames
-            start_frame = start_time_ms / get_ms_per_frame() + audio_lead_in_frames
+            start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
+            end_frame = (end_time_ms / speed_multiplier) / ms_per_frame + audio_lead_in_frames
+
+            spinner_duration_frames = spinner_duration_ms / data_manager.get_ms_per_frame()
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 
@@ -71,81 +75,49 @@ class SpinnerCreator:
 
             create_geometry_nodes_modifier(spinner, "spinner")
 
-            if self.import_type == 'BASE':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ],
-                    "was_completed": [
-                        (int(end_frame - 1), False),
-                        (int(end_frame), self.hitobject.was_completed)
-                    ]
-                }
+            extra_params = {
+                "spinner_duration_ms": spinner_duration_ms,
+                "spinner_duration_frames": spinner_duration_frames
+            }
 
-                fixed_values = {
-                    "spinner_duration_ms": spinner_duration_ms,
-                    "spinner_duration_frames": spinner_duration_ms / get_ms_per_frame()
-                }
+            frame_values, fixed_values = get_keyframe_values(
+                self.hitobject,
+                'spinner',
+                self.import_type,
+                start_frame,
+                end_frame,
+                early_start_frame,
+                approach_rate,
+                osu_radius=0,
+                extra_params=extra_params
+            )
 
-                set_modifier_inputs_with_keyframes(spinner, {
-                    "show": 'BOOLEAN',
-                    "spinner_duration_ms": 'FLOAT',
-                    "spinner_duration_frames": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN'
-                }, frame_values, fixed_values)
+            attributes = {
+                "show": 'BOOLEAN',
+                "spinner_duration_ms": 'FLOAT',
+                "spinner_duration_frames": 'FLOAT',
+                "was_hit": 'BOOLEAN',
+                "was_completed": 'BOOLEAN'
+            }
 
-            elif self.import_type == 'FULL':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ],
-                    "was_completed": [
-                        (int(end_frame - 1), False),
-                        (int(end_frame), self.hitobject.was_completed)
-                    ]
-                }
+            set_modifier_inputs_with_keyframes(spinner, attributes, frame_values, fixed_values)
 
-                fixed_values = {
-                    "spinner_duration_ms": spinner_duration_ms,
-                    "spinner_duration_frames": spinner_duration_ms / get_ms_per_frame()
-                }
-
-                set_modifier_inputs_with_keyframes(spinner, {
-                    "show": 'BOOLEAN',
-                    "spinner_duration_ms": 'FLOAT',
-                    "spinner_duration_frames": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN'
-                }, frame_values, fixed_values)
-
+            if self.import_type == 'FULL':
                 spinner.hide_viewport = True
                 spinner.hide_render = True
                 spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
                 spinner.hide_viewport = False
                 spinner.hide_render = False
                 spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                 spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
                 if self.hitobject.was_completed:
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
                     spinner.hide_viewport = False
                     spinner.hide_render = False
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-                    spinner.keyframe_insert(data_path="hide_render", frame=int(end_frame))
                 else:
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
                     spinner.hide_viewport = True
                     spinner.hide_render = True
-                    spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-                    spinner.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+                spinner.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+                spinner.keyframe_insert(data_path="hide_render", frame=int(end_frame))

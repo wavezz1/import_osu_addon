@@ -4,7 +4,6 @@ import bpy
 import os
 from .osu_replay_data_manager import OsuReplayDataManager
 from .import_objects import import_hitobjects
-from .mod_functions import calculate_speed_multiplier
 from .utils import timeit
 
 
@@ -33,16 +32,12 @@ def main_execution(context):
     with timeit("Hits Überprüfen"):
         data_manager.check_hits()
 
-    with timeit("Speed Multiplier Berechnen"):
-        speed_multiplier = calculate_speed_multiplier(data_manager.mods)
-
     settings = {
-        'speed_multiplier': speed_multiplier,
-        'audio_lead_in': data_manager.beatmap_info.get("audio_lead_in", 0),
+        'audio_lead_in': data_manager.audio_lead_in,
         'import_slider_balls': props.import_slider_balls,
         'import_slider_ticks': props.import_slider_ticks,
-        'slider_resolution': props.slider_resolution,  # Added this line
-        'import_type': props.import_type  # Added import_type
+        'slider_resolution': props.slider_resolution,
+        'import_type': props.import_type
     }
 
     with timeit("Hitobjects Importieren"):

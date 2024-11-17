@@ -2,6 +2,7 @@
 
 import bpy
 import os
+import bisect
 from .info_parser import OsuParser, OsrParser
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from .mod_functions import calculate_speed_multiplier
@@ -12,7 +13,25 @@ class OsuReplayDataManager:
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
         self.hitobjects_processor = HitObjectsProcessor(self)
+        self.speed_multiplier = calculate_speed_multiplier(self.mods)
+        self.ms_per_frame = self.get_ms_per_frame()
 
+        # Initialisierung der Instanzattribute
+        self.audio_lead_in = self.osu_parser.audio_lead_in
+        self.adjusted_ar = None
+        self.adjusted_cs = None
+        self.adjusted_od = None
+        self.preempt_ms = None
+        self.preempt_frames = None
+        self.osu_radius = None
+        self.audio_lead_in_frames = None
+
+        # Speichern der Basiswerte
+        self.base_ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        self.base_cs = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        self.base_od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
+
+        self.calculate_adjusted_values()
     @property
     def beatmap_info(self):
         return {
@@ -74,6 +93,19 @@ class OsuReplayDataManager:
         print("\n--- Key Presses (First 10 Presses) ---")
         print(self.key_presses[:10])
 
+    def get_ms_per_frame(self):
+        fps = bpy.context.scene.render.fps
+        return 1000 / fps  # Milliseconds per frame
+
+    def calculate_adjusted_values(self):
+        self.adjusted_ar = self.calculate_adjusted_ar()
+        self.adjusted_cs = self.calculate_adjusted_cs()
+        self.adjusted_od = self.calculate_adjusted_od()
+        self.preempt_ms = self.calculate_preempt_time(self.adjusted_ar)
+        self.preempt_frames = self.preempt_ms / self.ms_per_frame
+        self.osu_radius = (54.4 - 4.48 * self.adjusted_cs) / 2
+        self.audio_lead_in_frames = self.audio_lead_in / self.ms_per_frame
+
     def import_audio(self):
         audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")
         if not audio_filename:
@@ -99,91 +131,87 @@ class OsuReplayDataManager:
         print(f"Audio file '{audio_filename}' imported with {pitch}x pitch.")
 
     def calculate_hit_windows(self):
-        od = self.calculate_adjusted_od()
+        od = self.adjusted_od
 
         hit_window_300 = max(80 - (6 * od), 0)
         hit_window_100 = max(140 - (8 * od), 0)
         hit_window_50 = max(200 - (10 * od), 0)
 
-        speed_multiplier = calculate_speed_multiplier(self.mods)
         return (
-            hit_window_300 / speed_multiplier,
-            hit_window_100 / speed_multiplier,
-            hit_window_50 / speed_multiplier,
+            hit_window_300 / self.speed_multiplier,
+            hit_window_100 / self.speed_multiplier,
+            hit_window_50 / self.speed_multiplier,
         )
 
     def check_hits(self):
         hit_window_300, hit_window_100, hit_window_50 = self.calculate_hit_windows()
         hit_window = hit_window_50
 
-        speed_multiplier = calculate_speed_multiplier(self.mods)
-        audio_lead_in = self.beatmap_info['audio_lead_in']
+        speed_multiplier = self.speed_multiplier
+        audio_lead_in = self.audio_lead_in
 
         key_press_times = [
             (kp['time'] / speed_multiplier) + audio_lead_in for kp in self.key_presses
         ]
 
+        key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses), key=lambda x: x[0]))
+
         for hitobject in self.hitobjects:
             hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in
+
+            window_start = hitobject_time - hit_window
+            window_end = hitobject_time + hit_window
+
+            start_idx = bisect.bisect_left(key_press_times, window_start)
+            end_idx = bisect.bisect_right(key_press_times, window_end)
+
             was_hit = False
 
-            if hitobject.hit_type & 1:
-                window_start = hitobject_time - hit_window
-                window_end = hitobject_time + hit_window
-
-                for idx, kp_time in enumerate(key_press_times):
-                    if window_start <= kp_time <= window_end:
-                        if any([self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')]):
-                            was_hit = True
-                            break
-                    elif kp_time > window_end:
+            if hitobject.hit_type & 1:  # Circle
+                for idx in range(start_idx, end_idx):
+                    if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                        was_hit = True
                         break
-
                 hitobject.was_hit = was_hit
 
-            elif hitobject.hit_type & 2:
+            elif hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 slider_end_time = (hitobject.time + slider_duration_ms) / speed_multiplier + audio_lead_in
-
-                window_start = hitobject_time - hit_window
                 window_end = slider_end_time + hit_window
-
-                for idx, kp_time in enumerate(key_press_times):
-                    if window_start <= kp_time <= window_end:
-                        if any([self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')]):
-                            was_hit = True
-                            break
-                    elif kp_time > window_end:
+                end_idx = bisect.bisect_right(key_press_times, window_end)
+                was_hit = False
+                for idx in range(start_idx, end_idx):
+                    if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                        was_hit = True
                         break
-
                 hitobject.was_hit = was_hit
-                hitobject.was_completed = was_hit and all(
-                    any(self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2'))
-                    for idx, kp_time in enumerate(key_press_times)
-                    if hitobject_time <= kp_time <= slider_end_time
-                )
+                hitobject.was_completed = False  # Wir setzen es später basierend auf der Slider-Dauer
+                hitobject.slider_end_time = slider_end_time  # Speichern der Endzeit des Sliders
 
-            elif hitobject.hit_type & 8:
+            elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 spinner_end_time = (hitobject.time + spinner_duration_ms) / speed_multiplier + audio_lead_in
 
-                window_start = hitobject_time - hit_window
                 window_end = spinner_end_time + hit_window
 
-                for idx, kp_time in enumerate(key_press_times):
-                    if window_start <= kp_time <= window_end:
-                        if any([self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')]):
-                            was_hit = True
-                            break
-                    elif kp_time > window_end:
-                        break
+                end_idx = bisect.bisect_right(key_press_times, window_end)
 
+                for idx in range(start_idx, end_idx):
+                    if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                        was_hit = True
+                        break
                 hitobject.was_hit = was_hit
-                hitobject.was_completed = was_hit and all(
-                    any(self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2'))
-                    for idx, kp_time in enumerate(key_press_times)
-                    if hitobject_time <= kp_time <= spinner_end_time
-                )
+
+                if was_hit:
+                    end_press_idx = bisect.bisect_left(key_press_times, spinner_end_time)
+                    was_completed = False
+                    if end_press_idx < len(key_press_times):
+                        if any(key_presses[end_press_idx - 1][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                            was_completed = True
+                    hitobject.was_completed = was_completed
+                else:
+                    hitobject.was_completed = False
+
     def calculate_slider_duration(self, hitobject):
         start_time_ms = hitobject.time
         repeat_count = int(hitobject.extras[1]) if len(hitobject.extras) > 1 else 1
@@ -223,13 +251,13 @@ class OsuReplayDataManager:
         return 0
 
     def get_base_ar(self):
-        return float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
+        return self.base_ar
 
     def get_base_cs(self):
-        return float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
+        return self.base_cs
 
     def get_base_od(self):
-        return float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
+        return self.base_od
 
     def calculate_adjusted_od(self):
         od = self.get_base_od()
@@ -263,3 +291,4 @@ class OsuReplayDataManager:
     def calculate_preempt_time(self, ar):
         preempt = 1800 - (120 * ar) if ar < 5 else 1200 - (150 * (ar - 5))
         return preempt / calculate_speed_multiplier(self.mods)
+

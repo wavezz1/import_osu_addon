@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, get_ms_per_frame, timeit
+from .utils import map_osu_to_blender, timeit, get_keyframe_values
 from .constants import SCALE_FACTOR
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
@@ -21,23 +21,24 @@ class CircleCreator:
 
     def create_circle(self):
         with timeit(f"Erstellen von Kreis {self.global_index:03d}_circle_{self.hitobject.time}"):
-            approach_rate = self.data_manager.calculate_adjusted_ar()
-            preempt_ms = self.data_manager.calculate_preempt_time(approach_rate)
-            preempt_frames = preempt_ms / get_ms_per_frame()
+            data_manager = self.data_manager
 
-            circle_size = self.data_manager.calculate_adjusted_cs()
-            audio_lead_in_frames = self.data_manager.beatmap_info["audio_lead_in"] / get_ms_per_frame()
+            approach_rate = data_manager.adjusted_ar
+            preempt_frames = data_manager.preempt_frames
+            circle_size = data_manager.adjusted_cs
+            audio_lead_in_frames = data_manager.audio_lead_in_frames
+            osu_radius = data_manager.osu_radius
 
             x = self.hitobject.x
             y = self.hitobject.y
             time_ms = self.hitobject.time
-            speed_multiplier = self.settings.get('speed_multiplier', 1.0)
-            start_frame = ((time_ms / speed_multiplier) / get_ms_per_frame()) + audio_lead_in_frames
+            speed_multiplier = data_manager.speed_multiplier
+            ms_per_frame = data_manager.ms_per_frame
+
+            start_frame = ((time_ms / speed_multiplier) / ms_per_frame) + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-
-            osu_radius = (54.4 - 4.48 * circle_size) / 2
 
             if self.import_type == 'FULL':
                 bpy.ops.mesh.primitive_circle_add(
@@ -71,63 +72,40 @@ class CircleCreator:
 
             create_geometry_nodes_modifier(circle, "circle")
 
-            if self.import_type == 'BASE':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ]
-                }
+            end_frame = start_frame + 1
 
-                fixed_values = {
-                    "ar": approach_rate,
-                    "cs": osu_radius * SCALE_FACTOR * 2
-                }
+            frame_values, fixed_values = get_keyframe_values(
+                self.hitobject,
+                'circle',
+                self.import_type,
+                start_frame,
+                end_frame,
+                early_start_frame,
+                approach_rate,
+                osu_radius
+            )
 
-                set_modifier_inputs_with_keyframes(circle, {
-                    "show": 'BOOLEAN',
-                    "was_hit": 'BOOLEAN',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT'
-                }, frame_values, fixed_values)
+            attributes = {
+                "show": 'BOOLEAN',
+                "was_hit": 'BOOLEAN',
+                "ar": 'FLOAT',
+                "cs": 'FLOAT'
+            }
 
-            elif self.import_type == 'FULL':
-                frame_values = {
-                    "show": [
-                        (int(early_start_frame - 1), False),
-                        (int(early_start_frame), True),
-                        (int(start_frame + 1), False)
-                    ],
-                    "was_hit": [
-                        (int(start_frame - 1), False),
-                        (int(start_frame), self.hitobject.was_hit)
-                    ]
-                }
+            set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 
-                fixed_values = {
-                    "ar": approach_rate,
-                    "cs": osu_radius * SCALE_FACTOR
-                }
-
-                set_modifier_inputs_with_keyframes(circle, {
-                    "show": 'BOOLEAN',
-                    "was_hit": 'BOOLEAN',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT'
-                }, frame_values, fixed_values)
-
+            if self.import_type == 'FULL':
                 circle.hide_viewport = True
                 circle.hide_render = True
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+
                 circle.hide_viewport = False
                 circle.hide_render = False
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                 circle.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+
                 circle.hide_viewport = True
                 circle.hide_render = True
-                circle.keyframe_insert(data_path="hide_viewport", frame=int(start_frame + 1))
-                circle.keyframe_insert(data_path="hide_render", frame=int(start_frame + 1))
+                circle.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
+                circle.keyframe_insert(data_path="hide_render", frame=int(end_frame))

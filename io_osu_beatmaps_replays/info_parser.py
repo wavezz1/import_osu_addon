@@ -3,7 +3,21 @@
 import osrparse
 
 class OsuParser:
+    _cache = {}
+
+    def __new__(cls, osu_file_path):
+        if osu_file_path in cls._cache:
+            return cls._cache[osu_file_path]
+        else:
+            instance = super(OsuParser, cls).__new__(cls)
+            cls._cache[osu_file_path] = instance
+            return instance
+
     def __init__(self, osu_file_path):
+        if hasattr(self, 'initialized'):
+            return
+        self.initialized = True
+
         self.osu_file_path = osu_file_path
         self.audio_lead_in = 0
         self.timing_points = []

@@ -24,10 +24,6 @@ def timeit(label):
 
     return Timer(label)
 
-def get_ms_per_frame():
-    fps = bpy.context.scene.render.fps
-    return 1000 / fps  # Milliseconds per frame
-
 def create_collection(name):
     collection = bpy.data.collections.get(name)
     if collection is None:
@@ -36,9 +32,15 @@ def create_collection(name):
     return collection
 
 def map_osu_to_blender(x, y):
+    if not hasattr(map_osu_to_blender, 'cache'):
+        map_osu_to_blender.cache = {}
+    key = (x, y)
+    if key in map_osu_to_blender.cache:
+        return map_osu_to_blender.cache[key]
     corrected_x = (x - 256) * SCALE_FACTOR  # Centering on zero
     corrected_y = 0
     corrected_z = (192 - y) * SCALE_FACTOR  # Invert and center
+    map_osu_to_blender.cache[key] = (corrected_x, corrected_y, corrected_z)
     return corrected_x, corrected_y, corrected_z
 
 def evaluate_curve_at_t(curve_object, t):
@@ -91,3 +93,53 @@ def evaluate_curve_at_t(curve_object, t):
 
     last_point = points[-1]
     return curve_object.matrix_world @ last_point
+
+def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_frame, early_start_frame, approach_rate,
+                        osu_radius, extra_params=None, ms_per_frame=None, audio_lead_in_frames=None):
+    frame_values = {}
+    fixed_values = {}
+
+    frame_values["show"] = [
+        (int(early_start_frame - 1), False),
+        (int(early_start_frame), True),
+    ]
+    frame_values["was_hit"] = [
+        (int(start_frame - 1), False),
+        (int(start_frame), hitobject.was_hit)
+    ]
+
+    fixed_values["ar"] = approach_rate
+    fixed_values["cs"] = osu_radius * SCALE_FACTOR * (2 if import_type == 'BASE' else 1)
+
+    if object_type == 'circle':
+        if import_type == 'FULL':
+            frame_values["show"].append((int(start_frame + 1), False))
+    elif object_type == 'slider':
+        frame_values["show"].extend([
+            (int(end_frame - 1), True),
+            (int(end_frame), False)
+        ])
+        slider_end_frame = (hitobject.slider_end_time / ms_per_frame) + audio_lead_in_frames
+        frame_values["was_completed"] = [
+            (int(slider_end_frame - 1), False),
+            (int(slider_end_frame), True)
+        ]
+        if extra_params:
+            fixed_values.update(extra_params)
+    elif object_type == 'spinner':
+        frame_values["was_completed"] = [
+            (int(end_frame - 1), False),
+            (int(end_frame), True)
+        ]
+        if extra_params:
+            fixed_values.update(extra_params)
+
+    if import_type == 'BASE' and object_type != 'circle':
+        frame_values["show"] = [
+            (int(early_start_frame - 1), False),
+            (int(early_start_frame), True),
+            (int(end_frame - 1), True),
+            (int(end_frame), False)
+        ]
+
+    return frame_values, fixed_values

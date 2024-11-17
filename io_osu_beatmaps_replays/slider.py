@@ -126,7 +126,7 @@ class SliderCreator:
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
                 slider["slider_duration_ms"] = slider_duration_ms
-                slider["slider_duration_frames"] = (slider_duration_ms / get_ms_per_frame()) / speed_multiplier
+                slider["slider_duration_frames"] = (slider_duration_ms / data_manager.get_ms_per_frame()) / speed_multiplier
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 

@@ -91,7 +91,7 @@ class SpinnerCreator:
 
                 fixed_values = {
                     "spinner_duration_ms": spinner_duration_ms,
-                    "spinner_duration_frames": spinner_duration_ms / get_ms_per_frame()
+                    "spinner_duration_frames": spinner_duration_ms / data_manager.get_ms_per_frame()
                 }
 
                 set_modifier_inputs_with_keyframes(spinner, {
@@ -120,7 +120,7 @@ class SpinnerCreator:
 
                 fixed_values = {
                     "spinner_duration_ms": spinner_duration_ms,
-                    "spinner_duration_frames": spinner_duration_ms / get_ms_per_frame()
+                    "spinner_duration_frames": spinner_duration_ms / data_manager.get_ms_per_frame()
                 }
 
                 set_modifier_inputs_with_keyframes(spinner, {

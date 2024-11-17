@@ -157,7 +157,6 @@ class OsuReplayDataManager:
         # Sicherstellen, dass key_press_times sortiert sind
         key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses), key=lambda x: x[0]))
 
-
         for hitobject in self.hitobjects:
             hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in
 
@@ -185,6 +184,7 @@ class OsuReplayDataManager:
 
                 end_idx = bisect.bisect_right(key_press_times, window_end)
 
+                # Überprüfen, ob der Slider zu irgendeinem Zeitpunkt getroffen wurde
                 for idx in range(start_idx, end_idx):
                     if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
                         was_hit = True
@@ -193,11 +193,12 @@ class OsuReplayDataManager:
 
                 # Überprüfung, ob der Slider vollständig gespielt wurde
                 if was_hit:
-                    was_completed = True
-                    for idx in range(start_idx, end_idx):
-                        if not any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
-                            was_completed = False
-                            break
+                    # Überprüfen, ob der Spieler die Taste am Ende des Sliders noch gedrückt hält
+                    end_press_idx = bisect.bisect_left(key_press_times, slider_end_time)
+                    was_completed = False
+                    if end_press_idx < len(key_press_times):
+                        if any(key_presses[end_press_idx - 1][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                            was_completed = True
                     hitobject.was_completed = was_completed
                 else:
                     hitobject.was_completed = False
@@ -211,6 +212,7 @@ class OsuReplayDataManager:
 
                 end_idx = bisect.bisect_right(key_press_times, window_end)
 
+                # Überprüfen, ob der Spinner zu irgendeinem Zeitpunkt getroffen wurde
                 for idx in range(start_idx, end_idx):
                     if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
                         was_hit = True
@@ -219,11 +221,12 @@ class OsuReplayDataManager:
 
                 # Überprüfung, ob der Spinner vollständig gespielt wurde
                 if was_hit:
-                    was_completed = True
-                    for idx in range(start_idx, end_idx):
-                        if not any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
-                            was_completed = False
-                            break
+                    # Überprüfen, ob der Spieler die Taste am Ende des Spinners noch gedrückt hält
+                    end_press_idx = bisect.bisect_left(key_press_times, spinner_end_time)
+                    was_completed = False
+                    if end_press_idx < len(key_press_times):
+                        if any(key_presses[end_press_idx - 1][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                            was_completed = True
                     hitobject.was_completed = was_completed
                 else:
                     hitobject.was_completed = False

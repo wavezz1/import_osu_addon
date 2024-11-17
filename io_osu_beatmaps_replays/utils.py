@@ -124,7 +124,7 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
         ])
         frame_values["was_completed"] = [
             (int(end_frame - 1), False),
-            (int(end_frame), hitobject.was_completed)
+            (int(end_frame), True)
         ]
         # Slider-spezifische fixed_values
         if extra_params:
@@ -132,7 +132,7 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
     elif object_type == 'spinner':
         frame_values["was_completed"] = [
             (int(end_frame - 1), False),
-            (int(end_frame), hitobject.was_completed)
+            (int(end_frame), True)
         ]
         # Spinner-spezifische fixed_values
         if extra_params:

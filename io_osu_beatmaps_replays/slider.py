@@ -385,9 +385,11 @@ class SliderCreator:
                     col.objects.unlink(slider_ball)
 
         if self.import_type == 'FULL':
-            early_start_frame = start_frame - (slider_duration_frames / speed_multiplier)
+            preempt_frames = self.data_manager.preempt_frames
+            early_start_frame = start_frame - preempt_frames
             end_frame = start_frame + slider_duration_frames
 
+            # Setzen der Sichtbarkeits-Keyframes für den Slider-Ball
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -398,14 +400,16 @@ class SliderCreator:
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+            # Sichtbarkeit bis zum Ende des Sliders
+            slider_ball.hide_viewport = False
+            slider_ball.hide_render = False
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame - 1))
 
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
-
 
     def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
         tick_interval_ms = 100

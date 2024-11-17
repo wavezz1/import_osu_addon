@@ -78,39 +78,10 @@ class SliderCreator:
                 all_points = []
 
                 for segment_type, segment_points in segments:
-                    if segment_type == "L":
-                        for point in segment_points:
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    elif segment_type == "P":
-                        if len(segment_points) >= 3:
-                            spline_points = self.create_perfect_circle_spline(segment_points)
-                            for point in spline_points:
-                                corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                                all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                        else:
-                            for point in segment_points:
-                                corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                                all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    elif segment_type == "B":
-                        if len(segment_points) < 2:
-                            continue
-                        control_points = []
-                        for point in segment_points:
-                            x, y = point
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
-                            control_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                        curve_points = self.evaluate_bezier_curve(control_points)
-                        all_points.extend(curve_points)
-                    elif segment_type == "C":
-                        spline_points = self.create_catmull_rom_spline(segment_points)
-                        for point in spline_points:
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
-                    else:
-                        for point in segment_points:
-                            corrected_x, corrected_y, corrected_z = map_osu_to_blender(point[0], point[1])
-                            all_points.append(Vector((corrected_x, corrected_y, corrected_z)))
+                    if len(segment_points) == 0:
+                        continue
+                    curve_points = self.evaluate_curve(segment_type, segment_points)
+                    all_points.extend(curve_points)
 
                 spline.points.add(len(all_points) - 1)
                 for i, point in enumerate(all_points):
@@ -120,7 +91,7 @@ class SliderCreator:
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
                     curve_data.extrude = osu_radius * SCALE_FACTOR * 2
                 elif self.import_type == 'BASE':
-                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve",curve_data)
+                    slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
 
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
@@ -184,7 +155,7 @@ class SliderCreator:
                             (int(early_start_frame - 1), False),
                             (int(early_start_frame), True),
                             (int(end_frame - 1), True),
-                            (int(end_frame), False)  # Set visibility to False after slider duration
+                            (int(end_frame), False)
                         ],
                         "was_hit": [
                             (int(start_frame - 1), False),
@@ -235,11 +206,31 @@ class SliderCreator:
                 if self.settings.get('import_slider_ticks', False):
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
-    def evaluate_bezier_curve(self, control_points, num_points=None):
+    def evaluate_curve(self, segment_type, segment_points):
+        if segment_type == "L":
+            # Lineare Segmente
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
+        elif segment_type == "P":
+            # Perfekte Kreis-Segmente
+            return self.evaluate_perfect_circle(segment_points)
+        elif segment_type == "B":
+            # Bezier-Kurven-Segmente
+            return self.evaluate_bezier_curve(segment_points)
+        elif segment_type == "C":
+            # Catmull-Rom-Spline-Segmente
+            return self.evaluate_catmull_rom_spline(segment_points)
+        else:
+            # Standardmäßig lineare Segmente
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
+
+    def evaluate_bezier_curve(self, control_points_osu, num_points=None):
         if num_points is None:
             num_points = self.settings.get('slider_resolution', 100)
-        n = len(control_points) - 1
+        n = len(control_points_osu) - 1
         curve_points = []
+
+        # Mapping der Kontrollpunkte von osu! zu Blender-Koordinaten
+        control_points = [Vector(map_osu_to_blender(x, y)) for x, y in control_points_osu]
 
         for t in [i / num_points for i in range(num_points + 1)]:
             point = Vector((0.0, 0.0, 0.0))
@@ -252,11 +243,11 @@ class SliderCreator:
     def bernstein_polynomial(self, i, n, t):
         return math.comb(n, i) * (t ** i) * ((1 - t) ** (n - i))
 
-    def create_perfect_circle_spline(self, points):
-        if len(points) < 3:
-            return points
+    def evaluate_perfect_circle(self, points_osu):
+        if len(points_osu) < 3:
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
-        p1, p2, p3 = [Vector((pt[0], pt[1])) for pt in points[:3]]
+        p1, p2, p3 = [Vector(point) for point in points_osu[:3]]
 
         def circle_center(p1, p2, p3):
             temp = p2 - p1
@@ -277,14 +268,14 @@ class SliderCreator:
 
         center = circle_center(p1, p2, p3)
         if center is None:
-            return points
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         radius = (p1 - center).length
 
         angle_start = math.atan2(p1.y - center.y, p1.x - center.x)
         angle_end = math.atan2(p3.y - center.y, p3.x - center.x)
 
-        cross = (p2 - p1).cross(p3 - p2)
+        cross = (p2 - p1).cross(Vector((0, 0, 1))).dot(p3 - p2)
         clockwise = cross < 0
 
         if clockwise:
@@ -301,22 +292,28 @@ class SliderCreator:
             angle = angle_start + t * (angle_end - angle_start)
             x = center.x + radius * math.cos(angle)
             y = center.y + radius * math.sin(angle)
-            arc_points.append((x, y))
+            arc_points.append(Vector(map_osu_to_blender(x, y)))
 
         return arc_points
 
-    def create_catmull_rom_spline(self, points, tension=0.0):
-        if len(points) < 2:
-            return points
+    def evaluate_catmull_rom_spline(self, points_osu, tension=0.0):
+        if len(points_osu) < 2:
+            return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         spline_points = []
-        n = len(points)
+        n = len(points_osu)
         num_points = self.settings.get('slider_resolution', 20)
         for i in range(n - 1):
-            p0 = Vector(points[i - 1]) if i > 0 else Vector(points[i])
-            p1 = Vector(points[i])
-            p2 = Vector(points[i + 1])
-            p3 = Vector(points[i + 2]) if i + 2 < n else Vector(points[i + 1])
+            p0 = Vector(points_osu[i - 1]) if i > 0 else Vector(points_osu[i])
+            p1 = Vector(points_osu[i])
+            p2 = Vector(points_osu[i + 1])
+            p3 = Vector(points_osu[i + 2]) if i + 2 < n else Vector(points_osu[i + 1])
+
+            # Mapping der Punkte zu Blender-Koordinaten
+            p0 = Vector(map_osu_to_blender(p0.x, p0.y))
+            p1 = Vector(map_osu_to_blender(p1.x, p1.y))
+            p2 = Vector(map_osu_to_blender(p2.x, p2.y))
+            p3 = Vector(map_osu_to_blender(p3.x, p3.y))
 
             for t in [j / num_points for j in range(int(num_points) + 1)]:
                 t0 = ((-tension * t + 2 * tension * t ** 2 - tension * t ** 3) / 2)
@@ -324,7 +321,7 @@ class SliderCreator:
                 t2 = ((tension * t + (3 - 2 * tension) * t ** 2 + (tension - 2) * t ** 3) / 2)
                 t3 = ((-tension * t ** 2 + tension * t ** 3) / 2)
                 point = t0 * p0 + t1 * p1 + t2 * p2 + t3 * p3
-                spline_points.append((point.x, point.y))
+                spline_points.append(point)
 
         return spline_points
 

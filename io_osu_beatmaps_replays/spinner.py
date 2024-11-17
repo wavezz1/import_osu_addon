@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, get_ms_per_frame, timeit
+from .utils import map_osu_to_blender, timeit
 from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager

@@ -4,7 +4,7 @@ import bpy
 import math
 from mathutils import Vector
 from .constants import SCALE_FACTOR
-from .utils import map_osu_to_blender, get_ms_per_frame, evaluate_curve_at_t, timeit
+from .utils import map_osu_to_blender, evaluate_curve_at_t, timeit
 from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from .osu_replay_data_manager import OsuReplayDataManager
 from .hitobjects import HitObject

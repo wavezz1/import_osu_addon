@@ -24,10 +24,6 @@ def timeit(label):
 
     return Timer(label)
 
-def get_ms_per_frame():
-    fps = bpy.context.scene.render.fps
-    return 1000 / fps  # Milliseconds per frame
-
 def create_collection(name):
     collection = bpy.data.collections.get(name)
     if collection is None:

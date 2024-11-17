@@ -6,7 +6,6 @@ from .info_parser import OsuParser, OsrParser
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from .mod_functions import calculate_speed_multiplier
 from .hitobjects import HitObjectsProcessor
-from .utils import get_ms_per_frame
 
 class OsuReplayDataManager:
     def __init__(self, osu_file_path, osr_file_path):
@@ -14,9 +13,18 @@ class OsuReplayDataManager:
         self.osr_parser = OsrParser(osr_file_path)
         self.hitobjects_processor = HitObjectsProcessor(self)
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
-        self.ms_per_frame = get_ms_per_frame()
+        self.ms_per_frame = self.get_ms_per_frame()
         self.calculate_adjusted_values()  # Call the new method here
+        self.audio_lead_in = self.osu_parser.audio_lead_in
 
+        # Initialisierung der Instanzattribute
+        self.adjusted_ar = None
+        self.adjusted_cs = None
+        self.adjusted_od = None
+        self.preempt_ms = None
+        self.preempt_frames = None
+        self.osu_radius = None
+        self.audio_lead_in_frames = None
 
     @property
     def beatmap_info(self):
@@ -79,6 +87,10 @@ class OsuReplayDataManager:
         print("\n--- Key Presses (First 10 Presses) ---")
         print(self.key_presses[:10])
 
+    def get_ms_per_frame(self):
+        fps = bpy.context.scene.render.fps
+        return 1000 / fps  # Milliseconds per frame
+
     def calculate_adjusted_values(self):
         self.adjusted_ar = self.calculate_adjusted_ar()
         self.adjusted_cs = self.calculate_adjusted_cs()
@@ -86,7 +98,7 @@ class OsuReplayDataManager:
         self.preempt_ms = self.calculate_preempt_time(self.adjusted_ar)
         self.preempt_frames = self.preempt_ms / self.ms_per_frame
         self.osu_radius = (54.4 - 4.48 * self.adjusted_cs) / 2
-        self.audio_lead_in_frames = self.beatmap_info["audio_lead_in"] / self.ms_per_frame
+        self.audio_lead_in_frames = self.audio_lead_in / self.ms_per_frame
 
     def import_audio(self):
         audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")
@@ -128,8 +140,8 @@ class OsuReplayDataManager:
         hit_window_300, hit_window_100, hit_window_50 = self.calculate_hit_windows()
         hit_window = hit_window_50
 
-        speed_multiplier = calculate_speed_multiplier(self.mods)
-        audio_lead_in = self.beatmap_info['audio_lead_in']
+        speed_multiplier = self.speed_multiplier
+        audio_lead_in = self.audio_lead_in  # Verwendung von self.audio_lead_in
 
         key_press_times = [
             (kp['time'] / speed_multiplier) + audio_lead_in for kp in self.key_presses

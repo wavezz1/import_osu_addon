@@ -32,9 +32,15 @@ def create_collection(name):
     return collection
 
 def map_osu_to_blender(x, y):
+    if not hasattr(map_osu_to_blender, 'cache'):
+        map_osu_to_blender.cache = {}
+    key = (x, y)
+    if key in map_osu_to_blender.cache:
+        return map_osu_to_blender.cache[key]
     corrected_x = (x - 256) * SCALE_FACTOR  # Centering on zero
     corrected_y = 0
     corrected_z = (192 - y) * SCALE_FACTOR  # Invert and center
+    map_osu_to_blender.cache[key] = (corrected_x, corrected_y, corrected_z)
     return corrected_x, corrected_y, corrected_z
 
 def evaluate_curve_at_t(curve_object, t):

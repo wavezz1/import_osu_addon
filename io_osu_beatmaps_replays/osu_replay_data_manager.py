@@ -2,6 +2,7 @@
 
 import bpy
 import os
+import bisect
 from .info_parser import OsuParser, OsrParser
 from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from .mod_functions import calculate_speed_multiplier
@@ -137,78 +138,91 @@ class OsuReplayDataManager:
             hit_window_100 / self.speed_multiplier,
             hit_window_50 / self.speed_multiplier,
         )
+
     def check_hits(self):
         hit_window_300, hit_window_100, hit_window_50 = self.calculate_hit_windows()
         hit_window = hit_window_50
 
         speed_multiplier = self.speed_multiplier
-        audio_lead_in = self.audio_lead_in  # Verwendung von self.audio_lead_in
+        audio_lead_in = self.audio_lead_in
 
         key_press_times = [
             (kp['time'] / speed_multiplier) + audio_lead_in for kp in self.key_presses
         ]
 
+        # Sicherstellen, dass key_press_times sortiert sind
+        key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses)))
+
         for hitobject in self.hitobjects:
             hitobject_time = (hitobject.time / speed_multiplier) + audio_lead_in
+
+            window_start = hitobject_time - hit_window
+            window_end = hitobject_time + hit_window
+
+            start_idx = bisect.bisect_left(key_press_times, window_start)
+            end_idx = bisect.bisect_right(key_press_times, window_end)
+
             was_hit = False
 
-            if hitobject.hit_type & 1:
-                window_start = hitobject_time - hit_window
-                window_end = hitobject_time + hit_window
-
-                for idx, kp_time in enumerate(key_press_times):
-                    if window_start <= kp_time <= window_end:
-                        if any([self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')]):
-                            was_hit = True
-                            break
-                    elif kp_time > window_end:
+            if hitobject.hit_type & 1:  # Circle
+                for idx in range(start_idx, end_idx):
+                    if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                        was_hit = True
                         break
-
                 hitobject.was_hit = was_hit
 
-            elif hitobject.hit_type & 2:
+            elif hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 slider_end_time = (hitobject.time + slider_duration_ms) / speed_multiplier + audio_lead_in
 
-                window_start = hitobject_time - hit_window
+                # Update window_end for slider
                 window_end = slider_end_time + hit_window
 
-                for idx, kp_time in enumerate(key_press_times):
-                    if window_start <= kp_time <= window_end:
-                        if any([self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')]):
-                            was_hit = True
-                            break
-                    elif kp_time > window_end:
+                end_idx = bisect.bisect_right(key_press_times, window_end)
+
+                for idx in range(start_idx, end_idx):
+                    if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                        was_hit = True
                         break
-
                 hitobject.was_hit = was_hit
-                hitobject.was_completed = was_hit and all(
-                    any(self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2'))
-                    for idx, kp_time in enumerate(key_press_times)
-                    if hitobject_time <= kp_time <= slider_end_time
-                )
 
-            elif hitobject.hit_type & 8:
+                # Überprüfung, ob der Slider vollständig gespielt wurde
+                if was_hit:
+                    was_completed = True
+                    for idx in range(start_idx, end_idx):
+                        if not any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                            was_completed = False
+                            break
+                    hitobject.was_completed = was_completed
+                else:
+                    hitobject.was_completed = False
+
+            elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 spinner_end_time = (hitobject.time + spinner_duration_ms) / speed_multiplier + audio_lead_in
 
-                window_start = hitobject_time - hit_window
+                # Update window_end for spinner
                 window_end = spinner_end_time + hit_window
 
-                for idx, kp_time in enumerate(key_press_times):
-                    if window_start <= kp_time <= window_end:
-                        if any([self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')]):
-                            was_hit = True
-                            break
-                    elif kp_time > window_end:
-                        break
+                end_idx = bisect.bisect_right(key_press_times, window_end)
 
+                for idx in range(start_idx, end_idx):
+                    if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                        was_hit = True
+                        break
                 hitobject.was_hit = was_hit
-                hitobject.was_completed = was_hit and all(
-                    any(self.key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2'))
-                    for idx, kp_time in enumerate(key_press_times)
-                    if hitobject_time <= kp_time <= spinner_end_time
-                )
+
+                # Überprüfung, ob der Spinner vollständig gespielt wurde
+                if was_hit:
+                    was_completed = True
+                    for idx in range(start_idx, end_idx):
+                        if not any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
+                            was_completed = False
+                            break
+                    hitobject.was_completed = was_completed
+                else:
+                    hitobject.was_completed = False
+
     def calculate_slider_duration(self, hitobject):
         start_time_ms = hitobject.time
         repeat_count = int(hitobject.extras[1]) if len(hitobject.extras) > 1 else 1

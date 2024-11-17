@@ -131,7 +131,7 @@ class OsuReplayDataManager:
         print(f"Audio file '{audio_filename}' imported with {pitch}x pitch.")
 
     def calculate_hit_windows(self):
-        od = self.adjusted_od  # Use precomputed adjusted OD
+        od = self.adjusted_od
 
         hit_window_300 = max(80 - (6 * od), 0)
         hit_window_100 = max(140 - (8 * od), 0)
@@ -154,7 +154,6 @@ class OsuReplayDataManager:
             (kp['time'] / speed_multiplier) + audio_lead_in for kp in self.key_presses
         ]
 
-        # Sicherstellen, dass key_press_times sortiert sind
         key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses), key=lambda x: x[0]))
 
         for hitobject in self.hitobjects:
@@ -175,21 +174,17 @@ class OsuReplayDataManager:
                         break
                 hitobject.was_hit = was_hit
 
-
             elif hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 slider_end_time = (hitobject.time + slider_duration_ms) / speed_multiplier + audio_lead_in
-                # Update window_end for slider
                 window_end = slider_end_time + hit_window
                 end_idx = bisect.bisect_right(key_press_times, window_end)
-                # Überprüfen, ob der Slider zu irgendeinem Zeitpunkt getroffen wurde
                 was_hit = False
                 for idx in range(start_idx, end_idx):
                     if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
                         was_hit = True
                         break
                 hitobject.was_hit = was_hit
-                # Setzen von was_completed auf False hier
                 hitobject.was_completed = False  # Wir setzen es später basierend auf der Slider-Dauer
                 hitobject.slider_end_time = slider_end_time  # Speichern der Endzeit des Sliders
 
@@ -197,21 +192,17 @@ class OsuReplayDataManager:
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 spinner_end_time = (hitobject.time + spinner_duration_ms) / speed_multiplier + audio_lead_in
 
-                # Update window_end for spinner
                 window_end = spinner_end_time + hit_window
 
                 end_idx = bisect.bisect_right(key_press_times, window_end)
 
-                # Überprüfen, ob der Spinner zu irgendeinem Zeitpunkt getroffen wurde
                 for idx in range(start_idx, end_idx):
                     if any(key_presses[idx][k] for k in ('k1', 'k2', 'm1', 'm2')):
                         was_hit = True
                         break
                 hitobject.was_hit = was_hit
 
-                # Überprüfung, ob der Spinner vollständig gespielt wurde
                 if was_hit:
-                    # Überprüfen, ob der Spieler die Taste am Ende des Spinners noch gedrückt hält
                     end_press_idx = bisect.bisect_left(key_press_times, spinner_end_time)
                     was_completed = False
                     if end_press_idx < len(key_press_times):

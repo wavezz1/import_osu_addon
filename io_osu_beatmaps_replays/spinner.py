@@ -75,13 +75,11 @@ class SpinnerCreator:
 
             create_geometry_nodes_modifier(spinner, "spinner")
 
-            # Vorbereitung der extra_params für get_keyframe_values
             extra_params = {
                 "spinner_duration_ms": spinner_duration_ms,
                 "spinner_duration_frames": spinner_duration_frames
             }
 
-            # Verwendung der generischen get_keyframe_values-Funktion
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,
                 'spinner',
@@ -90,7 +88,7 @@ class SpinnerCreator:
                 end_frame,
                 early_start_frame,
                 approach_rate,
-                osu_radius=0,  # osu_radius wird für Spinner nicht benötigt
+                osu_radius=0,
                 extra_params=extra_params
             )
 
@@ -104,7 +102,6 @@ class SpinnerCreator:
 
             set_modifier_inputs_with_keyframes(spinner, attributes, frame_values, fixed_values)
 
-            # Setzen der Sichtbarkeits-Keyframes für 'FULL' Importtyp
             if self.import_type == 'FULL':
                 spinner.hide_viewport = True
                 spinner.hide_render = True
@@ -116,7 +113,6 @@ class SpinnerCreator:
                 spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
                 spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-                # Sichtbarkeit am Ende hängt von was_completed ab
                 if self.hitobject.was_completed:
                     spinner.hide_viewport = False
                     spinner.hide_render = False

@@ -29,7 +29,6 @@ class SliderCreator:
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar
-            circle_size = data_manager.adjusted_cs
             osu_radius = data_manager.osu_radius
             preempt_frames = data_manager.preempt_frames
             audio_lead_in_frames = data_manager.audio_lead_in_frames
@@ -112,7 +111,6 @@ class SliderCreator:
 
                 create_geometry_nodes_modifier(slider, "slider")
 
-                # Vorbereitung der extra_params für get_keyframe_values
                 extra_params = {
                     "slider_duration_ms": slider_duration_ms,
                     "slider_duration_frames": slider_duration_frames,
@@ -120,7 +118,6 @@ class SliderCreator:
                     "pixel_length": pixel_length
                 }
 
-                # Verwendung der generischen get_keyframe_values-Funktion
                 frame_values, fixed_values = get_keyframe_values(
                     self.hitobject,
                     'slider',
@@ -149,7 +146,6 @@ class SliderCreator:
 
                 set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
-                # Setzen der Sichtbarkeits-Keyframes für 'FULL' Importtyp
                 if self.import_type == 'FULL':
                     slider.hide_viewport = True
                     slider.hide_render = True
@@ -173,19 +169,14 @@ class SliderCreator:
 
     def evaluate_curve(self, segment_type, segment_points):
         if segment_type == "L":
-            # Lineare Segmente
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
         elif segment_type == "P":
-            # Perfekte Kreis-Segmente
             return self.evaluate_perfect_circle(segment_points)
         elif segment_type == "B":
-            # Bezier-Kurven-Segmente
             return self.evaluate_bezier_curve(segment_points)
         elif segment_type == "C":
-            # Catmull-Rom-Spline-Segmente
             return self.evaluate_catmull_rom_spline(segment_points)
         else:
-            # Standardmäßig lineare Segmente
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
 
     def evaluate_bezier_curve(self, control_points_osu, num_points=None):
@@ -194,7 +185,6 @@ class SliderCreator:
         n = len(control_points_osu) - 1
         curve_points = []
 
-        # Mapping der Kontrollpunkte von osu! zu Blender-Koordinaten
         control_points = [Vector(map_osu_to_blender(x, y)) for x, y in control_points_osu]
 
         for t in [i / num_points for i in range(num_points + 1)]:
@@ -274,7 +264,6 @@ class SliderCreator:
             p2 = Vector(points_osu[i + 1])
             p3 = Vector(points_osu[i + 2]) if i + 2 < n else Vector(points_osu[i + 1])
 
-            # Mapping der Punkte zu Blender-Koordinaten
             p0 = Vector(map_osu_to_blender(p0.x, p0.y))
             p1 = Vector(map_osu_to_blender(p1.x, p1.y))
             p2 = Vector(map_osu_to_blender(p2.x, p2.y))
@@ -392,7 +381,6 @@ class SliderCreator:
             preempt_frames = self.data_manager.preempt_frames
             early_start_frame = start_frame - preempt_frames
 
-            # Setzen der Sichtbarkeits-Keyframes für den Slider-Ball
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -403,7 +391,6 @@ class SliderCreator:
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-            # Sichtbarkeit bis zum Ende des Sliders
             slider_ball.hide_viewport = False
             slider_ball.hide_render = False
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))

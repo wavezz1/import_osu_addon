@@ -6,11 +6,9 @@ from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_
 from .osu_replay_data_manager import OsuReplayDataManager
 
 def set_cursor_keyframes(cursor, frame, location, key_presses):
-    # Setze die Positions-Keyframes
     cursor.location = location
     cursor.keyframe_insert(data_path='location', frame=frame)
 
-    # Setze die Keyframes für die Tasten
     frame_values = {
         "k1": [
             (int(frame), bool(key_presses['k1']))
@@ -38,7 +36,7 @@ class CursorCreator:
         self.settings = settings
         self.data_manager = data_manager
         self.import_type = import_type
-        self.cursor = None  # Stores the cursor object
+        self.cursor = None
         self.create_cursor()
 
     def create_cursor(self):
@@ -118,7 +116,6 @@ class CursorCreator:
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
 
-                # Verwende die neue Utility-Funktion
                 set_cursor_keyframes(
                     self.cursor,
                     frame,

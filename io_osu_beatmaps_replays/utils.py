@@ -99,7 +99,6 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
     frame_values = {}
     fixed_values = {}
 
-    # Gemeinsame frame_values für alle Objekttypen
     frame_values["show"] = [
         (int(early_start_frame - 1), False),
         (int(early_start_frame), True),
@@ -109,11 +108,9 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
         (int(start_frame), hitobject.was_hit)
     ]
 
-    # Gemeinsame fixed_values für alle Objekttypen
     fixed_values["ar"] = approach_rate
     fixed_values["cs"] = osu_radius * SCALE_FACTOR * (2 if import_type == 'BASE' else 1)
 
-    # Objekttyp-spezifische Anpassungen
     if object_type == 'circle':
         if import_type == 'FULL':
             frame_values["show"].append((int(start_frame + 1), False))
@@ -122,13 +119,11 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
             (int(end_frame - 1), True),
             (int(end_frame), False)
         ])
-        # Berechnung des Frames, an dem der Slider endet
         slider_end_frame = (hitobject.slider_end_time / ms_per_frame) + audio_lead_in_frames
         frame_values["was_completed"] = [
             (int(slider_end_frame - 1), False),
             (int(slider_end_frame), True)
         ]
-        # Slider-spezifische fixed_values
         if extra_params:
             fixed_values.update(extra_params)
     elif object_type == 'spinner':
@@ -136,11 +131,9 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
             (int(end_frame - 1), False),
             (int(end_frame), True)
         ]
-        # Spinner-spezifische fixed_values
         if extra_params:
             fixed_values.update(extra_params)
 
-    # Bei 'BASE' Importtyp keine zusätzlichen 'show' Keyframes
     if import_type == 'BASE' and object_type != 'circle':
         frame_values["show"] = [
             (int(early_start_frame - 1), False),

@@ -3,23 +3,20 @@
 import osrparse
 
 class OsuParser:
-    _cache = {}  # Klassenweites Cache-Dictionary
+    _cache = {}
 
     def __new__(cls, osu_file_path):
         if osu_file_path in cls._cache:
-            # Wenn bereits eine Instanz für diesen Pfad existiert, geben wir sie zurück
             return cls._cache[osu_file_path]
         else:
-            # Ansonsten erstellen wir eine neue Instanz und speichern sie im Cache
             instance = super(OsuParser, cls).__new__(cls)
             cls._cache[osu_file_path] = instance
             return instance
 
     def __init__(self, osu_file_path):
         if hasattr(self, 'initialized'):
-            # Bereits initialisiert, nichts weiter tun
             return
-        self.initialized = True  # Markieren, dass die Initialisierung erfolgt ist
+        self.initialized = True
 
         self.osu_file_path = osu_file_path
         self.audio_lead_in = 0

@@ -74,7 +74,6 @@ class CircleCreator:
 
             end_frame = start_frame + 1
 
-            # Verwendung der generischen get_keyframe_values-Funktion
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,
                 'circle',
@@ -95,7 +94,6 @@ class CircleCreator:
 
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 
-            # Setzen der Sichtbarkeits-Keyframes für 'FULL' Importtyp
             if self.import_type == 'FULL':
                 circle.hide_viewport = True
                 circle.hide_render = True

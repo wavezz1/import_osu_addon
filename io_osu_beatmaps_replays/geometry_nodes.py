@@ -2,13 +2,9 @@ import bpy
 from .utils import timeit
 
 node_groups = {}
-node_groups_initialized = False  # Neue Variable zur Überprüfung der Initialisierung
 
 def setup_geometry_node_trees():
-    global node_groups, node_groups_initialized
-    if node_groups_initialized:
-        return  # Node Groups wurden bereits initialisiert
-
+    global node_groups
     with timeit("Einrichten der Geometry Node Trees"):
         node_definitions = {
             "circle": {
@@ -64,13 +60,10 @@ def setup_geometry_node_trees():
         for key, node_def in node_definitions.items():
             name = node_def["name"]
             attributes = node_def["attributes"]
-            if name not in bpy.data.node_groups:
-                node_groups[key] = create_geometry_nodes_tree(name, attributes)
-            else:
-                node_groups[key] = bpy.data.node_groups[name]
-
-    node_groups_initialized = True  # Markieren, dass die Node Groups initialisiert wurden
-
+            node_group = bpy.data.node_groups.get(name)
+            if node_group is None:
+                node_group = create_geometry_nodes_tree(name, attributes)
+            node_groups[key] = node_group
 
 def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:

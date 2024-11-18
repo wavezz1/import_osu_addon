@@ -36,7 +36,7 @@ class SliderCreator:
                 p1 = points[i]
                 p2 = points[i + 1]
                 # Überprüfen, ob die Punkte innerhalb der Toleranz liegen
-                if (abs(p1[0] - p2[0]) <= tolerance) and (abs(p1[1] - p2[1]) <= tolerance):
+                if (abs(p1.x - p2.x) <= tolerance) and (abs(p1.y - p2.y) <= tolerance):
                     print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
                     merged.append(p1)  # Nur einen der doppelten Punkte hinzufügen
                     i += 2  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
@@ -82,17 +82,14 @@ class SliderCreator:
                     x, y = float(x_str), float(y_str)
                     points.append((x, y))
 
-                # Merge duplicate points
-                merged_points = self.merge_duplicate_points(points, tolerance=0.01)
-
                 segments = []
-                current_segment = [merged_points[0]]
-                for i in range(1, len(merged_points)):
-                    if merged_points[i] == merged_points[i - 1]:
+                current_segment = [points[0]]
+                for i in range(1, len(points)):
+                    if points[i] == points[i - 1]:
                         segments.append((slider_type, current_segment))
-                        current_segment = [merged_points[i]]
+                        current_segment = [points[i]]
                     else:
-                        current_segment.append(merged_points[i])
+                        current_segment.append(points[i])
                 if current_segment:
                     segments.append((slider_type, current_segment))
 
@@ -102,6 +99,7 @@ class SliderCreator:
                 curve_data.resolution_u = 64
 
                 spline = curve_data.splines.new('POLY')
+
                 all_points = []
 
                 for segment_type, segment_points in segments:
@@ -110,8 +108,10 @@ class SliderCreator:
                     curve_points = self.evaluate_curve(segment_type, segment_points)
                     all_points.extend(curve_points)
 
-                spline.points.add(len(all_points) - 1)
-                for i, point in enumerate(all_points):
+                merged_curve_points = self.merge_duplicate_points(all_points, tolerance=0.01)
+
+                spline.points.add(len(merged_curve_points) - 1)
+                for i, point in enumerate(merged_curve_points):
                     spline.points[i].co = (point.x, point.y, point.z, 1)
 
                 if self.import_type == 'FULL':

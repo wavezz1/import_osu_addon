@@ -187,7 +187,7 @@ class SliderCreator:
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False):
-                    self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
+                    self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count, end_frame)
                 if self.settings.get('import_slider_ticks', False):
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
@@ -303,7 +303,7 @@ class SliderCreator:
 
         return spline_points
 
-    def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count):
+    def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame):
         if self.import_type == 'BASE':
             mesh = bpy.data.meshes.new(f"{slider.name}_ball")
 
@@ -317,7 +317,7 @@ class SliderCreator:
 
             create_geometry_nodes_modifier(slider_ball, "slider_ball")
 
-            end_frame = start_frame + slider_duration_frames
+            #end_frame = start_frame + slider_duration_frames
 
             frame_values = {
                 "show": [

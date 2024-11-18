@@ -38,7 +38,7 @@ class OSU_OT_Delete(bpy.types.Operator):
             node_groups_to_delete = [
                 gn_tree for gn_tree in bpy.data.node_groups
                 if gn_tree.name.startswith("Geometry Nodes")
-                if gn_tree.name.startswith("GN_Osu")
+                if gn_tree.name == "GN_Osu"
             ]
             for gn_tree in node_groups_to_delete:
                 try:

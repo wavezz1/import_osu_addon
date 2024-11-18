@@ -24,16 +24,18 @@ class SliderCreator:
         self.import_slider_ticks = settings.get('import_slider_ticks', False)
         self.create_slider()
 
-    def merge_duplicate_points(self, points):
-        """Merges consecutive duplicate points."""
+    def merge_duplicate_points(self, points, tolerance=1e-6):
+        """Merges two consecutive points if they are at the same position within a given tolerance."""
         if not points:
             return []
         merged = [points[0]]
         for p in points[1:]:
-            if p != merged[-1]:
-                merged.append(p)
-            else:
+            last = merged[-1]
+            # Verwenden Sie math.isclose für float-Vergleiche mit einer Toleranz
+            if math.isclose(p[0], last[0], abs_tol=tolerance) and math.isclose(p[1], last[1], abs_tol=tolerance):
                 print(f"Merged duplicate point at position: {p}")
+                continue  # Überspringen des aktuellen Punktes, da er mit dem vorherigen identisch ist
+            merged.append(p)
         return merged
 
     def create_slider(self):

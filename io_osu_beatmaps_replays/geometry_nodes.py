@@ -28,7 +28,6 @@ def setup_geometry_node_trees():
                     "was_completed": 'BOOLEAN',
                     "repeat_count": 'INT',
                     "pixel_length": 'FLOAT',
-                    "is_anchor": 'BOOLEAN'
                 }
             },
             "spinner": {

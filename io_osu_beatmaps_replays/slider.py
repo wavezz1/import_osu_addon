@@ -24,6 +24,18 @@ class SliderCreator:
         self.import_slider_ticks = settings.get('import_slider_ticks', False)
         self.create_slider()
 
+    def merge_duplicate_points(self, points):
+        """Merges consecutive duplicate points."""
+        if not points:
+            return []
+        merged = [points[0]]
+        for p in points[1:]:
+            if p != merged[-1]:
+                merged.append(p)
+            else:
+                print(f"Merged duplicate point at position: {p}")
+        return merged
+
     def create_slider(self):
         with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
             data_manager = self.data_manager
@@ -60,14 +72,17 @@ class SliderCreator:
                     x, y = float(x_str), float(y_str)
                     points.append((x, y))
 
+                # Merge duplicate points
+                merged_points = self.merge_duplicate_points(points)
+
                 segments = []
-                current_segment = [points[0]]
+                current_segment = [merged_points[0]]
                 for i in range(1, len(points)):
-                    if points[i] == points[i - 1]:
+                    if merged_points[i] == merged_points[i - 1]:
                         segments.append((slider_type, current_segment))
-                        current_segment = [points[i]]
+                        current_segment = [merged_points[i]]
                     else:
-                        current_segment.append(points[i])
+                        current_segment.append(merged_points[i])
                 if current_segment:
                     segments.append((slider_type, current_segment))
 

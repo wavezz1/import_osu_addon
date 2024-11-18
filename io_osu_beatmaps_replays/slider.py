@@ -39,7 +39,7 @@ class SliderCreator:
                 if (abs(p1[0] - p2[0]) <= tolerance) and (abs(p1[1] - p2[1]) <= tolerance):
                     print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
                     merged.append(p1)  # Nur einen der doppelten Punkte hinzufügen
-                    i += 1  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
+                    i += 2  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
                     continue
             merged.append(points[i])
             i += 1
@@ -83,7 +83,7 @@ class SliderCreator:
                     points.append((x, y))
 
                 # Merge duplicate points
-                merged_points = self.merge_duplicate_points(points)
+                merged_points = self.merge_duplicate_points(points, tolerance=0.01)
 
                 segments = []
                 current_segment = [merged_points[0]]

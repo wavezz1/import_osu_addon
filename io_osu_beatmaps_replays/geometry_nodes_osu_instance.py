@@ -1,5 +1,3 @@
-# geometry_nodes_osu_instance.py
-
 import bpy, mathutils
 
 
@@ -26,10 +24,10 @@ def circle_sim_group_node_group():
                                                             socket_type='NodeSocketGeometry')
     geometry_socket.attribute_domain = 'POINT'
 
-    # Socket Material
-    material_socket = circle_sim_group.interface.new_socket(name="Material", in_out='INPUT',
-                                                            socket_type='NodeSocketMaterial')
-    material_socket.attribute_domain = 'POINT'
+    # Socket Circle Material
+    circle_material_socket = circle_sim_group.interface.new_socket(name="Circle Material", in_out='INPUT',
+                                                                   socket_type='NodeSocketMaterial')
+    circle_material_socket.attribute_domain = 'POINT'
 
     # Socket Y Offset
     y_offset_socket = circle_sim_group.interface.new_socket(name="Y Offset", in_out='INPUT',
@@ -450,7 +448,7 @@ def circle_sim_group_node_group():
     circle_sim_group.links.new(transform_geometry_001.outputs[0], reroute_008.inputs[0])
     # group_input_001.Y Offset -> combine_xyz.Y
     circle_sim_group.links.new(group_input_001.outputs[2], combine_xyz.inputs[1])
-    # group_input_002.Material -> set_material.Material
+    # group_input_002.Circle Material -> set_material.Material
     circle_sim_group.links.new(group_input_002.outputs[1], set_material.inputs[2])
     # named_attribute_003.Attribute -> reroute_010.Input
     circle_sim_group.links.new(named_attribute_003.outputs[0], reroute_010.inputs[0])
@@ -583,7 +581,7 @@ def slider_sim_group_node_group():
     # node Delete Geometry
     delete_geometry_1 = slider_sim_group.nodes.new("GeometryNodeDeleteGeometry")
     delete_geometry_1.name = "Delete Geometry"
-    delete_geometry_1.domain = 'CURVE'
+    delete_geometry_1.domain = 'POINT'
     delete_geometry_1.mode = 'ALL'
 
     # node Named Attribute
@@ -1206,6 +1204,14 @@ def slider_sim_group_node_group():
     # Limit Radius
     fillet_curve.inputs[3].default_value = True
 
+    # node Viewer
+    viewer = slider_sim_group.nodes.new("GeometryNodeViewer")
+    viewer.name = "Viewer"
+    viewer.data_type = 'FLOAT'
+    viewer.domain = 'AUTO'
+    # Value
+    viewer.inputs[1].default_value = 0.0
+
     # Set parents
     group_input_1.parent = frame
     realize_instances_1.parent = frame
@@ -1284,8 +1290,8 @@ def slider_sim_group_node_group():
     group_input_1.location = (-1330.0, -40.0)
     realize_instances_1.location = (-1170.0, -40.0)
     delete_geometry_1.location = (-370.0, -40.0)
-    named_attribute_1.location = (-370.0, -220.0)
-    boolean_math_1.location = (-370.0, -180.0)
+    named_attribute_1.location = (-371.4922180175781, -240.92755126953125)
+    boolean_math_1.location = (-371.4922180175781, -202.42237854003906)
     endpoint_selection_004.location = (1680.0, -340.0)
     endpoint_selection_005.location = (1680.0, -220.0)
     instance_on_points_002.location = (2080.0, -400.0)
@@ -1368,6 +1374,7 @@ def slider_sim_group_node_group():
     curve_to_mesh_001.location = (-1010.0, -40.0)
     mesh_to_curve.location = (-690.0, -40.0)
     fillet_curve.location = (-530.0, -40.0)
+    viewer.location = (350.0, 370.0)
 
     # Set dimensions
     group_output_1.width, group_output_1.height = 140.0, 100.0
@@ -1386,7 +1393,7 @@ def slider_sim_group_node_group():
     combine_xyz_1.width, combine_xyz_1.height = 140.0, 100.0
     combine_xyz_001.width, combine_xyz_001.height = 140.0, 100.0
     math_001.width, math_001.height = 140.0, 100.0
-    frame.width, frame.height = 1320.0, 371.0
+    frame.width, frame.height = 1320.0, 392.0
     frame_003.width, frame_003.height = 990.0, 391.0
     frame_004.width, frame_004.height = 1770.0, 708.0
     named_attribute_003_1.width, named_attribute_003_1.height = 140.0, 100.0
@@ -1458,6 +1465,7 @@ def slider_sim_group_node_group():
     curve_to_mesh_001.width, curve_to_mesh_001.height = 140.0, 100.0
     mesh_to_curve.width, mesh_to_curve.height = 140.0, 100.0
     fillet_curve.width, fillet_curve.height = 140.0, 100.0
+    viewer.width, viewer.height = 140.0, 100.0
 
     # initialize slider_sim_group links
     # boolean_math_1.Boolean -> delete_geometry_1.Selection
@@ -1630,6 +1638,8 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(mesh_to_curve.outputs[0], fillet_curve.inputs[0])
     # fillet_curve.Curve -> delete_geometry_1.Geometry
     slider_sim_group.links.new(fillet_curve.outputs[0], delete_geometry_1.inputs[0])
+    # reroute_002_1.Output -> viewer.Geometry
+    slider_sim_group.links.new(reroute_002_1.outputs[0], viewer.inputs[0])
     # reroute_013_1.Output -> join_geometry_002.Geometry
     slider_sim_group.links.new(reroute_013_1.outputs[0], join_geometry_002.inputs[0])
     # reroute_017.Output -> join_geometry_003.Geometry
@@ -2100,6 +2110,36 @@ def gn_osu_node_group():
                                                             socket_type='NodeSocketCollection')
     spinnerscollection_socket.attribute_domain = 'POINT'
 
+    # Socket Cursor Material
+    cursor_material_socket_1 = gn_osu.interface.new_socket(name="Cursor Material", in_out='INPUT',
+                                                           socket_type='NodeSocketMaterial')
+    cursor_material_socket_1.attribute_domain = 'POINT'
+
+    # Socket Circle Material
+    circle_material_socket_1 = gn_osu.interface.new_socket(name="Circle Material", in_out='INPUT',
+                                                           socket_type='NodeSocketMaterial')
+    circle_material_socket_1.attribute_domain = 'POINT'
+
+    # Socket Slider Material
+    slider_material_socket_1 = gn_osu.interface.new_socket(name="Slider Material", in_out='INPUT',
+                                                           socket_type='NodeSocketMaterial')
+    slider_material_socket_1.attribute_domain = 'POINT'
+
+    # Socket Slider Balls Material
+    slider_balls_material_socket_1 = gn_osu.interface.new_socket(name="Slider Balls Material", in_out='INPUT',
+                                                                 socket_type='NodeSocketMaterial')
+    slider_balls_material_socket_1.attribute_domain = 'POINT'
+
+    # Socket Slider Headt/Tail Material
+    slider_headt_tail_material_socket_1 = gn_osu.interface.new_socket(name="Slider Headt/Tail Material", in_out='INPUT',
+                                                                      socket_type='NodeSocketMaterial')
+    slider_headt_tail_material_socket_1.attribute_domain = 'POINT'
+
+    # Socket Spinner Material
+    spinner_material_socket_1 = gn_osu.interface.new_socket(name="Spinner Material", in_out='INPUT',
+                                                            socket_type='NodeSocketMaterial')
+    spinner_material_socket_1.attribute_domain = 'POINT'
+
     # initialize gn_osu nodes
     # node Group Input
     group_input_4 = gn_osu.nodes.new("NodeGroupInput")
@@ -2110,6 +2150,12 @@ def gn_osu_node_group():
     group_input_4.outputs[4].hide = True
     group_input_4.outputs[5].hide = True
     group_input_4.outputs[6].hide = True
+    group_input_4.outputs[7].hide = True
+    group_input_4.outputs[8].hide = True
+    group_input_4.outputs[9].hide = True
+    group_input_4.outputs[10].hide = True
+    group_input_4.outputs[11].hide = True
+    group_input_4.outputs[12].hide = True
 
     # node Group Output
     group_output_4 = gn_osu.nodes.new("NodeGroupOutput")
@@ -2129,9 +2175,7 @@ def gn_osu_node_group():
     group = gn_osu.nodes.new("GeometryNodeGroup")
     group.name = "Group"
     group.node_tree = circle_sim_group
-    if "Circle" in bpy.data.materials:
-        group.inputs[1].default_value = bpy.data.materials["Circle"]
-    # Socket_5
+    # Socket_4
     group.inputs[2].default_value = 0.009999999776482582
 
     # node Collection Info.001
@@ -2147,20 +2191,14 @@ def gn_osu_node_group():
     group_001 = gn_osu.nodes.new("GeometryNodeGroup")
     group_001.name = "Group.001"
     group_001.node_tree = slider_sim_group
-    if "Slider" in bpy.data.materials:
-        group_001.inputs[2].default_value = bpy.data.materials["Slider"]
-    # Socket_11
+    # Socket_4
     group_001.inputs[3].default_value = 0.029999999329447746
-    # Socket_12
+    # Socket_5
     group_001.inputs[4].default_value = 0.03999999910593033
     # Socket_6
     group_001.inputs[5].default_value = True
-    if "Slider Balls" in bpy.data.materials:
-        group_001.inputs[7].default_value = bpy.data.materials["Slider Balls"]
-    # Socket_10
+    # Socket_9
     group_001.inputs[8].default_value = 0.019999999552965164
-    if "Circle" in bpy.data.materials:
-        group_001.inputs[9].default_value = bpy.data.materials["Circle"]
 
     # node Join Geometry
     join_geometry = gn_osu.nodes.new("GeometryNodeJoinGeometry")
@@ -2190,8 +2228,6 @@ def gn_osu_node_group():
     group_002.node_tree = spinner_sim_group
     # Socket_2
     group_002.inputs[1].default_value = 5.0
-    if "Spinner" in bpy.data.materials:
-        group_002.inputs[2].default_value = bpy.data.materials["Spinner"]
     # Socket_4
     group_002.inputs[3].default_value = 0.0
 
@@ -2201,8 +2237,6 @@ def gn_osu_node_group():
     group_003.node_tree = cursor_group
     # Socket_2
     group_003.inputs[1].default_value = 0.30000001192092896
-    if "Cursor.001" in bpy.data.materials:
-        group_003.inputs[2].default_value = bpy.data.materials["Cursor.001"]
     # Socket_4
     group_003.inputs[3].default_value = -0.009999999776482582
 
@@ -2215,6 +2249,12 @@ def gn_osu_node_group():
     group_input_001_4.outputs[3].hide = True
     group_input_001_4.outputs[4].hide = True
     group_input_001_4.outputs[6].hide = True
+    group_input_001_4.outputs[7].hide = True
+    group_input_001_4.outputs[8].hide = True
+    group_input_001_4.outputs[9].hide = True
+    group_input_001_4.outputs[10].hide = True
+    group_input_001_4.outputs[11].hide = True
+    group_input_001_4.outputs[12].hide = True
 
     # node Group Input.002
     group_input_002_4 = gn_osu.nodes.new("NodeGroupInput")
@@ -2225,6 +2265,12 @@ def gn_osu_node_group():
     group_input_002_4.outputs[3].hide = True
     group_input_002_4.outputs[5].hide = True
     group_input_002_4.outputs[6].hide = True
+    group_input_002_4.outputs[7].hide = True
+    group_input_002_4.outputs[8].hide = True
+    group_input_002_4.outputs[9].hide = True
+    group_input_002_4.outputs[10].hide = True
+    group_input_002_4.outputs[11].hide = True
+    group_input_002_4.outputs[12].hide = True
 
     # node Group Input.003
     group_input_003_2 = gn_osu.nodes.new("NodeGroupInput")
@@ -2235,6 +2281,12 @@ def gn_osu_node_group():
     group_input_003_2.outputs[4].hide = True
     group_input_003_2.outputs[5].hide = True
     group_input_003_2.outputs[6].hide = True
+    group_input_003_2.outputs[7].hide = True
+    group_input_003_2.outputs[8].hide = True
+    group_input_003_2.outputs[9].hide = True
+    group_input_003_2.outputs[10].hide = True
+    group_input_003_2.outputs[11].hide = True
+    group_input_003_2.outputs[12].hide = True
 
     # node Group Input.004
     group_input_004_1 = gn_osu.nodes.new("NodeGroupInput")
@@ -2245,6 +2297,12 @@ def gn_osu_node_group():
     group_input_004_1.outputs[4].hide = True
     group_input_004_1.outputs[5].hide = True
     group_input_004_1.outputs[6].hide = True
+    group_input_004_1.outputs[7].hide = True
+    group_input_004_1.outputs[8].hide = True
+    group_input_004_1.outputs[9].hide = True
+    group_input_004_1.outputs[10].hide = True
+    group_input_004_1.outputs[11].hide = True
+    group_input_004_1.outputs[12].hide = True
 
     # node Join Geometry.001
     join_geometry_001 = gn_osu.nodes.new("GeometryNodeJoinGeometry")
@@ -2266,6 +2324,101 @@ def gn_osu_node_group():
     # node Reroute.003
     reroute_003_2 = gn_osu.nodes.new("NodeReroute")
     reroute_003_2.name = "Reroute.003"
+    # node Group Input.005
+    group_input_005_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_005_1.name = "Group Input.005"
+    group_input_005_1.outputs[0].hide = True
+    group_input_005_1.outputs[1].hide = True
+    group_input_005_1.outputs[2].hide = True
+    group_input_005_1.outputs[3].hide = True
+    group_input_005_1.outputs[4].hide = True
+    group_input_005_1.outputs[5].hide = True
+    group_input_005_1.outputs[6].hide = True
+    group_input_005_1.outputs[8].hide = True
+    group_input_005_1.outputs[9].hide = True
+    group_input_005_1.outputs[10].hide = True
+    group_input_005_1.outputs[11].hide = True
+    group_input_005_1.outputs[12].hide = True
+
+    # node Group Input.006
+    group_input_006_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_006_1.name = "Group Input.006"
+    group_input_006_1.outputs[0].hide = True
+    group_input_006_1.outputs[1].hide = True
+    group_input_006_1.outputs[2].hide = True
+    group_input_006_1.outputs[3].hide = True
+    group_input_006_1.outputs[4].hide = True
+    group_input_006_1.outputs[5].hide = True
+    group_input_006_1.outputs[7].hide = True
+    group_input_006_1.outputs[8].hide = True
+    group_input_006_1.outputs[9].hide = True
+    group_input_006_1.outputs[10].hide = True
+    group_input_006_1.outputs[11].hide = True
+    group_input_006_1.outputs[12].hide = True
+
+    # node Group Input.007
+    group_input_007_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_007_1.name = "Group Input.007"
+    group_input_007_1.outputs[0].hide = True
+    group_input_007_1.outputs[1].hide = True
+    group_input_007_1.outputs[2].hide = True
+    group_input_007_1.outputs[3].hide = True
+    group_input_007_1.outputs[4].hide = True
+    group_input_007_1.outputs[5].hide = True
+    group_input_007_1.outputs[6].hide = True
+    group_input_007_1.outputs[7].hide = True
+    group_input_007_1.outputs[8].hide = True
+    group_input_007_1.outputs[9].hide = True
+    group_input_007_1.outputs[10].hide = True
+    group_input_007_1.outputs[12].hide = True
+
+    # node Group Input.008
+    group_input_008_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_008_1.name = "Group Input.008"
+    group_input_008_1.outputs[0].hide = True
+    group_input_008_1.outputs[1].hide = True
+    group_input_008_1.outputs[2].hide = True
+    group_input_008_1.outputs[3].hide = True
+    group_input_008_1.outputs[4].hide = True
+    group_input_008_1.outputs[5].hide = True
+    group_input_008_1.outputs[6].hide = True
+    group_input_008_1.outputs[7].hide = True
+    group_input_008_1.outputs[8].hide = True
+    group_input_008_1.outputs[9].hide = True
+    group_input_008_1.outputs[11].hide = True
+    group_input_008_1.outputs[12].hide = True
+
+    # node Group Input.009
+    group_input_009_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_009_1.name = "Group Input.009"
+    group_input_009_1.outputs[0].hide = True
+    group_input_009_1.outputs[1].hide = True
+    group_input_009_1.outputs[2].hide = True
+    group_input_009_1.outputs[3].hide = True
+    group_input_009_1.outputs[4].hide = True
+    group_input_009_1.outputs[5].hide = True
+    group_input_009_1.outputs[6].hide = True
+    group_input_009_1.outputs[7].hide = True
+    group_input_009_1.outputs[8].hide = True
+    group_input_009_1.outputs[10].hide = True
+    group_input_009_1.outputs[11].hide = True
+    group_input_009_1.outputs[12].hide = True
+
+    # node Group Input.010
+    group_input_010_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_010_1.name = "Group Input.010"
+    group_input_010_1.outputs[0].hide = True
+    group_input_010_1.outputs[1].hide = True
+    group_input_010_1.outputs[2].hide = True
+    group_input_010_1.outputs[3].hide = True
+    group_input_010_1.outputs[4].hide = True
+    group_input_010_1.outputs[5].hide = True
+    group_input_010_1.outputs[6].hide = True
+    group_input_010_1.outputs[7].hide = True
+    group_input_010_1.outputs[9].hide = True
+    group_input_010_1.outputs[10].hide = True
+    group_input_010_1.outputs[11].hide = True
+    group_input_010_1.outputs[12].hide = True
 
     # Set locations
     group_input_4.location = (1480.0, 0.0)
@@ -2289,6 +2442,12 @@ def gn_osu_node_group():
     reroute_001_2.location = (420.0, 200.0)
     reroute_002_2.location = (420.0, -80.0)
     reroute_003_2.location = (360.0, 0.0)
+    group_input_005_1.location = (200.0, -120.0)
+    group_input_006_1.location = (1804.6112060546875, -173.00930786132812)
+    group_input_007_1.location = (1152.1962890625, -170.53025817871094)
+    group_input_008_1.location = (440.0, -420.0)
+    group_input_009_1.location = (440.0, -360.0)
+    group_input_010_1.location = (440.0, -300.0)
 
     # Set dimensions
     group_input_4.width, group_input_4.height = 140.0, 100.0
@@ -2312,6 +2471,12 @@ def gn_osu_node_group():
     reroute_001_2.width, reroute_001_2.height = 16.0, 100.0
     reroute_002_2.width, reroute_002_2.height = 16.0, 100.0
     reroute_003_2.width, reroute_003_2.height = 16.0, 100.0
+    group_input_005_1.width, group_input_005_1.height = 140.0, 100.0
+    group_input_006_1.width, group_input_006_1.height = 140.0, 100.0
+    group_input_007_1.width, group_input_007_1.height = 140.0, 100.0
+    group_input_008_1.width, group_input_008_1.height = 140.0, 100.0
+    group_input_009_1.width, group_input_009_1.height = 140.0, 100.0
+    group_input_010_1.width, group_input_010_1.height = 140.0, 100.0
 
     # initialize gn_osu links
     # collection_info_1.Instances -> group.Geometry
@@ -2350,6 +2515,18 @@ def gn_osu_node_group():
     gn_osu.links.new(reroute_001_2.outputs[0], reroute_002_2.inputs[0])
     # group.Circle Mesh -> reroute_003_2.Input
     gn_osu.links.new(group.outputs[1], reroute_003_2.inputs[0])
+    # group_input_005_1.Circle Material -> group.Circle Material
+    gn_osu.links.new(group_input_005_1.outputs[7], group.inputs[1])
+    # group_input_006_1.Cursor Material -> group_003.Cursor Material
+    gn_osu.links.new(group_input_006_1.outputs[6], group_003.inputs[2])
+    # group_input_007_1.Spinner Material -> group_002.Spinner Material
+    gn_osu.links.new(group_input_007_1.outputs[11], group_002.inputs[2])
+    # group_input_008_1.Slider Headt/Tail Material -> group_001.Slider Headt/Tail Material
+    gn_osu.links.new(group_input_008_1.outputs[10], group_001.inputs[9])
+    # group_input_009_1.Slider Balls Material -> group_001.Slider Balls Material
+    gn_osu.links.new(group_input_009_1.outputs[9], group_001.inputs[7])
+    # group_input_010_1.Slider Material -> group_001.Slider Material
+    gn_osu.links.new(group_input_010_1.outputs[8], group_001.inputs[2])
     # group.Circles -> join_geometry.Geometry
     gn_osu.links.new(group.outputs[0], join_geometry.inputs[0])
     # join_geometry.Geometry -> join_geometry_001.Geometry

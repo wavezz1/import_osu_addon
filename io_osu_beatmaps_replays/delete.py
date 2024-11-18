@@ -13,8 +13,8 @@ class OSU_OT_Delete(bpy.types.Operator):
                     obj.name.startswith("Circle") or
                     obj.name.startswith("Slider") or
                     obj.name.startswith("Spinner") or
-                    obj.name == "Cursor" or
-                    obj.name == "OsuAudioSpeaker"
+                    obj.name.startswith("Cursor") or
+                    obj.name.startswith("OsuAudioSpeaker")
                 )
             ]
             for obj in objects_to_delete:

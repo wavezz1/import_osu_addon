@@ -9,6 +9,24 @@ from .geometry_nodes import assign_collections_to_sockets
 from .geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
 
+
+def set_collection_exclude(collection_names, exclude=False, view_layer=None):
+    if view_layer is None:
+        view_layer = bpy.context.view_layer
+
+    if isinstance(collection_names, str):
+        collection_names = [collection_names]
+
+    for collection_name in collection_names:
+        layer_collection = view_layer.layer_collection.children.get(collection_name)
+
+        if layer_collection:
+            layer_collection.exclude = exclude
+            print(
+                f"'Exclude from View Layer' für Collection '{collection_name}' auf {exclude} in View Layer '{view_layer.name}' gesetzt.")
+        else:
+            print(f"Collection '{collection_name}' wurde im View Layer '{view_layer.name}' nicht gefunden.")
+
 def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Erstellen der Sammlungen"):
         circles_collection = create_collection("Circles")
@@ -85,3 +103,5 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 }
 
                 assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
+
+            set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"], exclude=True)

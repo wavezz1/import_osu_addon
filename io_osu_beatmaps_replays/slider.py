@@ -27,9 +27,10 @@ class SliderCreator:
     def merge_duplicate_points(self, points, tolerance=0.01):
         if not points:
             print("Keine Punkte zum Mergen vorhanden.")
-            return []
+            return [], []
 
         merged = []
+        is_anchor_flags = []
         i = 0
         while i < len(points):
             if i < len(points) - 1:
@@ -39,12 +40,15 @@ class SliderCreator:
                 if (abs(p1.x - p2.x) <= tolerance) and (abs(p1.y - p2.y) <= tolerance):
                     print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
                     merged.append(p1)  # Nur einen der doppelten Punkte hinzufügen
+                    is_anchor_flags.append(True)  # Markiert als gemergt
                     i += 2  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
                     continue
             merged.append(points[i])
+            is_anchor_flags.append(False)  # Nicht gemergt
             i += 1
         print(f"Ergebnis nach dem Mergen: {merged}")
-        return merged
+        print(f"Is Anchor Flags: {is_anchor_flags}")
+        return merged, is_anchor_flags
 
     def create_slider(self):
         with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
@@ -108,7 +112,7 @@ class SliderCreator:
                     curve_points = self.evaluate_curve(segment_type, segment_points)
                     all_points.extend(curve_points)
 
-                merged_curve_points = self.merge_duplicate_points(all_points, tolerance=0.01)
+                merged_curve_points, is_anchor_flags = self.merge_duplicate_points(all_points, tolerance=0.01)
 
                 spline.points.add(len(merged_curve_points) - 1)
                 for i, point in enumerate(merged_curve_points):
@@ -166,9 +170,12 @@ class SliderCreator:
                     "was_hit": 'BOOLEAN',
                     "was_completed": 'BOOLEAN',
                     "repeat_count": 'INT',
-                    "pixel_length": 'FLOAT'
+                    "pixel_length": 'FLOAT',
+                    "is_anchor": 'BOOLEAN'
                 }
-
+                fixed_values = {
+                    "is_anchor": is_anchor_flags
+                }
                 set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
                 if self.import_type == 'FULL':

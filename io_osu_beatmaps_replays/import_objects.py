@@ -1,5 +1,6 @@
 # import_objects.py
 
+import by
 from .circles import CircleCreator
 from .slider import SliderCreator
 from .spinner import SpinnerCreator

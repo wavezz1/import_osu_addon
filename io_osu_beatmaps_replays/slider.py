@@ -367,7 +367,7 @@ class SliderCreator:
         effective_speed = slider_multiplier * inherited_multiplier
         adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
 
-        end_frame = start_frame + adjusted_duration_frames
+        #end_frame = start_frame + adjusted_duration_frames
 
         slider.data.use_path = True
         slider.data.path_duration = int(adjusted_duration_frames)

@@ -58,6 +58,8 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
             cursor_creator.animate_cursor()
 
+        gn_osu_node_group()
+
     with timeit("Erstellen des Osu_Gameplay Würfels"):
 
         if import_type == 'BASE':
@@ -74,8 +76,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 for col in cube.users_collection:
                     if col != gameplay_collection:
                         col.objects.unlink(cube)
-
-            gn_osu_node_group()
 
             node_group_name = "GN_Osu"
 

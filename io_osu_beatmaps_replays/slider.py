@@ -77,7 +77,7 @@ class SliderCreator:
 
                 segments = []
                 current_segment = [merged_points[0]]
-                for i in range(1, len(points)):
+                for i in range(1, len(merged_points)):
                     if merged_points[i] == merged_points[i - 1]:
                         segments.append((slider_type, current_segment))
                         current_segment = [merged_points[i]]

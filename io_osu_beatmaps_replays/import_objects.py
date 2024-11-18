@@ -68,57 +68,59 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     # Neuer Abschnitt: Erstellen des Würfels in der Sammlung "Osu_Gameplay"
     with timeit("Erstellen des Osu_Gameplay Würfels"):
         # Sammlung erstellen oder abrufen
-        gameplay_collection = create_collection("Osu_Gameplay")
 
-        # Würfel hinzufügen
-        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))  # Größe und Position nach Bedarf anpassen
-        cube = bpy.context.object
-        cube.name = "Osu_Gameplay_Cube"
+        if import_type == 'BASE':
+            gameplay_collection = create_collection("Osu_Gameplay")
 
-        # Würfel zur "Osu_Gameplay" Sammlung hinzufügen
-        gameplay_collection.objects.link(cube)
+            # Würfel hinzufügen
+            bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))  # Größe und Position nach Bedarf anpassen
+            cube = bpy.context.object
+            cube.name = "Osu_Gameplay_Cube"
 
-        # Würfel aus anderen Sammlungen entfernen, falls vorhanden
-        if cube.users_collection:
-            for col in cube.users_collection:
-                if col != gameplay_collection:
-                    col.objects.unlink(cube)
+            # Würfel zur "Osu_Gameplay" Sammlung hinzufügen
+            gameplay_collection.objects.link(cube)
 
-        # Optional: Weitere Anpassungen am Würfel vornehmen
-        # Beispiel: Skalieren des Würfels
-        cube.scale = (2.0, 2.0, 2.0)  # Passen Sie die Skalierung nach Bedarf an
+            # Würfel aus anderen Sammlungen entfernen, falls vorhanden
+            if cube.users_collection:
+                for col in cube.users_collection:
+                    if col != gameplay_collection:
+                        col.objects.unlink(cube)
 
-        # Sicherstellen, dass der GN_Osu Node Group existiert
-        gn_osu_node_group()
+            # Optional: Weitere Anpassungen am Würfel vornehmen
+            # Beispiel: Skalieren des Würfels
+            cube.scale = (2.0, 2.0, 2.0)  # Passen Sie die Skalierung nach Bedarf an
 
-        # Hinzufügen des Geometry Nodes Modifiers mit GN_Osu Node Tree
-        node_group_name = "GN_Osu"  # Name des vorhandenen Node Trees
+            # Sicherstellen, dass der GN_Osu Node Group existiert
+            gn_osu_node_group()
 
-        # Überprüfen, ob der Node Group existiert
-        node_group = bpy.data.node_groups.get(node_group_name)
-        if node_group is None:
-            error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
-            if operator:
-                operator.report({'ERROR'}, error_message)
-            print(error_message)
-        else:
-            # Hinzufügen des Geometry Nodes Modifiers zum Würfel, falls noch nicht vorhanden
-            if not cube.modifiers.get("GeometryNodes"):
-                modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
-                modifier.node_group = node_group
-                print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+            # Hinzufügen des Geometry Nodes Modifiers mit GN_Osu Node Tree
+            node_group_name = "GN_Osu"  # Name des vorhandenen Node Trees
+
+            # Überprüfen, ob der Node Group existiert
+            node_group = bpy.data.node_groups.get(node_group_name)
+            if node_group is None:
+                error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
+                if operator:
+                    operator.report({'ERROR'}, error_message)
+                print(error_message)
             else:
-                modifier = cube.modifiers.get("GeometryNodes")
-                print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
+                # Hinzufügen des Geometry Nodes Modifiers zum Würfel, falls noch nicht vorhanden
+                if not cube.modifiers.get("GeometryNodes"):
+                    modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
+                    modifier.node_group = node_group
+                    print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+                else:
+                    modifier = cube.modifiers.get("GeometryNodes")
+                    print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
 
-            # Definieren der Zuordnung zwischen Sockets und Sammlungen
-            socket_to_collection = {
-                "Socket_2": cursor_collection,
-                "Socket_3": circles_collection,
-                "Socket_4": sliders_collection,
-                "Socket_5": slider_balls_collection,
-                "Socket_6": spinners_collection,
-            }
+                # Definieren der Zuordnung zwischen Sockets und Sammlungen
+                socket_to_collection = {
+                    "Socket_2": cursor_collection,
+                    "Socket_3": circles_collection,
+                    "Socket_4": sliders_collection,
+                    "Socket_5": slider_balls_collection,
+                    "Socket_6": spinners_collection,
+                }
 
-            # Anwenden der Zuordnung mittels der neuen Funktion
-            assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
+                # Anwenden der Zuordnung mittels der neuen Funktion
+                assign_collections_to_sockets(cube, socket_to_collection, operator=operator)

@@ -1,15 +1,40 @@
 # import_objects.py
 
-import bpy
 from .circles import CircleCreator
 from .slider import SliderCreator
 from .spinner import SpinnerCreator
 from .cursor import CursorCreator
 from .utils import create_collection, timeit
 from .geometry_nodes_osu_instance import gn_osu_node_group
+import bpy
 
+def assign_collections_to_sockets(obj, socket_to_collection, operator=None):
+    modifier = obj.modifiers.get("GeometryNodes")
+    if not modifier:
+        error_message = f"No GeometryNodes modifier found on object '{obj.name}'."
+        if operator:
+            operator.report({'ERROR'}, error_message)
+        print(error_message)
+        return
 
-def import_hitobjects(data_manager, settings, props):
+    for socket_name, collection in socket_to_collection.items():
+        try:
+            # Überprüfen, ob der Modifier den Socket unterstützt
+            if socket_name in modifier:
+                modifier[socket_name] = collection
+                print(f"Assigned collection '{collection.name}' to '{socket_name}'.")
+            else:
+                error_message = f"Socket '{socket_name}' not found in modifier 'GeometryNodes'."
+                if operator:
+                    operator.report({'ERROR'}, error_message)
+                print(error_message)
+        except Exception as e:
+            error_message = f"Error assigning collection '{collection.name}' to '{socket_name}': {e}"
+            if operator:
+                operator.report({'ERROR'}, error_message)
+            print(error_message)
+
+def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Erstellen der Sammlungen"):
         circles_collection = create_collection("Circles")
         sliders_collection = create_collection("Sliders")
@@ -63,6 +88,7 @@ def import_hitobjects(data_manager, settings, props):
         # Beispiel: Skalieren des Würfels
         cube.scale = (2.0, 2.0, 2.0)  # Passen Sie die Skalierung nach Bedarf an
 
+        # Sicherstellen, dass der GN_Osu Node Group existiert
         gn_osu_node_group()
 
         # Hinzufügen des Geometry Nodes Modifiers mit GN_Osu Node Tree
@@ -71,10 +97,28 @@ def import_hitobjects(data_manager, settings, props):
         # Überprüfen, ob der Node Group existiert
         node_group = bpy.data.node_groups.get(node_group_name)
         if node_group is None:
-            print(f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst.")
+            error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
+            if operator:
+                operator.report({'ERROR'}, error_message)
+            print(error_message)
         else:
-            # Hinzufügen des Geometry Nodes Modifiers zum Würfel
-            modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
-            modifier.node_group = node_group
+            # Hinzufügen des Geometry Nodes Modifiers zum Würfel, falls noch nicht vorhanden
+            if not cube.modifiers.get("GeometryNodes"):
+                modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
+                modifier.node_group = node_group
+                print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+            else:
+                modifier = cube.modifiers.get("GeometryNodes")
+                print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
 
-            print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+            # Definieren der Zuordnung zwischen Sockets und Sammlungen
+            socket_to_collection = {
+                "Socket_2": cursor_collection,
+                "Socket_3": circles_collection,
+                "Socket_4": sliders_collection,
+                "Socket_5": slider_balls_collection,
+                "Socket_6": spinners_collection,
+            }
+
+            # Anwenden der Zuordnung mittels der neuen Funktion
+            assign_collections_to_sockets(cube, socket_to_collection, operator=operator)

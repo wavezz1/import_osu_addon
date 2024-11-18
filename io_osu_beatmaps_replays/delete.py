@@ -14,7 +14,8 @@ class OSU_OT_Delete(bpy.types.Operator):
                     obj.name.startswith("Slider") or
                     obj.name.startswith("Spinner") or
                     obj.name.startswith("Cursor") or
-                    obj.name.startswith("OsuAudioSpeaker")
+                    obj.name.startswith("OsuAudioSpeaker") or
+                    obj.name.startswith("Osu_Gameplay")
                 )
             ]
             for obj in objects_to_delete:
@@ -24,7 +25,7 @@ class OSU_OT_Delete(bpy.types.Operator):
                     self.report({'WARNING'}, f"Failed to delete object {obj.name}: {e}")
 
             # Remove osu!-specific collections
-            collections_to_delete = ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"]
+            collections_to_delete = ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Osu_Gameplay"]
             for collection_name in collections_to_delete:
                 collection = bpy.data.collections.get(collection_name)
                 if collection:
@@ -37,6 +38,7 @@ class OSU_OT_Delete(bpy.types.Operator):
             node_groups_to_delete = [
                 gn_tree for gn_tree in bpy.data.node_groups
                 if gn_tree.name.startswith("Geometry Nodes")
+                if gn_tree.name.startswith("GN_Osu")
             ]
             for gn_tree in node_groups_to_delete:
                 try:

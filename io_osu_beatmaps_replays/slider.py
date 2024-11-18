@@ -133,8 +133,8 @@ class SliderCreator:
                     for col in slider.users_collection:
                         if col != self.sliders_collection:
                             col.objects.unlink(slider)
-
-                create_geometry_nodes_modifier(slider, "slider")
+                if self.import_type == 'BASE':
+                    create_geometry_nodes_modifier(slider, "slider")
 
                 extra_params = {
                     "slider_duration_ms": slider_duration_ms,

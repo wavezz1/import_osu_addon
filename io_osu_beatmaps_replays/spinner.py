@@ -73,7 +73,8 @@ class SpinnerCreator:
                     if col != self.spinners_collection:
                         col.objects.unlink(spinner)
 
-            create_geometry_nodes_modifier(spinner, "spinner")
+            if self.import_type == 'BASE':
+                create_geometry_nodes_modifier(spinner, "spinner")
 
             extra_params = {
                 "spinner_duration_ms": spinner_duration_ms,

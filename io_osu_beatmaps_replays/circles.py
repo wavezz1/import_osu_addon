@@ -70,7 +70,8 @@ class CircleCreator:
                     if col != self.circles_collection:
                         col.objects.unlink(circle)
 
-            create_geometry_nodes_modifier(circle, "circle")
+            if self.import_type == 'BASE':
+                create_geometry_nodes_modifier(circle, "circle")
 
             end_frame = start_frame + 1
 

@@ -157,11 +157,6 @@ class OSUImporterProperties(PropertyGroup):
         description="Toggle visibility of Replay Information",
         default=False
     )
-    show_advanced_options: BoolProperty(
-        name="Show Advanced Options",
-        description="Toggle visibility of advanced import options",
-        default=False
-    )
 
 
 class OSU_PT_ImporterPanel(Panel):
@@ -224,18 +219,6 @@ class OSU_PT_ImporterPanel(Panel):
         col.separator()
         col.label(text="Audio Options:", icon='SPEAKER')
         col.prop(props, "import_audio")
-
-
-        # Advanced Options
-        layout.separator()
-        layout.prop(props, "show_advanced_options", text="Advanced Options", icon='PREFERENCES')
-        if props.show_advanced_options:
-            box = layout.box()
-            box.label(text="Advanced Import Settings", icon='SETTINGS')
-            box.prop(props, "slider_resolution")
-            box.prop(props, "import_slider_balls")
-            box.prop(props, "import_slider_ticks")
-            # Add more advanced settings as needed
 
         # Beatmap Information Toggle
         if props.bpm != 0.0:

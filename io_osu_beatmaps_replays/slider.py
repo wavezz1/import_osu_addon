@@ -317,8 +317,6 @@ class SliderCreator:
 
             create_geometry_nodes_modifier(slider_ball, "slider_ball")
 
-            #end_frame = start_frame + slider_duration_frames
-
             frame_values = {
                 "show": [
                     (int(start_frame - 1), False),
@@ -366,8 +364,6 @@ class SliderCreator:
 
         effective_speed = slider_multiplier * inherited_multiplier
         adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
-
-        #end_frame = start_frame + adjusted_duration_frames
 
         slider.data.use_path = True
         slider.data.path_duration = int(adjusted_duration_frames)

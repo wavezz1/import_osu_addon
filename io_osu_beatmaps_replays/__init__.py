@@ -1,7 +1,7 @@
 bl_info = {
     "name": "osu! Beatmap and Replay Importer",
     "author": "wavezz",
-    "version": (0, 8),
+    "version": (0, 8, 2),
     "blender": (4, 2, 0),
     "location": "View3D > Sidebar > osu! Importer",
     "description": "Imports osu! Beatmaps and Replays into Blender",
@@ -68,7 +68,7 @@ class OSUImporterPreferences(AddonPreferences):
                 layout.label(text="osrparse not installed", icon='ERROR')
             layout.operator("osu_importer.install_osrparse", text="Install osrparse 6.0.2")
 
-        layout.separator()  # Optional separator for clarity
+        layout.separator()
         layout.label(text="Credits", icon='INFO')
         layout.label(text="This addon utilizes osrparse (https://github.com/kszlim/osu-replay-parser),")
         layout.label(text="created by kszlim and contributors.")

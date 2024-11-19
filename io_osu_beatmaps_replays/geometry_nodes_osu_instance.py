@@ -1,7 +1,6 @@
 import bpy, mathutils
 
 
-# initialize circle_sim_group node group
 def circle_sim_group_node_group():
     circle_sim_group = bpy.data.node_groups.new(type='GeometryNodeTree', name="Circle Sim Group")
 
@@ -467,7 +466,6 @@ def circle_sim_group_node_group():
     return circle_sim_group
 
 
-# circle_sim_group = circle_sim_group_node_group()
 
 
 # initialize slider_sim_group node group
@@ -1647,7 +1645,6 @@ def slider_sim_group_node_group():
     return slider_sim_group
 
 
-# slider_sim_group = slider_sim_group_node_group()
 
 
 # initialize spinner_sim_group node group
@@ -1889,7 +1886,6 @@ def spinner_sim_group_node_group():
     return spinner_sim_group
 
 
-# spinner_sim_group = spinner_sim_group_node_group()
 
 
 # initialize cursor_group node group
@@ -2064,7 +2060,6 @@ def cursor_group_node_group():
     return cursor_group
 
 
-# cursor_group = cursor_group_node_group()
 
 
 # initialize gn_osu node group
@@ -2536,5 +2531,4 @@ def gn_osu_node_group():
     return gn_osu
 
 
-# gn_osu = gn_osu_node_group()
 

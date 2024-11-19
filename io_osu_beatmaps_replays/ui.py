@@ -22,7 +22,7 @@ class OSUImporterProperties(PropertyGroup):
     # Import Type
     import_type: EnumProperty(
         name="Import Type",
-        description="Choose the import type",
+        description="Choose the import type:\n- Base: Import minimal data with Geometry Nodes\n- Full: Import complete data with visibility keyframes",
         items=[
             ('BASE', "Base Map/Replay", "Import empty meshes with Geometry Nodes"),
             ('FULL', "Full Map", "Import full meshes with visibility keyframes")
@@ -146,6 +146,23 @@ class OSUImporterProperties(PropertyGroup):
         name="Total Score",
         default=0
     )
+    # UI Toggles
+    show_beatmap_info: BoolProperty(
+        name="Show Beatmap Information",
+        description="Toggle visibility of Beatmap Information",
+        default=False
+    )
+    show_replay_info: BoolProperty(
+        name="Show Replay Information",
+        description="Toggle visibility of Replay Information",
+        default=False
+    )
+    show_advanced_options: BoolProperty(
+        name="Show Advanced Options",
+        description="Toggle visibility of advanced import options",
+        default=False
+    )
+
 
 class OSU_PT_ImporterPanel(Panel):
     bl_label = "osu! Importer"
@@ -163,11 +180,13 @@ class OSU_PT_ImporterPanel(Panel):
         box.label(text="File Selection", icon='FILE_FOLDER')
         box.prop(props, "osu_file")
         box.prop(props, "osr_file")
+        box.separator()
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
 
         # Delete Button
         layout.separator()
-        layout.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
+        box = layout.box()
+        box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
         # Import Options
         box = layout.box()
@@ -207,34 +226,56 @@ class OSU_PT_ImporterPanel(Panel):
         col.prop(props, "import_audio")
 
 
-        # Beatmap Information
+        # Advanced Options
+        layout.separator()
+        layout.prop(props, "show_advanced_options", text="Advanced Options", icon='PREFERENCES')
+        if props.show_advanced_options:
+            box = layout.box()
+            box.label(text="Advanced Import Settings", icon='SETTINGS')
+            box.prop(props, "slider_resolution")
+            box.prop(props, "import_slider_balls")
+            box.prop(props, "import_slider_ticks")
+            # Add more advanced settings as needed
+
+        # Beatmap Information Toggle
         if props.bpm != 0.0:
             box = layout.box()
-            box.label(text="Beatmap Information", icon='INFO')
-            col = box.column(align=True)
-            col.label(text=f"Title: {props.title}")
-            col.label(text=f"Artist: {props.artist}")
-            col.label(text=f"Difficulty: {props.difficulty_name}")
-            col.separator()
-            col.label(text=f"BPM: {props.bpm:.2f}")
-            ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
-            col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})" if ar_modified else f"AR: {props.base_approach_rate}")
-            cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
-            col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})" if cs_modified else f"CS: {props.base_circle_size}")
-            od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
-            col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})" if od_modified else f"OD: {props.base_overall_difficulty}")
-            col.label(text=f"Total HitObjects: {props.total_hitobjects}")
+            box.prop(props, "show_beatmap_info", text="Beatmap Information", icon='INFO')
+            if props.show_beatmap_info:
+                col = box.column(align=True)
+                col.label(text=f"Title: {props.title}")
+                col.label(text=f"Artist: {props.artist}")
+                col.label(text=f"Difficulty: {props.difficulty_name}")
+                col.separator()
+                col.label(text=f"BPM: {props.bpm:.2f}")
+                ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
+                if ar_modified:
+                    col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
+                else:
+                    col.label(text=f"AR: {props.base_approach_rate}")
+                cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
+                if cs_modified:
+                    col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
+                else:
+                    col.label(text=f"CS: {props.base_circle_size}")
+                od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
+                if od_modified:
+                    col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
+                else:
+                    col.label(text=f"OD: {props.base_overall_difficulty}")
+                col.label(text=f"Total HitObjects: {props.total_hitobjects}")
 
-        # Replay Information
+        # Replay Information Toggle
         if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
             box = layout.box()
-            box.label(text="Replay Information", icon='PLAY')
-            col = box.column(align=True)
-            col.label(text=f"Mods: {props.formatted_mods}")
-            col.label(text=f"Accuracy: {props.accuracy:.2f}%")
-            col.label(text=f"Misses: {props.misses}")
-            col.label(text=f"Max Combo: {props.max_combo}")
-            col.label(text=f"Total Score: {props.total_score}")
+            box.prop(props, "show_replay_info", text="Replay Information", icon='PLAY')
+            if props.show_replay_info:
+                col = box.column(align=True)
+                col.label(text=f"Mods: {props.formatted_mods}")
+                col.label(text=f"Accuracy: {props.accuracy:.2f}%")
+                col.label(text=f"Misses: {props.misses}")
+                col.label(text=f"Max Combo: {props.max_combo}")
+                col.label(text=f"Total Score: {props.total_score}")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

@@ -53,7 +53,7 @@ class OSUImporterProperties(PropertyGroup):
     # Slider Options
     import_slider_ticks: BoolProperty(
         name="Slider Ticks",
-        description="Import slider ticks",
+        description="Import slider ticks (NOT RECOMMENDED! MANY OBJECTS)",
         default=False
     )
     import_slider_balls: BoolProperty(

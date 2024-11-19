@@ -25,7 +25,6 @@ class CircleCreator:
 
             approach_rate = data_manager.adjusted_ar
             preempt_frames = data_manager.preempt_frames
-            circle_size = data_manager.adjusted_cs
             audio_lead_in_frames = data_manager.audio_lead_in_frames
             osu_radius = data_manager.osu_radius
 
@@ -70,7 +69,8 @@ class CircleCreator:
                     if col != self.circles_collection:
                         col.objects.unlink(circle)
 
-            create_geometry_nodes_modifier(circle, "circle")
+            if self.import_type == 'BASE':
+                create_geometry_nodes_modifier(circle, "circle")
 
             end_frame = start_frame + 1
 

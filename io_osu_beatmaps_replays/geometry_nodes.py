@@ -160,3 +160,28 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                 print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
         else:
             print(f"No values provided for attribute '{attr_name}'. Skipping.")
+
+def assign_collections_to_sockets(obj, socket_to_collection, operator=None):
+    modifier = obj.modifiers.get("GeometryNodes")
+    if not modifier:
+        error_message = f"No GeometryNodes modifier found on object '{obj.name}'."
+        if operator:
+            operator.report({'ERROR'}, error_message)
+        print(error_message)
+        return
+
+    for socket_name, collection in socket_to_collection.items():
+        try:
+            if socket_name in modifier:
+                modifier[socket_name] = collection
+                print(f"Assigned collection '{collection.name}' to '{socket_name}'.")
+            else:
+                error_message = f"Socket '{socket_name}' not found in modifier 'GeometryNodes'."
+                if operator:
+                    operator.report({'ERROR'}, error_message)
+                print(error_message)
+        except Exception as e:
+            error_message = f"Error assigning collection '{collection.name}' to '{socket_name}': {e}"
+            if operator:
+                operator.report({'ERROR'}, error_message)
+            print(error_message)

@@ -29,6 +29,11 @@ class OSUImporterProperties(PropertyGroup):
         ],
         default='BASE'
     )
+    include_osu_gameplay: BoolProperty(
+        name="Include Osu_Gameplay",
+        description="Add Osu_Gameplay mesh and Geometry Nodes setup",
+        default=True
+    )
     # Import Options
     import_circles: BoolProperty(
         name="Circles",
@@ -167,6 +172,10 @@ class OSU_PT_ImporterPanel(Panel):
         # Import Type Selection
         box.prop(props, "import_type")
 
+        # import_type 'BASE'
+        if props.import_type == 'BASE':
+            box.prop(props, "include_osu_gameplay")
+
         # Hit Objects Import Options
         col = box.column(align=True)
         col.label(text="Hit Objects:", icon='OBJECT_DATA')
@@ -175,7 +184,7 @@ class OSU_PT_ImporterPanel(Panel):
         row.prop(props, "import_sliders", toggle=True)
         row.prop(props, "import_spinners", toggle=True)
 
-        # Slider Options (only visible if sliders are imported)
+        # Slider Options
         if props.import_sliders:
             col.separator()
             col.label(text="Slider Options:", icon='MOD_CURVE')
@@ -245,7 +254,6 @@ class OSU_OT_Import(Operator):
 
             result, data_manager = main_execution(context)
 
-            # Verwenden der gespeicherten Eigenschaften aus data_manager
             props.base_approach_rate = data_manager.base_ar
             props.adjusted_approach_rate = data_manager.adjusted_ar
             props.base_circle_size = data_manager.base_cs

@@ -57,7 +57,8 @@ class CursorCreator:
 
             cursor.name = "Cursor"
 
-            create_geometry_nodes_modifier(cursor, "cursor")
+            if self.import_type == 'BASE':
+                create_geometry_nodes_modifier(cursor, "cursor")
 
             # Initiale Keyframes setzen
             initial_frame_values = {

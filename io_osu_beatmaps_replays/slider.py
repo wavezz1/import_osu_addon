@@ -24,6 +24,28 @@ class SliderCreator:
         self.import_slider_ticks = settings.get('import_slider_ticks', False)
         self.create_slider()
 
+    def merge_duplicate_points(self, points, tolerance=0.01):
+        if not points:
+            print("Keine Punkte zum Mergen vorhanden.")
+            return [], []
+
+        merged = []
+        i = 0
+        while i < len(points):
+            if i < len(points) - 1:
+                p1 = points[i]
+                p2 = points[i + 1]
+                # Überprüfen, ob die Punkte innerhalb der Toleranz liegen
+                if (abs(p1.x - p2.x) <= tolerance) and (abs(p1.y - p2.y) <= tolerance):
+                    print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
+                    merged.append(p1)  # Nur einen der doppelten Punkte hinzufügen
+                    i += 2  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
+                    continue
+            merged.append(points[i])
+            i += 1
+        print(f"Ergebnis nach dem Mergen: {merged}")
+        return merged
+
     def create_slider(self):
         with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
             data_manager = self.data_manager
@@ -77,6 +99,7 @@ class SliderCreator:
                 curve_data.resolution_u = 64
 
                 spline = curve_data.splines.new('POLY')
+
                 all_points = []
 
                 for segment_type, segment_points in segments:
@@ -85,8 +108,10 @@ class SliderCreator:
                     curve_points = self.evaluate_curve(segment_type, segment_points)
                     all_points.extend(curve_points)
 
-                spline.points.add(len(all_points) - 1)
-                for i, point in enumerate(all_points):
+                merged_curve_points = self.merge_duplicate_points(all_points, tolerance=0.01)
+
+                spline.points.add(len(merged_curve_points) - 1)
+                for i, point in enumerate(merged_curve_points):
                     spline.points[i].co = (point.x, point.y, point.z, 1)
 
                 if self.import_type == 'FULL':
@@ -108,8 +133,8 @@ class SliderCreator:
                     for col in slider.users_collection:
                         if col != self.sliders_collection:
                             col.objects.unlink(slider)
-
-                create_geometry_nodes_modifier(slider, "slider")
+                if self.import_type == 'BASE':
+                    create_geometry_nodes_modifier(slider, "slider")
 
                 extra_params = {
                     "slider_duration_ms": slider_duration_ms,
@@ -141,9 +166,8 @@ class SliderCreator:
                     "was_hit": 'BOOLEAN',
                     "was_completed": 'BOOLEAN',
                     "repeat_count": 'INT',
-                    "pixel_length": 'FLOAT'
+                    "pixel_length": 'FLOAT',
                 }
-
                 set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
                 if self.import_type == 'FULL':
@@ -163,7 +187,7 @@ class SliderCreator:
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False):
-                    self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count)
+                    self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count, end_frame)
                 if self.settings.get('import_slider_ticks', False):
                     self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
 
@@ -279,7 +303,7 @@ class SliderCreator:
 
         return spline_points
 
-    def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count):
+    def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame):
         if self.import_type == 'BASE':
             mesh = bpy.data.meshes.new(f"{slider.name}_ball")
 
@@ -292,8 +316,6 @@ class SliderCreator:
             slider_ball.location = slider.location
 
             create_geometry_nodes_modifier(slider_ball, "slider_ball")
-
-            end_frame = start_frame + slider_duration_frames
 
             frame_values = {
                 "show": [
@@ -342,8 +364,6 @@ class SliderCreator:
 
         effective_speed = slider_multiplier * inherited_multiplier
         adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
-
-        end_frame = start_frame + adjusted_duration_frames
 
         slider.data.use_path = True
         slider.data.path_duration = int(adjusted_duration_frames)

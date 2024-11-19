@@ -467,7 +467,7 @@ def circle_sim_group_node_group():
     return circle_sim_group
 
 
-circle_sim_group = circle_sim_group_node_group()
+# circle_sim_group = circle_sim_group_node_group()
 
 
 # initialize slider_sim_group node group
@@ -1647,7 +1647,7 @@ def slider_sim_group_node_group():
     return slider_sim_group
 
 
-slider_sim_group = slider_sim_group_node_group()
+# slider_sim_group = slider_sim_group_node_group()
 
 
 # initialize spinner_sim_group node group
@@ -1889,7 +1889,7 @@ def spinner_sim_group_node_group():
     return spinner_sim_group
 
 
-spinner_sim_group = spinner_sim_group_node_group()
+# spinner_sim_group = spinner_sim_group_node_group()
 
 
 # initialize cursor_group node group
@@ -2064,7 +2064,7 @@ def cursor_group_node_group():
     return cursor_group
 
 
-cursor_group = cursor_group_node_group()
+# cursor_group = cursor_group_node_group()
 
 
 # initialize gn_osu node group
@@ -2174,7 +2174,7 @@ def gn_osu_node_group():
     # node Group
     group = gn_osu.nodes.new("GeometryNodeGroup")
     group.name = "Group"
-    group.node_tree = circle_sim_group
+    group.node_tree = circle_sim_group_node_group()
     # Socket_4
     group.inputs[2].default_value = 0.009999999776482582
 
@@ -2190,7 +2190,7 @@ def gn_osu_node_group():
     # node Group.001
     group_001 = gn_osu.nodes.new("GeometryNodeGroup")
     group_001.name = "Group.001"
-    group_001.node_tree = slider_sim_group
+    group_001.node_tree = slider_sim_group_node_group()
     # Socket_4
     group_001.inputs[3].default_value = 0.029999999329447746
     # Socket_5
@@ -2225,7 +2225,7 @@ def gn_osu_node_group():
     # node Group.002
     group_002 = gn_osu.nodes.new("GeometryNodeGroup")
     group_002.name = "Group.002"
-    group_002.node_tree = spinner_sim_group
+    group_002.node_tree = spinner_sim_group_node_group()
     # Socket_2
     group_002.inputs[1].default_value = 5.0
     # Socket_4
@@ -2234,7 +2234,7 @@ def gn_osu_node_group():
     # node Group.003
     group_003 = gn_osu.nodes.new("GeometryNodeGroup")
     group_003.name = "Group.003"
-    group_003.node_tree = cursor_group
+    group_003.node_tree = cursor_group_node_group()
     # Socket_2
     group_003.inputs[1].default_value = 0.30000001192092896
     # Socket_4
@@ -2536,5 +2536,5 @@ def gn_osu_node_group():
     return gn_osu
 
 
-gn_osu = gn_osu_node_group()
+# gn_osu = gn_osu_node_group()
 

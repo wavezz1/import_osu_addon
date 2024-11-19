@@ -209,9 +209,11 @@ class OSU_PT_ImporterPanel(Panel):
             col.prop(props, "slider_resolution")
             col.prop(props, "import_slider_balls")
             col.prop(props, "import_slider_ticks")
-            row = col.row(align=True)
-            row.label(text="⚠️ Warning: Slider ticks are NOT recommended! This can lead to too many objects.", icon='ERROR')
 
+            warning_row = col.row(align=True)
+            warning_row.label(text="Warning: Slider ticks are NOT recommended!", icon='ERROR')
+            warning_row = col.row(align=True)
+            warning_row.label(text="This can lead to too many objects.", icon='NONE')
         # Replay Options
         col.separator()
         col.label(text="Replay Options:", icon='REC')

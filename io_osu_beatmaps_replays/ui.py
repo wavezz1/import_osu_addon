@@ -146,6 +146,10 @@ class OSUImporterProperties(PropertyGroup):
         name="Total Score",
         default=0
     )
+    player_name: StringProperty(  # Neue Eigenschaft für den Spielernamen
+        name="Player Name",
+        default="Unknown"
+    )
     # UI Toggles
     show_beatmap_info: BoolProperty(
         name="Show Beatmap Information",
@@ -250,6 +254,7 @@ class OSU_PT_ImporterPanel(Panel):
             box.prop(props, "show_replay_info", text="Replay Information", icon='PLAY')
             if props.show_replay_info:
                 col = box.column(align=True)
+                col.label(text=f"Player Name: {props.player_name}")
                 col.label(text=f"Mods: {props.formatted_mods}")
                 col.label(text=f"Accuracy: {props.accuracy:.2f}%")
                 col.label(text=f"Misses: {props.misses}")
@@ -292,6 +297,7 @@ class OSU_OT_Import(Operator):
             props.accuracy = data_manager.replay_info["accuracy"]
             props.misses = data_manager.replay_info["misses"]
             props.max_combo = data_manager.replay_info["max_combo"]
+            props.player_name = data_manager.replay_info["username"]
             props.total_score = data_manager.replay_info["total_score"]
 
             return result

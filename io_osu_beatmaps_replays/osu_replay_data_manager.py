@@ -54,6 +54,7 @@ class OsuReplayDataManager:
             "misses": self.osr_parser.misses,
             "max_combo": self.osr_parser.max_combo,
             "total_score": self.osr_parser.score,
+            "username": self.osr_parser.username,
         }
 
     @property

@@ -177,10 +177,6 @@ class OSU_PT_ImporterPanel(Panel):
         box.prop(props, "osr_file")
         box.separator()
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
-
-        # Delete Button
-        layout.separator()
-        box = layout.box()
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
         # Import Options

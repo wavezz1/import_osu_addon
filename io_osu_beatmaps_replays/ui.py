@@ -216,7 +216,8 @@ class OSU_PT_ImporterPanel(Panel):
                 warning_col = warning_box.column(align=True)
                 warning_col.label(text="", icon='ERROR')
                 warning_row = warning_box.row(align=True)
-                warning_row.label(text="Warning: Slider ticks are NOT recommended!", icon='ERROR')
+                warning_row.label(text="Warning: Slider ticks are NOT recommended!", icon='NONE')
+                warning_row = warning_box.row(align=True)
                 warning_row.label(text="This can lead to too many objects.", icon='NONE')
 
         # Replay Options

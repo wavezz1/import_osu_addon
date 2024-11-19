@@ -53,7 +53,7 @@ class OSUImporterProperties(PropertyGroup):
     # Slider Options
     import_slider_ticks: BoolProperty(
         name="Slider Ticks",
-        description="Import slider ticks (NOT RECOMMENDED! MANY OBJECTS)",
+        description="Import slider ticks (NOT RECOMMENDED! TOO MANY OBJECTS)",
         default=False
     )
     import_slider_balls: BoolProperty(
@@ -165,6 +165,10 @@ class OSU_PT_ImporterPanel(Panel):
         box.prop(props, "osr_file")
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
 
+        # Delete Button
+        layout.separator()
+        layout.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
+
         # Import Options
         box = layout.box()
         box.label(text="Import Options", icon='IMPORT')
@@ -188,9 +192,9 @@ class OSU_PT_ImporterPanel(Panel):
         if props.import_sliders:
             col.separator()
             col.label(text="Slider Options:", icon='MOD_CURVE')
-            col.prop(props, "import_slider_ticks")
-            col.prop(props, "import_slider_balls")
             col.prop(props, "slider_resolution")
+            col.prop(props, "import_slider_balls")
+            col.prop(props, "import_slider_ticks")
 
         # Replay Options
         col.separator()
@@ -202,9 +206,6 @@ class OSU_PT_ImporterPanel(Panel):
         col.label(text="Audio Options:", icon='SPEAKER')
         col.prop(props, "import_audio")
 
-        # Delete Button
-        layout.separator()
-        layout.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
         # Beatmap Information
         if props.bpm != 0.0:

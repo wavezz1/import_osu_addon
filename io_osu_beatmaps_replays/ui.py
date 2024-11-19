@@ -53,7 +53,7 @@ class OSUImporterProperties(PropertyGroup):
     # Slider Options
     import_slider_ticks: BoolProperty(
         name="Slider Ticks",
-        description="Import slider ticks (NOT RECOMMENDED! TOO MANY OBJECTS)",
+        description="Import slider ticks",
         default=False
     )
     import_slider_balls: BoolProperty(
@@ -209,6 +209,13 @@ class OSU_PT_ImporterPanel(Panel):
             col.prop(props, "slider_resolution")
             col.prop(props, "import_slider_balls")
             col.prop(props, "import_slider_ticks")
+
+            # Bedingte Warnung hinzufügen
+            if props.import_slider_ticks:
+                col.label(
+                    text="⚠️ Warning: Slider ticks are NOT recommended! This can lead to too many objects.",
+                    icon='ERROR'
+                )
 
         # Replay Options
         col.separator()

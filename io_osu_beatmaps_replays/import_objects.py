@@ -59,47 +59,48 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             cursor_creator.animate_cursor()
 
         if import_type == 'BASE':
-            gameplay_collection = create_collection("Osu_Gameplay")
+            if getattr(props, 'include_osu_gameplay', False):
+                gameplay_collection = create_collection("Osu_Gameplay")
 
-            # Placeholder Mesh for Geo Nodes
-            bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
-            cube = bpy.context.object
-            cube.name = "Osu_Gameplay"
+                # Placeholder Mesh für Geo Nodes
+                bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
+                cube = bpy.context.object
+                cube.name = "Osu_Gameplay"
 
-            gameplay_collection.objects.link(cube)
+                gameplay_collection.objects.link(cube)
 
-            if cube.users_collection:
-                for col in cube.users_collection:
-                    if col != gameplay_collection:
-                        col.objects.unlink(cube)
+                if cube.users_collection:
+                    for col in cube.users_collection:
+                        if col != gameplay_collection:
+                            col.objects.unlink(cube)
 
-            gn_osu_node_group()
+                gn_osu_node_group()
 
-            node_group_name = "GN_Osu"
+                node_group_name = "GN_Osu"
 
-            node_group = bpy.data.node_groups.get(node_group_name)
-            if node_group is None:
-                error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
-                if operator:
-                    operator.report({'ERROR'}, error_message)
-                print(error_message)
-            else:
-                if not cube.modifiers.get("GeometryNodes"):
-                    modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
-                    modifier.node_group = node_group
-                    print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+                node_group = bpy.data.node_groups.get(node_group_name)
+                if node_group is None:
+                    error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
+                    if operator:
+                        operator.report({'ERROR'}, error_message)
+                    print(error_message)
                 else:
-                    modifier = cube.modifiers.get("GeometryNodes")
-                    print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
+                    if not cube.modifiers.get("GeometryNodes"):
+                        modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
+                        modifier.node_group = node_group
+                        print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+                    else:
+                        modifier = cube.modifiers.get("GeometryNodes")
+                        print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
 
-                socket_to_collection = {
-                    "Socket_2": cursor_collection,
-                    "Socket_3": circles_collection,
-                    "Socket_4": sliders_collection,
-                    "Socket_5": slider_balls_collection,
-                    "Socket_6": spinners_collection,
-                }
+                    socket_to_collection = {
+                        "Socket_2": cursor_collection,
+                        "Socket_3": circles_collection,
+                        "Socket_4": sliders_collection,
+                        "Socket_5": slider_balls_collection,
+                        "Socket_6": spinners_collection,
+                    }
 
-                assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
+                    assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
 
-            set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"], exclude=True)
+                set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"], exclude=True)

@@ -29,6 +29,11 @@ class OSUImporterProperties(PropertyGroup):
         ],
         default='BASE'
     )
+    include_osu_gameplay: BoolProperty(
+        name="Include Osu_Gameplay",
+        description="Add Osu_Gameplay mesh and Geometry Nodes setup",
+        default=True
+    )
     # Import Options
     import_circles: BoolProperty(
         name="Circles",
@@ -166,6 +171,10 @@ class OSU_PT_ImporterPanel(Panel):
 
         # Import Type Selection
         box.prop(props, "import_type")
+
+        # Zusätzliche Option anzeigen, wenn import_type 'BASE' ist
+        if props.import_type == 'BASE':
+            box.prop(props, "include_osu_gameplay")
 
         # Hit Objects Import Options
         col = box.column(align=True)

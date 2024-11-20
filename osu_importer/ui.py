@@ -382,8 +382,8 @@ class OSU_OT_FlipCursorVertical(Operator):
     def execute(self, context):
         cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
         for obj in cursor_objects:
-            obj.scale.y *= -1
-            obj.location.y *= -1
+            obj.scale.z *= -1
+            obj.location.z *= -1
         self.report({'INFO'}, f"Vertikales Spiegeln der {len(cursor_objects)} Cursor abgeschlossen.")
         return {'FINISHED'}
 
@@ -410,7 +410,7 @@ class OSU_OT_FlipMapVertical(Operator):
         map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
         map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
         for obj in map_objects:
-            obj.scale.y *= -1
-            obj.location.y *= -1
+            obj.scale.z *= -1
+            obj.location.z *= -1
         self.report({'INFO'}, f"Vertikales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
         return {'FINISHED'}

@@ -240,8 +240,8 @@ class OSU_PT_ImporterPanel(Panel):
             if props.import_type == 'FULL':
                 row.prop(props, "import_slider_heads_tails", toggle=True)
 
-            row.prop(props, "import_slider_balls", toggle=True)
-            row.prop(props, "import_slider_ticks", toggle=False)
+            col.prop(props, "import_slider_balls", toggle=True)
+            col.prop(props, "import_slider_ticks", toggle=False)
 
             if props.import_slider_ticks:
                 col.separator()

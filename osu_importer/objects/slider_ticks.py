@@ -1,5 +1,5 @@
 import bpy
-from osu_importer.utils import evaluate_curve_at_t
+from osu_importer.utils.utils import evaluate_curve_at_t
 
 class SliderTicksCreator:
     def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, settings, import_type):

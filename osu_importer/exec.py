@@ -4,7 +4,7 @@ import bpy
 import os
 from .osu_replay_data_manager import OsuReplayDataManager
 from .import_objects import import_hitobjects
-from .utils import timeit
+from .utils.utils import timeit
 
 
 def main_execution(context):

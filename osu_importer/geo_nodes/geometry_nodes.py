@@ -1,5 +1,5 @@
 import bpy
-from osu_importer.utils import timeit
+from osu_importer.utils.utils import timeit
 
 node_groups = {}
 

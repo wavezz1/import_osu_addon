@@ -81,7 +81,7 @@ class OSUImporterProperties(PropertyGroup):
     approach_circle_bevel_depth: FloatProperty(
         name="Bevel Depth",
         description="Adjust the bevel depth of approach circles in FULL import",
-        default=0.1,
+        default=0.02,
         min=0.0,
         max=1.0,
         subtype='NONE',

@@ -55,10 +55,12 @@ class CursorCreator:
                 cursor = bpy.data.objects.new("Cursor", mesh)
                 cursor.location = (0, 0, 0)
 
+                create_geometry_nodes_modifier(cursor, "cursor")
+
             cursor.name = "Cursor"
 
-            if self.import_type == 'BASE':
-                create_geometry_nodes_modifier(cursor, "cursor")
+            # if self.import_type == 'BASE':
+            #     create_geometry_nodes_modifier(cursor, "cursor")
 
             # Initiale Keyframes setzen
             initial_frame_values = {

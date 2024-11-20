@@ -301,7 +301,7 @@ class OSU_PT_ImporterPanel(Panel):
 
         if props.bpm != 0.0:
             box = layout.box()
-            box.label(text="Tools", icon='PLUS')
+            box.prop(props, "show_replay_info", text="Replay Information", icon='PLUS')
 
             # Flip Cursor Position
             col = box.column(align=True)

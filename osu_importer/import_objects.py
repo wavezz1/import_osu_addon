@@ -4,6 +4,7 @@ from osu_importer.objects.circles import CircleCreator
 from osu_importer.objects.slider import SliderCreator
 from osu_importer.objects.spinner import SpinnerCreator
 from osu_importer.objects.cursor import CursorCreator
+from osu_importer.objects.approach_circle import ApproachCircleCreator
 from .utils.utils import create_collection, timeit
 from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
@@ -76,6 +77,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             "Slider Balls": create_collection("Slider Balls"),
             "Spinners": create_collection("Spinners"),
             "Cursor": create_collection("Cursor"),
+            "Approach Circles": create_collection("Approach Circles"),
         }
 
     global_index = 1
@@ -111,6 +113,15 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     if props.import_cursors:
         cursor_creator = CursorCreator(collections["Cursor"], settings, data_manager, import_type)
         cursor_creator.animate_cursor()
+
+    if props.import_approach_circles:
+        hitobject_importers["approach_circles"] = lambda: [
+            ApproachCircleCreator(hitobject, global_index + i, collections["Approach Circles"], settings, data_manager,
+                                  import_type)
+            for i, hitobject in enumerate(data_manager.hitobjects)
+        ]
+        hitobject_importers["approach_circles"]()
+        global_index += len(data_manager.hitobjects)
 
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(

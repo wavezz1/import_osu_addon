@@ -401,9 +401,9 @@ class OSU_OT_FlipCursorHorizontal(Operator):
                     # Flip keyframes for scale.x
                     elif fcurve.data_path == "scale" and fcurve.array_index == 0:
                         for keyframe in fcurve.keyframe_points:
-                            keyframe.co.x *= -1
-                            keyframe.handle_left.x *= -1
-                            keyframe.handle_right.x *= -1
+                            keyframe.co.y *= -1
+                            keyframe.handle_left.y *= -1
+                            keyframe.handle_right.y *= -1
             flipped_count +=1
         self.report({'INFO'}, f"Horizontales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}
@@ -418,8 +418,8 @@ class OSU_OT_FlipCursorVertical(Operator):
         flipped_count = 0
         for obj in cursor_objects:
             # Flip location and scale along Y-axis
-            obj.scale.z *= -1
-            obj.location.z *= -1
+            obj.scale.y *= -1
+            obj.location.y *= -1
 
             # Flip keyframes if any
             if obj.animation_data and obj.animation_data.action:
@@ -427,15 +427,15 @@ class OSU_OT_FlipCursorVertical(Operator):
                     # Flip keyframes for location.y
                     if fcurve.data_path == "location" and fcurve.array_index == 1:
                         for keyframe in fcurve.keyframe_points:
-                            keyframe.co.x *= -1
-                            keyframe.handle_left.x *= -1
-                            keyframe.handle_right.x *= -1
+                            keyframe.co.y *= -1
+                            keyframe.handle_left.y *= -1
+                            keyframe.handle_right.y *= -1
                     # Flip keyframes for scale.y
                     elif fcurve.data_path == "scale" and fcurve.array_index == 1:
                         for keyframe in fcurve.keyframe_points:
-                            keyframe.co.x *= -1
-                            keyframe.handle_left.x *= -1
-                            keyframe.handle_right.x *= -1
+                            keyframe.co.y *= -1
+                            keyframe.handle_left.y *= -1
+                            keyframe.handle_right.y *= -1
             flipped_count +=1
         self.report({'INFO'}, f"Vertikales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}

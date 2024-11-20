@@ -3,6 +3,7 @@
 import bpy
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 
+
 class ApproachCircleCreator:
     def __init__(self, hitobject, global_index, collection, settings, data_manager, import_type):
         self.hitobject = hitobject
@@ -13,12 +14,11 @@ class ApproachCircleCreator:
         self.import_type = import_type
         self.name = f"ApproachCircle_{self.global_index}"
 
-        # Attribute: Show, Early Start Frame, Start Frame, Scale
+        # Attribute: Show, Start Frame, Scale
         self.show = True
-        self.early_start_frame = int(hitobject.time - self.data_manager.preempt_frames)
-        self.start_frame = int(hitobject.time)
-        self.scale_initial = 2.0  # Startscale, z.B. doppelt so groß wie der Circle
-        self.scale_final = 1.0      # Final Scale entspricht cs Größe
+        self.start_frame = int(hitobject.frame)  # Start frame vom hitobject
+        self.scale_initial = 2.0  # Startskalierung, z.B. doppelt so groß wie der Circle
+        self.scale_final = self.data_manager.adjusted_cs  # Final Scale entspricht cs Größe
 
         self.create()
 
@@ -51,22 +51,20 @@ class ApproachCircleCreator:
         # Definieren der Attribute und Setzen der Keyframes
         attributes = {
             "show": "BOOLEAN",
-            "early_start_frame": "INT",
             "start_frame": "INT",
             "scale": "FLOAT",
         }
         frame_values = {
             "show": [
-                (self.early_start_frame, True),  # show = True
-                (self.start_frame, False),       # show = False
+                (self.start_frame, True),   # Sichtbar ab Start Frame
+                (self.start_frame + 10, False),  # Unsichtbar nach kurzer Zeit (angepasst nach Bedarf)
             ],
             "scale": [
-                (self.early_start_frame, self.scale_initial),
+                (self.start_frame, self.scale_initial),
                 (self.start_frame, self.scale_final),
             ]
         }
         fixed_values = {
-            "early_start_frame": self.early_start_frame,
             "start_frame": self.start_frame,
         }
 
@@ -77,8 +75,6 @@ class ApproachCircleCreator:
         # Erstellen des Curve-Circles
         curve_data = bpy.data.curves.new(self.name, type='CURVE')
         curve_data.dimensions = '3D'
-        # Entferne fill_mode oder setze auf einen gültigen Wert, falls benötigt
-        # curve_data.fill_mode = 'BACK'  # Beispiel für einen gültigen Wert
 
         # Verwenden von 'CIRCLE' als Spline-Typ für einen geschlossenen Kreis
         circle_spline = curve_data.splines.new('CIRCLE')
@@ -89,17 +85,17 @@ class ApproachCircleCreator:
 
         # Animieren der Skalierung
         curve_obj.scale = (self.scale_initial, self.scale_initial, self.scale_initial)
-        curve_obj.keyframe_insert(data_path="scale", frame=self.early_start_frame)
-        curve_obj.scale = (self.scale_final, self.scale_final, self.scale_final)
         curve_obj.keyframe_insert(data_path="scale", frame=self.start_frame)
+        curve_obj.scale = (self.scale_final, self.scale_final, self.scale_final)
+        curve_obj.keyframe_insert(data_path="scale", frame=self.start_frame + 30)  # Dauer der Animation anpassen
 
         # Animieren der Sichtbarkeit (sichtbar -> unsichtbar)
         curve_obj.hide_viewport = False
         curve_obj.hide_render = False
-        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.early_start_frame)
-        curve_obj.keyframe_insert(data_path="hide_render", frame=self.early_start_frame)
+        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.start_frame)
+        curve_obj.keyframe_insert(data_path="hide_render", frame=self.start_frame)
 
         curve_obj.hide_viewport = True
         curve_obj.hide_render = True
-        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.start_frame)
-        curve_obj.keyframe_insert(data_path="hide_render", frame=self.start_frame)
+        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.start_frame + 30)
+        curve_obj.keyframe_insert(data_path="hide_render", frame=self.start_frame + 30)

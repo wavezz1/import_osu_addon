@@ -40,7 +40,7 @@ class SliderHeadTailCreator:
                     if col != self.slider_heads_tails_collection:
                         col.objects.unlink(head_tail_obj)
 
-            head_tail_obj.scale = (1.0, 1.0, 1.0)
+            #head_tail_obj.scale = (1.0, 1.0, 1.0)
 
             # Animieren der Sichtbarkeit
             head_tail_obj.hide_viewport = True

@@ -427,15 +427,15 @@ class OSU_OT_FlipCursorVertical(Operator):
                     # Flip keyframes for location.y
                     if fcurve.data_path == "location" and fcurve.array_index == 1:
                         for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
+                            keyframe.co.x *= -1
+                            keyframe.handle_left.x *= -1
+                            keyframe.handle_right.x *= -1
                     # Flip keyframes for scale.y
                     elif fcurve.data_path == "scale" and fcurve.array_index == 1:
                         for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
+                            keyframe.co.x *= -1
+                            keyframe.handle_left.x *= -1
+                            keyframe.handle_right.x *= -1
             flipped_count +=1
         self.report({'INFO'}, f"Vertikales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}

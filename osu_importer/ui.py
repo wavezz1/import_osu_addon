@@ -301,7 +301,7 @@ class OSU_PT_ImporterPanel(Panel):
 
         if props.show_beatmap_info or props.show_replay_info:
             box = layout.box()
-            box.label(text="Tools", icon='TOOLS')
+            box.label(text="Tools", icon='PLUS')
 
             # Flip Cursor Position
             col = box.column(align=True)

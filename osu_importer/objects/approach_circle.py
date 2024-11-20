@@ -46,13 +46,13 @@ class ApproachCircleCreator:
                 #     location=(corrected_x, corrected_y, corrected_z),
                 #     rotation=(math.radians(90), 0, 0)
                 # )
-                bpy.ops.curves.add_circle(
-                    radius=osu_radius * SCALE_FACTOR * 2,
-                    enter_editmode=False,
-                    align='WORLD',
-                    location=(corrected_x, corrected_y, corrected_z),
-                    rotation=(math.radians(90), 0.0, 0.0),
-                    scale=(1, 1, 1))
+                curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_approach_{hitobject.time}_curve", type='CURVE')
+                curve_data.dimensions = '3D'
+
+                # Verwenden eines CIRCLE-Splines
+                spline = curve_data.splines.new('CIRCLE')
+                spline.radius = osu_radius * SCALE_FACTOR * 2
+
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 

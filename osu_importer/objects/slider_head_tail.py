@@ -6,7 +6,7 @@ from osu_importer.utils.utils import map_osu_to_blender, timeit
 from osu_importer.utils.constants import SCALE_FACTOR
 
 class SliderHeadTailCreator:
-    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager, import_type):
+    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager):
         self.hitobject = hitobject
         self.position = position  # Vector (x, y, z)
         self.global_index = global_index

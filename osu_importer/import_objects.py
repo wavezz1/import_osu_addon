@@ -117,12 +117,10 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
         for i, hitobject in enumerate(sliders):
-            # Extrahiere Start- und Endposition des Sliders
-            # Die SliderCreator hat start_pos und end_pos im hitobject gesetzt
-            start_pos = hitobject.start_pos  # Vector (x, y, z)
-            end_pos = hitobject.end_pos  # Vector (x, y, z)
+            start_pos = hitobject.start_pos
+            end_pos = hitobject.end_pos
 
-            # Slider Head erstellen
+            # Slider Head
             SliderHeadTailCreator(
                 hitobject=hitobject,
                 position=start_pos,
@@ -132,7 +130,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager
             )
 
-            # Slider Tail erstellen
+            # Slider Tail
             SliderHeadTailCreator(
                 hitobject=hitobject,
                 position=end_pos,

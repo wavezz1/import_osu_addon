@@ -23,7 +23,6 @@ class SliderHeadTailCreator:
         with timeit(f"Creating SliderHeadTail {self.global_index:03d}_head_tail"):
             osu_radius = self.data_manager.osu_radius
 
-            # Erstellen eines Mesh-Circles
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
                 radius=osu_radius * SCALE_FACTOR * 2,
@@ -33,14 +32,12 @@ class SliderHeadTailCreator:
             head_tail_obj = bpy.context.object
             head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
 
-            # Hinzufügen zur Collection
             self.slider_heads_tails_collection.objects.link(head_tail_obj)
             if head_tail_obj.users_collection:
                 for col in head_tail_obj.users_collection:
                     if col != self.slider_heads_tails_collection:
                         col.objects.unlink(head_tail_obj)
 
-            # Animieren der Sichtbarkeit
             head_tail_obj.hide_viewport = True
             head_tail_obj.hide_render = True
             head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(hitobject.frame - self.data_manager.preempt_frames - 1))

@@ -110,14 +110,12 @@ class SliderCreator:
 
                 merged_curve_points = self.merge_duplicate_points(all_points, tolerance=0.01)
 
-                # Extrahiere Start- und Endpunkte
                 if merged_curve_points:
                     start_pos = merged_curve_points[0]
                     end_pos = merged_curve_points[-1]
                     self.hitobject.start_pos = start_pos
                     self.hitobject.end_pos = end_pos
                 else:
-                    # Fallback zu den ursprünglichen Positionen
                     start_pos = Vector(map_osu_to_blender(self.hitobject.x, self.hitobject.y))
                     end_pos = start_pos
                     self.hitobject.start_pos = start_pos

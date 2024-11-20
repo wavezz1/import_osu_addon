@@ -2102,7 +2102,7 @@ def approach_circle_group_node_group():
     # Resolution
     curve_circle.inputs[0].default_value = 32
     # Radius
-    curve_circle.inputs[4].default_value = 0.6690000295639038
+    curve_circle.inputs[4].default_value = 1.0
 
     # node Named Attribute
     named_attribute_3 = approach_circle_group.nodes.new("GeometryNodeInputNamedAttribute")
@@ -2130,15 +2130,40 @@ def approach_circle_group_node_group():
     boolean_math_3.hide = True
     boolean_math_3.operation = 'NOT'
 
+    # node Named Attribute.002
+    named_attribute_002_1 = approach_circle_group.nodes.new("GeometryNodeInputNamedAttribute")
+    named_attribute_002_1.name = "Named Attribute.002"
+    named_attribute_002_1.data_type = 'FLOAT'
+    # Name
+    named_attribute_002_1.inputs[0].default_value = "cs"
+
+    # node Math
+    math_1 = approach_circle_group.nodes.new("ShaderNodeMath")
+    math_1.name = "Math"
+    math_1.hide = True
+    math_1.operation = 'MULTIPLY'
+    math_1.use_clamp = False
+
+    # node Math.003
+    math_003_1 = approach_circle_group.nodes.new("ShaderNodeMath")
+    math_003_1.name = "Math.003"
+    math_003_1.operation = 'ADD'
+    math_003_1.use_clamp = False
+    # Value_001
+    math_003_1.inputs[1].default_value = 1.0
+
     # Set locations
-    group_output_4.location = (350.0, 0.0)
-    group_input_4.location = (-360.0, 0.0)
-    instance_on_points_4.location = (160.0, 140.0)
-    curve_circle.location = (0.0, 60.0)
-    named_attribute_3.location = (160.0, 20.0)
-    delete_geometry_3.location = (-160.0, 60.0)
-    named_attribute_001_3.location = (-160.0, -140.0)
-    boolean_math_3.location = (-160.0, -100.0)
+    group_output_4.location = (660.0, 120.06723022460938)
+    group_input_4.location = (-160.0, 220.0)
+    instance_on_points_4.location = (320.0, 220.0)
+    curve_circle.location = (320.0, 360.0)
+    named_attribute_3.location = (320.0, -120.0)
+    delete_geometry_3.location = (0.0, 220.0)
+    named_attribute_001_3.location = (0.0, 20.0)
+    boolean_math_3.location = (0.0, 60.0)
+    named_attribute_002_1.location = (160.0, 80.0)
+    math_1.location = (320.0, 80.0)
+    math_003_1.location = (320.0, 40.0)
 
     # Set dimensions
     group_output_4.width, group_output_4.height = 140.0, 100.0
@@ -2149,10 +2174,11 @@ def approach_circle_group_node_group():
     delete_geometry_3.width, delete_geometry_3.height = 140.0, 100.0
     named_attribute_001_3.width, named_attribute_001_3.height = 140.0, 100.0
     boolean_math_3.width, boolean_math_3.height = 140.0, 100.0
+    named_attribute_002_1.width, named_attribute_002_1.height = 140.0, 100.0
+    math_1.width, math_1.height = 140.0, 100.0
+    math_003_1.width, math_003_1.height = 140.0, 100.0
 
     # initialize approach_circle_group links
-    # named_attribute_3.Attribute -> instance_on_points_4.Scale
-    approach_circle_group.links.new(named_attribute_3.outputs[0], instance_on_points_4.inputs[6])
     # named_attribute_001_3.Attribute -> boolean_math_3.Boolean
     approach_circle_group.links.new(named_attribute_001_3.outputs[0], boolean_math_3.inputs[0])
     # boolean_math_3.Boolean -> delete_geometry_3.Selection
@@ -2165,6 +2191,14 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(group_input_4.outputs[0], delete_geometry_3.inputs[0])
     # instance_on_points_4.Instances -> group_output_4.Instances
     approach_circle_group.links.new(instance_on_points_4.outputs[0], group_output_4.inputs[0])
+    # named_attribute_002_1.Attribute -> math_1.Value
+    approach_circle_group.links.new(named_attribute_002_1.outputs[0], math_1.inputs[0])
+    # math_003_1.Value -> math_1.Value
+    approach_circle_group.links.new(math_003_1.outputs[0], math_1.inputs[1])
+    # math_1.Value -> instance_on_points_4.Scale
+    approach_circle_group.links.new(math_1.outputs[0], instance_on_points_4.inputs[6])
+    # named_attribute_3.Attribute -> math_003_1.Value
+    approach_circle_group.links.new(named_attribute_3.outputs[0], math_003_1.inputs[0])
     return approach_circle_group
 
 # initialize gn_osu node group

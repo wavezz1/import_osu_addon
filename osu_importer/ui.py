@@ -299,7 +299,6 @@ class OSU_PT_ImporterPanel(Panel):
                 col.label(text=f"Max Combo: {props.max_combo}")
                 col.label(text=f"Total Score: {props.total_score}")
 
-
         if props.show_beatmap_info or props.show_replay_info:
             box = layout.box()
             box.label(text="Tools", icon='TOOLS')

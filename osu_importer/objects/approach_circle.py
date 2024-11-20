@@ -40,12 +40,6 @@ class ApproachCircleCreator:
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(hitobject.x, hitobject.y)
 
             if self.import_type == 'FULL':
-                # bpy.ops.mesh.primitive_circle_add(
-                #     fill_type='NOTHING',
-                #     radius=osu_radius * SCALE_FACTOR * 2,
-                #     location=(corrected_x, corrected_y, corrected_z),
-                #     rotation=(math.radians(90), 0, 0)
-                # )
                 bpy.ops.curve.primitive_bezier_circle_add(
                     radius=osu_radius * SCALE_FACTOR * 2,
                     enter_editmode=False,
@@ -53,8 +47,13 @@ class ApproachCircleCreator:
                     location=(corrected_x, corrected_y, corrected_z),
                     rotation=(math.radians(90), 0.0, 0.0)
                 )
+
+
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
+
+                approach_obj.bevel_depth = 0.1
+                approach_obj.bevel_resolution = 4
 
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:

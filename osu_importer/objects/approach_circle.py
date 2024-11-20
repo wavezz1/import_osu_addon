@@ -42,16 +42,15 @@ class ApproachCircleCreator:
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(hitobject.x, hitobject.y)
 
             if self.import_type == 'FULL':
-                # Erstellen eines Curve Circles
-                curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_approach_{hitobject.time}_curve", type='CURVE')
-                curve_data.dimensions = '3D'
-
-                # Verwenden von 'CIRCLE' als Spline-Typ für einen geschlossenen Kreis
-                circle_spline = curve_data.splines.new('CIRCLE')
-                circle_spline.radius = osu_radius * SCALE_FACTOR * 2
-
-                approach_obj = bpy.data.objects.new(f"{self.global_index:03d}_approach_{hitobject.time}", curve_data)
-                self.approach_circles_collection.objects.link(approach_obj)
+                # Erstellen eines Mesh-Circles
+                bpy.ops.mesh.primitive_circle_add(
+                    fill_type='NONE',
+                    radius=osu_radius * SCALE_FACTOR * 2,
+                    location=(corrected_x, corrected_y, corrected_z),
+                    rotation=(math.radians(90), 0, 0)
+                )
+                approach_obj = bpy.context.object
+                approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 
                 # Animieren der Skalierung
                 approach_obj.scale = (2.0, 2.0, 2.0)  # Start Skalierung
@@ -78,7 +77,7 @@ class ApproachCircleCreator:
             elif self.import_type == 'BASE':
                 # Erstellen eines Mesh-Punkts (Vertex)
                 mesh = bpy.data.meshes.new(f"{self.global_index:03d}_approach_{hitobject.time}_mesh")
-                mesh.from_pydata([ (0, 0, 0) ], [], [])
+                mesh.from_pydata([ (0, 0, 0) ], [], [])  # Einfacher Punkt
                 mesh.update()
 
                 approach_obj = bpy.data.objects.new(f"{self.global_index:03d}_approach_{hitobject.time}", mesh)

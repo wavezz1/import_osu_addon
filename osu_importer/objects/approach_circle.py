@@ -50,7 +50,7 @@ class ApproachCircleCreator:
                 approach_obj = bpy.context.object
                 approach_obj.name = f"approach_{hitobject.time}"
 
-                approach_obj.data.bevel_depth = 1
+                approach_obj.data.bevel_depth = 0.1
 
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:

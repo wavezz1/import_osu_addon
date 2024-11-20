@@ -3,7 +3,7 @@
 import bpy
 import os
 import bisect
-from osu_importer.parsers.info_parser import OsuParser, OsrParser
+from osu_importer.parsers.osu_parser import OsuParser, OsrParser
 from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from osu_importer.utils.mod_functions import calculate_speed_multiplier
 from osu_importer.parsers.hitobjects import HitObjectsProcessor

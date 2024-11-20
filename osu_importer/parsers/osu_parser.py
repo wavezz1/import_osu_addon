@@ -1,4 +1,4 @@
-# info_parser.py
+# osu_parser.py
 
 import osrparse
 

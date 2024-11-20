@@ -50,9 +50,9 @@ class ApproachCircleCreator:
                     radius=osu_radius * SCALE_FACTOR * 2,
                     enter_editmode=False,
                     align='WORLD',
-                    location=(0.0, 0.0, 0.0),
-                    rotation=(0.0, 0.0, 0.0),
-                    scale=(0.0, 0.0, 0.0))
+                    location=(corrected_x, corrected_y, corrected_z),
+                    rotation=(math.radians(90), 0.0, 0.0)
+                )
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 

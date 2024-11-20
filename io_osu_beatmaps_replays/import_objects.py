@@ -27,8 +27,63 @@ def set_collection_exclude(collection_names, exclude=False, view_layer=None):
         else:
             print(f"Collection '{collection_name}' wurde im View Layer '{view_layer.name}' nicht gefunden.")
 
+
+def setup_osu_gameplay(cursor_collection, circles_collection, sliders_collection, slider_balls_collection, spinners_collection, operator=None):
+    """
+    Set up Osu Gameplay Mesh and its Geometry Nodes for the BASE import type.
+    """
+    gameplay_collection = create_collection("Osu_Gameplay")
+
+    # Placeholder Mesh für Geo Nodes
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
+    cube = bpy.context.object
+    cube.name = "Osu_Gameplay"
+
+    gameplay_collection.objects.link(cube)
+
+    if cube.users_collection:
+        for col in cube.users_collection:
+            if col != gameplay_collection:
+                col.objects.unlink(cube)
+
+    gn_osu_node_group()
+
+    node_group_name = "GN_Osu"
+
+    node_group = bpy.data.node_groups.get(node_group_name)
+    if node_group is None:
+        error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
+        if operator:
+            operator.report({'ERROR'}, error_message)
+        print(error_message)
+    else:
+        if not cube.modifiers.get("GeometryNodes"):
+            modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
+            modifier.node_group = node_group
+            print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
+        else:
+            modifier = cube.modifiers.get("GeometryNodes")
+            print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
+
+        socket_to_collection = {
+            "Socket_2": cursor_collection,
+            "Socket_3": circles_collection,
+            "Socket_4": sliders_collection,
+            "Socket_5": slider_balls_collection,
+            "Socket_6": spinners_collection,
+        }
+
+        assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
+
+    set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"], exclude=True)
+
+
 def import_hitobjects(data_manager, settings, props, operator=None):
+    """
+    Import osu! hitobjects based on the selected import type.
+    """
     with timeit("Erstellen der Sammlungen"):
+        # Collections für die verschiedenen Objekte
         circles_collection = create_collection("Circles")
         sliders_collection = create_collection("Sliders")
         slider_balls_collection = create_collection("Slider Balls")
@@ -36,71 +91,38 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         cursor_collection = create_collection("Cursor")
 
         global_index = 1
-
         import_type = settings.get('import_type', 'FULL')
 
+        # Kreise importieren
         if props.import_circles:
             for hitobject in data_manager.hitobjects_processor.circles:
                 CircleCreator(hitobject, global_index, circles_collection, settings, data_manager, import_type)
                 global_index += 1
 
+        # Slider importieren
         if props.import_sliders:
             for hitobject in data_manager.hitobjects_processor.sliders:
                 SliderCreator(hitobject, global_index, sliders_collection, slider_balls_collection, settings, data_manager, import_type)
                 global_index += 1
 
+        # Spinner importieren
         if props.import_spinners:
             for hitobject in data_manager.hitobjects_processor.spinners:
                 SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager, import_type)
                 global_index += 1
 
+        # Cursor importieren
         if props.import_cursors:
             cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
             cursor_creator.animate_cursor()
 
-        if import_type == 'BASE':
-            if getattr(props, 'include_osu_gameplay', False):
-                gameplay_collection = create_collection("Osu_Gameplay")
-
-                # Placeholder Mesh für Geo Nodes
-                bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
-                cube = bpy.context.object
-                cube.name = "Osu_Gameplay"
-
-                gameplay_collection.objects.link(cube)
-
-                if cube.users_collection:
-                    for col in cube.users_collection:
-                        if col != gameplay_collection:
-                            col.objects.unlink(cube)
-
-                gn_osu_node_group()
-
-                node_group_name = "GN_Osu"
-
-                node_group = bpy.data.node_groups.get(node_group_name)
-                if node_group is None:
-                    error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
-                    if operator:
-                        operator.report({'ERROR'}, error_message)
-                    print(error_message)
-                else:
-                    if not cube.modifiers.get("GeometryNodes"):
-                        modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
-                        modifier.node_group = node_group
-                        print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
-                    else:
-                        modifier = cube.modifiers.get("GeometryNodes")
-                        print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
-
-                    socket_to_collection = {
-                        "Socket_2": cursor_collection,
-                        "Socket_3": circles_collection,
-                        "Socket_4": sliders_collection,
-                        "Socket_5": slider_balls_collection,
-                        "Socket_6": spinners_collection,
-                    }
-
-                    assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
-
-                set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"], exclude=True)
+        # Osu Gameplay nur für BASE importieren, falls aktiviert
+        if import_type == 'BASE' and getattr(props, 'include_osu_gameplay', False):
+            setup_osu_gameplay(
+                cursor_collection=cursor_collection,
+                circles_collection=circles_collection,
+                sliders_collection=sliders_collection,
+                slider_balls_collection=slider_balls_collection,
+                spinners_collection=spinners_collection,
+                operator=operator
+            )

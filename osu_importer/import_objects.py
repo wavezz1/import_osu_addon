@@ -89,7 +89,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         if props.import_approach_circles:
             collections["Approach Circles"] = create_collection("Approach Circles")
 
-        if props.import_slider_heads_tails:
+        if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL':
             collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
 
         global_index = 1

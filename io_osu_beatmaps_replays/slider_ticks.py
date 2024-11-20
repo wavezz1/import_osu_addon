@@ -1,6 +1,5 @@
 import bpy
 from .utils import evaluate_curve_at_t
-from .constants import SCALE_FACTOR
 
 class SliderTicksCreator:
     def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, settings, import_type):

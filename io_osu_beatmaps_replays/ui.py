@@ -216,7 +216,7 @@ class OSU_PT_ImporterPanel(Panel):
                 warning_row = warning_box.row(align=True)
                 warning_row.label(text="⚠️  WARNING  ⚠️", icon='NONE')
                 warning_row = warning_box.row(align=True)
-                warning_row.label(text="Slider ticks are NOT recommended!", icon='NONE')
+                warning_row.label(text="Slider Ticks are NOT recommended!", icon='NONE')
                 warning_row = warning_box.row(align=True)
                 warning_row.label(text="This can lead to too many objects.", icon='NONE')
 

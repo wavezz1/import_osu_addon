@@ -24,7 +24,7 @@ class SliderTicksCreator:
 
             if self.import_type == 'FULL':
                 # Erstellen einer UV-Sphere mit Radius 0.2
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.2 * SCALE_FACTOR, location=(tick_position.x, tick_position.y, tick_position.z))
+                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=(tick_position.x, tick_position.y, tick_position.z))
                 tick_obj = bpy.context.object
             elif self.import_type == 'BASE':
                 # Erstellen eines 1-Vertex-Meshes

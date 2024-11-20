@@ -395,9 +395,9 @@ class OSU_OT_FlipCursorHorizontal(Operator):
                     # Flip keyframes for location.x
                     if fcurve.data_path == "location" and fcurve.array_index == 0:
                         for keyframe in fcurve.keyframe_points:
-                            keyframe.co.x *= -1
-                            keyframe.handle_left.x *= -1
-                            keyframe.handle_right.x *= -1
+                            keyframe.co.y *= -1
+                            keyframe.handle_left.y *= -1
+                            keyframe.handle_right.y *= -1
                     # Flip keyframes for scale.x
                     elif fcurve.data_path == "scale" and fcurve.array_index == 0:
                         for keyframe in fcurve.keyframe_points:

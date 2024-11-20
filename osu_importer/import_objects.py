@@ -30,7 +30,7 @@ def create_gameplay_placeholder():
     cube.name = "Osu_Gameplay"
     return cube
 
-def setup_osu_gameplay_collections(cursor, circles, sliders, slider_balls, spinners, operator=None):
+def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, slider_balls, spinners, operator=None):
     gameplay_collection = create_collection("Osu_Gameplay")
     cube = create_gameplay_placeholder()
 
@@ -56,10 +56,12 @@ def setup_osu_gameplay_collections(cursor, circles, sliders, slider_balls, spinn
 
     socket_to_collection = {
         "Socket_2": cursor,
-        "Socket_3": circles,
-        "Socket_4": sliders,
-        "Socket_5": slider_balls,
-        "Socket_6": spinners
+        "Socket_3": approach_circle,
+        "Socket_4": circles,
+        "Socket_5": sliders,
+        "Socket_6": slider_balls,
+        "Socket_7": spinners
+
     }
     assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
 
@@ -117,6 +119,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(
             cursor=collections["Cursor"],
+            approach_circle=collections["Approach Circles"],
             circles=collections["Circles"],
             sliders=collections["Sliders"],
             slider_balls=collections["Slider Balls"],

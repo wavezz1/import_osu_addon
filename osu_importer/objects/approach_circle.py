@@ -105,6 +105,7 @@ class ApproachCircleCreator:
                 }
                 frame_values = {
                     "show": [
+                        (early_start_frame - 1, False),
                         (early_start_frame, True),  # show = True
                         (start_frame, False),       # show = False
                     ],

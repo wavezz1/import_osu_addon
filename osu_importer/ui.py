@@ -299,22 +299,23 @@ class OSU_PT_ImporterPanel(Panel):
                 col.label(text=f"Max Combo: {props.max_combo}")
                 col.label(text=f"Total Score: {props.total_score}")
 
-        box = layout.box()
-        box.label(text="Tools", icon='PLUS')
+        if props.bpm != 0.0:
+            box = layout.box()
+            box.label(text="Tools", icon='PLUS')
 
-        # Flip Cursor Position
-        col = box.column(align=True)
-        col.label(text="Cursor Transformation:", icon='CURSOR')
-        row = col.row(align=True)
-        row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
-        row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
+            # Flip Cursor Position
+            col = box.column(align=True)
+            col.label(text="Cursor Transformation:", icon='CURSOR')
+            row = col.row(align=True)
+            row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
+            row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
 
-        # Flip Map
-        col.separator()
-        col.label(text="Map Transformation:", icon='MOD_MIRROR')
-        row = col.row(align=True)
-        row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
-        row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
+            # Flip Map
+            col.separator()
+            col.label(text="Map Transformation:", icon='MOD_MIRROR')
+            row = col.row(align=True)
+            row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
+            row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

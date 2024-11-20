@@ -14,33 +14,29 @@ def set_collection_exclude(collection_names, exclude=False, view_layer=None):
     if view_layer is None:
         view_layer = bpy.context.view_layer
 
-    if isinstance(collection_names, str):
-        collection_names = [collection_names]
+    collection_names = [collection_names] if isinstance(collection_names, str) else collection_names
 
     for collection_name in collection_names:
         layer_collection = view_layer.layer_collection.children.get(collection_name)
-
         if layer_collection:
             layer_collection.exclude = exclude
-            print(
-                f"'Exclude from View Layer' für Collection '{collection_name}' auf {exclude} in View Layer '{view_layer.name}' gesetzt.")
+            print(f"Set 'Exclude from View Layer' for collection '{collection_name}' to {exclude}.")
         else:
-            print(f"Collection '{collection_name}' wurde im View Layer '{view_layer.name}' nicht gefunden.")
+            print(f"Collection '{collection_name}' not found in view layer '{view_layer.name}'.")
 
 
-def setup_osu_gameplay(cursor_collection, circles_collection, sliders_collection, slider_balls_collection, spinners_collection, operator=None):
-    """
-    Set up Osu Gameplay Mesh and its Geometry Nodes for the BASE import type.
-    """
-    gameplay_collection = create_collection("Osu_Gameplay")
-
-    # Placeholder Mesh für Geo Nodes
+def create_gameplay_placeholder():
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
     cube = bpy.context.object
     cube.name = "Osu_Gameplay"
+    return cube
+
+
+def setup_osu_gameplay_collections(cursor, circles, sliders, slider_balls, spinners, operator=None):
+    gameplay_collection = create_collection("Osu_Gameplay")
+    cube = create_gameplay_placeholder()
 
     gameplay_collection.objects.link(cube)
-
     if cube.users_collection:
         for col in cube.users_collection:
             if col != gameplay_collection:
@@ -49,80 +45,79 @@ def setup_osu_gameplay(cursor_collection, circles_collection, sliders_collection
     gn_osu_node_group()
 
     node_group_name = "GN_Osu"
-
     node_group = bpy.data.node_groups.get(node_group_name)
-    if node_group is None:
-        error_message = f"Node Group '{node_group_name}' nicht gefunden. Bitte erstellen Sie sie zuerst."
+    if not node_group:
+        error_message = f"Node Group '{node_group_name}' not found. Please create it first."
         if operator:
             operator.report({'ERROR'}, error_message)
         print(error_message)
-    else:
-        if not cube.modifiers.get("GeometryNodes"):
-            modifier = cube.modifiers.new(name="GeometryNodes", type='NODES')
-            modifier.node_group = node_group
-            print(f"Geometry Nodes Modifier mit Node Group '{node_group_name}' zum Würfel hinzugefügt.")
-        else:
-            modifier = cube.modifiers.get("GeometryNodes")
-            print(f"Geometry Nodes Modifier bereits auf dem Würfel '{cube.name}' vorhanden.")
+        return
 
-        socket_to_collection = {
-            "Socket_2": cursor_collection,
-            "Socket_3": circles_collection,
-            "Socket_4": sliders_collection,
-            "Socket_5": slider_balls_collection,
-            "Socket_6": spinners_collection,
-        }
+    modifier = cube.modifiers.new(name="GeometryNodes", type='NODES') if not cube.modifiers.get("GeometryNodes") else cube.modifiers.get("GeometryNodes")
+    modifier.node_group = node_group
 
-        assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
+    socket_to_collection = {
+        "Socket_2": cursor,
+        "Socket_3": circles,
+        "Socket_4": sliders,
+        "Socket_5": slider_balls,
+        "Socket_6": spinners,
+    }
+    assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
 
     set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor"], exclude=True)
 
 
 def import_hitobjects(data_manager, settings, props, operator=None):
-    """
-    Import osu! hitobjects based on the selected import type.
-    """
-    with timeit("Erstellen der Sammlungen"):
-        # Collections für die verschiedenen Objekte
-        circles_collection = create_collection("Circles")
-        sliders_collection = create_collection("Sliders")
-        slider_balls_collection = create_collection("Slider Balls")
-        spinners_collection = create_collection("Spinners")
-        cursor_collection = create_collection("Cursor")
+    with timeit("Setting up collections"):
+        collections = {
+            "Circles": create_collection("Circles"),
+            "Sliders": create_collection("Sliders"),
+            "Slider Balls": create_collection("Slider Balls"),
+            "Spinners": create_collection("Spinners"),
+            "Cursor": create_collection("Cursor"),
+        }
 
-        global_index = 1
-        import_type = settings.get('import_type', 'FULL')
+    global_index = 1
+    import_type = settings.get('import_type', 'FULL')
 
-        # Kreise importieren
-        if props.import_circles:
-            for hitobject in data_manager.hitobjects_processor.circles:
-                CircleCreator(hitobject, global_index, circles_collection, settings, data_manager, import_type)
-                global_index += 1
+    hitobject_importers = {
+        "circles": lambda: [
+            CircleCreator(hitobject, global_index + i, collections["Circles"], settings, data_manager, import_type)
+            for i, hitobject in enumerate(data_manager.hitobjects_processor.circles)
+        ],
+        "sliders": lambda: [
+            SliderCreator(hitobject, global_index + i, collections["Sliders"], collections["Slider Balls"], settings, data_manager, import_type)
+            for i, hitobject in enumerate(data_manager.hitobjects_processor.sliders)
+        ],
+        "spinners": lambda: [
+            SpinnerCreator(hitobject, global_index + i, collections["Spinners"], settings, data_manager, import_type)
+            for i, hitobject in enumerate(data_manager.hitobjects_processor.spinners)
+        ],
+    }
 
-        # Slider importieren
-        if props.import_sliders:
-            for hitobject in data_manager.hitobjects_processor.sliders:
-                SliderCreator(hitobject, global_index, sliders_collection, slider_balls_collection, settings, data_manager, import_type)
-                global_index += 1
+    if props.import_circles:
+        hitobject_importers["circles"]()
+        global_index += len(data_manager.hitobjects_processor.circles)
 
-        # Spinner importieren
-        if props.import_spinners:
-            for hitobject in data_manager.hitobjects_processor.spinners:
-                SpinnerCreator(hitobject, global_index, spinners_collection, settings, data_manager, import_type)
-                global_index += 1
+    if props.import_sliders:
+        hitobject_importers["sliders"]()
+        global_index += len(data_manager.hitobjects_processor.sliders)
 
-        # Cursor importieren
-        if props.import_cursors:
-            cursor_creator = CursorCreator(cursor_collection, settings, data_manager, import_type)
-            cursor_creator.animate_cursor()
+    if props.import_spinners:
+        hitobject_importers["spinners"]()
+        global_index += len(data_manager.hitobjects_processor.spinners)
 
-        # Osu Gameplay nur für BASE importieren, falls aktiviert
-        if import_type == 'BASE' and getattr(props, 'include_osu_gameplay', False):
-            setup_osu_gameplay(
-                cursor_collection=cursor_collection,
-                circles_collection=circles_collection,
-                sliders_collection=sliders_collection,
-                slider_balls_collection=slider_balls_collection,
-                spinners_collection=spinners_collection,
-                operator=operator
-            )
+    if props.import_cursors:
+        cursor_creator = CursorCreator(collections["Cursor"], settings, data_manager, import_type)
+        cursor_creator.animate_cursor()
+
+    if import_type == 'BASE' and props.include_osu_gameplay:
+        setup_osu_gameplay_collections(
+            cursor=collections["Cursor"],
+            circles=collections["Circles"],
+            sliders=collections["Sliders"],
+            slider_balls=collections["Slider Balls"],
+            spinners=collections["Spinners"],
+            operator=operator
+        )

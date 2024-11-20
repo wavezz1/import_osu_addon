@@ -256,12 +256,12 @@ class OSU_PT_ImporterPanel(Panel):
         # Replay Options
         col.separator()
         col.label(text="Replay Options:", icon='REC')
-        col.prop(props, "import_cursors")
+        col.prop(props, "import_cursors", toggle=True)
 
         # Audio Options
         col.separator()
         col.label(text="Audio Options:", icon='SPEAKER')
-        col.prop(props, "import_audio")
+        col.prop(props, "import_audio", toggle=True)
 
         # Beatmap Information Toggle
         if props.bpm != 0.0:

@@ -350,6 +350,9 @@ class OSU_OT_Import(Operator):
 
             result, data_manager = main_execution(context)
 
+            if result != {'FINISHED'} or data_manager is None:
+                return {'CANCELLED'}
+
             props.base_approach_rate = data_manager.base_ar
             props.adjusted_approach_rate = data_manager.adjusted_ar
             props.base_circle_size = data_manager.base_cs

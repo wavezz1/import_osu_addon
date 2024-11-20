@@ -35,6 +35,11 @@ class OSUImporterProperties(PropertyGroup):
         default=True
     )
     # Import Options
+    import_approach_circles: BoolProperty(
+        name="Approach Circles",
+        description="Import approach circles for each hit object",
+        default=True
+    )
     import_circles: BoolProperty(
         name="Circles",
         description="Import circle hit objects",
@@ -201,6 +206,7 @@ class OSU_PT_ImporterPanel(Panel):
         row.prop(props, "import_circles", toggle=True)
         row.prop(props, "import_sliders", toggle=True)
         row.prop(props, "import_spinners", toggle=True)
+        row.prop(props, "import_approach_circles", toggle=True)
 
         # Slider Options
         if props.import_sliders:

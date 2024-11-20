@@ -52,7 +52,7 @@ class ApproachCircleCreator:
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 
-                approach_obj.bevel_depth = 0.1
+                approach_obj.extrude = 1
                 approach_obj.bevel_resolution = 4
 
                 self.approach_circles_collection.objects.link(approach_obj)

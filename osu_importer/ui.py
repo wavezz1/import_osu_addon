@@ -78,6 +78,16 @@ class OSUImporterProperties(PropertyGroup):
         min=4,
         max=50
     )
+    approach_circle_bevel_depth: FloatProperty(
+        name="Bevel Depth",
+        description="Adjust the bevel depth of approach circles in FULL import",
+        default=0.1,
+        min=0.0,
+        max=1.0,
+        subtype='NONE',
+        step=0.01,
+        precision=2
+    )
     # Replay Options
     import_cursors: BoolProperty(
         name="Cursor Movements",
@@ -208,6 +218,8 @@ class OSU_PT_ImporterPanel(Panel):
         col = box.column(align=True)
         col.label(text="Hit Objects:", icon='OBJECT_DATA')
         col.prop(props, "import_approach_circles", toggle=True)
+        if props.import_type == 'FULL' and props.import_approach_circles:
+            col.prop(props, "approach_circle_bevel_depth")
         row = col.row(align=True)
         row.prop(props, "import_circles", toggle=True)
         row.prop(props, "import_sliders", toggle=True)

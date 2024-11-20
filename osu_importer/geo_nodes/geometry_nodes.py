@@ -55,6 +55,14 @@ def setup_geometry_node_trees():
                     "show": 'BOOLEAN'
                 }
             },
+            "approach_circle": {
+                "name": "Geometry Nodes Approach Circle",
+                "attributes": {
+                    "show": 'BOOLEAN',
+                    "early_start_frame" : 'INT',
+                    "start_frame": 'INT'
+                }
+            },
         }
 
         for key, node_def in node_definitions.items():

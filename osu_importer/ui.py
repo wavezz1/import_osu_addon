@@ -202,11 +202,12 @@ class OSU_PT_ImporterPanel(Panel):
         # Hit Objects Import Options
         col = box.column(align=True)
         col.label(text="Hit Objects:", icon='OBJECT_DATA')
+        col.prop(props, "import_approach_circles", toggle=True)
         row = col.row(align=True)
         row.prop(props, "import_circles", toggle=True)
         row.prop(props, "import_sliders", toggle=True)
         row.prop(props, "import_spinners", toggle=True)
-        row.prop(props, "import_approach_circles", toggle=True)
+
 
         # Slider Options
         if props.import_sliders:

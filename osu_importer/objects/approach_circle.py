@@ -36,7 +36,7 @@ class ApproachCircleCreator:
         self.collection.objects.link(obj)
 
         # Add Geometry Nodes modifier
-        create_geometry_nodes_modifier(obj, obj_type="circle")
+        create_geometry_nodes_modifier(obj, obj_type="approach_circle")
 
         # Set modifier inputs and keyframes
         attributes = {
@@ -48,8 +48,8 @@ class ApproachCircleCreator:
             "show": self.show,
         }
         frame_values = {
-            "Early Start Frame": [(self.early_start_frame, self.early_start_frame)],
-            "Start Frame": [(self.start_frame, self.start_frame)],
+            "early_start_frame": [(self.early_start_frame, self.early_start_frame)],
+            "start_frame": [(self.start_frame, self.start_frame)],
         }
         set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values)
 

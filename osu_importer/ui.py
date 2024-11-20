@@ -425,13 +425,13 @@ class OSU_OT_FlipCursorVertical(Operator):
             if obj.animation_data and obj.animation_data.action:
                 for fcurve in obj.animation_data.action.fcurves:
                     # Flip keyframes for location.y
-                    if fcurve.data_path == "location" and fcurve.array_index == 1:
+                    if fcurve.data_path == "location" and fcurve.array_index == 2:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.co.y *= -1
                             keyframe.handle_left.y *= -1
                             keyframe.handle_right.y *= -1
                     # Flip keyframes for scale.y
-                    elif fcurve.data_path == "scale" and fcurve.array_index == 1:
+                    elif fcurve.data_path == "scale" and fcurve.array_index == 2:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.co.y *= -1
                             keyframe.handle_left.y *= -1

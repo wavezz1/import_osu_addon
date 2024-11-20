@@ -52,13 +52,12 @@ class ApproachCircleCreator:
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 
-                # Link to the Approach Circles Collection
+                # Verbinden mit der Approach Circles Collection
                 self.approach_circles_collection.objects.link(approach_obj)
-
-                # Unlink from other collections
-                for col in approach_obj.users_collection.copy():
-                    if col != self.approach_circles_collection:
-                        col.objects.unlink(approach_obj)
+                if approach_obj.users_collection:
+                    for col in approach_obj.users_collection:
+                        if col != self.approach_circles_collection:
+                            col.objects.unlink(approach_obj)
 
                 # Animieren der Skalierung
                 approach_obj.scale = (2.0, 2.0, 2.0)  # Start Skalierung

@@ -14,7 +14,8 @@ class OSU_OT_Delete(bpy.types.Operator):
                     obj.name.startswith("Spinner") or
                     obj.name.startswith("Cursor") or
                     obj.name.startswith("OsuAudioSpeaker") or
-                    obj.name.startswith("Osu_Gameplay")
+                    obj.name.startswith("Osu_Gameplay") or
+                    obj.name.startswith("approach")
                 )
             ]
             for obj in objects_to_delete:
@@ -23,7 +24,7 @@ class OSU_OT_Delete(bpy.types.Operator):
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete object {obj.name}: {e}")
 
-            collections_to_delete = ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Osu_Gameplay"]
+            collections_to_delete = ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Osu_Gameplay", "Approach Circles"]
             for collection_name in collections_to_delete:
                 collection = bpy.data.collections.get(collection_name)
                 if collection:

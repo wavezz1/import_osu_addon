@@ -47,13 +47,10 @@ class ApproachCircleCreator:
                     location=(corrected_x, corrected_y, corrected_z),
                     rotation=(math.radians(90), 0.0, 0.0)
                 )
-
-
                 approach_obj = bpy.context.object
-                approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
+                approach_obj.name = f"approach_{hitobject.time}"
 
-                approach_obj.extrude = 1
-                approach_obj.bevel_resolution = 4
+                approach_obj.data.curves[approach_obj.name].bevel_depth = 1
 
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:

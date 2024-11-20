@@ -202,7 +202,15 @@ class SliderCreator:
                     slider_ball_creator.create()
 
                 if self.settings.get('import_slider_ticks', False):
-                    self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
+                    from .slider_ticks import SliderTicksCreator
+                    slider_ticks_creator = SliderTicksCreator(
+                        slider=slider,
+                        slider_duration_ms=slider_duration_ms,
+                        repeat_count=repeat_count,
+                        sliders_collection=self.sliders_collection,
+                        settings=self.settings
+                    )
+                    slider_ticks_creator.create()
 
     def evaluate_curve(self, segment_type, segment_points):
         if segment_type == "L":
@@ -315,20 +323,3 @@ class SliderCreator:
                 spline_points.append(point)
 
         return spline_points
-
-    def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
-        tick_interval_ms = 100
-        total_ticks = int(slider_duration_ms / tick_interval_ms) * repeat_count
-
-        for tick in range(total_ticks):
-            t = (tick * tick_interval_ms) / (slider_duration_ms * repeat_count)
-            t = min(max(t, 0.0), 1.0)
-
-            tick_position = evaluate_curve_at_t(slider, t)
-
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.05, location=(tick_position.x, tick_position.y, tick_position.z))
-            tick_obj = bpy.context.object
-            tick_obj.name = f"{slider.name}_tick_{tick}"
-
-            self.sliders_collection.objects.link(tick_obj)
-            bpy.context.collection.objects.unlink(tick_obj)

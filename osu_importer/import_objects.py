@@ -5,7 +5,8 @@ from osu_importer.objects.slider import SliderCreator
 from osu_importer.objects.spinner import SpinnerCreator
 from osu_importer.objects.cursor import CursorCreator
 from osu_importer.objects.approach_circle import ApproachCircleCreator
-from .utils.utils import create_collection, timeit
+from osu_importer.objects.slider_head_tail import SliderHeadTailCreator
+from .utils.utils import create_collection, timeit, map_osu_to_blender
 from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
@@ -76,6 +77,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             "Spinners": create_collection("Spinners"),
             "Cursor": create_collection("Cursor"),
             "Approach Circles": create_collection("Approach Circles"),
+            "Slider Heads Tails": create_collection("Slider Heads Tails"),
         }
 
     global_index = 1
@@ -108,6 +110,37 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     if props.import_cursors:
         cursor_creator = CursorCreator(collections["Cursor"], settings, data_manager, import_type)
         cursor_creator.animate_cursor()
+
+    # Slider Heads and Tails Import
+    if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
+        sliders = data_manager.hitobjects_processor.sliders
+        for i, hitobject in enumerate(sliders):
+            # Annahme: hitobject hat end_x und end_y Attribute
+            start_pos = map_osu_to_blender(hitobject.x, hitobject.y)  # (x, y, z)
+            end_pos = map_osu_to_blender(hitobject.end_x, hitobject.end_y)  # (x, y, z)
+
+            # Slider Head erstellen
+            SliderHeadTailCreator(
+                hitobject=hitobject,
+                position=start_pos,
+                global_index=global_index + i * 2,
+                slider_heads_tails_collection=collections["Slider Heads Tails"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+
+            # Slider Tail erstellen
+            SliderHeadTailCreator(
+                hitobject=hitobject,
+                position=end_pos,
+                global_index=global_index + i * 2 + 1,
+                slider_heads_tails_collection=collections["Slider Heads Tails"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+        global_index += len(sliders) * 2
 
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(

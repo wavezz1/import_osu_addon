@@ -55,6 +55,11 @@ class OSUImporterProperties(PropertyGroup):
         description="Import spinner hit objects",
         default=True
     )
+    import_slider_heads_tails: BoolProperty(
+        name="Slider Heads and Tails",
+        description="Import slider head and tail circles for each slider in FULL import",
+        default=False
+    )
     # Slider Options
     import_slider_ticks: BoolProperty(
         name="Slider Ticks",
@@ -214,6 +219,7 @@ class OSU_PT_ImporterPanel(Panel):
             col.separator()
             col.label(text="Slider Options:", icon='MOD_CURVE')
             col.prop(props, "slider_resolution")
+            col.prop(props, "import_slider_heads_tails")
             col.prop(props, "import_slider_balls")
             col.prop(props, "import_slider_ticks")
 

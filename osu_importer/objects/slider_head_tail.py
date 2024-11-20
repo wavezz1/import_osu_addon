@@ -40,8 +40,6 @@ class SliderHeadTailCreator:
                     if col != self.slider_heads_tails_collection:
                         col.objects.unlink(head_tail_obj)
 
-            #head_tail_obj.scale = (1.0, 1.0, 1.0)
-
             # Animieren der Sichtbarkeit
             head_tail_obj.hide_viewport = True
             head_tail_obj.hide_render = True
@@ -55,5 +53,5 @@ class SliderHeadTailCreator:
 
             head_tail_obj.hide_viewport = True
             head_tail_obj.hide_render = True
-            head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(hitobject.frame))
-            head_tail_obj.keyframe_insert(data_path="hide_render", frame=int(hitobject.frame))
+            head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(hitobject.end_frame))
+            head_tail_obj.keyframe_insert(data_path="hide_render", frame=int(hitobject.end_frame))

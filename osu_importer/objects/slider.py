@@ -151,6 +151,7 @@ class SliderCreator:
 
                 # Setze das 'frame' Attribut auf den Start Frame
                 self.hitobject.frame = int(start_frame)
+                self.hitobject.end_frame = int(end_frame)
 
                 extra_params = {
                     "slider_duration_ms": slider_duration_ms,

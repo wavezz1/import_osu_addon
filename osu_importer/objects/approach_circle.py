@@ -1,101 +1,112 @@
-# approach_circle.py
+# osu_importer/objects/approach_circle.py
 
 import bpy
+import math
+from osu_importer.utils.utils import map_osu_to_blender, timeit
+from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-
+from osu_importer.osu_data_manager import OsuDataManager
 
 class ApproachCircleCreator:
-    def __init__(self, hitobject, global_index, collection, settings, data_manager, import_type):
+    def __init__(self, hitobject, global_index, approach_circles_collection, settings, data_manager: OsuDataManager, import_type):
         self.hitobject = hitobject
         self.global_index = global_index
-        self.collection = collection
+        self.approach_circles_collection = approach_circles_collection
         self.settings = settings
         self.data_manager = data_manager
         self.import_type = import_type
-        self.name = f"ApproachCircle_{self.global_index}"
+        self.create_approach_circle()
 
-        # Attribute: Show, Start Frame, Scale
-        self.show = True
-        self.start_frame = int(hitobject.frame)  # Start frame vom hitobject
-        self.scale_initial = 2.0  # Startskalierung, z.B. doppelt so groß wie der Circle
-        self.scale_final = self.data_manager.adjusted_cs  # Final Scale entspricht cs Größe
+    def create_approach_circle(self):
+        hitobject = self.hitobject
 
-        self.create()
+        # Nur Kreise und Slider Heads verarbeiten
+        if not (hitobject.hit_type & 1 or hitobject.hit_type & 2):
+            return
 
-    def create(self):
-        """Create the approach circle based on the import type."""
-        if self.import_type == 'BASE':
-            self.create_base_circle()
-        elif self.import_type == 'FULL':
-            self.create_full_circle()
+        # Sicherstellen, dass hitobject.frame existiert
+        if not hasattr(hitobject, 'frame') or hitobject.frame is None:
+            print(f"HitObject {hitobject} hat kein Attribut 'frame'.")
+            return
 
-    def create_base_circle(self):
-        """Create a mesh circle with Geometry Nodes modifier."""
-        # Erstellen des Mesh-Circles
-        mesh = bpy.data.meshes.new(self.name)
-        obj = bpy.data.objects.new(self.name, mesh)
+        with timeit(f"Erstellen von ApproachCircle {self.global_index:03d}_approach_{hitobject.time}"):
+            data_manager = self.data_manager
 
-        # Link das Objekt zur Sammlung
-        self.collection.objects.link(obj)
+            approach_rate = data_manager.adjusted_ar
+            preempt_frames = data_manager.preempt_frames
+            osu_radius = data_manager.osu_radius
 
-        # Erstellen eines Kreis-Meshes ohne Füllung
-        bpy.context.view_layer.objects.active = obj
-        obj.select_set(True)
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.primitive_circle_add(vertices=32, radius=self.data_manager.osu_radius, fill_type='NOTHING')
-        bpy.ops.object.mode_set(mode='OBJECT')
+            start_frame = hitobject.frame
+            early_start_frame = start_frame - preempt_frames
 
-        # Hinzufügen des Geometry Nodes Modifiers
-        create_geometry_nodes_modifier(obj, obj_type="approach_circle")
+            corrected_x, corrected_y, corrected_z = map_osu_to_blender(hitobject.x, hitobject.y)
 
-        # Definieren der Attribute und Setzen der Keyframes
-        attributes = {
-            "show": "BOOLEAN",
-            "start_frame": "INT",
-            "scale": "FLOAT",
-        }
-        frame_values = {
-            "show": [
-                (self.start_frame, True),   # Sichtbar ab Start Frame
-                (self.start_frame + 10, False),  # Unsichtbar nach kurzer Zeit (angepasst nach Bedarf)
-            ],
-            "scale": [
-                (self.start_frame, self.scale_initial),
-                (self.start_frame, self.scale_final),
-            ]
-        }
-        fixed_values = {
-            "start_frame": self.start_frame,
-        }
+            if self.import_type == 'FULL':
+                # Erstellen eines Curve Circles
+                curve_data = bpy.data.curves.new(name=f"{self.global_index:03d}_approach_{hitobject.time}_curve", type='CURVE')
+                curve_data.dimensions = '3D'
 
-        set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values)
+                # Verwenden von 'CIRCLE' als Spline-Typ für einen geschlossenen Kreis
+                circle_spline = curve_data.splines.new('CIRCLE')
+                circle_spline.radius = osu_radius * SCALE_FACTOR * 2
 
-    def create_full_circle(self):
-        """Create a curve circle with direct scaling and visibility animation."""
-        # Erstellen des Curve-Circles
-        curve_data = bpy.data.curves.new(self.name, type='CURVE')
-        curve_data.dimensions = '3D'
+                approach_obj = bpy.data.objects.new(f"{self.global_index:03d}_approach_{hitobject.time}", curve_data)
+                self.approach_circles_collection.objects.link(approach_obj)
 
-        # Verwenden von 'CIRCLE' als Spline-Typ für einen geschlossenen Kreis
-        circle_spline = curve_data.splines.new('CIRCLE')
-        circle_spline.radius = self.data_manager.osu_radius
+                # Animieren der Skalierung
+                approach_obj.scale = (2.0, 2.0, 2.0)  # Start Skalierung
+                approach_obj.keyframe_insert(data_path="scale", frame=int(early_start_frame))
+                approach_obj.scale = (1.0, 1.0, 1.0)  # End Skalierung
+                approach_obj.keyframe_insert(data_path="scale", frame=int(start_frame))
 
-        curve_obj = bpy.data.objects.new(self.name, curve_data)
-        self.collection.objects.link(curve_obj)
+                # Animieren der Sichtbarkeit
+                approach_obj.hide_viewport = True
+                approach_obj.hide_render = True
+                approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
+                approach_obj.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
 
-        # Animieren der Skalierung
-        curve_obj.scale = (self.scale_initial, self.scale_initial, self.scale_initial)
-        curve_obj.keyframe_insert(data_path="scale", frame=self.start_frame)
-        curve_obj.scale = (self.scale_final, self.scale_final, self.scale_final)
-        curve_obj.keyframe_insert(data_path="scale", frame=self.start_frame + 30)  # Dauer der Animation anpassen
+                approach_obj.hide_viewport = False
+                approach_obj.hide_render = False
+                approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
+                approach_obj.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
 
-        # Animieren der Sichtbarkeit (sichtbar -> unsichtbar)
-        curve_obj.hide_viewport = False
-        curve_obj.hide_render = False
-        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.start_frame)
-        curve_obj.keyframe_insert(data_path="hide_render", frame=self.start_frame)
+                approach_obj.hide_viewport = True
+                approach_obj.hide_render = True
+                approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
+                approach_obj.keyframe_insert(data_path="hide_render", frame=int(start_frame))
 
-        curve_obj.hide_viewport = True
-        curve_obj.hide_render = True
-        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.start_frame + 30)
-        curve_obj.keyframe_insert(data_path="hide_render", frame=self.start_frame + 30)
+            elif self.import_type == 'BASE':
+                # Erstellen eines Mesh-Punkts (Vertex)
+                mesh = bpy.data.meshes.new(f"{self.global_index:03d}_approach_{hitobject.time}_mesh")
+                mesh.from_pydata([ (0, 0, 0) ], [], [])
+                mesh.update()
+
+                approach_obj = bpy.data.objects.new(f"{self.global_index:03d}_approach_{hitobject.time}", mesh)
+                approach_obj.location = (corrected_x, corrected_y, corrected_z)
+
+                self.approach_circles_collection.objects.link(approach_obj)
+                if approach_obj.users_collection:
+                    for col in approach_obj.users_collection:
+                        if col != self.approach_circles_collection:
+                            col.objects.unlink(approach_obj)
+
+                create_geometry_nodes_modifier(approach_obj, "approach_circle")
+
+                # Definieren der Attribute und Setzen der Keyframes
+                attributes = {
+                    "show": 'BOOLEAN',
+                    "scale": 'FLOAT',
+                }
+                frame_values = {
+                    "show": [
+                        (early_start_frame, True),  # show = True
+                        (start_frame, False),       # show = False
+                    ],
+                    "scale": [
+                        (early_start_frame, 2.0),  # Start Skalierung
+                        (start_frame, 1.0),        # End Skalierung
+                    ]
+                }
+                fixed_values = {}
+
+                set_modifier_inputs_with_keyframes(approach_obj, attributes, frame_values, fixed_values)

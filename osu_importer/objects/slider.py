@@ -136,6 +136,9 @@ class SliderCreator:
                 if self.import_type == 'BASE':
                     create_geometry_nodes_modifier(slider, "slider")
 
+                # Setze das 'frame' Attribut auf den Start Frame
+                self.hitobject.frame = int(start_frame)
+
                 extra_params = {
                     "slider_duration_ms": slider_duration_ms,
                     "slider_duration_frames": slider_duration_frames,

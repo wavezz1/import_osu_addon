@@ -8,6 +8,7 @@ class HitObject:
         self.hit_type = hit_type
         self.hit_sound = hit_sound
         self.extras = extras
+        self.frame = None
         self.was_hit = False
         self.was_completed = False
 

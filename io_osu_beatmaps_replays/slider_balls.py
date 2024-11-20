@@ -5,7 +5,7 @@ from mathutils import Vector
 
 
 class SliderBallCreator:
-    def __init__(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame, slider_balls_collection, data_manager, import_type):
+    def __init__(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame, slider_balls_collection, data_manager, import_type, slider_time):
         self.slider = slider
         self.start_frame = start_frame
         self.slider_duration_frames = slider_duration_frames
@@ -14,6 +14,7 @@ class SliderBallCreator:
         self.slider_balls_collection = slider_balls_collection
         self.data_manager = data_manager
         self.import_type = import_type
+        self.slider_time = slider_time  # Speichert die Zeit des HitObjects
 
     def create(self):
         if self.import_type == 'BASE':
@@ -75,7 +76,7 @@ class SliderBallCreator:
         inherited_multiplier = 1.0
 
         timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
-        start_time_ms = self.slider["time"]
+        start_time_ms = self.slider_time  # Verwende die übergebene Zeit statt eines nicht existierenden Keys
 
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:

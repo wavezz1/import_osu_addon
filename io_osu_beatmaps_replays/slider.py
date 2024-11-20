@@ -196,7 +196,8 @@ class SliderCreator:
                         end_frame=end_frame,
                         slider_balls_collection=self.slider_balls_collection,
                         data_manager=self.data_manager,
-                        import_type=self.import_type
+                        import_type=self.import_type,
+                        slider_time=self.hitobject.time  # Übergabe der Zeit
                     )
                     slider_ball_creator.create()
 

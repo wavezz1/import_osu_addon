@@ -26,7 +26,7 @@ class SliderHeadTailCreator:
             # Erstellen eines Mesh-Circles
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
-                radius=osu_radius * SCALE_FACTOR,
+                radius=osu_radius * SCALE_FACTOR * 2,
                 location=position,
                 rotation=(math.radians(90), 0, 0)
             )

@@ -44,7 +44,7 @@ class ApproachCircleCreator:
             if self.import_type == 'FULL':
                 # Erstellen eines Mesh-Circles
                 bpy.ops.mesh.primitive_circle_add(
-                    fill_type='NONE',
+                    fill_type='NOTHING',
                     radius=osu_radius * SCALE_FACTOR * 2,
                     location=(corrected_x, corrected_y, corrected_z),
                     rotation=(math.radians(90), 0, 0)

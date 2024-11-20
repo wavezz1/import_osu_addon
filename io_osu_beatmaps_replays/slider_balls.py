@@ -64,6 +64,7 @@ class SliderBallCreator:
         return slider_ball
 
     def animate_slider_ball(self, slider_ball):
+        # Slider Path Constraint
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = self.slider
         follow_path.use_fixed_location = True
@@ -112,6 +113,23 @@ class SliderBallCreator:
                 for fcurve in slider_ball.animation_data.action.fcurves:
                     for keyframe in fcurve.keyframe_points:
                         keyframe.interpolation = 'LINEAR'
+
+        # Animation der Viewport-Sichtbarkeit nur bei FULL Import
+        if self.import_type == 'FULL':
+            slider_ball.hide_viewport = True
+            slider_ball.hide_render = True
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.start_frame - 1))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.start_frame - 1))
+
+            slider_ball.hide_viewport = False
+            slider_ball.hide_render = False
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.start_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.start_frame))
+
+            slider_ball.hide_viewport = True
+            slider_ball.hide_render = True
+            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.end_frame))
+            slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.end_frame))
 
     def link_to_collection(self, slider_ball):
         self.slider_balls_collection.objects.link(slider_ball)

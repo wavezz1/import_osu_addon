@@ -236,12 +236,12 @@ class OSU_PT_ImporterPanel(Panel):
             col.separator()
             col.label(text="Slider Options:", icon='MOD_CURVE')
             col.prop(props, "slider_resolution")
-
+            row = col.row(align=True)
             if props.import_type == 'FULL':
-                col.prop(props, "import_slider_heads_tails")
+                row.prop(props, "import_slider_heads_tails", toggle=True)
 
-            col.prop(props, "import_slider_balls")
-            col.prop(props, "import_slider_ticks")
+            row.prop(props, "import_slider_balls", toggle=True)
+            row.prop(props, "import_slider_ticks", toggle=False)
 
             if props.import_slider_ticks:
                 col.separator()

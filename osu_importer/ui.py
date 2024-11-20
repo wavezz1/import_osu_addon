@@ -418,8 +418,8 @@ class OSU_OT_FlipCursorVertical(Operator):
         flipped_count = 0
         for obj in cursor_objects:
             # Flip location and scale along Y-axis
-            obj.scale.y *= -1
-            obj.location.y *= -1
+            obj.scale.z *= -1
+            obj.location.z *= -1
 
             # Flip keyframes if any
             if obj.animation_data and obj.animation_data.action:

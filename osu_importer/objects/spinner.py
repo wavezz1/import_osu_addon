@@ -29,13 +29,6 @@ class SpinnerCreator:
             ms_per_frame = data_manager.ms_per_frame
 
             start_time_ms = self.hitobject.time / speed_multiplier
-            if self.hitobject.extras:
-                end_time_ms = int(self.hitobject.extras[0])
-                spinner_duration_ms = (end_time_ms - self.hitobject.time) / speed_multiplier
-            else:
-                print(f"No end time found for spinner at {self.hitobject.time} ms.")
-                return
-            start_time_ms = self.hitobject.time / speed_multiplier
             spinner_duration_ms = data_manager.calculate_spinner_duration(self.hitobject)
             end_time_ms = (self.hitobject.time + spinner_duration_ms) / speed_multiplier
 

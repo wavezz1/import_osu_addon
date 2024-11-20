@@ -3,7 +3,7 @@
 import time
 import bpy
 import mathutils
-from .constants import SCALE_FACTOR
+from osu_importer.utils.constants import SCALE_FACTOR
 
 def timeit(label):
     class Timer:

@@ -2,14 +2,14 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, timeit, get_keyframe_values
-from .constants import SCALE_FACTOR
-from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from .osu_replay_data_manager import OsuReplayDataManager
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.constants import SCALE_FACTOR
+from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
+from osu_importer.osu_data_manager import OsuDataManager
 
 
 class CircleCreator:
-    def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuReplayDataManager,
+    def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuDataManager,
                  import_type):
         self.hitobject = hitobject
         self.global_index = global_index
@@ -71,6 +71,8 @@ class CircleCreator:
 
             if self.import_type == 'BASE':
                 create_geometry_nodes_modifier(circle, "circle")
+
+            self.hitobject.frame = int(start_frame)
 
             end_frame = start_frame + 1
 

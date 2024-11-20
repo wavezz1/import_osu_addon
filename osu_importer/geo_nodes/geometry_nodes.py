@@ -1,5 +1,5 @@
 import bpy
-from .utils import timeit
+from osu_importer.utils.utils import timeit
 
 node_groups = {}
 
@@ -55,6 +55,14 @@ def setup_geometry_node_trees():
                     "show": 'BOOLEAN'
                 }
             },
+            "approach_circle": {
+                "name": "Geometry Nodes Approach Circle",
+                "attributes": {
+                    "show": 'BOOLEAN',
+                    "scale": 'FLOAT',
+                    "cs": 'FLOAT'
+                }
+            },
         }
 
         for key, node_def in node_definitions.items():
@@ -72,7 +80,6 @@ def create_geometry_nodes_tree(name, attributes):
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes)
     return group
-
 
 def setup_node_group_interface(group, attributes):
     x_offset = 200

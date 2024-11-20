@@ -1,4 +1,4 @@
-# info_parser.py
+# osu_parser.py
 
 import osrparse
 
@@ -82,6 +82,7 @@ class OsrParser:
         self.misses = 0
         self.score = 0
         self.max_combo = 0
+        self.username = "Unknown"
         self.parse_osr_file()
 
     def parse_osr_file(self):
@@ -96,6 +97,7 @@ class OsrParser:
             self.misses = replay.count_miss
             self.max_combo = replay.max_combo
             self.score = replay.score
+            self.username = replay.username
             self.key_presses = self.parse_key_presses()
         except Exception as e:
             print(f"Error parsing .osr file: {e}")

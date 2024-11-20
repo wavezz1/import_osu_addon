@@ -1,0 +1,53 @@
+# osu_importer/objects/slider_head_tail.py
+
+import bpy
+import math
+from osu_importer.utils.utils import map_osu_to_blender, timeit
+from osu_importer.utils.constants import SCALE_FACTOR
+
+class SliderHeadTailCreator:
+    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager):
+        self.hitobject = hitobject
+        self.position = position
+        self.global_index = global_index
+        self.slider_heads_tails_collection = slider_heads_tails_collection
+        self.settings = settings
+        self.data_manager = data_manager
+        self.create_slider_head_tail()
+
+    def create_slider_head_tail(self):
+        hitobject = self.hitobject
+        position = self.position
+
+        with timeit(f"Creating SliderHeadTail {self.global_index:03d}_head_tail"):
+            osu_radius = self.data_manager.osu_radius
+
+            bpy.ops.mesh.primitive_circle_add(
+                fill_type='NGON',
+                radius=osu_radius * SCALE_FACTOR * 2,
+                location=position,
+                rotation=(math.radians(90), 0, 0)
+            )
+            head_tail_obj = bpy.context.object
+            head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
+
+            self.slider_heads_tails_collection.objects.link(head_tail_obj)
+            if head_tail_obj.users_collection:
+                for col in head_tail_obj.users_collection:
+                    if col != self.slider_heads_tails_collection:
+                        col.objects.unlink(head_tail_obj)
+
+            head_tail_obj.hide_viewport = True
+            head_tail_obj.hide_render = True
+            head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(hitobject.frame - self.data_manager.preempt_frames - 1))
+            head_tail_obj.keyframe_insert(data_path="hide_render", frame=int(hitobject.frame - self.data_manager.preempt_frames - 1))
+
+            head_tail_obj.hide_viewport = False
+            head_tail_obj.hide_render = False
+            head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(hitobject.frame - self.data_manager.preempt_frames))
+            head_tail_obj.keyframe_insert(data_path="hide_render", frame=int(hitobject.frame - self.data_manager.preempt_frames))
+
+            head_tail_obj.hide_viewport = True
+            head_tail_obj.hide_render = True
+            head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(hitobject.end_frame))
+            head_tail_obj.keyframe_insert(data_path="hide_render", frame=int(hitobject.end_frame))

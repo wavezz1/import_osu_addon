@@ -3,15 +3,15 @@
 import bpy
 import math
 from mathutils import Vector
-from .constants import SCALE_FACTOR
-from .utils import map_osu_to_blender, evaluate_curve_at_t, timeit, get_keyframe_values
-from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from .osu_replay_data_manager import OsuReplayDataManager
-from .hitobjects import HitObject
+from osu_importer.utils.constants import SCALE_FACTOR
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
+from osu_importer.osu_data_manager import OsuDataManager
+from osu_importer.parsers.hitobjects import HitObject
 
 class SliderCreator:
     def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, slider_balls_collection, settings: dict,
-                 data_manager: OsuReplayDataManager, import_type):
+                 data_manager: OsuDataManager, import_type):
         self.hitobject = hitobject
         self.global_index = global_index
         self.sliders_collection = sliders_collection
@@ -110,6 +110,17 @@ class SliderCreator:
 
                 merged_curve_points = self.merge_duplicate_points(all_points, tolerance=0.01)
 
+                if merged_curve_points:
+                    start_pos = merged_curve_points[0]
+                    end_pos = merged_curve_points[-1]
+                    self.hitobject.start_pos = start_pos
+                    self.hitobject.end_pos = end_pos
+                else:
+                    start_pos = Vector(map_osu_to_blender(self.hitobject.x, self.hitobject.y))
+                    end_pos = start_pos
+                    self.hitobject.start_pos = start_pos
+                    self.hitobject.end_pos = end_pos
+
                 spline.points.add(len(merged_curve_points) - 1)
                 for i, point in enumerate(merged_curve_points):
                     spline.points[i].co = (point.x, point.y, point.z, 1)
@@ -135,6 +146,10 @@ class SliderCreator:
                             col.objects.unlink(slider)
                 if self.import_type == 'BASE':
                     create_geometry_nodes_modifier(slider, "slider")
+
+                # Setze das 'frame' Attribut auf den Start Frame
+                self.hitobject.frame = int(start_frame)
+                self.hitobject.end_frame = int(end_frame)
 
                 extra_params = {
                     "slider_duration_ms": slider_duration_ms,
@@ -187,9 +202,31 @@ class SliderCreator:
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.settings.get('import_slider_balls', False):
-                    self.create_slider_ball(slider, start_frame, slider_duration_frames, repeat_count, end_frame)
+                    from .slider_balls import SliderBallCreator  # Import der SliderBallCreator-Klasse
+                    slider_ball_creator = SliderBallCreator(
+                        slider=slider,
+                        start_frame=start_frame,
+                        slider_duration_frames=slider_duration_frames,
+                        repeat_count=repeat_count,
+                        end_frame=end_frame,
+                        slider_balls_collection=self.slider_balls_collection,
+                        data_manager=self.data_manager,
+                        import_type=self.import_type,
+                        slider_time=self.hitobject.time
+                    )
+                    slider_ball_creator.create()
+
                 if self.settings.get('import_slider_ticks', False):
-                    self.create_slider_ticks(slider, curve_data, slider_duration_ms, repeat_count)
+                    from .slider_ticks import SliderTicksCreator
+                    slider_ticks_creator = SliderTicksCreator(
+                        slider=slider,
+                        slider_duration_ms=slider_duration_ms,
+                        repeat_count=repeat_count,
+                        sliders_collection=self.sliders_collection,
+                        settings=self.settings,
+                        import_type=self.import_type
+                    )
+                    slider_ticks_creator.create()
 
     def evaluate_curve(self, segment_type, segment_points):
         if segment_type == "L":
@@ -302,138 +339,3 @@ class SliderCreator:
                 spline_points.append(point)
 
         return spline_points
-
-    def create_slider_ball(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame):
-        if self.import_type == 'BASE':
-            mesh = bpy.data.meshes.new(f"{slider.name}_ball")
-
-            mesh.vertices.add(1)
-            mesh.vertices[0].co = (0, 0, 0)
-
-            mesh.use_auto_texspace = True
-
-            slider_ball = bpy.data.objects.new(f"{slider.name}_ball", mesh)
-            slider_ball.location = slider.location
-
-            create_geometry_nodes_modifier(slider_ball, "slider_ball")
-
-            frame_values = {
-                "show": [
-                    (int(start_frame - 1), False),
-                    (int(start_frame), True),
-                    (int(end_frame), False)
-                ]
-            }
-
-            set_modifier_inputs_with_keyframes(
-                slider_ball,
-                {
-                    "show": 'BOOLEAN',
-                },
-                frame_values,
-                fixed_values=None
-            )
-
-        elif self.import_type == 'FULL':
-            circle_size = self.data_manager.calculate_adjusted_cs()
-            osu_radius = (54.4 - 4.48 * circle_size) / 2
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=osu_radius * SCALE_FACTOR * 2, location=slider.location)
-            slider_ball = bpy.context.object
-            slider_ball.name = f"{slider.name}_ball"
-
-        follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
-        follow_path.target = slider
-        follow_path.use_fixed_location = True
-        follow_path.use_curve_follow = True
-        follow_path.forward_axis = 'FORWARD_Y'
-        follow_path.up_axis = 'UP_Z'
-
-        speed_multiplier = self.data_manager.speed_multiplier
-        slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
-        inherited_multiplier = 1.0
-
-        timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
-        start_time_ms = self.hitobject.time
-
-        for offset, beat_length in timing_points:
-            if start_time_ms >= offset:
-                if beat_length < 0:
-                    inherited_multiplier = -100 / beat_length
-            else:
-                break
-
-        effective_speed = slider_multiplier * inherited_multiplier
-        adjusted_duration_frames = (slider_duration_frames / effective_speed) * speed_multiplier
-
-        slider.data.use_path = True
-        slider.data.path_duration = int(adjusted_duration_frames)
-
-        repeat_duration_frames = adjusted_duration_frames / repeat_count if repeat_count > 0 else adjusted_duration_frames
-
-        for repeat in range(repeat_count):
-            repeat_start_frame = start_frame + repeat * repeat_duration_frames
-            if repeat % 2 == 0:
-                follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
-                follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor",
-                                            frame=repeat_start_frame + repeat_duration_frames)
-            else:
-                follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
-                follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor",
-                                            frame=repeat_start_frame + repeat_duration_frames)
-
-            if slider_ball.animation_data and slider_ball.animation_data.action:
-                for fcurve in slider_ball.animation_data.action.fcurves:
-                    for keyframe in fcurve.keyframe_points:
-                        keyframe.interpolation = 'LINEAR'
-
-        self.slider_balls_collection.objects.link(slider_ball)
-
-        if slider_ball.users_collection:
-            for col in slider_ball.users_collection:
-                if col != self.slider_balls_collection:
-                    col.objects.unlink(slider_ball)
-
-        if self.import_type == 'FULL':
-            preempt_frames = self.data_manager.preempt_frames
-            early_start_frame = start_frame - preempt_frames
-
-            slider_ball.hide_viewport = True
-            slider_ball.hide_render = True
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
-
-            slider_ball.hide_viewport = False
-            slider_ball.hide_render = False
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
-
-            slider_ball.hide_viewport = False
-            slider_ball.hide_render = False
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame - 1))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame - 1))
-
-            slider_ball.hide_viewport = True
-            slider_ball.hide_render = True
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(end_frame))
-
-    def create_slider_ticks(self, slider, curve_data, slider_duration_ms, repeat_count):
-        tick_interval_ms = 100
-        total_ticks = int(slider_duration_ms / tick_interval_ms) * repeat_count
-
-        for tick in range(total_ticks):
-            t = (tick * tick_interval_ms) / (slider_duration_ms * repeat_count)
-            t = min(max(t, 0.0), 1.0)
-
-            tick_position = evaluate_curve_at_t(slider, t)
-
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.05, location=(tick_position.x, tick_position.y, tick_position.z))
-            tick_obj = bpy.context.object
-            tick_obj.name = f"{slider.name}_tick_{tick}"
-
-            self.sliders_collection.objects.link(tick_obj)
-            bpy.context.collection.objects.unlink(tick_obj)

@@ -2,14 +2,14 @@
 
 import bpy
 import math
-from .utils import map_osu_to_blender, timeit, get_keyframe_values
-from .constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
-from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from .osu_replay_data_manager import OsuReplayDataManager
-from .hitobjects import HitObject
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
+from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
+from osu_importer.osu_data_manager import OsuDataManager
+from osu_importer.parsers.hitobjects import HitObject
 
 class SpinnerCreator:
-    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict, data_manager: OsuReplayDataManager, import_type):
+    def __init__(self, hitobject: HitObject, global_index: int, spinners_collection, settings: dict, data_manager: OsuDataManager, import_type):
         self.hitobject = hitobject
         self.global_index = global_index
         self.spinners_collection = spinners_collection
@@ -28,19 +28,15 @@ class SpinnerCreator:
             speed_multiplier = data_manager.speed_multiplier
             ms_per_frame = data_manager.ms_per_frame
 
+            spinner_duration_ms = data_manager.calculate_spinner_duration(self.hitobject)
             start_time_ms = self.hitobject.time / speed_multiplier
-            if self.hitobject.extras:
-                end_time_ms = int(self.hitobject.extras[0])
-                spinner_duration_ms = (end_time_ms - self.hitobject.time) / speed_multiplier
-            else:
-                print(f"No end time found for spinner at {self.hitobject.time} ms.")
-                return
+            end_time_ms = (self.hitobject.time + spinner_duration_ms) / speed_multiplier
 
             start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
+            end_frame = end_time_ms / ms_per_frame + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
-            end_frame = (end_time_ms / speed_multiplier) / ms_per_frame + audio_lead_in_frames
 
-            spinner_duration_frames = spinner_duration_ms / data_manager.get_ms_per_frame()
+            spinner_duration_frames = spinner_duration_ms / ms_per_frame
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 

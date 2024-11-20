@@ -1,14 +1,14 @@
-# osu_replay_data_manager.py
+# osu_data_manager.py
 
 import bpy
 import os
 import bisect
-from .info_parser import OsuParser, OsrParser
-from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
-from .mod_functions import calculate_speed_multiplier
-from .hitobjects import HitObjectsProcessor
+from osu_importer.parsers.osu_parser import OsuParser, OsrParser
+from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
+from osu_importer.utils.mod_functions import calculate_speed_multiplier
+from osu_importer.parsers.hitobjects import HitObjectsProcessor
 
-class OsuReplayDataManager:
+class OsuDataManager:
     def __init__(self, osu_file_path, osr_file_path):
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
@@ -16,7 +16,6 @@ class OsuReplayDataManager:
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
         self.ms_per_frame = self.get_ms_per_frame()
 
-        # Initialisierung der Instanzattribute
         self.audio_lead_in = self.osu_parser.audio_lead_in
         self.adjusted_ar = None
         self.adjusted_cs = None
@@ -26,7 +25,6 @@ class OsuReplayDataManager:
         self.osu_radius = None
         self.audio_lead_in_frames = None
 
-        # Speichern der Basiswerte
         self.base_ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
         self.base_cs = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
         self.base_od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
@@ -54,6 +52,7 @@ class OsuReplayDataManager:
             "misses": self.osr_parser.misses,
             "max_combo": self.osr_parser.max_combo,
             "total_score": self.osr_parser.score,
+            "username": self.osr_parser.username,
         }
 
     @property

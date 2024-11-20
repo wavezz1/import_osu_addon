@@ -77,8 +77,7 @@ class ApproachCircleCreator:
         # Erstellen des Curve-Circles
         curve_data = bpy.data.curves.new(self.name, type='CURVE')
         curve_data.dimensions = '3D'
-        curve_data.fill_mode = 'NONE'  # Nicht gefüllt
-        curve_data.resolution_u = 32
+        curve_data.resolution_u = 16
 
         polyline = curve_data.splines.new('POLY')
         polyline.points.add(31)

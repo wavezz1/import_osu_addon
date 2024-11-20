@@ -182,8 +182,8 @@ class OSUImporterProperties(PropertyGroup):
         default=False
     )
     show_tool_info: BoolProperty(
-        name="Show Tool Information",
-        description="Toggle visibility of Tool Information",
+        name="Show Tools",
+        description="Toggle visibility of Tools",
         default=False
     )
 
@@ -307,7 +307,7 @@ class OSU_PT_ImporterPanel(Panel):
         # Tool Information Toggle
         if props.bpm != 0.0:
             box = layout.box()
-            box.prop(props, "show_tool_info", text="Tool Information", icon='PLUS')
+            box.prop(props, "show_tool_info", text="Tools", icon='PLUS')
             if props.show_tool_info:
                 # Flip Cursor Position
                 col = box.column(align=True)

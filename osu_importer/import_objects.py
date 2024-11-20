@@ -83,6 +83,9 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     global_index = 1
     import_type = settings.get('import_type', 'FULL')
 
+    settings.update({
+        'approach_circle_bevel_depth': props.approach_circle_bevel_depth
+    })
     if props.import_circles:
         circles = data_manager.hitobjects_processor.circles
         for i, hitobject in enumerate(circles):

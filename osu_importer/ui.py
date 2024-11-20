@@ -241,7 +241,7 @@ class OSU_PT_ImporterPanel(Panel):
                 row.prop(props, "import_slider_heads_tails", toggle=True)
 
             col.prop(props, "import_slider_balls", toggle=True)
-            col.prop(props, "import_slider_ticks", toggle=False)
+            col.prop(props, "import_slider_ticks", toggle=True)
 
             if props.import_slider_ticks:
                 col.separator()

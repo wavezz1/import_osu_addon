@@ -1,4 +1,4 @@
-# osu_replay_data_manager.py
+# osu_data_manager.py
 
 import bpy
 import os
@@ -8,7 +8,7 @@ from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HAR
 from osu_importer.utils.mod_functions import calculate_speed_multiplier
 from osu_importer.parsers.hitobjects import HitObjectsProcessor
 
-class OsuReplayDataManager:
+class OsuDataManager:
     def __init__(self, osu_file_path, osr_file_path):
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)

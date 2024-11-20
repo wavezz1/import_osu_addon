@@ -2,7 +2,7 @@
 
 import bpy
 import os
-from .osu_replay_data_manager import OsuReplayDataManager
+from .osu_data_manager import OsuDataManager
 from .import_objects import import_hitobjects
 from .utils.utils import timeit
 
@@ -20,8 +20,8 @@ def main_execution(context):
         )
         return {'CANCELLED'}, None
 
-    with timeit("OsuReplayDataManager Initialisierung"):
-        data_manager = OsuReplayDataManager(osu_file_path, osr_file_path)
+    with timeit("OsuDataManager Initialisierung"):
+        data_manager = OsuDataManager(osu_file_path, osr_file_path)
 
     data_manager.print_all_info()
 

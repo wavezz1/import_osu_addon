@@ -3,7 +3,7 @@
 import bpy
 from osu_importer.utils.utils import map_osu_to_blender
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from osu_importer.osu_replay_data_manager import OsuReplayDataManager
+from osu_importer.osu_data_manager import OsuDataManager
 
 def set_cursor_keyframes(cursor, frame, location, key_presses):
     cursor.location = location
@@ -31,7 +31,7 @@ def set_cursor_keyframes(cursor, frame, location, key_presses):
     }, frame_values, fixed_values=None)
 
 class CursorCreator:
-    def __init__(self, cursor_collection, settings, data_manager: OsuReplayDataManager, import_type):
+    def __init__(self, cursor_collection, settings, data_manager: OsuDataManager, import_type):
         self.cursor_collection = cursor_collection
         self.settings = settings
         self.data_manager = data_manager

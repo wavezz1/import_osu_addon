@@ -59,7 +59,8 @@ def setup_geometry_node_trees():
                 "name": "Geometry Nodes Approach Circle",
                 "attributes": {
                     "show": 'BOOLEAN',
-                    "scale": 'FLOAT'
+                    "scale": 'FLOAT',
+                    "cs": 'FLOAT'
                 }
             },
         }

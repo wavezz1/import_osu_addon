@@ -93,7 +93,7 @@ class ApproachCircleCreator:
                 attributes = {
                     "show": 'BOOLEAN',
                     "scale": 'FLOAT',
-                    "cs": osu_radius * SCALE_FACTOR
+                    "cs": 'FLOAT',
                 }
                 frame_values = {
                     "show": [
@@ -106,6 +106,6 @@ class ApproachCircleCreator:
                         (start_frame, 1.0),
                     ]
                 }
-                fixed_values = {}
+                fixed_values = {"cs": osu_radius * SCALE_FACTOR}
 
                 set_modifier_inputs_with_keyframes(approach_obj, attributes, frame_values, fixed_values)

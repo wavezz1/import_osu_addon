@@ -2,7 +2,6 @@
 
 import bpy
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-import math
 
 class ApproachCircleCreator:
     def __init__(self, hitobject, global_index, collection, settings, data_manager, import_type):
@@ -19,7 +18,7 @@ class ApproachCircleCreator:
         self.early_start_frame = int(hitobject.time - self.data_manager.preempt_frames)
         self.start_frame = int(hitobject.time)
         self.scale_initial = 2.0  # Startscale, z.B. doppelt so groß wie der Circle
-        self.scale_final = self.data_manager.adjusted_cs  # Circle Size
+        self.scale_final = 1.0      # Final Scale entspricht cs Größe
 
         self.create()
 
@@ -36,10 +35,11 @@ class ApproachCircleCreator:
         mesh = bpy.data.meshes.new(self.name)
         obj = bpy.data.objects.new(self.name, mesh)
 
-        # Erstellen eines Kreis-Meshes
-        bpy.context.collection.objects.link(obj)
+        # Link das Objekt zur Sammlung
+        self.collection.objects.link(obj)
+
+        # Erstellen eines Kreis-Meshes ohne Füllung
         bpy.context.view_layer.objects.active = obj
-        bpy.ops.object.select_all(action='DESELECT')
         obj.select_set(True)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.primitive_circle_add(vertices=32, radius=self.data_manager.osu_radius, fill_type='NOTHING')
@@ -73,46 +73,33 @@ class ApproachCircleCreator:
         set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values)
 
     def create_full_circle(self):
-        """Create a curve circle with Geometry Nodes modifier and animate scaling and visibility."""
+        """Create a curve circle with direct scaling and visibility animation."""
         # Erstellen des Curve-Circles
         curve_data = bpy.data.curves.new(self.name, type='CURVE')
         curve_data.dimensions = '3D'
-        curve_data.resolution_u = 16
+        # Entferne fill_mode oder setze auf einen gültigen Wert, falls benötigt
+        # curve_data.fill_mode = 'BACK'  # Beispiel für einen gültigen Wert
 
-        polyline = curve_data.splines.new('POLY')
-        polyline.points.add(31)
-        for i in range(32):
-            angle = (2 * math.pi / 32) * i
-            x = self.data_manager.osu_radius * math.cos(angle)
-            y = self.data_manager.osu_radius * math.sin(angle)
-            polyline.points[i].co = (x, y, 0, 1)
+        # Verwenden von 'CIRCLE' als Spline-Typ für einen geschlossenen Kreis
+        circle_spline = curve_data.splines.new('CIRCLE')
+        circle_spline.radius = self.data_manager.osu_radius
 
         curve_obj = bpy.data.objects.new(self.name, curve_data)
         self.collection.objects.link(curve_obj)
 
-        # Hinzufügen des Geometry Nodes Modifiers
-        create_geometry_nodes_modifier(curve_obj, obj_type="approach_circle")
+        # Animieren der Skalierung
+        curve_obj.scale = (self.scale_initial, self.scale_initial, self.scale_initial)
+        curve_obj.keyframe_insert(data_path="scale", frame=self.early_start_frame)
+        curve_obj.scale = (self.scale_final, self.scale_final, self.scale_final)
+        curve_obj.keyframe_insert(data_path="scale", frame=self.start_frame)
 
-        # Definieren der Attribute und Setzen der Keyframes
-        attributes = {
-            "show": "BOOLEAN",
-            "early_start_frame": "INT",
-            "start_frame": "INT",
-            "scale": "FLOAT",
-        }
-        frame_values = {
-            "show": [
-                (self.early_start_frame, True),  # show = True
-                (self.start_frame, False),       # show = False
-            ],
-            "scale": [
-                (self.early_start_frame, self.scale_initial),
-                (self.start_frame, self.scale_final),
-            ]
-        }
-        fixed_values = {
-            "early_start_frame": self.early_start_frame,
-            "start_frame": self.start_frame,
-        }
+        # Animieren der Sichtbarkeit (sichtbar -> unsichtbar)
+        curve_obj.hide_viewport = False
+        curve_obj.hide_render = False
+        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.early_start_frame)
+        curve_obj.keyframe_insert(data_path="hide_render", frame=self.early_start_frame)
 
-        set_modifier_inputs_with_keyframes(curve_obj, attributes, frame_values, fixed_values)
+        curve_obj.hide_viewport = True
+        curve_obj.hide_render = True
+        curve_obj.keyframe_insert(data_path="hide_viewport", frame=self.start_frame)
+        curve_obj.keyframe_insert(data_path="hide_render", frame=self.start_frame)

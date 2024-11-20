@@ -40,12 +40,6 @@ class SliderHeadTailCreator:
                     if col != self.slider_heads_tails_collection:
                         col.objects.unlink(head_tail_obj)
 
-            # Animieren der Skalierung
-            head_tail_obj.scale = (2.0, 2.0, 2.0)
-            head_tail_obj.keyframe_insert(data_path="scale", frame=int(hitobject.frame - self.data_manager.preempt_frames))
-            head_tail_obj.scale = (1.0, 1.0, 1.0)
-            head_tail_obj.keyframe_insert(data_path="scale", frame=int(hitobject.frame))
-
             # Animieren der Sichtbarkeit
             head_tail_obj.hide_viewport = True
             head_tail_obj.hide_render = True

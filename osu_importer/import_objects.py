@@ -81,41 +81,34 @@ def import_hitobjects(data_manager, settings, props, operator=None):
     global_index = 1
     import_type = settings.get('import_type', 'FULL')
 
-    # Importieren von Kreisen
     if props.import_circles:
         circles = data_manager.hitobjects_processor.circles
         for i, hitobject in enumerate(circles):
             CircleCreator(hitobject, global_index + i, collections["Circles"], settings, data_manager, import_type)
         global_index += len(circles)
 
-    # Importieren von Slidern
     if props.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders
         for i, hitobject in enumerate(sliders):
             SliderCreator(hitobject, global_index + i, collections["Sliders"], collections["Slider Balls"], settings, data_manager, import_type)
         global_index += len(sliders)
 
-    # Importieren von Spinners
     if props.import_spinners:
         spinners = data_manager.hitobjects_processor.spinners
         for i, hitobject in enumerate(spinners):
             SpinnerCreator(hitobject, global_index + i, collections["Spinners"], settings, data_manager, import_type)
         global_index += len(spinners)
 
-    # Importieren von Approach Circles für Kreise und Slider Heads
     if props.import_approach_circles:
-        # Nur Kreise und Slider übergeben, um sicherzustellen, dass 'frame' gesetzt ist
         relevant_hitobjects = data_manager.hitobjects_processor.circles + data_manager.hitobjects_processor.sliders
         for i, hitobject in enumerate(relevant_hitobjects):
             ApproachCircleCreator(hitobject, global_index + i, collections["Approach Circles"], settings, data_manager, import_type)
         global_index += len(relevant_hitobjects)
 
-    # Importieren von Cursor Movements
     if props.import_cursors:
         cursor_creator = CursorCreator(collections["Cursor"], settings, data_manager, import_type)
         cursor_creator.animate_cursor()
 
-    # Setup Osu Gameplay Collections für BASE Import
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(
             cursor=collections["Cursor"],

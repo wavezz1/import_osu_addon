@@ -20,11 +20,9 @@ class ApproachCircleCreator:
     def create_approach_circle(self):
         hitobject = self.hitobject
 
-        # Nur Kreise und Slider Heads verarbeiten
         if not (hitobject.hit_type & 1 or hitobject.hit_type & 2):
             return
 
-        # Sicherstellen, dass hitobject.frame existiert
         if not hasattr(hitobject, 'frame') or hitobject.frame is None:
             print(f"HitObject {hitobject} hat kein Attribut 'frame'.")
             return
@@ -42,7 +40,6 @@ class ApproachCircleCreator:
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(hitobject.x, hitobject.y)
 
             if self.import_type == 'FULL':
-                # Erstellen eines Mesh-Circles
                 bpy.ops.mesh.primitive_circle_add(
                     fill_type='NOTHING',
                     radius=osu_radius * SCALE_FACTOR * 2,
@@ -52,20 +49,17 @@ class ApproachCircleCreator:
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 
-                # Verbinden mit der Approach Circles Collection
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:
                     for col in approach_obj.users_collection:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
 
-                # Animieren der Skalierung
-                approach_obj.scale = (2.0, 2.0, 2.0)  # Start Skalierung
+                approach_obj.scale = (2.0, 2.0, 2.0)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(early_start_frame))
-                approach_obj.scale = (1.0, 1.0, 1.0)  # End Skalierung
+                approach_obj.scale = (1.0, 1.0, 1.0)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(start_frame))
 
-                # Animieren der Sichtbarkeit
                 approach_obj.hide_viewport = True
                 approach_obj.hide_render = True
                 approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -82,9 +76,8 @@ class ApproachCircleCreator:
                 approach_obj.keyframe_insert(data_path="hide_render", frame=int(start_frame))
 
             elif self.import_type == 'BASE':
-                # Erstellen eines Mesh-Punkts (Vertex)
                 mesh = bpy.data.meshes.new(f"approach_{hitobject.time}_mesh")
-                mesh.from_pydata([ (0, 0, 0) ], [], [])  # Einfacher Punkt
+                mesh.from_pydata([ (0, 0, 0) ], [], [])
                 mesh.update()
 
                 approach_obj = bpy.data.objects.new(f"approach_{hitobject.time}", mesh)
@@ -98,7 +91,6 @@ class ApproachCircleCreator:
 
                 create_geometry_nodes_modifier(approach_obj, "approach_circle")
 
-                # Definieren der Attribute und Setzen der Keyframes
                 attributes = {
                     "show": 'BOOLEAN',
                     "scale": 'FLOAT',
@@ -106,12 +98,12 @@ class ApproachCircleCreator:
                 frame_values = {
                     "show": [
                         (early_start_frame - 1, False),
-                        (early_start_frame, True),  # show = True
-                        (start_frame, False),       # show = False
+                        (early_start_frame, True),
+                        (start_frame, False),
                     ],
                     "scale": [
-                        (early_start_frame, 2.0),  # Start Skalierung
-                        (start_frame, 1.0),        # End Skalierung
+                        (early_start_frame, 2.0),
+                        (start_frame, 1.0),
                     ]
                 }
                 fixed_values = {}

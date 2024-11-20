@@ -8,8 +8,8 @@ class SliderTicksCreator:
         self.repeat_count = repeat_count
         self.sliders_collection = sliders_collection
         self.settings = settings
-        self.import_type = import_type  # Hinzufügen von import_type
-        self.tick_interval_ms = 100  # Default-Wert für Slider-Ticks
+        self.import_type = import_type
+        self.tick_interval_ms = 100
 
     def create(self):
         tick_interval_ms = self.settings.get('tick_interval_ms', self.tick_interval_ms)
@@ -22,11 +22,9 @@ class SliderTicksCreator:
             tick_position = evaluate_curve_at_t(self.slider, t)
 
             if self.import_type == 'FULL':
-                # Erstellen einer UV-Sphere mit Radius 0.2
                 bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=(tick_position.x, tick_position.y, tick_position.z))
                 tick_obj = bpy.context.object
             elif self.import_type == 'BASE':
-                # Erstellen eines 1-Vertex-Meshes
                 mesh = bpy.data.meshes.new(f"{self.slider.name}_tick_{tick}")
                 mesh.vertices.add(1)
                 mesh.vertices[0].co = (0, 0, 0)

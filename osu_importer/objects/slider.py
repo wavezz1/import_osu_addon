@@ -200,7 +200,7 @@ class SliderCreator:
                         slider_balls_collection=self.slider_balls_collection,
                         data_manager=self.data_manager,
                         import_type=self.import_type,
-                        slider_time=self.hitobject.time  # Übergabe der Zeit
+                        slider_time=self.hitobject.time
                     )
                     slider_ball_creator.create()
 
@@ -212,7 +212,7 @@ class SliderCreator:
                         repeat_count=repeat_count,
                         sliders_collection=self.sliders_collection,
                         settings=self.settings,
-                        import_type=self.import_type  # import_type übergeben
+                        import_type=self.import_type
                     )
                     slider_ticks_creator.create()
 

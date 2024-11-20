@@ -72,7 +72,6 @@ class CircleCreator:
             if self.import_type == 'BASE':
                 create_geometry_nodes_modifier(circle, "circle")
 
-            # Setze das 'frame' Attribut auf den Start Frame
             self.hitobject.frame = int(start_frame)
 
             end_frame = start_frame + 1

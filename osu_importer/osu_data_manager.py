@@ -16,7 +16,6 @@ class OsuDataManager:
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
         self.ms_per_frame = self.get_ms_per_frame()
 
-        # Initialisierung der Instanzattribute
         self.audio_lead_in = self.osu_parser.audio_lead_in
         self.adjusted_ar = None
         self.adjusted_cs = None
@@ -26,7 +25,6 @@ class OsuDataManager:
         self.osu_radius = None
         self.audio_lead_in_frames = None
 
-        # Speichern der Basiswerte
         self.base_ar = float(self.osu_parser.difficulty_settings.get("ApproachRate", 5.0))
         self.base_cs = float(self.osu_parser.difficulty_settings.get("CircleSize", 5.0))
         self.base_od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))

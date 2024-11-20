@@ -80,7 +80,6 @@ def create_geometry_nodes_tree(name, attributes):
     setup_node_group_interface(group, attributes)
     return group
 
-
 def setup_node_group_interface(group, attributes):
     x_offset = 200
 

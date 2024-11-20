@@ -40,12 +40,19 @@ class ApproachCircleCreator:
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(hitobject.x, hitobject.y)
 
             if self.import_type == 'FULL':
-                bpy.ops.mesh.primitive_circle_add(
-                    fill_type='NOTHING',
+                # bpy.ops.mesh.primitive_circle_add(
+                #     fill_type='NOTHING',
+                #     radius=osu_radius * SCALE_FACTOR * 2,
+                #     location=(corrected_x, corrected_y, corrected_z),
+                #     rotation=(math.radians(90), 0, 0)
+                # )
+                bpy.ops.curves.add_circle(
                     radius=osu_radius * SCALE_FACTOR * 2,
-                    location=(corrected_x, corrected_y, corrected_z),
-                    rotation=(math.radians(90), 0, 0)
-                )
+                    enter_editmode=False,
+                    align='WORLD',
+                    location=(0.0, 0.0, 0.0),
+                    rotation=(0.0, 0.0, 0.0),
+                    scale=(0.0, 0.0, 0.0))
                 approach_obj = bpy.context.object
                 approach_obj.name = f"{self.global_index:03d}_approach_{hitobject.time}"
 

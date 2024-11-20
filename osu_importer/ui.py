@@ -58,7 +58,7 @@ class OSUImporterProperties(PropertyGroup):
     import_slider_heads_tails: BoolProperty(
         name="Slider Heads and Tails",
         description="Import slider head and tail circles for each slider in FULL import",
-        default=False
+        default=True
     )
     # Slider Options
     import_slider_ticks: BoolProperty(

@@ -14,33 +14,62 @@ class SliderBallCreator:
         self.slider_balls_collection = slider_balls_collection
         self.data_manager = data_manager
         self.import_type = import_type
-        self.slider_time = slider_time  # Speichert die Zeit des HitObjects
+        self.slider_time = slider_time
 
     def create(self):
-        if self.import_type == 'BASE':
-            slider_ball = self.create_base_slider_ball()
-        elif self.import_type == 'FULL':
-            slider_ball = self.create_full_slider_ball()
-        else:
-            print("Unsupported import type for slider ball.")
-            return
+        slider_ball = (
+            self.create_base_slider_ball() if self.import_type == 'BASE' else
+            self.create_full_slider_ball() if self.import_type == 'FULL' else
+            None
+        )
 
-        self.animate_slider_ball(slider_ball)
-        self.link_to_collection(slider_ball)
+        if slider_ball:
+            self.animate_slider_ball(slider_ball)
+            self.link_to_collection(slider_ball)
 
     def create_base_slider_ball(self):
-        # Basis Slider-Ball erstellen
-        mesh = bpy.data.meshes.new(f"{self.slider.name}_ball")
-        mesh.vertices.add(1)
-        mesh.vertices[0].co = (0, 0, 0)
-        mesh.use_auto_texspace = True
-
+        """Erstellt einen Slider-Ball im BASE-Modus mit Geometry Nodes."""
+        mesh = self._create_empty_mesh(f"{self.slider.name}_ball")
         slider_ball = bpy.data.objects.new(f"{self.slider.name}_ball", mesh)
         slider_ball.location = self.slider.location
 
         create_geometry_nodes_modifier(slider_ball, "slider_ball")
+        self._set_geometry_node_keyframes(slider_ball)
+        return slider_ball
 
-        # Keyframes für Geometry Nodes hinzufügen
+    def create_full_slider_ball(self):
+        """Erstellt einen Slider-Ball im FULL-Modus als UV-Sphäre."""
+        radius = self._calculate_osu_radius()
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=radius, location=self.slider.location)
+        slider_ball = bpy.context.object
+        slider_ball.name = f"{self.slider.name}_ball"
+        return slider_ball
+
+    def animate_slider_ball(self, slider_ball):
+        """Animiert den Slider-Ball entlang des Pfads und setzt Viewport-Sichtbarkeit für FULL-Import."""
+        self._apply_follow_path_constraint(slider_ball)
+        self._set_follow_path_keyframes(slider_ball)
+
+        if self.import_type == 'FULL':
+            self._set_visibility_keyframes(slider_ball)
+
+    def link_to_collection(self, slider_ball):
+        """Verlinkt den Slider-Ball zur vorgesehenen Sammlung."""
+        self.slider_balls_collection.objects.link(slider_ball)
+        self._remove_from_other_collections(slider_ball)
+
+    # Hilfsfunktionen
+
+    def _create_empty_mesh(self, name):
+        """Erstellt ein leeres Mesh mit einem einzelnen Vertex."""
+        mesh = bpy.data.meshes.new(name)
+        mesh.vertices.add(1)
+        mesh.vertices[0].co = (0, 0, 0)
+        mesh.use_auto_texspace = True
+        return mesh
+
+    def _set_geometry_node_keyframes(self, slider_ball):
+        """Setzt Keyframes für Geometry Nodes-Attribute."""
         frame_values = {
             "show": [
                 (int(self.start_frame - 1), False),
@@ -48,26 +77,20 @@ class SliderBallCreator:
                 (int(self.end_frame), False)
             ]
         }
-
         set_modifier_inputs_with_keyframes(
             slider_ball,
             {"show": 'BOOLEAN'},
             frame_values,
             fixed_values=None
         )
-        return slider_ball
 
-    def create_full_slider_ball(self):
-        # Volle Slider-Ball Darstellung erstellen
+    def _calculate_osu_radius(self):
+        """Berechnet den osu!-Radius basierend auf der Circle Size (CS)."""
         circle_size = self.data_manager.calculate_adjusted_cs()
-        osu_radius = (54.4 - 4.48 * circle_size) / 2
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=osu_radius * SCALE_FACTOR * 2, location=self.slider.location)
-        slider_ball = bpy.context.object
-        slider_ball.name = f"{self.slider.name}_ball"
-        return slider_ball
+        return (54.4 - 4.48 * circle_size) / 2 * SCALE_FACTOR * 2
 
-    def animate_slider_ball(self, slider_ball):
-        # Slider Pfadverfolgung konfigurieren
+    def _apply_follow_path_constraint(self, slider_ball):
+        """Wendet den Follow-Path-Constraint an den Slider-Ball an."""
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = self.slider
         follow_path.use_fixed_location = True
@@ -75,21 +98,11 @@ class SliderBallCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Berechnung von Geschwindigkeit und Frames
+    def _set_follow_path_keyframes(self, slider_ball):
+        """Setzt Keyframes für die Offset-Animation des Follow-Path-Constraints."""
         speed_multiplier = self.data_manager.speed_multiplier
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
-        inherited_multiplier = 1.0
-
-        timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
-        start_time_ms = self.slider_time
-
-        for offset, beat_length in timing_points:
-            if start_time_ms >= offset:
-                if beat_length < 0:
-                    inherited_multiplier = -100 / beat_length
-            else:
-                break
-
+        inherited_multiplier = self._get_inherited_multiplier()
         effective_speed = slider_multiplier * inherited_multiplier
         adjusted_duration_frames = (self.slider_duration_frames / effective_speed) * speed_multiplier
 
@@ -98,48 +111,45 @@ class SliderBallCreator:
 
         repeat_duration_frames = adjusted_duration_frames / self.repeat_count if self.repeat_count > 0 else adjusted_duration_frames
 
-        # Animation der Offset-Faktoren für Slider-Ball
         for repeat in range(self.repeat_count):
             repeat_start_frame = self.start_frame + repeat * repeat_duration_frames
-            if repeat % 2 == 0:
-                follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
-                follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor",
-                                            frame=repeat_start_frame + repeat_duration_frames)
-            else:
-                follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
-                follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor",
-                                            frame=repeat_start_frame + repeat_duration_frames)
+            offset_start, offset_end = (0.0, 1.0) if repeat % 2 == 0 else (1.0, 0.0)
 
-            # Lineare Interpolation für Animationen setzen
-            if slider_ball.animation_data and slider_ball.animation_data.action:
-                for fcurve in slider_ball.animation_data.action.fcurves:
-                    for keyframe in fcurve.keyframe_points:
-                        keyframe.interpolation = 'LINEAR'
+            self._set_keyframe(slider_ball, "offset_factor", repeat_start_frame, offset_start)
+            self._set_keyframe(slider_ball, "offset_factor", repeat_start_frame + repeat_duration_frames, offset_end)
 
-        # Sichtbarkeitsanimation nur für FULL Import
-        if self.import_type == 'FULL':
-            slider_ball.hide_viewport = True
-            slider_ball.hide_render = True
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.start_frame - 1))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.start_frame - 1))
+    def _set_visibility_keyframes(self, slider_ball):
+        """Setzt Keyframes für die Viewport- und Render-Sichtbarkeit."""
+        slider_ball.hide_viewport = True
+        slider_ball.hide_render = True
+        self._set_keyframe(slider_ball, "hide_viewport", self.start_frame - 1, True)
+        self._set_keyframe(slider_ball, "hide_render", self.start_frame - 1, True)
 
-            slider_ball.hide_viewport = False
-            slider_ball.hide_render = False
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.start_frame))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.start_frame))
+        slider_ball.hide_viewport = False
+        slider_ball.hide_render = False
+        self._set_keyframe(slider_ball, "hide_viewport", self.start_frame, False)
+        self._set_keyframe(slider_ball, "hide_render", self.start_frame, False)
 
-            slider_ball.hide_viewport = True
-            slider_ball.hide_render = True
-            slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.end_frame))
-            slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.end_frame))
+        slider_ball.hide_viewport = True
+        slider_ball.hide_render = True
+        self._set_keyframe(slider_ball, "hide_viewport", self.end_frame, True)
+        self._set_keyframe(slider_ball, "hide_render", self.end_frame, True)
 
-    def link_to_collection(self, slider_ball):
-        # Slider-Ball zur Sammlung hinzufügen
-        self.slider_balls_collection.objects.link(slider_ball)
+    def _get_inherited_multiplier(self):
+        """Berechnet den geerbten Geschwindigkeitsmultiplikator basierend auf Timing-Punkten."""
+        timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
+        for offset, beat_length in timing_points:
+            if self.slider_time >= offset and beat_length < 0:
+                return -100 / beat_length
+        return 1.0
+
+    def _set_keyframe(self, obj, data_path, frame, value):
+        """Hilfsfunktion zum Setzen eines Keyframes."""
+        setattr(obj, data_path, value)
+        obj.keyframe_insert(data_path=data_path, frame=int(frame))
+
+    def _remove_from_other_collections(self, slider_ball):
+        """Entfernt das Objekt aus allen anderen Sammlungen außer der vorgesehenen."""
         if slider_ball.users_collection:
             for col in slider_ball.users_collection:
                 if col != self.slider_balls_collection:

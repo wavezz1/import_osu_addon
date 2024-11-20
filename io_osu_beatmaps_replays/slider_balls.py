@@ -29,6 +29,7 @@ class SliderBallCreator:
         self.link_to_collection(slider_ball)
 
     def create_base_slider_ball(self):
+        # Basis Slider-Ball erstellen
         mesh = bpy.data.meshes.new(f"{self.slider.name}_ball")
         mesh.vertices.add(1)
         mesh.vertices[0].co = (0, 0, 0)
@@ -39,6 +40,7 @@ class SliderBallCreator:
 
         create_geometry_nodes_modifier(slider_ball, "slider_ball")
 
+        # Keyframes für Geometry Nodes hinzufügen
         frame_values = {
             "show": [
                 (int(self.start_frame - 1), False),
@@ -56,6 +58,7 @@ class SliderBallCreator:
         return slider_ball
 
     def create_full_slider_ball(self):
+        # Volle Slider-Ball Darstellung erstellen
         circle_size = self.data_manager.calculate_adjusted_cs()
         osu_radius = (54.4 - 4.48 * circle_size) / 2
         bpy.ops.mesh.primitive_uv_sphere_add(radius=osu_radius * SCALE_FACTOR * 2, location=self.slider.location)
@@ -64,7 +67,7 @@ class SliderBallCreator:
         return slider_ball
 
     def animate_slider_ball(self, slider_ball):
-        # Slider Path Constraint
+        # Slider Pfadverfolgung konfigurieren
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = self.slider
         follow_path.use_fixed_location = True
@@ -72,12 +75,13 @@ class SliderBallCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
+        # Berechnung von Geschwindigkeit und Frames
         speed_multiplier = self.data_manager.speed_multiplier
         slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
         inherited_multiplier = 1.0
 
         timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
-        start_time_ms = self.slider_time  # Verwende die übergebene Zeit statt eines nicht existierenden Keys
+        start_time_ms = self.slider_time
 
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:
@@ -94,6 +98,7 @@ class SliderBallCreator:
 
         repeat_duration_frames = adjusted_duration_frames / self.repeat_count if self.repeat_count > 0 else adjusted_duration_frames
 
+        # Animation der Offset-Faktoren für Slider-Ball
         for repeat in range(self.repeat_count):
             repeat_start_frame = self.start_frame + repeat * repeat_duration_frames
             if repeat % 2 == 0:
@@ -109,12 +114,13 @@ class SliderBallCreator:
                 follow_path.keyframe_insert(data_path="offset_factor",
                                             frame=repeat_start_frame + repeat_duration_frames)
 
+            # Lineare Interpolation für Animationen setzen
             if slider_ball.animation_data and slider_ball.animation_data.action:
                 for fcurve in slider_ball.animation_data.action.fcurves:
                     for keyframe in fcurve.keyframe_points:
                         keyframe.interpolation = 'LINEAR'
 
-        # Animation der Viewport-Sichtbarkeit nur bei FULL Import
+        # Sichtbarkeitsanimation nur für FULL Import
         if self.import_type == 'FULL':
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
@@ -132,6 +138,7 @@ class SliderBallCreator:
             slider_ball.keyframe_insert(data_path="hide_render", frame=int(self.end_frame))
 
     def link_to_collection(self, slider_ball):
+        # Slider-Ball zur Sammlung hinzufügen
         self.slider_balls_collection.objects.link(slider_ball)
         if slider_ball.users_collection:
             for col in slider_ball.users_collection:

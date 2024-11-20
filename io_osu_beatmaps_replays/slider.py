@@ -208,7 +208,8 @@ class SliderCreator:
                         slider_duration_ms=slider_duration_ms,
                         repeat_count=repeat_count,
                         sliders_collection=self.sliders_collection,
-                        settings=self.settings
+                        settings=self.settings,
+                        import_type=self.import_type  # import_type übergeben
                     )
                     slider_ticks_creator.create()
 

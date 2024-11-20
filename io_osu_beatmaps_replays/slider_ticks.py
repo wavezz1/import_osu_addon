@@ -1,15 +1,15 @@
-# slider_ticks.py
 import bpy
 from .utils import evaluate_curve_at_t
 from .constants import SCALE_FACTOR
 
 class SliderTicksCreator:
-    def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, settings):
+    def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, settings, import_type):
         self.slider = slider
         self.slider_duration_ms = slider_duration_ms
         self.repeat_count = repeat_count
         self.sliders_collection = sliders_collection
         self.settings = settings
+        self.import_type = import_type  # Hinzufügen von import_type
         self.tick_interval_ms = 100  # Default-Wert für Slider-Ticks
 
     def create(self):
@@ -22,11 +22,23 @@ class SliderTicksCreator:
 
             tick_position = evaluate_curve_at_t(self.slider, t)
 
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.05 * SCALE_FACTOR, location=(tick_position.x, tick_position.y, tick_position.z))
-            tick_obj = bpy.context.object
-            tick_obj.name = f"{self.slider.name}_tick_{tick}"
+            if self.import_type == 'FULL':
+                # Erstellen einer UV-Sphere mit Radius 0.2
+                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.2 * SCALE_FACTOR, location=(tick_position.x, tick_position.y, tick_position.z))
+                tick_obj = bpy.context.object
+            elif self.import_type == 'BASE':
+                # Erstellen eines 1-Vertex-Meshes
+                mesh = bpy.data.meshes.new(f"{self.slider.name}_tick_{tick}")
+                mesh.vertices.add(1)
+                mesh.vertices[0].co = (0, 0, 0)
+                tick_obj = bpy.data.objects.new(f"{self.slider.name}_tick_{tick}", mesh)
+                tick_obj.location = tick_position
 
+            tick_obj.name = f"{self.slider.name}_tick_{tick}"
             self.sliders_collection.objects.link(tick_obj)
-            bpy.context.collection.objects.unlink(tick_obj)
+            if tick_obj.users_collection:
+                for col in tick_obj.users_collection:
+                    if col != self.sliders_collection:
+                        col.objects.unlink(tick_obj)
 
         print(f"Slider ticks created for {self.slider.name}")

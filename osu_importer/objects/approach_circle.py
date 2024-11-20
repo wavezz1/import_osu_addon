@@ -53,6 +53,9 @@ class ApproachCircleCreator:
                 bevel_depth = self.settings.get('approach_circle_bevel_depth', 0.1)
                 approach_obj.data.bevel_depth = bevel_depth
 
+                bevel_resolution = self.settings.get('approach_circle_bevel_resolution', 4)
+                approach_obj.data.bevel_resolution = bevel_resolution
+
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:
                     for col in approach_obj.users_collection:

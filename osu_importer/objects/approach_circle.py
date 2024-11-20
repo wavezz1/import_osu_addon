@@ -88,13 +88,11 @@ class ApproachCircleCreator:
                     for col in approach_obj.users_collection:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
-                approach_obj["cs"] = osu_radius * SCALE_FACTOR
                 create_geometry_nodes_modifier(approach_obj, "approach_circle")
 
                 attributes = {
                     "show": 'BOOLEAN',
                     "scale": 'FLOAT',
-                    "cs": 'FLOAT'
                 }
                 frame_values = {
                     "show": [
@@ -107,6 +105,6 @@ class ApproachCircleCreator:
                         (start_frame, 1.0),
                     ]
                 }
-                fixed_values = {}
+                fixed_values = {"cs": osu_radius * SCALE_FACTOR}
 
                 set_modifier_inputs_with_keyframes(approach_obj, attributes, frame_values, fixed_values)

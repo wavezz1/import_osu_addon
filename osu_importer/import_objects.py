@@ -96,11 +96,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             SpinnerCreator(hitobject, global_index + i, collections["Spinners"], settings, data_manager, import_type)
             for i, hitobject in enumerate(data_manager.hitobjects_processor.spinners)
         ],
-        "approach_circles": lambda: [
-            ApproachCircleCreator(hitobject, global_index + i, collections["Approach Circles"], settings, data_manager,
-                                  import_type)
-            for i, hitobject in enumerate(data_manager.hitobjects_processor.hitobjects)
-        ],
     }
 
     if props.import_circles:
@@ -120,8 +115,13 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         cursor_creator.animate_cursor()
 
     if props.import_approach_circles:
+        hitobject_importers["approach_circles"] = lambda: [
+            ApproachCircleCreator(hitobject, global_index + i, collections["Approach Circles"], settings, data_manager,
+                                  import_type)
+            for i, hitobject in enumerate(data_manager.hitobjects)
+        ]
         hitobject_importers["approach_circles"]()
-        global_index += len(data_manager.hitobjects_processor.hitobjects)
+        global_index += len(data_manager.hitobjects)
 
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(

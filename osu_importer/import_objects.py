@@ -139,7 +139,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager
             )
         global_index += len(sliders) * 2
-
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(
             cursor=collections["Cursor"],

@@ -299,6 +299,25 @@ class OSU_PT_ImporterPanel(Panel):
                 col.label(text=f"Max Combo: {props.max_combo}")
                 col.label(text=f"Total Score: {props.total_score}")
 
+
+        if props.show_beatmap_info or props.show_replay_info:
+            box = layout.box()
+            box.label(text="Tools", icon='TOOLS')
+
+            # Flip Cursor Position
+            col = box.column(align=True)
+            col.label(text="Cursor Transformation:", icon='CURSOR')
+            row = col.row(align=True)
+            row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
+            row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='ARROW_UPDOWN')
+
+            # Flip Map
+            col.separator()
+            col.label(text="Map Transformation:", icon='MOD_MIRROR')
+            row = col.row(align=True)
+            row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
+            row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='ARROW_UPDOWN')
+
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
     bl_label = "Import"
@@ -343,3 +362,57 @@ class OSU_OT_Import(Operator):
         except Exception as e:
             self.report({'ERROR'}, f"Error during import: {str(e)}")
             return {'CANCELLED'}
+
+class OSU_OT_FlipCursorHorizontal(Operator):
+    bl_idname = "osu_importer.flip_cursor_horizontal"
+    bl_label = "Flip Cursor Horizontal"
+    bl_description = "Spiegelt die Cursor-Positionen horizontal (X-Achse)"
+
+    def execute(self, context):
+        cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
+        for obj in cursor_objects:
+            obj.scale.x *= -1
+            obj.location.x *= -1
+        self.report({'INFO'}, f"Horizontales Spiegeln der {len(cursor_objects)} Cursor abgeschlossen.")
+        return {'FINISHED'}
+
+class OSU_OT_FlipCursorVertical(Operator):
+    bl_idname = "osu_importer.flip_cursor_vertical"
+    bl_label = "Flip Cursor Vertical"
+    bl_description = "Spiegelt die Cursor-Positionen vertikal (Y-Achse)"
+
+    def execute(self, context):
+        cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
+        for obj in cursor_objects:
+            obj.scale.y *= -1
+            obj.location.y *= -1
+        self.report({'INFO'}, f"Vertikales Spiegeln der {len(cursor_objects)} Cursor abgeschlossen.")
+        return {'FINISHED'}
+
+class OSU_OT_FlipMapHorizontal(Operator):
+    bl_idname = "osu_importer.flip_map_horizontal"
+    bl_label = "Flip Map Horizontal"
+    bl_description = "Spiegelt die gesamte Karte horizontal (X-Achse)"
+
+    def execute(self, context):
+        map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
+        map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
+        for obj in map_objects:
+            obj.scale.x *= -1
+            obj.location.x *= -1
+        self.report({'INFO'}, f"Horizontales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
+        return {'FINISHED'}
+
+class OSU_OT_FlipMapVertical(Operator):
+    bl_idname = "osu_importer.flip_map_vertical"
+    bl_label = "Flip Map Vertical"
+    bl_description = "Spiegelt die gesamte Karte vertikal (Y-Achse)"
+
+    def execute(self, context):
+        map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
+        map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
+        for obj in map_objects:
+            obj.scale.y *= -1
+            obj.location.y *= -1
+        self.report({'INFO'}, f"Vertikales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
+        return {'FINISHED'}

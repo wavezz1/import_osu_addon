@@ -15,7 +15,7 @@ import bpy
 import subprocess
 import sys
 import importlib.metadata
-from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import
+from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import, OSU_OT_FlipCursorHorizontal,    OSU_OT_FlipCursorVertical, OSU_OT_FlipMapHorizontal, OSU_OT_FlipMapVertical
 from .delete import OSU_OT_Delete
 from bpy.types import Operator, AddonPreferences
 
@@ -24,6 +24,10 @@ classes = (
     OSU_PT_ImporterPanel,
     OSU_OT_Import,
     OSU_OT_Delete,
+    OSU_OT_FlipCursorHorizontal,
+    OSU_OT_FlipCursorVertical,
+    OSU_OT_FlipMapHorizontal,
+    OSU_OT_FlipMapVertical,
 )
 
 def is_osrparse_installed():

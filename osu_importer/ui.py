@@ -385,20 +385,16 @@ class OSU_OT_FlipCursorHorizontal(Operator):
         cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
         flipped_count = 0
         for obj in cursor_objects:
-            # Flip location and scale along X-axis
             obj.scale.x *= -1
             obj.location.x *= -1
 
-            # Flip keyframes if any
             if obj.animation_data and obj.animation_data.action:
                 for fcurve in obj.animation_data.action.fcurves:
-                    # Flip keyframes for location.x
                     if fcurve.data_path == "location" and fcurve.array_index == 0:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.co.y *= -1
                             keyframe.handle_left.y *= -1
                             keyframe.handle_right.y *= -1
-                    # Flip keyframes for scale.x
                     elif fcurve.data_path == "scale" and fcurve.array_index == 0:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.co.y *= -1
@@ -417,20 +413,16 @@ class OSU_OT_FlipCursorVertical(Operator):
         cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
         flipped_count = 0
         for obj in cursor_objects:
-            # Flip location and scale along Y-axis
             obj.scale.z *= -1
             obj.location.z *= -1
 
-            # Flip keyframes if any
             if obj.animation_data and obj.animation_data.action:
                 for fcurve in obj.animation_data.action.fcurves:
-                    # Flip keyframes for location.y
                     if fcurve.data_path == "location" and fcurve.array_index == 2:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.co.y *= -1
                             keyframe.handle_left.y *= -1
                             keyframe.handle_right.y *= -1
-                    # Flip keyframes for scale.y
                     elif fcurve.data_path == "scale" and fcurve.array_index == 2:
                         for keyframe in fcurve.keyframe_points:
                             keyframe.co.y *= -1

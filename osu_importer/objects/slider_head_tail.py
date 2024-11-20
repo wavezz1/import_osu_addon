@@ -8,7 +8,7 @@ from osu_importer.utils.constants import SCALE_FACTOR
 class SliderHeadTailCreator:
     def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager):
         self.hitobject = hitobject
-        self.position = position  # Vector (x, y, z)
+        self.position = position
         self.global_index = global_index
         self.slider_heads_tails_collection = slider_heads_tails_collection
         self.settings = settings

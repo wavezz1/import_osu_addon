@@ -217,7 +217,7 @@ class OSU_PT_ImporterPanel(Panel):
 
         # import_type 'BASE'
         if props.import_type == 'BASE':
-            box.prop(props, "include_osu_gameplay")
+            box.prop(props, "include_osu_gameplay", toggle=True)
 
         # Hit Objects Import Options
         col = box.column(align=True)

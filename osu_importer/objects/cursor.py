@@ -1,9 +1,9 @@
 # cursor.py
 
 import bpy
-from .utils import map_osu_to_blender
-from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from .osu_replay_data_manager import OsuReplayDataManager
+from osu_importer.utils import map_osu_to_blender
+from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
+from osu_importer.osu_replay_data_manager import OsuReplayDataManager
 
 def set_cursor_keyframes(cursor, frame, location, key_presses):
     cursor.location = location

@@ -3,11 +3,11 @@
 import bpy
 import math
 from mathutils import Vector
-from .constants import SCALE_FACTOR
-from .utils import map_osu_to_blender, evaluate_curve_at_t, timeit, get_keyframe_values
-from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from .osu_replay_data_manager import OsuReplayDataManager
-from .hitobjects import HitObject
+from osu_importer.utils.constants import SCALE_FACTOR
+from osu_importer.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
+from osu_importer.osu_replay_data_manager import OsuReplayDataManager
+from osu_importer.parsers.hitobjects import HitObject
 
 class SliderCreator:
     def __init__(self, hitobject: HitObject, global_index: int, sliders_collection, slider_balls_collection, settings: dict,

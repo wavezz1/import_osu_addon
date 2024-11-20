@@ -1,12 +1,12 @@
 # import_objects.py
 
-from .circles import CircleCreator
-from .slider import SliderCreator
-from .spinner import SpinnerCreator
-from .cursor import CursorCreator
+from osu_importer.objects.circles import CircleCreator
+from osu_importer.objects.slider import SliderCreator
+from osu_importer.objects.spinner import SpinnerCreator
+from osu_importer.objects.cursor import CursorCreator
 from .utils import create_collection, timeit
-from .geometry_nodes import assign_collections_to_sockets
-from .geometry_nodes_osu_instance import gn_osu_node_group
+from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
+from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
 
 

@@ -3,10 +3,10 @@
 import bpy
 import os
 import bisect
-from .info_parser import OsuParser, OsrParser
-from .constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
-from .mod_functions import calculate_speed_multiplier
-from .hitobjects import HitObjectsProcessor
+from osu_importer.parsers.info_parser import OsuParser, OsrParser
+from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
+from osu_importer.utils.mod_functions import calculate_speed_multiplier
+from osu_importer.parsers.hitobjects import HitObjectsProcessor
 
 class OsuReplayDataManager:
     def __init__(self, osu_file_path, osr_file_path):

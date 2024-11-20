@@ -1,7 +1,6 @@
 import bpy
-from .geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from .constants import SCALE_FACTOR
-from mathutils import Vector
+from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
+from osu_importer.utils.constants import SCALE_FACTOR
 
 
 class SliderBallCreator:

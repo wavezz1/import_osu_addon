@@ -70,17 +70,29 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
 
 def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Setting up collections"):
-        collections = {
-            "Circles": create_collection("Circles"),
-            "Sliders": create_collection("Sliders"),
-            "Slider Balls": create_collection("Slider Balls"),
-            "Spinners": create_collection("Spinners"),
-            "Cursor": create_collection("Cursor"),
-            "Approach Circles": create_collection("Approach Circles"),
-            "Slider Heads Tails": create_collection("Slider Heads Tails"),
-        }
+        collections = {}
+        if props.import_circles:
+            collections["Circles"] = create_collection("Circles")
 
-    global_index = 1
+        if props.import_sliders:
+            collections["Sliders"] = create_collection("Sliders")
+
+        if props.import_slider_balls:
+            collections["Slider Balls"] = create_collection("Slider Balls")
+
+        if props.import_spinners:
+            collections["Spinners"] = create_collection("Spinners")
+
+        if props.import_cursors:
+            collections["Cursor"] = create_collection("Cursor")
+
+        if props.import_approach_circles:
+            collections["Approach Circles"] = create_collection("Approach Circles")
+
+        if props.import_slider_heads_tails:
+            collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
+
+        global_index = 1
     import_type = settings.get('import_type', 'FULL')
 
     settings.update({

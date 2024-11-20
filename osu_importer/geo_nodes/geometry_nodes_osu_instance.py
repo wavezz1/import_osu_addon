@@ -2069,6 +2069,15 @@ def approach_circle_group_node_group():
                                                                    socket_type='NodeSocketGeometry')
     geometry_socket_6.attribute_domain = 'POINT'
 
+    # Socket Y Offset
+    y_offset_socket_3 = approach_circle_group.interface.new_socket(name="Y Offset", in_out='INPUT',
+                                                                   socket_type='NodeSocketFloat')
+    y_offset_socket_3.default_value = 0.0
+    y_offset_socket_3.min_value = -10000.0
+    y_offset_socket_3.max_value = 10000.0
+    y_offset_socket_3.subtype = 'NONE'
+    y_offset_socket_3.attribute_domain = 'POINT'
+
     # initialize approach_circle_group nodes
     # node Group Output
     group_output_4 = approach_circle_group.nodes.new("NodeGroupOutput")
@@ -2094,15 +2103,6 @@ def approach_circle_group_node_group():
     instance_on_points_4.inputs[4].default_value = 0
     # Rotation
     instance_on_points_4.inputs[5].default_value = (1.5707963705062866, 0.0, 0.0)
-
-    # node Curve Circle
-    curve_circle = approach_circle_group.nodes.new("GeometryNodeCurvePrimitiveCircle")
-    curve_circle.name = "Curve Circle"
-    curve_circle.mode = 'RADIUS'
-    # Resolution
-    curve_circle.inputs[0].default_value = 32
-    # Radius
-    curve_circle.inputs[4].default_value = 1.0
 
     # node Named Attribute
     named_attribute_3 = approach_circle_group.nodes.new("GeometryNodeInputNamedAttribute")
@@ -2152,24 +2152,97 @@ def approach_circle_group_node_group():
     # Value_001
     math_003_1.inputs[1].default_value = 1.0
 
+    # node Mesh Circle
+    mesh_circle_3 = approach_circle_group.nodes.new("GeometryNodeMeshCircle")
+    mesh_circle_3.name = "Mesh Circle"
+    mesh_circle_3.fill_type = 'NONE'
+    # Vertices
+    mesh_circle_3.inputs[0].default_value = 32
+    # Radius
+    mesh_circle_3.inputs[1].default_value = 1.0
+
+    # node Extrude Mesh
+    extrude_mesh = approach_circle_group.nodes.new("GeometryNodeExtrudeMesh")
+    extrude_mesh.name = "Extrude Mesh"
+    extrude_mesh.mode = 'EDGES'
+    # Selection
+    extrude_mesh.inputs[1].default_value = True
+    # Offset
+    extrude_mesh.inputs[2].default_value = (0.0, 0.0, 0.0)
+
+    # node Realize Instances
+    realize_instances_3 = approach_circle_group.nodes.new("GeometryNodeRealizeInstances")
+    realize_instances_3.name = "Realize Instances"
+    # Selection
+    realize_instances_3.inputs[1].default_value = True
+    # Realize All
+    realize_instances_3.inputs[2].default_value = True
+    # Depth
+    realize_instances_3.inputs[3].default_value = 0
+
+    # node Attribute Statistic
+    attribute_statistic_1 = approach_circle_group.nodes.new("GeometryNodeAttributeStatistic")
+    attribute_statistic_1.name = "Attribute Statistic"
+    attribute_statistic_1.hide = True
+    attribute_statistic_1.data_type = 'FLOAT'
+    attribute_statistic_1.domain = 'POINT'
+    # Selection
+    attribute_statistic_1.inputs[1].default_value = True
+
+    # node Map Range
+    map_range = approach_circle_group.nodes.new("ShaderNodeMapRange")
+    map_range.name = "Map Range"
+    map_range.clamp = True
+    map_range.data_type = 'FLOAT'
+    map_range.interpolation_type = 'LINEAR'
+    # From Min
+    map_range.inputs[1].default_value = 1.0
+    # From Max
+    map_range.inputs[2].default_value = 2.0
+    # To Min
+    map_range.inputs[3].default_value = 0.0
+    # To Max
+    map_range.inputs[4].default_value = 0.10000000149011612
+
+    # node Set Position
+    set_position_3 = approach_circle_group.nodes.new("GeometryNodeSetPosition")
+    set_position_3.name = "Set Position"
+    # Selection
+    set_position_3.inputs[1].default_value = True
+    # Position
+    set_position_3.inputs[2].default_value = (0.0, 0.0, 0.0)
+
+    # node Combine XYZ
+    combine_xyz_4 = approach_circle_group.nodes.new("ShaderNodeCombineXYZ")
+    combine_xyz_4.name = "Combine XYZ"
+    # X
+    combine_xyz_4.inputs[0].default_value = 0.0
+    # Z
+    combine_xyz_4.inputs[2].default_value = 0.0
+
     # Set locations
-    group_output_4.location = (660.0, 120.06723022460938)
-    group_input_4.location = (-160.0, 220.0)
-    instance_on_points_4.location = (320.0, 220.0)
-    curve_circle.location = (320.0, 360.0)
-    named_attribute_3.location = (320.0, -120.0)
-    delete_geometry_3.location = (0.0, 220.0)
-    named_attribute_001_3.location = (0.0, 20.0)
-    boolean_math_3.location = (0.0, 60.0)
-    named_attribute_002_1.location = (160.0, 80.0)
-    math_1.location = (320.0, 80.0)
-    math_003_1.location = (320.0, 40.0)
+    group_output_4.location = (1160.0, 220.0)
+    group_input_4.location = (-200.0, 220.0)
+    instance_on_points_4.location = (840.0, 220.0)
+    named_attribute_3.location = (320.0, -280.0)
+    delete_geometry_3.location = (160.0, 220.0)
+    named_attribute_001_3.location = (160.0, 20.0)
+    boolean_math_3.location = (160.0, 60.0)
+    named_attribute_002_1.location = (320.0, 60.0)
+    math_1.location = (320.0, -80.0)
+    math_003_1.location = (320.0, -120.0)
+    mesh_circle_3.location = (680.0, -80.0)
+    extrude_mesh.location = (680.0, -220.0)
+    realize_instances_3.location = (-20.0, 220.0)
+    attribute_statistic_1.location = (500.0, -360.0)
+    map_range.location = (500.0, -80.0)
+    set_position_3.location = (1000.0, 220.0)
+    combine_xyz_4.location = (1000.0, 60.0)
 
     # Set dimensions
     group_output_4.width, group_output_4.height = 140.0, 100.0
     group_input_4.width, group_input_4.height = 140.0, 100.0
     instance_on_points_4.width, instance_on_points_4.height = 140.0, 100.0
-    curve_circle.width, curve_circle.height = 140.0, 100.0
     named_attribute_3.width, named_attribute_3.height = 140.0, 100.0
     delete_geometry_3.width, delete_geometry_3.height = 140.0, 100.0
     named_attribute_001_3.width, named_attribute_001_3.height = 140.0, 100.0
@@ -2177,20 +2250,23 @@ def approach_circle_group_node_group():
     named_attribute_002_1.width, named_attribute_002_1.height = 140.0, 100.0
     math_1.width, math_1.height = 140.0, 100.0
     math_003_1.width, math_003_1.height = 140.0, 100.0
+    mesh_circle_3.width, mesh_circle_3.height = 140.0, 100.0
+    extrude_mesh.width, extrude_mesh.height = 140.0, 100.0
+    realize_instances_3.width, realize_instances_3.height = 140.0, 100.0
+    attribute_statistic_1.width, attribute_statistic_1.height = 140.0, 100.0
+    map_range.width, map_range.height = 140.0, 100.0
+    set_position_3.width, set_position_3.height = 140.0, 100.0
+    combine_xyz_4.width, combine_xyz_4.height = 140.0, 100.0
 
     # initialize approach_circle_group links
     # named_attribute_001_3.Attribute -> boolean_math_3.Boolean
     approach_circle_group.links.new(named_attribute_001_3.outputs[0], boolean_math_3.inputs[0])
     # boolean_math_3.Boolean -> delete_geometry_3.Selection
     approach_circle_group.links.new(boolean_math_3.outputs[0], delete_geometry_3.inputs[1])
-    # curve_circle.Curve -> instance_on_points_4.Instance
-    approach_circle_group.links.new(curve_circle.outputs[0], instance_on_points_4.inputs[2])
     # delete_geometry_3.Geometry -> instance_on_points_4.Points
     approach_circle_group.links.new(delete_geometry_3.outputs[0], instance_on_points_4.inputs[0])
-    # group_input_4.Geometry -> delete_geometry_3.Geometry
-    approach_circle_group.links.new(group_input_4.outputs[0], delete_geometry_3.inputs[0])
-    # instance_on_points_4.Instances -> group_output_4.Instances
-    approach_circle_group.links.new(instance_on_points_4.outputs[0], group_output_4.inputs[0])
+    # realize_instances_3.Geometry -> delete_geometry_3.Geometry
+    approach_circle_group.links.new(realize_instances_3.outputs[0], delete_geometry_3.inputs[0])
     # named_attribute_002_1.Attribute -> math_1.Value
     approach_circle_group.links.new(named_attribute_002_1.outputs[0], math_1.inputs[0])
     # math_003_1.Value -> math_1.Value
@@ -2199,6 +2275,28 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(math_1.outputs[0], instance_on_points_4.inputs[6])
     # named_attribute_3.Attribute -> math_003_1.Value
     approach_circle_group.links.new(named_attribute_3.outputs[0], math_003_1.inputs[0])
+    # mesh_circle_3.Mesh -> extrude_mesh.Mesh
+    approach_circle_group.links.new(mesh_circle_3.outputs[0], extrude_mesh.inputs[0])
+    # extrude_mesh.Mesh -> instance_on_points_4.Instance
+    approach_circle_group.links.new(extrude_mesh.outputs[0], instance_on_points_4.inputs[2])
+    # group_input_4.Geometry -> realize_instances_3.Geometry
+    approach_circle_group.links.new(group_input_4.outputs[0], realize_instances_3.inputs[0])
+    # delete_geometry_3.Geometry -> attribute_statistic_1.Geometry
+    approach_circle_group.links.new(delete_geometry_3.outputs[0], attribute_statistic_1.inputs[0])
+    # named_attribute_3.Attribute -> attribute_statistic_1.Attribute
+    approach_circle_group.links.new(named_attribute_3.outputs[0], attribute_statistic_1.inputs[2])
+    # attribute_statistic_1.Mean -> map_range.Value
+    approach_circle_group.links.new(attribute_statistic_1.outputs[0], map_range.inputs[0])
+    # map_range.Result -> extrude_mesh.Offset Scale
+    approach_circle_group.links.new(map_range.outputs[0], extrude_mesh.inputs[3])
+    # set_position_3.Geometry -> group_output_4.Instances
+    approach_circle_group.links.new(set_position_3.outputs[0], group_output_4.inputs[0])
+    # instance_on_points_4.Instances -> set_position_3.Geometry
+    approach_circle_group.links.new(instance_on_points_4.outputs[0], set_position_3.inputs[0])
+    # combine_xyz_4.Vector -> set_position_3.Offset
+    approach_circle_group.links.new(combine_xyz_4.outputs[0], set_position_3.inputs[3])
+    # group_input_4.Y Offset -> combine_xyz_4.Y
+    approach_circle_group.links.new(group_input_4.outputs[1], combine_xyz_4.inputs[1])
     return approach_circle_group
 
 # initialize gn_osu node group
@@ -2604,39 +2702,41 @@ def gn_osu_node_group():
     group_004 = gn_osu.nodes.new("GeometryNodeGroup")
     group_004.name = "Group.004"
     group_004.node_tree = approach_circle_group_node_group()
+    # Socket_2
+    group_004.inputs[1].default_value = 0.0
 
     # Set locations
-    group_input_5.location = (2080.0, 0.0)
-    group_output_5.location = (2780.0, 120.0)
+    group_input_5.location = (2120.0, 0.0)
+    group_output_5.location = (2800.0, 80.0)
     collection_info_1.location = (40.0, 60.0)
     group.location = (200.0, 60.0)
     collection_info_001.location = (200.0, 240.0)
     group_001.location = (440.0, 0.0)
     join_geometry.location = (680.0, 80.0)
-    collection_info_002.location = (2240.0, 0.0)
+    collection_info_002.location = (2280.0, 0.0)
     collection_info_003.location = (1000.0, 0.0)
     group_002.location = (1160.0, 0.0)
-    group_003.location = (2400.0, 0.0)
+    group_003.location = (2440.0, 0.0)
     group_input_001_4.location = (840.0, 0.0)
     group_input_002_4.location = (280.0, -180.0)
     group_input_003_2.location = (40.0, 240.0)
     group_input_004_1.location = (-120.0, 60.0)
     join_geometry_001.location = (1320.0, 80.0)
-    join_geometry_002_1.location = (2600.0, 80.0)
+    join_geometry_002_1.location = (2640.0, 80.0)
     reroute_2.location = (360.0, -100.0)
     reroute_001_2.location = (420.0, 200.0)
     reroute_002_2.location = (420.0, -80.0)
     reroute_003_2.location = (360.0, 0.0)
     group_input_005_1.location = (200.0, -120.0)
-    group_input_006_1.location = (2400.0, -180.0)
+    group_input_006_1.location = (2440.0, -180.0)
     group_input_007_1.location = (1152.1962890625, -170.53025817871094)
     group_input_008_1.location = (440.0, -420.0)
     group_input_009_1.location = (440.0, -360.0)
     group_input_010_1.location = (440.0, -300.0)
-    collection_info_004.location = (1680.0, -40.0)
-    group_input_011.location = (1520.0, -40.0)
-    join_geometry_003_1.location = (1840.0, 80.0)
-    group_004.location = (1840.0, -40.0)
+    collection_info_004.location = (1640.0, -20.0)
+    group_input_011.location = (1480.0, -20.0)
+    join_geometry_003_1.location = (1960.0, 80.0)
+    group_004.location = (1800.0, -20.0)
 
     # Set dimensions
     group_input_5.width, group_input_5.height = 140.0, 100.0

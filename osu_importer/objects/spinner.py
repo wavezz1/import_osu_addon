@@ -35,12 +35,15 @@ class SpinnerCreator:
             else:
                 print(f"No end time found for spinner at {self.hitobject.time} ms.")
                 return
+            start_time_ms = self.hitobject.time / speed_multiplier
+            spinner_duration_ms = data_manager.calculate_spinner_duration(self.hitobject)
+            end_time_ms = (self.hitobject.time + spinner_duration_ms) / speed_multiplier
 
             start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
+            end_frame = end_time_ms / ms_per_frame + audio_lead_in_frames
             early_start_frame = start_frame - preempt_frames
-            end_frame = (end_time_ms / speed_multiplier) / ms_per_frame + audio_lead_in_frames
 
-            spinner_duration_frames = spinner_duration_ms / data_manager.get_ms_per_frame()
+            spinner_duration_frames = spinner_duration_ms / ms_per_frame
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 

@@ -5,30 +5,6 @@ from osu_importer.utils.utils import map_osu_to_blender
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
 
-def set_cursor_keyframes(cursor, frame, location, key_presses):
-    cursor.location = location
-    cursor.keyframe_insert(data_path='location', frame=frame)
-
-    frame_values = {
-        "k1": [
-            (int(frame), bool(key_presses['k1']))
-        ],
-        "k2": [
-            (int(frame), bool(key_presses['k2']))
-        ],
-        "m1": [
-            (int(frame), bool(key_presses['m1']))
-        ],
-        "m2": [
-            (int(frame), bool(key_presses['m2']))
-        ]
-    }
-    set_modifier_inputs_with_keyframes(cursor, {
-        "k1": 'BOOLEAN',
-        "k2": 'BOOLEAN',
-        "m1": 'BOOLEAN',
-        "m2": 'BOOLEAN'
-    }, frame_values, fixed_values=None)
 
 class CursorCreator:
     def __init__(self, cursor_collection, settings, data_manager: OsuDataManager, import_type):
@@ -59,10 +35,6 @@ class CursorCreator:
 
             cursor.name = "Cursor"
 
-            # if self.import_type == 'BASE':
-            #     create_geometry_nodes_modifier(cursor, "cursor")
-
-            # Initiale Keyframes setzen
             initial_frame_values = {
                 "k1": [
                     (1, False),
@@ -129,3 +101,28 @@ class CursorCreator:
             print(f"Cursor '{self.cursor.name}' animated successfully.")
         except Exception as e:
             print(f"Error animating cursor: {e}")
+
+def set_cursor_keyframes(cursor, frame, location, key_presses):
+    cursor.location = location
+    cursor.keyframe_insert(data_path='location', frame=frame)
+
+    frame_values = {
+        "k1": [
+            (int(frame), bool(key_presses['k1']))
+        ],
+        "k2": [
+            (int(frame), bool(key_presses['k2']))
+        ],
+        "m1": [
+            (int(frame), bool(key_presses['m1']))
+        ],
+        "m2": [
+            (int(frame), bool(key_presses['m2']))
+        ]
+    }
+    set_modifier_inputs_with_keyframes(cursor, {
+        "k1": 'BOOLEAN',
+        "k2": 'BOOLEAN',
+        "m1": 'BOOLEAN',
+        "m2": 'BOOLEAN'
+    }, frame_values, fixed_values=None)

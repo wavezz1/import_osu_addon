@@ -28,8 +28,9 @@ class SpinnerCreator:
             speed_multiplier = data_manager.speed_multiplier
             ms_per_frame = data_manager.ms_per_frame
 
-            start_time_ms = self.hitobject.time / speed_multiplier
+            # Berechne die Spinner-Dauer nur einmal
             spinner_duration_ms = data_manager.calculate_spinner_duration(self.hitobject)
+            start_time_ms = self.hitobject.time / speed_multiplier
             end_time_ms = (self.hitobject.time + spinner_duration_ms) / speed_multiplier
 
             start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames

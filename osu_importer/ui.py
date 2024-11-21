@@ -215,14 +215,14 @@ class OSU_PT_ImporterPanel(Panel):
         box = layout.box()
         box.label(text="File Selection", icon='FILE_FOLDER')
         if props.dev_tools:
-            # Dev Tools activated: Override File Selection
+            # Dev Tools aktiviert: Überschreibt File Selection
             box.label(text="Dev Tools Activated", icon='MODIFIER')
             props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
             props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
             box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
             box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
         else:
-            # Normal File Selection
+            # Standard File Selection
             box.prop(props, "osu_file")
             box.prop(props, "osr_file")
 
@@ -346,9 +346,10 @@ class OSU_PT_ImporterPanel(Panel):
             row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
             row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
 
+            # Dev Tools Toggle
             col.separator()
-            col.label(text="Dev Tools:", icon='MODIFIER')
-            col.prop(props, "dev_tools", toggle=True)
+            box = layout.box()
+            box.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

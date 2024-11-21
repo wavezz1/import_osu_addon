@@ -93,7 +93,7 @@ def register():
     bpy.utils.register_class(OSU_OT_InstallOsrparse)
     bpy.utils.register_class(OSUImporterPreferences)
     bpy.utils.register_class(OSU_PT_ImportOptionsPanel)
-    bpy.utils.register_class(OSU_PT_ReplayInfoPanel)  # Neues Replay Panel
+    bpy.utils.register_class(OSU_PT_ReplayInfoPanel)
     bpy.utils.register_class(OSU_PT_BeatmapInfoPanel)
     bpy.utils.register_class(OSU_PT_ToolsPanel)
     bpy.types.Scene.osu_importer_props = bpy.props.PointerProperty(type=OSUImporterProperties)

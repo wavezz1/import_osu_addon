@@ -237,6 +237,12 @@ class OSU_PT_ReplayInfoPanel(Panel):
     bl_category = "osu! Importer"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        props = context.scene.osu_importer_props
+        # Anzeigen nur, wenn ein Replay importiert wurde
+        return props.osr_file and props.player_name != "Unknown"
+
     def draw(self, context):
         layout = self.layout
         props = context.scene.osu_importer_props
@@ -259,6 +265,12 @@ class OSU_PT_BeatmapInfoPanel(Panel):
     bl_region_type = 'UI'
     bl_category = "osu! Importer"
     bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        props = context.scene.osu_importer_props
+        # Anzeigen nur, wenn eine Beatmap importiert wurde
+        return props.osu_file and props.title != ""
 
     def draw(self, context):
         layout = self.layout

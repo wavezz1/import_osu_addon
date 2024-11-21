@@ -3,7 +3,7 @@
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
-from utils.utils import update_dev_tools
+from osu_importer.utils.utils import update_dev_tools
 
 
 class OSUImporterProperties(PropertyGroup):

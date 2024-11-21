@@ -10,7 +10,7 @@ class OSUImporterProperties(PropertyGroup):
     dev_tools: BoolProperty(
         name="Enable Dev Tools",
         description="Enable development tools",
-        default=True,
+        default=False,
         update=update_dev_tools
     )
     # File Paths

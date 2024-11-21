@@ -13,6 +13,11 @@ class OSUImporterProperties(PropertyGroup):
         default=False,
         update=update_dev_tools
     )
+    is_imported: BoolProperty(
+        name="Import Completed",
+        description="Indicates if an import has been completed",
+        default=False
+    )
     # File Paths
     osu_file: StringProperty(
         name="Beatmap (.osu) File",
@@ -209,6 +214,18 @@ class OSU_PT_ImporterPanel(Panel):
     bl_region_type = 'UI'
     bl_category = "osu! Importer"
 
+    @classmethod
+    def poll(cls, context):
+        props = context.scene.osu_importer_props
+
+        # Wenn importiert, Panel eingeklappt lassen
+        if props.is_imported:
+            cls.bl_options = {'DEFAULT_CLOSED'}
+        else:
+            cls.bl_options = set()
+
+        return True
+
     def draw(self, context):
         layout = self.layout
         props = context.scene.osu_importer_props
@@ -343,6 +360,18 @@ class OSU_PT_ImportOptionsPanel(Panel):
     bl_region_type = 'UI'
     bl_category = "osu! Importer"
 
+    @classmethod
+    def poll(cls, context):
+        props = context.scene.osu_importer_props
+
+        # Wenn importiert, Panel eingeklappt lassen
+        if props.is_imported:
+            cls.bl_options = {'DEFAULT_CLOSED'}
+        else:
+            cls.bl_options = set()
+
+        return True
+
     def draw(self, context):
         layout = self.layout
         props = context.scene.osu_importer_props
@@ -443,6 +472,9 @@ class OSU_OT_Import(Operator):
             props.max_combo = data_manager.replay_info["max_combo"]
             props.player_name = data_manager.replay_info["username"]
             props.total_score = data_manager.replay_info["total_score"]
+
+            # Mark Import as Completed
+            props.is_imported = True
 
             return result
 

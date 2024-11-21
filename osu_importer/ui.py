@@ -316,9 +316,6 @@ class OSU_PT_ToolsPanel(Panel):
         layout = self.layout
         props = context.scene.osu_importer_props
 
-        # Tool Information
-        layout.label(text="Tools", icon='TOOL_SETTINGS')
-
         # Flip Cursor Position
         col = layout.column(align=True)
         col.label(text="Cursor Transformation:", icon='CURSOR')
@@ -350,7 +347,6 @@ class OSU_PT_ImportOptionsPanel(Panel):
 
         # Import Options
         box = layout.box()
-        box.label(text="Import Options", icon='IMPORT')
 
         # Import Type Selection
         box.prop(props, "import_type")

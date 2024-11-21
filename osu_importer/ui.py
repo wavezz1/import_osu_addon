@@ -229,103 +229,6 @@ class OSU_PT_ImporterPanel(Panel):
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
-        # Import Options
-        box = layout.box()
-        box.label(text="Import Options", icon='IMPORT')
-
-        # Import Type Selection
-        box.prop(props, "import_type")
-
-        # import_type 'BASE'
-        if props.import_type == 'BASE':
-            box.prop(props, "include_osu_gameplay", toggle=True)
-
-        # Hit Objects Import Options
-        col = box.column(align=True)
-        col.label(text="Hit Objects:", icon='OBJECT_DATA')
-        col.prop(props, "import_approach_circles", toggle=True)
-        if props.import_type == 'FULL' and props.import_approach_circles:
-            col.prop(props, "approach_circle_bevel_depth")
-            col.prop(props, "approach_circle_bevel_resolution")
-        row = col.row(align=True)
-        row.prop(props, "import_circles", toggle=True)
-        row.prop(props, "import_sliders", toggle=True)
-        row.prop(props, "import_spinners", toggle=True)
-
-
-        # Slider Options
-        if props.import_sliders:
-            col.separator()
-            col.label(text="Slider Options:", icon='MOD_CURVE')
-            col.prop(props, "slider_resolution")
-            row = col.row(align=True)
-            if props.import_type == 'FULL':
-                row.prop(props, "import_slider_heads_tails", toggle=True)
-
-            col.prop(props, "import_slider_balls", toggle=True)
-            col.prop(props, "import_slider_ticks", toggle=True)
-
-            if props.import_slider_ticks:
-                col.separator()
-                warning_box = col.box()
-                warning_row = warning_box.row(align=True)
-                warning_row.label(text="⚠️  WARNING  ⚠️", icon='NONE')
-                warning_row = warning_box.row(align=True)
-                warning_row.label(text="Slider Ticks are NOT recommended!", icon='NONE')
-                warning_row = warning_box.row(align=True)
-                warning_row.label(text="This can lead to too many objects.", icon='NONE')
-
-        # Replay Options
-        col.separator()
-        col.label(text="Replay Options:", icon='REC')
-        col.prop(props, "import_cursors", toggle=True)
-
-        # Audio Options
-        col.separator()
-        col.label(text="Audio Options:", icon='SPEAKER')
-        col.prop(props, "import_audio", toggle=True)
-
-        # Beatmap Information Toggle
-        if props.bpm != 0.0:
-            box = layout.box()
-            box.prop(props, "show_beatmap_info", text="Beatmap Information", icon='INFO')
-            if props.show_beatmap_info:
-                col = box.column(align=True)
-                col.label(text=f"Title: {props.title}")
-                col.label(text=f"Artist: {props.artist}")
-                col.label(text=f"Difficulty: {props.difficulty_name}")
-                col.separator()
-                col.label(text=f"BPM: {props.bpm:.2f}")
-                ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
-                if ar_modified:
-                    col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
-                else:
-                    col.label(text=f"AR: {props.base_approach_rate}")
-                cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
-                if cs_modified:
-                    col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
-                else:
-                    col.label(text=f"CS: {props.base_circle_size}")
-                od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
-                if od_modified:
-                    col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
-                else:
-                    col.label(text=f"OD: {props.base_overall_difficulty}")
-                col.label(text=f"Total HitObjects: {props.total_hitobjects}")
-
-        # Replay Information Toggle
-        if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
-            box = layout.box()
-            box.prop(props, "show_replay_info", text="Replay Information", icon='PLAY')
-            if props.show_replay_info:
-                col = box.column(align=True)
-                col.label(text=f"Player Name: {props.player_name}")
-                col.label(text=f"Mods: {props.formatted_mods}")
-                col.label(text=f"Accuracy: {props.accuracy:.2f}%")
-                col.label(text=f"Misses: {props.misses}")
-                col.label(text=f"Max Combo: {props.max_combo}")
-                col.label(text=f"Total Score: {props.total_score}")
-
         # # Tool Information Toggle
         # if props.bpm != 0.0:
         box = layout.box()
@@ -405,6 +308,57 @@ class OSU_PT_ImportOptionsPanel(Panel):
                 warning_row.label(text="Slider Ticks are NOT recommended!", icon='NONE')
                 warning_row = warning_box.row(align=True)
                 warning_row.label(text="This can lead to too many objects.", icon='NONE')
+
+        # Replay Options
+        col.separator()
+        col.label(text="Replay Options:", icon='REC')
+        col.prop(props, "import_cursors", toggle=True)
+
+        # Audio Options
+        col.separator()
+        col.label(text="Audio Options:", icon='SPEAKER')
+        col.prop(props, "import_audio", toggle=True)
+
+        # Beatmap Information Toggle
+        if props.bpm != 0.0:
+            box = layout.box()
+            box.prop(props, "show_beatmap_info", text="Beatmap Information", icon='INFO')
+            if props.show_beatmap_info:
+                col = box.column(align=True)
+                col.label(text=f"Title: {props.title}")
+                col.label(text=f"Artist: {props.artist}")
+                col.label(text=f"Difficulty: {props.difficulty_name}")
+                col.separator()
+                col.label(text=f"BPM: {props.bpm:.2f}")
+                ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
+                if ar_modified:
+                    col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
+                else:
+                    col.label(text=f"AR: {props.base_approach_rate}")
+                cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
+                if cs_modified:
+                    col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
+                else:
+                    col.label(text=f"CS: {props.base_circle_size}")
+                od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
+                if od_modified:
+                    col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
+                else:
+                    col.label(text=f"OD: {props.base_overall_difficulty}")
+                col.label(text=f"Total HitObjects: {props.total_hitobjects}")
+
+        # Replay Information Toggle
+        if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
+            box = layout.box()
+            box.prop(props, "show_replay_info", text="Replay Information", icon='PLAY')
+            if props.show_replay_info:
+                col = box.column(align=True)
+                col.label(text=f"Player Name: {props.player_name}")
+                col.label(text=f"Mods: {props.formatted_mods}")
+                col.label(text=f"Accuracy: {props.accuracy:.2f}%")
+                col.label(text=f"Misses: {props.misses}")
+                col.label(text=f"Max Combo: {props.max_combo}")
+                col.label(text=f"Total Score: {props.total_score}")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

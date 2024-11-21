@@ -214,8 +214,18 @@ class OSU_PT_ImporterPanel(Panel):
         # File Selection
         box = layout.box()
         box.label(text="File Selection", icon='FILE_FOLDER')
-        box.prop(props, "osu_file")
-        box.prop(props, "osr_file")
+        if props.dev_tools:
+            # Dev Tools activated: Override File Selection
+            box.label(text="Dev Tools Activated", icon='MODIFIER')
+            props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+            props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+            box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
+            box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
+        else:
+            # Normal File Selection
+            box.prop(props, "osu_file")
+            box.prop(props, "osr_file")
+
         box.separator()
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
@@ -339,13 +349,6 @@ class OSU_PT_ImporterPanel(Panel):
             col.separator()
             col.label(text="Dev Tools:", icon='MODIFIER')
             col.prop(props, "dev_tools", toggle=True)
-            if props.dev_tools:
-                props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
-                props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
-                box = layout.box()
-                box.label(text="Dev File Paths", icon='FILE_PARENT')
-                box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
-                box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

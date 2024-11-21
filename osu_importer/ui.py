@@ -217,7 +217,6 @@ class OSU_PT_ImporterPanel(Panel):
         box = layout.box()
         box.label(text="File Selection", icon='FILE_FOLDER')
         if props.dev_tools:
-            # Dev Tools aktiviert: Zeigt die voreingestellten Pfade an
             box.label(text="Dev Tools Activated", icon='MODIFIER')
             box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
             box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
@@ -350,6 +349,7 @@ class OSU_PT_ImporterPanel(Panel):
             col.separator()
             box = layout.box()
             box.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
+
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

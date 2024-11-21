@@ -5,6 +5,11 @@ import bpy
 import mathutils
 from osu_importer.utils.constants import SCALE_FACTOR
 
+def update_dev_tools(self, context):
+    if self.dev_tools:
+        self.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+        self.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+
 def timeit(label):
     class Timer:
         def __init__(self, label):

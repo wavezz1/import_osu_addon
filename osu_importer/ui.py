@@ -215,7 +215,6 @@ class OSU_PT_ImporterPanel(Panel):
 
         # File Selection
         box = layout.box()
-        box.label(text="File Selection", icon='FILE_FOLDER')
         if props.dev_tools:
             box.label(text="Dev Tools Activated", icon='MODIFIER')
             #Quick Load (Adjust update_dev_tools in utils.py)

@@ -15,7 +15,7 @@ import bpy
 import subprocess
 import sys
 import importlib.metadata
-from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import, OSU_OT_FlipCursorHorizontal,    OSU_OT_FlipCursorVertical, OSU_OT_FlipMapHorizontal, OSU_OT_FlipMapVertical
+from .ui import OSUImporterProperties, OSU_PT_ImporterPanel, OSU_OT_Import, OSU_OT_FlipCursorHorizontal, OSU_OT_FlipCursorVertical, OSU_OT_FlipMapHorizontal, OSU_OT_FlipMapVertical,  OSU_PT_ImportOptionsPanel
 from .delete import OSU_OT_Delete
 from bpy.types import Operator, AddonPreferences
 
@@ -82,11 +82,13 @@ def register():
         bpy.utils.register_class(cls)
     bpy.utils.register_class(OSU_OT_InstallOsrparse)
     bpy.utils.register_class(OSUImporterPreferences)
+    bpy.utils.register_class(OSU_PT_ImportOptionsPanel)
     bpy.types.Scene.osu_importer_props = bpy.props.PointerProperty(type=OSUImporterProperties)
 
 def unregister():
     bpy.utils.unregister_class(OSU_OT_InstallOsrparse)
     bpy.utils.unregister_class(OSUImporterPreferences)
+    bpy.utils.unregister_class(OSU_PT_ImportOptionsPanel)
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.osu_importer_props

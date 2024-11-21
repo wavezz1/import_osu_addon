@@ -350,6 +350,61 @@ class OSU_PT_ImporterPanel(Panel):
             box = layout.box()
             box.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
 
+class OSU_PT_ImportOptionsPanel(Panel):
+    bl_label = "Import Options"
+    bl_idname = "OSU_PT_import_options_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        # Import Options
+        box = layout.box()
+        box.label(text="Import Options", icon='IMPORT')
+
+        # Import Type Selection
+        box.prop(props, "import_type")
+
+        # import_type 'BASE'
+        if props.import_type == 'BASE':
+            box.prop(props, "include_osu_gameplay", toggle=True)
+
+        # Hit Objects Import Options
+        col = box.column(align=True)
+        col.label(text="Hit Objects:", icon='OBJECT_DATA')
+        col.prop(props, "import_approach_circles", toggle=True)
+        if props.import_type == 'FULL' and props.import_approach_circles:
+            col.prop(props, "approach_circle_bevel_depth")
+            col.prop(props, "approach_circle_bevel_resolution")
+        row = col.row(align=True)
+        row.prop(props, "import_circles", toggle=True)
+        row.prop(props, "import_sliders", toggle=True)
+        row.prop(props, "import_spinners", toggle=True)
+
+        # Slider Options
+        if props.import_sliders:
+            col.separator()
+            col.label(text="Slider Options:", icon='MOD_CURVE')
+            col.prop(props, "slider_resolution")
+            row = col.row(align=True)
+            if props.import_type == 'FULL':
+                row.prop(props, "import_slider_heads_tails", toggle=True)
+
+            col.prop(props, "import_slider_balls", toggle=True)
+            col.prop(props, "import_slider_ticks", toggle=True)
+
+            if props.import_slider_ticks:
+                col.separator()
+                warning_box = col.box()
+                warning_row = warning_box.row(align=True)
+                warning_row.label(text="⚠️  WARNING  ⚠️", icon='NONE')
+                warning_row = warning_box.row(align=True)
+                warning_row.label(text="Slider Ticks are NOT recommended!", icon='NONE')
+                warning_row = warning_box.row(align=True)
+                warning_row.label(text="This can lead to too many objects.", icon='NONE')
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

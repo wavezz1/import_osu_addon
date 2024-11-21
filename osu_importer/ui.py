@@ -214,10 +214,10 @@ class OSU_PT_ImporterPanel(Panel):
         # File Selection
         box = layout.box()
         box.label(text="File Selection", icon='FILE_FOLDER')
-        if props.dev_tools:
-            # Dev Tools aktiviert: Überschreibt File Selection
-            props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
-            props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+        # if props.dev_tools:
+        #     # Dev Tools aktiviert: Überschreibt File Selection
+        #     props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+        #     props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
 
         box.prop(props, "osu_file")
         box.prop(props, "osr_file")

@@ -229,29 +229,37 @@ class OSU_PT_ImporterPanel(Panel):
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
-        # # Tool Information Toggle
-        # if props.bpm != 0.0:
-        box = layout.box()
-        box.prop(props, "show_tool_info", text="Tools", icon='PLUS')
-        if props.show_tool_info:
-            # Flip Cursor Position
-            col = box.column(align=True)
-            col.label(text="Cursor Transformation:", icon='CURSOR')
-            row = col.row(align=True)
-            row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
-            row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
+class OSU_PT_ToolsPanel(Panel):
+    bl_label = "Tools"
+    bl_idname = "OSU_PT_tools_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
 
-            # Flip Map
-            col.separator()
-            col.label(text="Map Transformation:", icon='MOD_MIRROR')
-            row = col.row(align=True)
-            row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
-            row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
 
-            # Dev Tools Toggle
-            col.separator()
-            box = layout.box()
-            box.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
+        # Tool Information
+        layout.label(text="Tools", icon='TOOL_SETTINGS')
+
+        # Flip Cursor Position
+        col = layout.column(align=True)
+        col.label(text="Cursor Transformation:", icon='CURSOR')
+        row = col.row(align=True)
+        row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
+        row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
+
+        # Flip Map
+        col.separator()
+        col.label(text="Map Transformation:", icon='MOD_MIRROR')
+        row = col.row(align=True)
+        row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
+        row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
+
+        # Dev Tools Toggle
+        col.separator()
+        col.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
 
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"

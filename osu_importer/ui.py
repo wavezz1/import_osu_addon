@@ -6,6 +6,11 @@ from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, 
 
 
 class OSUImporterProperties(PropertyGroup):
+    dev_tools: BoolProperty(
+        name="Enable Dev Tools",
+        description="Enable development tools",
+        default=True
+    )
     # File Paths
     osu_file: StringProperty(
         name="Beatmap (.osu) File",
@@ -312,24 +317,35 @@ class OSU_PT_ImporterPanel(Panel):
                 col.label(text=f"Max Combo: {props.max_combo}")
                 col.label(text=f"Total Score: {props.total_score}")
 
-        # Tool Information Toggle
-        if props.bpm != 0.0:
-            box = layout.box()
-            box.prop(props, "show_tool_info", text="Tools", icon='PLUS')
-            if props.show_tool_info:
-                # Flip Cursor Position
-                col = box.column(align=True)
-                col.label(text="Cursor Transformation:", icon='CURSOR')
-                row = col.row(align=True)
-                row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
-                row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
+        # # Tool Information Toggle
+        # if props.bpm != 0.0:
+        box = layout.box()
+        box.prop(props, "show_tool_info", text="Tools", icon='PLUS')
+        if props.show_tool_info:
+            # Flip Cursor Position
+            col = box.column(align=True)
+            col.label(text="Cursor Transformation:", icon='CURSOR')
+            row = col.row(align=True)
+            row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
+            row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
 
-                # Flip Map
-                col.separator()
-                col.label(text="Map Transformation:", icon='MOD_MIRROR')
-                row = col.row(align=True)
-                row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
-                row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
+            # Flip Map
+            col.separator()
+            col.label(text="Map Transformation:", icon='MOD_MIRROR')
+            row = col.row(align=True)
+            row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
+            row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
+
+            col.separator()
+            col.label(text="Dev Tools:", icon='MODIFIER')
+            col.prop(props, "dev_tools", toggle=True)
+            if props.dev_tools:
+                props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+                props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+                box = layout.box()
+                box.label(text="Dev File Paths", icon='FILE_PARENT')
+                box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
+                box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

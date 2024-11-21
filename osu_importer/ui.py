@@ -218,6 +218,7 @@ class OSU_PT_ImporterPanel(Panel):
         box.label(text="File Selection", icon='FILE_FOLDER')
         if props.dev_tools:
             box.label(text="Dev Tools Activated", icon='MODIFIER')
+            #Quick Load (Adjust update_dev_tools in utils.py)
             box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
             box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
         else:

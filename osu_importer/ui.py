@@ -229,6 +229,66 @@ class OSU_PT_ImporterPanel(Panel):
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
+class OSU_PT_ReplayInfoPanel(Panel):
+    bl_label = "Replay Information"
+    bl_idname = "OSU_PT_replay_info_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
+            col = layout.column(align=True)
+            col.label(text=f"Player Name: {props.player_name}")
+            col.label(text=f"Mods: {props.formatted_mods}")
+            col.label(text=f"Accuracy: {props.accuracy:.2f}%")
+            col.label(text=f"Misses: {props.misses}")
+            col.label(text=f"Max Combo: {props.max_combo}")
+            col.label(text=f"Total Score: {props.total_score}")
+        else:
+            layout.label(text="No Replay Information Available", icon='INFO')
+
+class OSU_PT_BeatmapInfoPanel(Panel):
+    bl_label = "Beatmap Information"
+    bl_idname = "OSU_PT_beatmap_info_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        if props.bpm != 0.0:
+            col = layout.column(align=True)
+            col.label(text=f"Title: {props.title}")
+            col.label(text=f"Artist: {props.artist}")
+            col.label(text=f"Difficulty: {props.difficulty_name}")
+            col.separator()
+            col.label(text=f"BPM: {props.bpm:.2f}")
+            ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
+            if ar_modified:
+                col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
+            else:
+                col.label(text=f"AR: {props.base_approach_rate}")
+            cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
+            if cs_modified:
+                col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
+            else:
+                col.label(text=f"CS: {props.base_circle_size}")
+            od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
+            if od_modified:
+                col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
+            else:
+                col.label(text=f"OD: {props.base_overall_difficulty}")
+            col.label(text=f"Total HitObjects: {props.total_hitobjects}")
+        else:
+            layout.label(text="No Beatmap Information Available", icon='INFO')
+
+
 class OSU_PT_ToolsPanel(Panel):
     bl_label = "Tools"
     bl_idname = "OSU_PT_tools_panel"
@@ -326,47 +386,6 @@ class OSU_PT_ImportOptionsPanel(Panel):
         col.separator()
         col.label(text="Audio Options:", icon='SPEAKER')
         col.prop(props, "import_audio", toggle=True)
-
-        # Beatmap Information Toggle
-        if props.bpm != 0.0:
-            box = layout.box()
-            box.prop(props, "show_beatmap_info", text="Beatmap Information", icon='INFO')
-            if props.show_beatmap_info:
-                col = box.column(align=True)
-                col.label(text=f"Title: {props.title}")
-                col.label(text=f"Artist: {props.artist}")
-                col.label(text=f"Difficulty: {props.difficulty_name}")
-                col.separator()
-                col.label(text=f"BPM: {props.bpm:.2f}")
-                ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
-                if ar_modified:
-                    col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
-                else:
-                    col.label(text=f"AR: {props.base_approach_rate}")
-                cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
-                if cs_modified:
-                    col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
-                else:
-                    col.label(text=f"CS: {props.base_circle_size}")
-                od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
-                if od_modified:
-                    col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
-                else:
-                    col.label(text=f"OD: {props.base_overall_difficulty}")
-                col.label(text=f"Total HitObjects: {props.total_hitobjects}")
-
-        # Replay Information Toggle
-        if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
-            box = layout.box()
-            box.prop(props, "show_replay_info", text="Replay Information", icon='PLAY')
-            if props.show_replay_info:
-                col = box.column(align=True)
-                col.label(text=f"Player Name: {props.player_name}")
-                col.label(text=f"Mods: {props.formatted_mods}")
-                col.label(text=f"Accuracy: {props.accuracy:.2f}%")
-                col.label(text=f"Misses: {props.misses}")
-                col.label(text=f"Max Combo: {props.max_combo}")
-                col.label(text=f"Total Score: {props.total_score}")
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"

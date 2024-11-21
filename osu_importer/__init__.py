@@ -23,7 +23,9 @@ from .ui import (OSUImporterProperties,
                  OSU_OT_FlipMapHorizontal,
                  OSU_OT_FlipMapVertical,
                  OSU_PT_ImportOptionsPanel,
-                 OSU_PT_ToolsPanel)
+                 OSU_PT_ToolsPanel,
+                 OSU_PT_ReplayInfoPanel,
+                 OSU_PT_BeatmapInfoPanel)
 from .delete import OSU_OT_Delete
 from bpy.types import Operator, AddonPreferences
 
@@ -92,6 +94,8 @@ def register():
     bpy.utils.register_class(OSUImporterPreferences)
     bpy.utils.register_class(OSU_PT_ImportOptionsPanel)
     bpy.utils.register_class(OSU_PT_ToolsPanel)
+    bpy.utils.register_class(OSU_PT_ReplayInfoPanel)  # Neues Replay Panel
+    bpy.utils.register_class(OSU_PT_BeatmapInfoPanel)
     bpy.types.Scene.osu_importer_props = bpy.props.PointerProperty(type=OSUImporterProperties)
 
 def unregister():
@@ -99,6 +103,8 @@ def unregister():
     bpy.utils.unregister_class(OSUImporterPreferences)
     bpy.utils.unregister_class(OSU_PT_ImportOptionsPanel)
     bpy.utils.unregister_class(OSU_PT_ToolsPanel)
+    bpy.utils.unregister_class(OSU_PT_ReplayInfoPanel)  # Neues Replay Panel
+    bpy.utils.unregister_class(OSU_PT_BeatmapInfoPanel)
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.osu_importer_props

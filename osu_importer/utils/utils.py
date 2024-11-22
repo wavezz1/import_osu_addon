@@ -178,3 +178,9 @@ def flip_objects(prefixes, axis, invert_location=True, invert_scale=True):
         flipped_count += 1
 
     return flipped_count
+
+
+def update_override_mods(self, context):
+    for prop_name in dir(self):
+        if prop_name.startswith("override_") and prop_name != "override_mods":
+            setattr(self, prop_name, self.override_mods)

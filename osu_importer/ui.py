@@ -3,8 +3,7 @@
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
-from osu_importer.utils.utils import update_quick_load, flip_objects
-
+from osu_importer.utils.utils import update_quick_load, flip_objects, update_override_mods
 
 class OSUImporterProperties(PropertyGroup):
     # File Paths
@@ -198,7 +197,8 @@ class OSUImporterProperties(PropertyGroup):
     override_mods: BoolProperty(
         name="Override Mods",
         description="Manually override the replay's mods with custom settings",
-        default=False
+        default=False,
+        update = update_override_mods
     )
 
     # Modifiers aus constants.py
@@ -389,21 +389,9 @@ class OSU_PT_ToolsPanel(Panel):
             # Override Mods Options
             dev_box.label(text="Override Mods", icon='MODIFIER')
             dev_box.prop(props, "override_mods", toggle=True)
-            if props.override_mods:
-                dev_box.prop(props, "override_no_fail", toggle=True)
-                dev_box.prop(props, "override_easy", toggle=True)
-                dev_box.prop(props, "override_hidden", toggle=True)
-                dev_box.prop(props, "override_hard_rock", toggle=True)
-                dev_box.prop(props, "override_sudden_death", toggle=True)
-                dev_box.prop(props, "override_double_time", toggle=True)
-                dev_box.prop(props, "override_half_time", toggle=True)
-                dev_box.prop(props, "override_nightcore", toggle=True)
-                dev_box.prop(props, "override_flashlight", toggle=True)
-                dev_box.prop(props, "override_perfect", toggle=True)
-                dev_box.prop(props, "override_spun_out", toggle=True)
-                dev_box.prop(props, "override_autopilot", toggle=True)
-                dev_box.prop(props, "override_relax", toggle=True)
-                dev_box.prop(props, "override_cinema", toggle=True)
+            for prop_name in dir(props):
+                if prop_name.startswith("override_") and prop_name != "override_mods":
+                    dev_box.prop(props, prop_name, toggle=True, enabled=props.override_mods)
 
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"

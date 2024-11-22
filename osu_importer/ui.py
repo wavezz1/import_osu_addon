@@ -101,6 +101,15 @@ class OSUImporterProperties(PropertyGroup):
         description="Import cursor movements from the replay",
         default=True
     )
+    cursor_shape: EnumProperty(
+        name="Cursor Shape",
+        description="Choose the shape of the cursor",
+        items=[
+            ('SPHERE', "Sphere", "Use a UV Sphere for the cursor"),
+            ('CIRCLE', "Circle", "Use a filled circle for the cursor")
+        ],
+        default='SPHERE'
+    )
     cursor_size: FloatProperty(
         name="Cursor Size",
         description="Adjust the size of the cursor",
@@ -476,6 +485,7 @@ class OSU_PT_ImportOptionsPanel(Panel):
         col.prop(props, "import_cursors", toggle=True)
 
         if props.import_cursors:
+            col.prop(props, "cursor_shape", text="Cursor Shape", expand=True)
             col.prop(props, "cursor_size", text="Cursor Size")
 
         # Audio Options

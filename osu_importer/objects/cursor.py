@@ -19,8 +19,16 @@ class CursorCreator:
         try:
             cursor_size = self.settings.get('cursor_size', 1.0)
             if self.import_type == 'FULL':
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
-                cursor = bpy.context.object
+                cursor_shape = self.settings.get('cursor_shape', 'SPHERE')
+                if cursor_shape == 'SPHERE':
+                    bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
+                    cursor = bpy.context.object
+                elif cursor_shape == 'CIRCLE':
+                    bpy.ops.mesh.primitive_circle_add(vertices=32, radius=cursor_size, fill_type='NGON', location=(0, 0, 0))
+                    cursor = bpy.context.object
+                else:
+                    bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
+                    cursor = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
 

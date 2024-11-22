@@ -66,49 +66,27 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
         "Socket_6": slider_balls,
         "Socket_7": spinners
     }
-    assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
+
+    for socket, collection in socket_to_collection.items():
+        if collection:
+            assign_collections_to_sockets(cube, {socket: collection}, operator=operator)
+
+    #assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
 
     set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles"], exclude=True)
 
 
 def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Setting up collections"):
-        collections = {}
-        if props.import_circles:
-            collections["Circles"] = create_collection("Circles")
-        else:
-            collections["Circles"] = None
-
-        if props.import_sliders:
-            collections["Sliders"] = create_collection("Sliders")
-        else:
-            collections["Sliders"] = None
-
-        if props.import_slider_balls:
-            collections["Slider Balls"] = create_collection("Slider Balls")
-        else:
-            collections["Slider Balls"] = None
-
-        if props.import_spinners:
-            collections["Spinners"] = create_collection("Spinners")
-        else:
-            collections["Spinners"] = None
-
-        if props.import_cursors:
-            collections["Cursor"] = create_collection("Cursor")
-        else:
-            collections["Cursor"] = None
-
-        if props.import_approach_circles:
-            collections["Approach Circles"] = create_collection("Approach Circles")
-        else:
-            collections["Approach Circles"] = None
-
-        if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL':
-            collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
-        else:
-            collections["Slider Heads Tails"] = None
-
+        collections = {
+            "Circles": create_collection("Circles") if props.import_circles else None,
+            "Sliders": create_collection("Sliders") if props.import_sliders else None,
+            "Slider Balls": create_collection("Slider Balls") if props.import_slider_balls else None,
+            "Spinners": create_collection("Spinners") if props.import_spinners else None,
+            "Cursor": create_collection("Cursor") if props.import_cursors else None,
+            "Approach Circles": create_collection("Approach Circles") if props.import_approach_circles else None,
+            "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL' else None,
+        }
         global_index = 1
 
     import_type = settings.get('import_type', 'FULL')

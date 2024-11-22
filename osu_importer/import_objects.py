@@ -73,6 +73,7 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
 
     set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles"], exclude=True)
 
+    return gameplay_collection
 
 def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Setting up collections"):
@@ -189,7 +190,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             global_index += 1
 
     if import_type == 'BASE' and props.include_osu_gameplay:
-        setup_osu_gameplay_collections(
+        gameplay_collection = setup_osu_gameplay_collections(
             cursor=collections.get("Cursor"),
             approach_circle=collections.get("Approach Circles"),
             circles=collections.get("Circles"),
@@ -198,4 +199,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             spinners=collections.get("Spinners"),
             operator=operator
         )
-        tag_imported(setup_osu_gameplay_collections)
+
+        if gameplay_collection:
+            tag_imported(gameplay_collection)

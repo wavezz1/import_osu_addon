@@ -113,21 +113,21 @@ class OsuDataManager:
     def calculate_hit_objects_frames(self):
         for hitobject in self.hitobjects:
             # Berechnung der tatsächlichen HitObject-Zeit unter Berücksichtigung des Speed Multipliers und Audio-Lead-In
-            hitobject_time = (hitobject.time / self.speed_multiplier) + self.audio_lead_in
+            hitobject_time = (hitobject.time / self.speed_multiplier)
 
             # Startframe berechnen unter Berücksichtigung der Preempt-Zeit
-            hitobject.start_frame = int((hitobject_time - self.preempt_ms) / self.ms_per_frame)
+            hitobject.start_frame = int((hitobject_time - self.preempt_ms) / self.ms_per_frame) + self.audio_lead_in
 
             if hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 hitobject.duration_frames = int(slider_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
-                hitobject.slider_end_time = hitobject_time + slider_duration_ms  # Entfernen der zusätzlichen Anpassung
+                hitobject.slider_end_time = hitobject_time + slider_duration_ms
             elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 hitobject.duration_frames = int(spinner_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
-                hitobject.slider_end_time = hitobject_time + spinner_duration_ms  # Entfernen der zusätzlichen Anpassung
+                hitobject.slider_end_time = hitobject_time + spinner_duration_ms
             else:  # Circle
                 hitobject.duration_frames = 0
                 hitobject.end_frame = hitobject.start_frame

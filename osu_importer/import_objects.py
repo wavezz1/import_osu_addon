@@ -90,18 +90,17 @@ def setup_osu_gameplay_collections_and_materials(
         "Socket_4": circles,
         "Socket_5": sliders,
         "Socket_6": slider_balls,
-        "Socket_7": spinners,
-        "Socket_8": slider_heads_tails
+        "Socket_7": spinners
     }
 
     materials = {
-        "Socket_9": bpy.data.materials.get("Cursor Material"),
-        "Socket_10": bpy.data.materials.get("Circle Material"),
-        "Socket_11": bpy.data.materials.get("Slider Material"),
-        "Socket_12": bpy.data.materials.get("Slider Balls Material"),
-        "Socket_13": bpy.data.materials.get("Slider Head/Tail Material"),
-        "Socket_14": bpy.data.materials.get("Spinner Material"),
-        "Socket_15": bpy.data.materials.get("Approach Circle Material"),
+        "Socket_8": bpy.data.materials.get("Cursor"),
+        "Socket_9": bpy.data.materials.get("Circles"),
+        "Socket_10": bpy.data.materials.get("Slider"),
+        "Socket_11": bpy.data.materials.get("Slider_Balls"),
+        "Socket_12": bpy.data.materials.get("Circles"),
+        "Socket_13": bpy.data.materials.get("Spinner"),
+        "Socket_14": bpy.data.materials.get("Approach Circles"),
     }
 
     for socket, collection in socket_to_collection.items():

@@ -7,9 +7,8 @@ from osu_importer.utils.constants import SCALE_FACTOR
 
 def update_quick_load(props):
     if props.quick_load:
-        props.osu_file = "/path/to/your/beatmap.osu"
-        props.osr_file = "/path/to/your/replay.osr"
-        print("Quick Load activated: File paths updated.")
+        props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+        props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
     else:
         props.osu_file = ""
         props.osr_file = ""

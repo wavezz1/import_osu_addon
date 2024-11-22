@@ -1,6 +1,7 @@
 # osu_importer/objects/cursor.py
 
 import bpy
+import math
 from osu_importer.utils.utils import map_osu_to_blender, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
@@ -24,7 +25,7 @@ class CursorCreator:
                     bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
                     cursor = bpy.context.object
                 elif cursor_shape == 'CIRCLE':
-                    bpy.ops.mesh.primitive_circle_add(vertices=32, radius=cursor_size, fill_type='NGON', location=(0, 0, 0))
+                    bpy.ops.mesh.primitive_circle_add(vertices=32, radius=cursor_size, fill_type='NGON', location=(0, 0, 0), rotation=(math.radians(90), 0, 0))
                     cursor = bpy.context.object
                 else:
                     bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))

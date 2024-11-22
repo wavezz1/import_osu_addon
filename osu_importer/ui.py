@@ -488,7 +488,7 @@ class OSU_PT_ImportOptionsPanel(Panel):
             col = layout.box()
             col.label(text="Cursor Movements:", icon='CURSOR')
             if props.import_type == 'FULL':
-                col.prop(props, "cursor_shape", text="Cursor Shape", expand=True)
+                col.prop(props, "cursor_shape")
             col.prop(props, "cursor_size", text="Cursor Size")
 
         # Audio Options

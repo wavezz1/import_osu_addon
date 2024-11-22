@@ -5,6 +5,7 @@ import bpy, mathutils
 def circles_node_group():
     mat = bpy.data.materials.new(name="Circles")
     mat.use_nodes = True
+    mat["osu_imported"] = True
     circles = mat.node_tree
     # start with a clean node tree
     for node in circles.nodes:

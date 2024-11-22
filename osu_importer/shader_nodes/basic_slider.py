@@ -4,6 +4,7 @@ import bpy, mathutils
 def slider_node_group():
 	mat = bpy.data.materials.new(name="Slider")
 	mat.use_nodes = True
+	mat["osu_imported"] = True
 	slider = mat.node_tree
 	#start with a clean node tree
 	for node in slider.nodes:

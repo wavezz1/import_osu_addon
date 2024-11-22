@@ -266,8 +266,8 @@ class OsuDataManager:
             beat_duration = current_beat_length
 
         slider_duration_ms = (pixel_length / (
-                slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
-        # /= speed_multiplier
+                slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier / speed_multiplier
+        # slider_duration_ms /= speed_multiplier
 
         return slider_duration_ms
 

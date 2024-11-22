@@ -3,7 +3,7 @@
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
-from osu_importer.utils.utils import update_dev_tools
+from osu_importer.utils.utils import update_dev_tools, flip_objects
 
 
 class OSUImporterProperties(PropertyGroup):
@@ -452,25 +452,7 @@ class OSU_OT_FlipCursorHorizontal(Operator):
     bl_description = "Spiegelt die Cursor-Positionen horizontal (X-Achse)"
 
     def execute(self, context):
-        cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
-        flipped_count = 0
-        for obj in cursor_objects:
-            obj.scale.x *= -1
-            obj.location.x *= -1
-
-            if obj.animation_data and obj.animation_data.action:
-                for fcurve in obj.animation_data.action.fcurves:
-                    if fcurve.data_path == "location" and fcurve.array_index == 0:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-                    elif fcurve.data_path == "scale" and fcurve.array_index == 0:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-            flipped_count +=1
+        flipped_count = flip_objects(["Cursor"], axis="x")
         self.report({'INFO'}, f"Horizontales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}
 
@@ -480,25 +462,7 @@ class OSU_OT_FlipCursorVertical(Operator):
     bl_description = "Spiegelt die Cursor-Positionen vertikal (Y-Achse)"
 
     def execute(self, context):
-        cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
-        flipped_count = 0
-        for obj in cursor_objects:
-            obj.scale.z *= -1
-            obj.location.z *= -1
-
-            if obj.animation_data and obj.animation_data.action:
-                for fcurve in obj.animation_data.action.fcurves:
-                    if fcurve.data_path == "location" and fcurve.array_index == 2:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-                    elif fcurve.data_path == "scale" and fcurve.array_index == 2:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-            flipped_count +=1
+        flipped_count = flip_objects(["Cursor"], axis="z")
         self.report({'INFO'}, f"Vertikales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}
 
@@ -508,12 +472,8 @@ class OSU_OT_FlipMapHorizontal(Operator):
     bl_description = "Spiegelt die gesamte Karte horizontal (X-Achse)"
 
     def execute(self, context):
-        map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
-        map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
-        for obj in map_objects:
-            obj.scale.x *= -1
-            obj.location.x *= -1
-        self.report({'INFO'}, f"Horizontales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
+        flipped_count = flip_objects(["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"], axis="x")
+        self.report({'INFO'}, f"Horizontales Spiegeln der {flipped_count} Kartenobjekte abgeschlossen.")
         return {'FINISHED'}
 
 class OSU_OT_FlipMapVertical(Operator):
@@ -522,10 +482,6 @@ class OSU_OT_FlipMapVertical(Operator):
     bl_description = "Spiegelt die gesamte Karte vertikal (Y-Achse)"
 
     def execute(self, context):
-        map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
-        map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
-        for obj in map_objects:
-            obj.scale.z *= -1
-            obj.location.z *= -1
-        self.report({'INFO'}, f"Vertikales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
+        flipped_count = flip_objects(["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"], axis="z")
+        self.report({'INFO'}, f"Vertikales Spiegeln der {flipped_count} Kartenobjekte abgeschlossen.")
         return {'FINISHED'}

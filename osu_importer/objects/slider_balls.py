@@ -85,45 +85,31 @@ class SliderBallCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Berechnung der effektiven Geschwindigkeit basierend auf den Modifikatoren
-        speed_multiplier = self.data_manager.speed_multiplier
-        slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
-        inherited_multiplier = 1.0
-
-        # Bestimmen der aktuellen Beat-Dauer basierend auf Timing Points
-        timing_points = sorted(self.data_manager.beatmap_info["timing_points"], key=lambda tp: tp[0])
-        start_time_ms = self.slider_time
-
-        for offset, beat_length in timing_points:
-            if start_time_ms >= offset:
-                if beat_length < 0:
-                    inherited_multiplier = -100 / beat_length
-            else:
-                break
-
-        effective_speed = slider_multiplier * inherited_multiplier
-        adjusted_duration_frames = (self.slider_duration_frames / effective_speed) * speed_multiplier
-
-        # Pfad-Dauer einstellen
-        self.slider.data.use_path = True
-        self.slider.data.path_duration = int(adjusted_duration_frames)
-
         # Dauer pro Wiederholung berechnen
-        repeat_duration_frames = adjusted_duration_frames / self.repeat_count if self.repeat_count > 0 else adjusted_duration_frames
+        if self.repeat_count > 0:
+            repeat_duration_frames = self.slider_duration_frames / self.repeat_count
+        else:
+            repeat_duration_frames = self.slider_duration_frames
+
+        # Pfad-Dauer einstellen auf die Dauer pro Wiederholung
+        self.slider.data.use_path = True
+        self.slider.data.path_duration = int(repeat_duration_frames)
 
         # Keyframes für jede Wiederholung setzen
         for repeat in range(self.repeat_count):
-            repeat_start_frame = (self.start_frame + repeat_duration_frames) * repeat
+            repeat_start_frame = self.start_frame + int(repeat * repeat_duration_frames)
+            repeat_end_frame = repeat_start_frame + int(repeat_duration_frames)
+
             if repeat % 2 == 0:
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame))
                 follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame + repeat_duration_frames))
+                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_end_frame))
             else:
                 follow_path.offset_factor = 1.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame))
                 follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame + repeat_duration_frames))
+                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_end_frame))
 
             # Linear Interpolation für flüssige Bewegung
             if slider_ball.animation_data and slider_ball.animation_data.action:

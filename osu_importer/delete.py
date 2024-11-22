@@ -7,7 +7,6 @@ class OSU_OT_Delete(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            # Löschen der getaggten Objekte
             objects_to_delete = [obj for obj in bpy.data.objects if obj.get("osu_imported")]
             for obj in objects_to_delete:
                 try:
@@ -15,7 +14,6 @@ class OSU_OT_Delete(bpy.types.Operator):
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete object {obj.name}: {e}")
 
-            # Löschen der getaggten Collections
             collections_to_delete = [
                 collection for collection in bpy.data.collections
                 if collection.get("osu_imported")
@@ -26,7 +24,6 @@ class OSU_OT_Delete(bpy.types.Operator):
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete collection {collection.name}: {e}")
 
-            # Löschen der getaggten Node-Groups
             node_groups_to_delete = [
                 gn_tree for gn_tree in bpy.data.node_groups
                 if gn_tree.get("osu_imported")
@@ -37,7 +34,6 @@ class OSU_OT_Delete(bpy.types.Operator):
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete node group {gn_tree.name}: {e}")
 
-            # Löschen der getaggten Sounds
             sounds_to_delete = [
                 sound for sound in bpy.data.sounds
                 if sound.get("osu_imported")
@@ -48,7 +44,17 @@ class OSU_OT_Delete(bpy.types.Operator):
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete sound {sound.name}: {e}")
 
-            # Bereinigung von Waisen-Daten
+            materials_to_delete = [
+                material for material in bpy.data.materials
+                if material.get("osu_imported")
+            ]
+            for material in materials_to_delete:
+                try:
+                    bpy.data.materials.remove(material)
+                except Exception as e:
+                    self.report({'WARNING'}, f"Failed to delete material {material.name}: {e}")
+
+
             bpy.ops.outliner.orphans_purge(do_recursive=True)
 
             self.report({'INFO'}, "All tagged osu! data removed successfully, including audio.")

@@ -282,8 +282,8 @@ class OSU_OT_BasicShaderOperator(bpy.types.Operator):
     def execute(self, context):
         try:
             # Materialien erstellen
-            circle_material = circles_node_group()
-            slider_material = slider_node_group()
+            circles_node_group()
+            slider_node_group()
 
             self.report({'INFO'}, "Basic shaders created and applied successfully")
             return {'FINISHED'}

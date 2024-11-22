@@ -195,6 +195,11 @@ class OSUImporterProperties(PropertyGroup):
         default=False,
         update=lambda self, context: update_quick_load(self)
     )
+    auto_create_shaders: BoolProperty(
+        name="Auto Create Shaders",
+        description="Automatically create basic shaders for imported elements",
+        default=False,
+    )
     #Override Mods
     override_mods: BoolProperty(
         name="Override Mods",
@@ -252,8 +257,6 @@ class OSU_PT_ImporterPanel(Panel):
         if props.dev_tools:
             box.label(text="Dev Tools Activated", icon='MODIFIER')
             #Quick Load (Adjust update_dev_tools in utils.py)
-            #box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
-            #box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
             box.prop(props, "osu_file")
             box.prop(props, "osr_file")
         else:
@@ -266,7 +269,6 @@ class OSU_PT_ImporterPanel(Panel):
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
 class OSU_PT_SkinPanel(bpy.types.Panel):
-    """Creates a Panel in the 3D Viewport for skin settings"""
     bl_label = "Skin"
     bl_idname = "OSU_PT_skin_panel"
     bl_space_type = 'VIEW_3D'
@@ -275,29 +277,10 @@ class OSU_PT_SkinPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("osu_importer.basic_shader", text="Basic Shader")
+        props = context.scene.osu_importer_props
 
+        layout.prop(props, "auto_create_shaders", text="Auto Create Shaders")
 
-class OSU_OT_BasicShaderOperator(bpy.types.Operator):
-    bl_idname = "osu_importer.basic_shader"
-    bl_label = "Create Basic Shader"
-
-    def execute(self, context):
-        try:
-            # Materialien erstellen
-            circles_node_group()
-            slider_node_group()
-            slider_balls_node_group()
-            approach_circles_node_group()
-            cursor_node_group()
-            spinner_node_group()
-
-
-            self.report({'INFO'}, "Basic shaders created and applied successfully")
-            return {'FINISHED'}
-        except Exception as e:
-            self.report({'ERROR'}, f"Error creating shaders: {e}")
-            return {'CANCELLED'}
 
 class OSU_PT_ReplayInfoPanel(Panel):
     bl_label = "Replay Information"

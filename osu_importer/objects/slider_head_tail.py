@@ -10,8 +10,7 @@ from osu_importer.parsers.hitobjects import HitObject
 
 
 class SliderHeadTailCreator:
-    def __init__(self, hitobject: HitObject, position: tuple, global_index: int,
-                 slider_heads_tails_collection, settings: dict, data_manager: OsuDataManager, import_type: str):
+    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager, import_type):
         self.hitobject = hitobject
         self.position = position
         self.global_index = global_index

@@ -14,7 +14,7 @@ class OsuDataManager:
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
         self.hitobjects_processor = HitObjectsProcessor(self)
-        self.mods = self.osr_parser.mods  # Sicherstellen, dass self.mods definiert ist
+        #self.mods = self.osr_parser.mods  # Sicherstellen, dass self.mods definiert ist
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
         self.ms_per_frame = self.get_ms_per_frame()
 
@@ -119,13 +119,17 @@ class OsuDataManager:
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 hitobject.duration_frames = int(slider_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
+                hitobject.slider_end_time = hitobject.time + slider_duration_ms  # Setzen von slider_end_time
             elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 hitobject.duration_frames = int(spinner_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
+                hitobject.slider_end_time = hitobject.time + spinner_duration_ms  # Setzen von slider_end_time
             else:  # Circle
                 hitobject.duration_frames = 0
                 hitobject.end_frame = hitobject.start_frame
+                # Für Kreise ist slider_end_time nicht relevant
+                hitobject.slider_end_time = hitobject.time
 
     def import_audio(self):
         audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")

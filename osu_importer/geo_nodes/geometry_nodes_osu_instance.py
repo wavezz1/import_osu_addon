@@ -1943,14 +1943,6 @@ def cursor_group_node_group():
     points_socket = cursor_group.interface.new_socket(name="Points", in_out='INPUT', socket_type='NodeSocketGeometry')
     points_socket.attribute_domain = 'POINT'
 
-    # Socket Radius
-    radius_socket = cursor_group.interface.new_socket(name="Radius", in_out='INPUT', socket_type='NodeSocketFloat')
-    radius_socket.default_value = 0.40000003576278687
-    radius_socket.min_value = 0.0
-    radius_socket.max_value = 3.4028234663852886e+38
-    radius_socket.subtype = 'DISTANCE'
-    radius_socket.attribute_domain = 'POINT'
-
     # Socket Cursor Material
     cursor_material_socket = cursor_group.interface.new_socket(name="Cursor Material", in_out='INPUT',
                                                                socket_type='NodeSocketMaterial')
@@ -2033,28 +2025,43 @@ def cursor_group_node_group():
     group_input_001_3.name = "Group Input.001"
     group_input_001_3.outputs[0].hide = True
     group_input_001_3.outputs[1].hide = True
-    group_input_001_3.outputs[2].hide = True
-    group_input_001_3.outputs[4].hide = True
+    group_input_001_3.outputs[3].hide = True
 
     # node Group Input.002
     group_input_002_3 = cursor_group.nodes.new("NodeGroupInput")
     group_input_002_3.name = "Group Input.002"
     group_input_002_3.outputs[0].hide = True
-    group_input_002_3.outputs[1].hide = True
+    group_input_002_3.outputs[2].hide = True
     group_input_002_3.outputs[3].hide = True
-    group_input_002_3.outputs[4].hide = True
 
-    # node Group Input.003
-    group_input_003_1 = cursor_group.nodes.new("NodeGroupInput")
-    group_input_003_1.name = "Group Input.003"
-    group_input_003_1.outputs[0].hide = True
-    group_input_003_1.outputs[2].hide = True
-    group_input_003_1.outputs[3].hide = True
-    group_input_003_1.outputs[4].hide = True
+    # node Realize Instances
+    realize_instances_3 = cursor_group.nodes.new("GeometryNodeRealizeInstances")
+    realize_instances_3.name = "Realize Instances"
+    # Selection
+    realize_instances_3.inputs[1].default_value = True
+    # Realize All
+    realize_instances_3.inputs[2].default_value = True
+    # Depth
+    realize_instances_3.inputs[3].default_value = 0
+
+    # node Named Attribute
+    named_attribute_3 = cursor_group.nodes.new("GeometryNodeInputNamedAttribute")
+    named_attribute_3.name = "Named Attribute"
+    named_attribute_3.data_type = 'FLOAT'
+    # Name
+    named_attribute_3.inputs[0].default_value = "cursor_size"
+
+    # node Attribute Statistic
+    attribute_statistic_1 = cursor_group.nodes.new("GeometryNodeAttributeStatistic")
+    attribute_statistic_1.name = "Attribute Statistic"
+    attribute_statistic_1.data_type = 'FLOAT'
+    attribute_statistic_1.domain = 'POINT'
+    # Selection
+    attribute_statistic_1.inputs[1].default_value = True
 
     # Set locations
     group_output_3.location = (480.0, -60.0)
-    group_input_3.location = (-160.0, -60.0)
+    group_input_3.location = (-320.0, -60.0)
     instance_on_points_3.location = (0.0, -60.0)
     mesh_circle_2.location = (0.0, -160.0)
     set_material_3.location = (320.0, -60.0)
@@ -2062,7 +2069,9 @@ def cursor_group_node_group():
     combine_xyz_2.location = (160.0, -160.0)
     group_input_001_3.location = (160.0, -240.0)
     group_input_002_3.location = (320.0, -160.0)
-    group_input_003_1.location = (0.0, -300.0)
+    realize_instances_3.location = (-160.0, -60.0)
+    named_attribute_3.location = (-320.0, -220.0)
+    attribute_statistic_1.location = (-160.0, -220.0)
 
     # Set dimensions
     group_output_3.width, group_output_3.height = 140.0, 100.0
@@ -2074,15 +2083,17 @@ def cursor_group_node_group():
     combine_xyz_2.width, combine_xyz_2.height = 140.0, 100.0
     group_input_001_3.width, group_input_001_3.height = 140.0, 100.0
     group_input_002_3.width, group_input_002_3.height = 140.0, 100.0
-    group_input_003_1.width, group_input_003_1.height = 140.0, 100.0
+    realize_instances_3.width, realize_instances_3.height = 140.0, 100.0
+    named_attribute_3.width, named_attribute_3.height = 140.0, 100.0
+    attribute_statistic_1.width, attribute_statistic_1.height = 140.0, 100.0
 
     # initialize cursor_group links
     # mesh_circle_2.Mesh -> instance_on_points_3.Instance
     cursor_group.links.new(mesh_circle_2.outputs[0], instance_on_points_3.inputs[2])
     # set_position_2.Geometry -> set_material_3.Geometry
     cursor_group.links.new(set_position_2.outputs[0], set_material_3.inputs[0])
-    # group_input_3.Points -> instance_on_points_3.Points
-    cursor_group.links.new(group_input_3.outputs[0], instance_on_points_3.inputs[0])
+    # realize_instances_3.Geometry -> instance_on_points_3.Points
+    cursor_group.links.new(realize_instances_3.outputs[0], instance_on_points_3.inputs[0])
     # set_material_3.Geometry -> group_output_3.Geometry
     cursor_group.links.new(set_material_3.outputs[0], group_output_3.inputs[0])
     # instance_on_points_3.Instances -> set_position_2.Geometry
@@ -2090,11 +2101,17 @@ def cursor_group_node_group():
     # combine_xyz_2.Vector -> set_position_2.Offset
     cursor_group.links.new(combine_xyz_2.outputs[0], set_position_2.inputs[3])
     # group_input_001_3.Y Offset -> combine_xyz_2.Y
-    cursor_group.links.new(group_input_001_3.outputs[3], combine_xyz_2.inputs[1])
+    cursor_group.links.new(group_input_001_3.outputs[2], combine_xyz_2.inputs[1])
     # group_input_002_3.Cursor Material -> set_material_3.Material
-    cursor_group.links.new(group_input_002_3.outputs[2], set_material_3.inputs[2])
-    # group_input_003_1.Radius -> mesh_circle_2.Radius
-    cursor_group.links.new(group_input_003_1.outputs[1], mesh_circle_2.inputs[1])
+    cursor_group.links.new(group_input_002_3.outputs[1], set_material_3.inputs[2])
+    # group_input_3.Points -> realize_instances_3.Geometry
+    cursor_group.links.new(group_input_3.outputs[0], realize_instances_3.inputs[0])
+    # named_attribute_3.Attribute -> attribute_statistic_1.Attribute
+    cursor_group.links.new(named_attribute_3.outputs[0], attribute_statistic_1.inputs[2])
+    # realize_instances_3.Geometry -> attribute_statistic_1.Geometry
+    cursor_group.links.new(realize_instances_3.outputs[0], attribute_statistic_1.inputs[0])
+    # attribute_statistic_1.Mean -> mesh_circle_2.Radius
+    cursor_group.links.new(attribute_statistic_1.outputs[0], mesh_circle_2.inputs[1])
     return cursor_group
 
 # initialize approach_circle_group node group
@@ -2160,11 +2177,11 @@ def approach_circle_group_node_group():
     instance_on_points_4.inputs[5].default_value = (1.5707963705062866, 0.0, 0.0)
 
     # node Named Attribute
-    named_attribute_3 = approach_circle_group.nodes.new("GeometryNodeInputNamedAttribute")
-    named_attribute_3.name = "Named Attribute"
-    named_attribute_3.data_type = 'FLOAT'
+    named_attribute_4 = approach_circle_group.nodes.new("GeometryNodeInputNamedAttribute")
+    named_attribute_4.name = "Named Attribute"
+    named_attribute_4.data_type = 'FLOAT'
     # Name
-    named_attribute_3.inputs[0].default_value = "scale"
+    named_attribute_4.inputs[0].default_value = "scale"
 
     # node Delete Geometry
     delete_geometry_3 = approach_circle_group.nodes.new("GeometryNodeDeleteGeometry")
@@ -2226,23 +2243,23 @@ def approach_circle_group_node_group():
     extrude_mesh.inputs[2].default_value = (0.0, 0.0, 0.0)
 
     # node Realize Instances
-    realize_instances_3 = approach_circle_group.nodes.new("GeometryNodeRealizeInstances")
-    realize_instances_3.name = "Realize Instances"
+    realize_instances_4 = approach_circle_group.nodes.new("GeometryNodeRealizeInstances")
+    realize_instances_4.name = "Realize Instances"
     # Selection
-    realize_instances_3.inputs[1].default_value = True
+    realize_instances_4.inputs[1].default_value = True
     # Realize All
-    realize_instances_3.inputs[2].default_value = True
+    realize_instances_4.inputs[2].default_value = True
     # Depth
-    realize_instances_3.inputs[3].default_value = 0
+    realize_instances_4.inputs[3].default_value = 0
 
     # node Attribute Statistic
-    attribute_statistic_1 = approach_circle_group.nodes.new("GeometryNodeAttributeStatistic")
-    attribute_statistic_1.name = "Attribute Statistic"
-    attribute_statistic_1.hide = True
-    attribute_statistic_1.data_type = 'FLOAT'
-    attribute_statistic_1.domain = 'POINT'
+    attribute_statistic_2 = approach_circle_group.nodes.new("GeometryNodeAttributeStatistic")
+    attribute_statistic_2.name = "Attribute Statistic"
+    attribute_statistic_2.hide = True
+    attribute_statistic_2.data_type = 'FLOAT'
+    attribute_statistic_2.domain = 'POINT'
     # Selection
-    attribute_statistic_1.inputs[1].default_value = True
+    attribute_statistic_2.inputs[1].default_value = True
 
     # node Map Range
     map_range = approach_circle_group.nodes.new("ShaderNodeMapRange")
@@ -2397,7 +2414,7 @@ def approach_circle_group_node_group():
     group_output_4.location = (1300.0, 220.0)
     group_input_4.location = (-760.0, 220.1756591796875)
     instance_on_points_4.location = (660.0, 220.0)
-    named_attribute_3.location = (40.0, -180.0)
+    named_attribute_4.location = (40.0, -180.0)
     delete_geometry_3.location = (-440.0, 220.1756591796875)
     named_attribute_001_3.location = (-440.0, 20.1756591796875)
     boolean_math_3.location = (-440.0, 60.1756591796875)
@@ -2406,8 +2423,8 @@ def approach_circle_group_node_group():
     math_003.location = (280.0, 60.0)
     mesh_circle_3.location = (460.0, -140.0)
     extrude_mesh.location = (460.0, -280.0)
-    realize_instances_3.location = (-600.0, 220.1756591796875)
-    attribute_statistic_1.location = (280.0, -420.0)
+    realize_instances_4.location = (-600.0, 220.1756591796875)
+    attribute_statistic_2.location = (280.0, -420.0)
     map_range.location = (280.0, -140.0)
     set_position_3.location = (820.0, 220.0)
     combine_xyz_3.location = (820.0, 60.0)
@@ -2433,7 +2450,7 @@ def approach_circle_group_node_group():
     group_output_4.width, group_output_4.height = 140.0, 100.0
     group_input_4.width, group_input_4.height = 140.0, 100.0
     instance_on_points_4.width, instance_on_points_4.height = 140.0, 100.0
-    named_attribute_3.width, named_attribute_3.height = 140.0, 100.0
+    named_attribute_4.width, named_attribute_4.height = 140.0, 100.0
     delete_geometry_3.width, delete_geometry_3.height = 140.0, 100.0
     named_attribute_001_3.width, named_attribute_001_3.height = 140.0, 100.0
     boolean_math_3.width, boolean_math_3.height = 140.0, 100.0
@@ -2442,8 +2459,8 @@ def approach_circle_group_node_group():
     math_003.width, math_003.height = 140.0, 100.0
     mesh_circle_3.width, mesh_circle_3.height = 140.0, 100.0
     extrude_mesh.width, extrude_mesh.height = 140.0, 100.0
-    realize_instances_3.width, realize_instances_3.height = 140.0, 100.0
-    attribute_statistic_1.width, attribute_statistic_1.height = 140.0, 100.0
+    realize_instances_4.width, realize_instances_4.height = 140.0, 100.0
+    attribute_statistic_2.width, attribute_statistic_2.height = 140.0, 100.0
     map_range.width, map_range.height = 140.0, 100.0
     set_position_3.width, set_position_3.height = 140.0, 100.0
     combine_xyz_3.width, combine_xyz_3.height = 140.0, 100.0
@@ -2457,11 +2474,11 @@ def approach_circle_group_node_group():
     math_006_2.width, math_006_2.height = 140.0, 100.0
     math_008_1.width, math_008_1.height = 140.0, 100.0
     math_001.width, math_001.height = 140.0, 100.0
-    reroute_2.width, reroute_2.height = 100.0, 100.0
-    reroute_001_2.width, reroute_001_2.height = 100.0, 100.0
-    reroute_002_2.width, reroute_002_2.height = 100.0, 100.0
-    reroute_003_2.width, reroute_003_2.height = 100.0, 100.0
-    reroute_004_2.width, reroute_004_2.height = 100.0, 100.0
+    reroute_2.width, reroute_2.height = 16.0, 100.0
+    reroute_001_2.width, reroute_001_2.height = 16.0, 100.0
+    reroute_002_2.width, reroute_002_2.height = 16.0, 100.0
+    reroute_003_2.width, reroute_003_2.height = 16.0, 100.0
+    reroute_004_2.width, reroute_004_2.height = 16.0, 100.0
     group_input_001_4.width, group_input_001_4.height = 140.0, 100.0
     group_input_002_4.width, group_input_002_4.height = 140.0, 100.0
 
@@ -2472,24 +2489,24 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(boolean_math_3.outputs[0], delete_geometry_3.inputs[1])
     # reroute_2.Output -> instance_on_points_4.Points
     approach_circle_group.links.new(reroute_2.outputs[0], instance_on_points_4.inputs[0])
-    # realize_instances_3.Geometry -> delete_geometry_3.Geometry
-    approach_circle_group.links.new(realize_instances_3.outputs[0], delete_geometry_3.inputs[0])
+    # realize_instances_4.Geometry -> delete_geometry_3.Geometry
+    approach_circle_group.links.new(realize_instances_4.outputs[0], delete_geometry_3.inputs[0])
     # math_003.Value -> math_2.Value
     approach_circle_group.links.new(math_003.outputs[0], math_2.inputs[1])
     # math_2.Value -> instance_on_points_4.Scale
     approach_circle_group.links.new(math_2.outputs[0], instance_on_points_4.inputs[6])
-    # named_attribute_3.Attribute -> math_003.Value
-    approach_circle_group.links.new(named_attribute_3.outputs[0], math_003.inputs[0])
+    # named_attribute_4.Attribute -> math_003.Value
+    approach_circle_group.links.new(named_attribute_4.outputs[0], math_003.inputs[0])
     # mesh_circle_3.Mesh -> extrude_mesh.Mesh
     approach_circle_group.links.new(mesh_circle_3.outputs[0], extrude_mesh.inputs[0])
     # reroute_004_2.Output -> instance_on_points_4.Instance
     approach_circle_group.links.new(reroute_004_2.outputs[0], instance_on_points_4.inputs[2])
-    # group_input_4.Geometry -> realize_instances_3.Geometry
-    approach_circle_group.links.new(group_input_4.outputs[0], realize_instances_3.inputs[0])
-    # named_attribute_3.Attribute -> attribute_statistic_1.Attribute
-    approach_circle_group.links.new(named_attribute_3.outputs[0], attribute_statistic_1.inputs[2])
-    # attribute_statistic_1.Mean -> map_range.Value
-    approach_circle_group.links.new(attribute_statistic_1.outputs[0], map_range.inputs[0])
+    # group_input_4.Geometry -> realize_instances_4.Geometry
+    approach_circle_group.links.new(group_input_4.outputs[0], realize_instances_4.inputs[0])
+    # named_attribute_4.Attribute -> attribute_statistic_2.Attribute
+    approach_circle_group.links.new(named_attribute_4.outputs[0], attribute_statistic_2.inputs[2])
+    # attribute_statistic_2.Mean -> map_range.Value
+    approach_circle_group.links.new(attribute_statistic_2.outputs[0], map_range.inputs[0])
     # map_range.Result -> extrude_mesh.Offset Scale
     approach_circle_group.links.new(map_range.outputs[0], extrude_mesh.inputs[3])
     # store_named_attribute_1.Geometry -> group_output_4.Instances
@@ -2530,8 +2547,8 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(delete_geometry_3.outputs[0], reroute_2.inputs[0])
     # reroute_2.Output -> reroute_001_2.Input
     approach_circle_group.links.new(reroute_2.outputs[0], reroute_001_2.inputs[0])
-    # reroute_002_2.Output -> attribute_statistic_1.Geometry
-    approach_circle_group.links.new(reroute_002_2.outputs[0], attribute_statistic_1.inputs[0])
+    # reroute_002_2.Output -> attribute_statistic_2.Geometry
+    approach_circle_group.links.new(reroute_002_2.outputs[0], attribute_statistic_2.inputs[0])
     # reroute_001_2.Output -> reroute_002_2.Input
     approach_circle_group.links.new(reroute_001_2.outputs[0], reroute_002_2.inputs[0])
     # extrude_mesh.Mesh -> reroute_003_2.Input
@@ -2725,7 +2742,7 @@ def gn_osu_node_group():
     group_003.name = "Group.003"
     group_003.node_tree = cursor_group_node_group()
     # Socket_4
-    group_003.inputs[3].default_value = -0.009999999776482582
+    group_003.inputs[2].default_value = -0.009999999776482582
 
     # node Group Input.001
     group_input_001_5 = gn_osu.nodes.new("NodeGroupInput")
@@ -2764,22 +2781,22 @@ def gn_osu_node_group():
     group_input_002_5.outputs[14].hide = True
 
     # node Group Input.003
-    group_input_003_2 = gn_osu.nodes.new("NodeGroupInput")
-    group_input_003_2.name = "Group Input.003"
-    group_input_003_2.outputs[0].hide = True
-    group_input_003_2.outputs[1].hide = True
-    group_input_003_2.outputs[2].hide = True
-    group_input_003_2.outputs[3].hide = True
-    group_input_003_2.outputs[5].hide = True
-    group_input_003_2.outputs[6].hide = True
-    group_input_003_2.outputs[7].hide = True
-    group_input_003_2.outputs[8].hide = True
-    group_input_003_2.outputs[9].hide = True
-    group_input_003_2.outputs[10].hide = True
-    group_input_003_2.outputs[11].hide = True
-    group_input_003_2.outputs[12].hide = True
-    group_input_003_2.outputs[13].hide = True
-    group_input_003_2.outputs[14].hide = True
+    group_input_003_1 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_003_1.name = "Group Input.003"
+    group_input_003_1.outputs[0].hide = True
+    group_input_003_1.outputs[1].hide = True
+    group_input_003_1.outputs[2].hide = True
+    group_input_003_1.outputs[3].hide = True
+    group_input_003_1.outputs[5].hide = True
+    group_input_003_1.outputs[6].hide = True
+    group_input_003_1.outputs[7].hide = True
+    group_input_003_1.outputs[8].hide = True
+    group_input_003_1.outputs[9].hide = True
+    group_input_003_1.outputs[10].hide = True
+    group_input_003_1.outputs[11].hide = True
+    group_input_003_1.outputs[12].hide = True
+    group_input_003_1.outputs[13].hide = True
+    group_input_003_1.outputs[14].hide = True
 
     # node Group Input.004
     group_input_004_1 = gn_osu.nodes.new("NodeGroupInput")
@@ -2991,30 +3008,6 @@ def gn_osu_node_group():
     group_input_012.outputs[12].hide = True
     group_input_012.outputs[14].hide = True
 
-    # node Named Attribute
-    named_attribute_4 = gn_osu.nodes.new("GeometryNodeInputNamedAttribute")
-    named_attribute_4.name = "Named Attribute"
-    named_attribute_4.data_type = 'FLOAT'
-    # Name
-    named_attribute_4.inputs[0].default_value = "cursor_size"
-
-    # node Attribute Statistic
-    attribute_statistic_2 = gn_osu.nodes.new("GeometryNodeAttributeStatistic")
-    attribute_statistic_2.name = "Attribute Statistic"
-    attribute_statistic_2.hide = True
-    attribute_statistic_2.data_type = 'FLOAT'
-    attribute_statistic_2.domain = 'POINT'
-    attribute_statistic_2.inputs[1].hide = True
-    attribute_statistic_2.outputs[1].hide = True
-    attribute_statistic_2.outputs[2].hide = True
-    attribute_statistic_2.outputs[3].hide = True
-    attribute_statistic_2.outputs[4].hide = True
-    attribute_statistic_2.outputs[5].hide = True
-    attribute_statistic_2.outputs[6].hide = True
-    attribute_statistic_2.outputs[7].hide = True
-    # Selection
-    attribute_statistic_2.inputs[1].default_value = True
-
     # Set locations
     group_input_5.location = (2120.0, 0.0)
     group_output_5.location = (2960.0, 80.0)
@@ -3029,7 +3022,7 @@ def gn_osu_node_group():
     group_003.location = (2440.0, 0.0)
     group_input_001_5.location = (840.0, 0.0)
     group_input_002_5.location = (280.0, -180.0)
-    group_input_003_2.location = (40.0, 240.0)
+    group_input_003_1.location = (40.0, 240.0)
     group_input_004_1.location = (-120.0, 60.0)
     join_geometry_001.location = (1320.0, 80.0)
     join_geometry_002_1.location = (2640.0, 80.0)
@@ -3049,8 +3042,6 @@ def gn_osu_node_group():
     group_004.location = (1800.0, -20.0)
     bake.location = (2800.0, 80.0)
     group_input_012.location = (1800.0, -180.0)
-    named_attribute_4.location = (2280.0, -240.0)
-    attribute_statistic_2.location = (2280.0, -200.0)
 
     # Set dimensions
     group_input_5.width, group_input_5.height = 140.0, 100.0
@@ -3066,7 +3057,7 @@ def gn_osu_node_group():
     group_003.width, group_003.height = 181.4385986328125, 100.0
     group_input_001_5.width, group_input_001_5.height = 140.0, 100.0
     group_input_002_5.width, group_input_002_5.height = 140.0, 100.0
-    group_input_003_2.width, group_input_003_2.height = 140.0, 100.0
+    group_input_003_1.width, group_input_003_1.height = 140.0, 100.0
     group_input_004_1.width, group_input_004_1.height = 140.0, 100.0
     join_geometry_001.width, join_geometry_001.height = 140.0, 100.0
     join_geometry_002_1.width, join_geometry_002_1.height = 140.0, 100.0
@@ -3086,8 +3077,6 @@ def gn_osu_node_group():
     group_004.width, group_004.height = 140.0, 100.0
     bake.width, bake.height = 140.0, 100.0
     group_input_012.width, group_input_012.height = 140.0, 100.0
-    named_attribute_4.width, named_attribute_4.height = 140.0, 100.0
-    attribute_statistic_2.width, attribute_statistic_2.height = 140.0, 100.0
 
     # initialize gn_osu links
     # collection_info_1.Instances -> group.Geometry
@@ -3110,8 +3099,8 @@ def gn_osu_node_group():
     gn_osu.links.new(group_input_001_5.outputs[6], collection_info_003.inputs[0])
     # group_input_002_5.Slider Balls Collection -> group_001.Slider Balls
     gn_osu.links.new(group_input_002_5.outputs[5], group_001.inputs[6])
-    # group_input_003_2.Sliders Collection -> collection_info_001.Collection
-    gn_osu.links.new(group_input_003_2.outputs[4], collection_info_001.inputs[0])
+    # group_input_003_1.Sliders Collection -> collection_info_001.Collection
+    gn_osu.links.new(group_input_003_1.outputs[4], collection_info_001.inputs[0])
     # group_input_004_1.Circles Collection -> collection_info_1.Collection
     gn_osu.links.new(group_input_004_1.outputs[3], collection_info_1.inputs[0])
     # group_002.Geometry -> join_geometry_001.Geometry
@@ -3129,7 +3118,7 @@ def gn_osu_node_group():
     # group_input_005_1.Circle Material -> group.Circle Material
     gn_osu.links.new(group_input_005_1.outputs[8], group.inputs[1])
     # group_input_006_1.Cursor Material -> group_003.Cursor Material
-    gn_osu.links.new(group_input_006_1.outputs[7], group_003.inputs[2])
+    gn_osu.links.new(group_input_006_1.outputs[7], group_003.inputs[1])
     # group_input_007_1.Spinner Material -> group_002.Spinner Material
     gn_osu.links.new(group_input_007_1.outputs[12], group_002.inputs[2])
     # group_input_008_1.Slider Head/Tail Material -> group_001.Slider Head/Tail Material
@@ -3148,12 +3137,6 @@ def gn_osu_node_group():
     gn_osu.links.new(join_geometry_002_1.outputs[0], bake.inputs[0])
     # group_input_012.Approach Circle Material -> group_004.Approach Circle Material
     gn_osu.links.new(group_input_012.outputs[13], group_004.inputs[2])
-    # named_attribute_4.Attribute -> attribute_statistic_2.Attribute
-    gn_osu.links.new(named_attribute_4.outputs[0], attribute_statistic_2.inputs[2])
-    # collection_info_002.Instances -> attribute_statistic_2.Geometry
-    gn_osu.links.new(collection_info_002.outputs[0], attribute_statistic_2.inputs[0])
-    # attribute_statistic_2.Mean -> group_003.Radius
-    gn_osu.links.new(attribute_statistic_2.outputs[0], group_003.inputs[1])
     # group.Circles -> join_geometry_1.Geometry
     gn_osu.links.new(group.outputs[0], join_geometry_1.inputs[0])
     # join_geometry_1.Geometry -> join_geometry_001.Geometry

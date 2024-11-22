@@ -1,3 +1,5 @@
+# osu_importer/geo_nodes/geometry_nodes.py
+
 import bpy
 from osu_importer.utils.utils import timeit, tag_imported
 

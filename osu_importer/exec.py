@@ -1,4 +1,4 @@
-# exec.py
+# osu_importer/exec.py
 
 import bpy
 import os

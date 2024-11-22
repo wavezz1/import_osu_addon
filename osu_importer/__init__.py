@@ -1,3 +1,5 @@
+# osu_importer/__init__.py
+
 bl_info = {
     "name": "osu! Beatmap and Replay Importer",
     "author": "wavezz",

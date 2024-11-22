@@ -1,3 +1,5 @@
+# osu_importer/objects/slider_ticks.py
+
 import bpy
 from osu_importer.utils.utils import evaluate_curve_at_t, tag_imported
 

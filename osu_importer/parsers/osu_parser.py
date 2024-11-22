@@ -1,4 +1,4 @@
-# osu_parser.py
+# # osu_importer/parsers/osu_parser.py
 
 import osrparse
 

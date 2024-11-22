@@ -1,4 +1,4 @@
-# constants.py
+# # osu_importer/utils/constants.py
 
 SCALE_FACTOR = 0.01953125
 

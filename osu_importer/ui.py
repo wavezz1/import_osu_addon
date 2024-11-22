@@ -1,4 +1,4 @@
-# ui.py
+# # osu_importer/ui.py
 
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator

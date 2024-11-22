@@ -1,4 +1,4 @@
-# cursor.py
+# osu_importer/objects/cursor.py
 
 import bpy
 from osu_importer.utils.utils import map_osu_to_blender, tag_imported

@@ -1,3 +1,5 @@
+# osu_importer/delete.py
+
 import bpy
 
 class OSU_OT_Delete(bpy.types.Operator):

@@ -56,7 +56,7 @@ class SliderCreator:
             # Verwenden der vorab berechneten Frames
             start_frame = int(self.hitobject.start_frame)
             end_frame = int(self.hitobject.end_frame)
-            early_start_frame = start_frame
+            early_start_frame = int(start_frame - data_manager.preempt_frames)
 
             if self.hitobject.extras:
                 curve_data_str = self.hitobject.extras[0]

@@ -74,7 +74,6 @@ class CursorCreator:
 
         replay_data = self.data_manager.replay_data
         key_presses = self.data_manager.key_presses
-        speed_multiplier = self.data_manager.speed_multiplier
         ms_per_frame = self.data_manager.ms_per_frame
         audio_lead_in_frames = self.data_manager.audio_lead_in_frames
         total_time = 0
@@ -88,7 +87,7 @@ class CursorCreator:
                 corrected_x, corrected_y, corrected_z = map_osu_to_blender(event.x, event.y)
                 location = (corrected_x, corrected_y, corrected_z)
 
-                adjusted_time_ms = total_time / speed_multiplier
+                adjusted_time_ms = total_time  # Keine Division durch speed_multiplier
                 frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
 
                 set_cursor_keyframes(

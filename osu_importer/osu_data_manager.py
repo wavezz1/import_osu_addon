@@ -265,9 +265,8 @@ class OsuDataManager:
         if current_beat_length is not None and current_beat_length > 0:
             beat_duration = current_beat_length
 
-        slider_duration_ms = (pixel_length / (
-                slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
-        slider_duration_ms /= speed_multiplier
+        slider_duration_ms = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
+        slider_duration_ms /= (speed_multiplier * inherited_multiplier)
 
         return slider_duration_ms
 

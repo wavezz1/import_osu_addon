@@ -35,12 +35,6 @@ def create_gameplay_placeholder():
 
 
 def assign_materials_to_sockets(cube, socket_to_material, operator=None):
-    """
-    Weist Materialien den Sockets eines Geometry Nodes Modifiers zu.
-    :param cube: Das Osu_Gameplay-Objekt
-    :param socket_to_material: Ein Dictionary mit Socket-Namen und zugehörigen Materialien
-    :param operator: Blender Operator für Fehlerberichte
-    """
     modifier = cube.modifiers.get("GeometryNodes")
     if not modifier or not modifier.node_group:
         error_message = "No Geometry Nodes modifier or node group found on the Osu_Gameplay object."
@@ -229,13 +223,13 @@ def import_hitobjects(data_manager, settings, props, operator=None):
 
     if import_type == 'BASE' and props.include_osu_gameplay:
         materials = {
-            bpy.data.materials.get("Cursor Material"),
-            bpy.data.materials.get("Circle Material"),
-            bpy.data.materials.get("Slider Material"),
-            bpy.data.materials.get("Slider Balls Material"),
-            bpy.data.materials.get("Slider Head/Tail Material"),
-            bpy.data.materials.get("Spinner Material"),
-            bpy.data.materials.get("Approach Circle Material"),
+            "Socket_8": bpy.data.materials.get("Cursor Material"),
+            "Socket_9": bpy.data.materials.get("Circle Material"),
+            "Socket_10": bpy.data.materials.get("Slider Material"),
+            "Socket_11": bpy.data.materials.get("Slider Balls Material"),
+            "Socket_12": bpy.data.materials.get("Slider Head/Tail Material"),
+            "Socket_13": bpy.data.materials.get("Spinner Material"),
+            "Socket_14": bpy.data.materials.get("Approach Circle Material"),
         }
 
         gameplay_collection = setup_osu_gameplay_collections_and_materials(

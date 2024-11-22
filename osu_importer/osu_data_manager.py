@@ -116,7 +116,7 @@ class OsuDataManager:
             hitobject_time = (hitobject.time / self.speed_multiplier)
 
             # Startframe berechnen unter Berücksichtigung der Preempt-Zeit
-            hitobject.start_frame = int((hitobject_time - self.preempt_ms) / self.ms_per_frame) + self.audio_lead_in
+            hitobject.start_frame = int(hitobject_time / self.ms_per_frame) + self.audio_lead_in
 
             if hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)

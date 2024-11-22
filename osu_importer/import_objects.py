@@ -71,8 +71,6 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
         if collection:
             assign_collections_to_sockets(cube, {socket: collection}, operator=operator)
 
-    #assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
-
     set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles"], exclude=True)
 
 

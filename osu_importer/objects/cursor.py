@@ -17,8 +17,9 @@ class CursorCreator:
 
     def create_cursor(self):
         try:
+            cursor_size = self.settings.get('cursor_size', 1.0)
             if self.import_type == 'FULL':
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=self.settings.get('cursor_size', 1.0), location=(0, 0, 0))
+                bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
                 cursor = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
@@ -33,7 +34,6 @@ class CursorCreator:
 
                 create_geometry_nodes_modifier(cursor, "cursor")
 
-                cursor_size = self.settings.get('cursor_size', 1.0)
 
                 fixed_values = {
                     "cursor_size" : cursor_size

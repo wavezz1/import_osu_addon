@@ -238,7 +238,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             global_index += 1
 
     if import_type == 'BASE' and props.include_osu_gameplay:
-        gameplay_collection = setup_osu_gameplay_collections(
+        gameplay_collection = setup_osu_gameplay_collections_and_materials(
             cursor=collections.get("Cursor"),
             approach_circle=collections.get("Approach Circles"),
             circles=collections.get("Circles"),
@@ -250,3 +250,17 @@ def import_hitobjects(data_manager, settings, props, operator=None):
 
         if gameplay_collection:
             tag_imported(gameplay_collection)
+
+        gameplay_object = bpy.data.objects.get("Osu_Gameplay")
+        if gameplay_object:
+            socket_to_material = {
+                "Socket_8": bpy.data.materials.get("Cursor Material"),
+                "Socket_9": bpy.data.materials.get("Circle Material"),
+                "Socket_10": bpy.data.materials.get("Slider Material"),
+                "Socket_11": bpy.data.materials.get("Slider Balls Material"),
+                "Socket_12": bpy.data.materials.get("Slider Head/Tail Material"),
+                "Socket_13": bpy.data.materials.get("Spinner Material"),
+                "Socket_14": bpy.data.materials.get("Approach Circle Material"),
+            }
+
+            assign_materials_to_sockets(gameplay_object, socket_to_material, operator=operator)

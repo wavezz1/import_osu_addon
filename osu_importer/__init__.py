@@ -25,7 +25,9 @@ from .ui import (OSUImporterProperties,
                  OSU_PT_ImportOptionsPanel,
                  OSU_PT_ToolsPanel,
                  OSU_PT_ReplayInfoPanel,
-                 OSU_PT_BeatmapInfoPanel)
+                 OSU_PT_BeatmapInfoPanel,
+                 OSU_PT_SkinPanel,
+                 OSU_OT_BasicShaderOperator)
 from .delete import OSU_OT_Delete
 from bpy.types import Operator, AddonPreferences
 
@@ -93,6 +95,8 @@ def register():
     bpy.utils.register_class(OSU_OT_InstallOsrparse)
     bpy.utils.register_class(OSUImporterPreferences)
     bpy.utils.register_class(OSU_PT_ImportOptionsPanel)
+    bpy.utils.register_class(OSU_PT_SkinPanel)
+    bpy.utils.register_class(OSU_OT_BasicShaderOperator)
     bpy.utils.register_class(OSU_PT_ReplayInfoPanel)
     bpy.utils.register_class(OSU_PT_BeatmapInfoPanel)
     bpy.utils.register_class(OSU_PT_ToolsPanel)
@@ -102,7 +106,9 @@ def unregister():
     bpy.utils.unregister_class(OSU_OT_InstallOsrparse)
     bpy.utils.unregister_class(OSUImporterPreferences)
     bpy.utils.unregister_class(OSU_PT_ImportOptionsPanel)
-    bpy.utils.unregister_class(OSU_PT_ReplayInfoPanel)  # Neues Replay Panel
+    bpy.utils.unregister_class(OSU_PT_SkinPanel)
+    bpy.utils.unregister_class(OSU_OT_BasicShaderOperator)
+    bpy.utils.unregister_class(OSU_PT_ReplayInfoPanel)
     bpy.utils.unregister_class(OSU_PT_BeatmapInfoPanel)
     bpy.utils.unregister_class(OSU_PT_ToolsPanel)
     for cls in reversed(classes):

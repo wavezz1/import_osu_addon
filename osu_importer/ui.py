@@ -3,6 +3,8 @@
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
+from .shader_nodes.basic_circle import circles_node_group
+from .shader_nodes.basic_slider import slider_node_group
 from osu_importer.utils.utils import update_quick_load, flip_objects
 
 
@@ -259,6 +261,35 @@ class OSU_PT_ImporterPanel(Panel):
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
+class OSU_PT_SkinPanel(bpy.types.Panel):
+    """Creates a Panel in the 3D Viewport for skin settings"""
+    bl_label = "Skin"
+    bl_idname = "OSU_PT_skin_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("osu_importer.basic_shader", text="Basic Shader")
+
+
+class OSU_OT_BasicShaderOperator(bpy.types.Operator):
+    """Executes the basic shader setup for Circles and Sliders"""
+    bl_idname = "osu_importer.basic_shader"
+    bl_label = "Create Basic Shader"
+    bl_description = "Setup basic shaders for Circles and Sliders"
+
+    def execute(self, context):
+        try:
+            # Execute the functions for creating shader node groups
+            circles_node_group()
+            slider_node_group()
+            self.report({'INFO'}, "Basic shaders created successfully")
+        except Exception as e:
+            self.report({'ERROR'}, f"Error creating shaders: {e}")
+        return {'FINISHED'}
+
 class OSU_PT_ReplayInfoPanel(Panel):
     bl_label = "Replay Information"
     bl_idname = "OSU_PT_replay_info_panel"
@@ -387,6 +418,7 @@ class OSU_PT_ToolsPanel(Panel):
                 dev_box.prop(props, "override_autopilot", toggle=True)
                 dev_box.prop(props, "override_relax", toggle=True)
                 dev_box.prop(props, "override_cinema", toggle=True)
+
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"
     bl_idname = "OSU_PT_import_options_panel"

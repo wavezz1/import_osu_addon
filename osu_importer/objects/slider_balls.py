@@ -22,9 +22,6 @@ class SliderBallCreator:
         self.slider_time = slider_time
 
     def create(self):
-        """
-        Erstellt den Slider-Ball basierend auf dem Import-Typ und animiert ihn.
-        """
         if self.import_type == 'BASE':
             slider_ball = self.create_base_slider_ball()
         elif self.import_type == 'FULL':
@@ -116,7 +113,7 @@ class SliderBallCreator:
 
         # Keyframes für jede Wiederholung setzen
         for repeat in range(self.repeat_count):
-            repeat_start_frame = self.start_frame + repeat * repeat_duration_frames
+            repeat_start_frame = (self.start_frame + repeat_duration_frames) * repeat
             if repeat % 2 == 0:
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame))

@@ -79,6 +79,7 @@ def create_geometry_nodes_tree(name, attributes):
 
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes)
+    tag_imported(group)
     return group
 
 def setup_node_group_interface(group, attributes):

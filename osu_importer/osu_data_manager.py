@@ -6,6 +6,7 @@ import bisect
 from osu_importer.parsers.osu_parser import OsuParser, OsrParser
 from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
 from osu_importer.utils.mod_functions import calculate_speed_multiplier
+from osu_importer.utils.utils import tag_imported
 from osu_importer.parsers.hitobjects import HitObjectsProcessor
 
 
@@ -151,7 +152,10 @@ class OsuDataManager:
         speaker = bpy.context.object
         speaker.name = "OsuAudioSpeaker"
 
+        tag_imported(speaker)
+
         sound = bpy.data.sounds.load(filepath=audio_path, check_existing=True)
+        tag_imported(sound)
         speaker.data.sound = sound
 
         pitch = 1.5 if self.mods & MOD_DOUBLE_TIME else 0.75 if self.mods & MOD_HALF_TIME else 1.0

@@ -243,7 +243,7 @@ class OsuDataManager:
                 hitobject.was_hit = was_hit
 
             elif hitobject.hit_type & 2:  # Slider
-                slider_end_time = hitobject.slider_end_time  # Bereits im check_hits gesetzt
+                slider_end_time = hitobject.slider_end_time
                 window_end = slider_end_time + hit_window
                 end_idx = bisect.bisect_right(key_press_times, window_end)
                 was_hit = False
@@ -252,11 +252,10 @@ class OsuDataManager:
                         was_hit = True
                         break
                 hitobject.was_hit = was_hit
-                hitobject.was_completed = False  # Wir setzen es später basierend auf der Slider-Dauer
-                # slider_end_time wurde bereits gesetzt
+                hitobject.was_completed = False
 
             elif hitobject.hit_type & 8:  # Spinner
-                spinner_end_time = hitobject.slider_end_time  # Nutzen des gleichen Attributes für Spinner-Endzeit
+                spinner_end_time = hitobject.slider_end_time
                 window_end = spinner_end_time + hit_window
 
                 end_idx = bisect.bisect_right(key_press_times, window_end)

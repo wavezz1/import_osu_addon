@@ -6,6 +6,7 @@ from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, 
 from .shader_nodes.basic_circle import circles_node_group
 from .shader_nodes.basic_slider import slider_node_group
 from .shader_nodes.basic_slider_ball import slider_balls_node_group
+from .shader_nodes.basic_approach_circle import approach_circles_node_group
 from osu_importer.utils.utils import update_quick_load, flip_objects
 
 
@@ -286,6 +287,7 @@ class OSU_OT_BasicShaderOperator(bpy.types.Operator):
             circles_node_group()
             slider_node_group()
             slider_balls_node_group()
+            approach_circles_node_group()
 
             self.report({'INFO'}, "Basic shaders created and applied successfully")
             return {'FINISHED'}

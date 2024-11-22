@@ -285,16 +285,6 @@ class OSU_OT_BasicShaderOperator(bpy.types.Operator):
             circle_material = circles_node_group()
             slider_material = slider_node_group()
 
-            # Optional: Materialien einem Objekt zuweisen (hier für Beispiel)
-            if bpy.context.object:
-                obj = bpy.context.object
-                if not obj.data.materials:
-                    obj.data.materials.append(circle_material)
-                    obj.data.materials.append(slider_material)
-                else:
-                    obj.data.materials[0] = circle_material
-                    obj.data.materials[1] = slider_material
-
             self.report({'INFO'}, "Basic shaders created and applied successfully")
             return {'FINISHED'}
         except Exception as e:

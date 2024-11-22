@@ -1,5 +1,5 @@
 import bpy
-from osu_importer.utils.utils import timeit, tag_imported
+from osu_importer.utils.utils import timeit, tag_imported, add_geometry_nodes_modifier
 
 node_groups = {}
 
@@ -126,12 +126,11 @@ def create_geometry_nodes_modifier(obj, obj_type):
         print(f"Unrecognized object type for {obj_type}. Skipping modifier setup.")
         return
 
-    modifier = obj.modifiers.get("GeometryNodes")
-    if not modifier:
-        modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
-    modifier.node_group = node_group
-
-    tag_imported(modifier)
+    try:
+        modifier = add_geometry_nodes_modifier(obj, node_group.name)
+        tag_imported(modifier)
+    except ValueError as e:
+        print(f"Error creating Geometry Nodes modifier: {e}")
 
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values=None):
     modifier = obj.modifiers.get("GeometryNodes")

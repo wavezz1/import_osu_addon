@@ -3,7 +3,7 @@
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
-from osu_importer.utils.utils import update_quick_load, flip_objects, update_override_mods
+from osu_importer.utils.utils import update_quick_load, flip_objects, update_override_mods, update_dev_tools
 
 class OSUImporterProperties(PropertyGroup):
     # File Paths
@@ -181,6 +181,7 @@ class OSUImporterProperties(PropertyGroup):
         name="Enable Dev Tools",
         description="Enable development tools",
         default=False,
+        update=update_dev_tools
     )
     quick_load: BoolProperty(
         name="Quick Load",
@@ -404,8 +405,6 @@ class OSU_PT_ToolsPanel(Panel):
                 dev_box.prop(props, "override_autopilot", toggle=True)
                 dev_box.prop(props, "override_relax", toggle=True)
                 dev_box.prop(props, "override_cinema", toggle=True)
-        else:
-            props.quick_load = False
 
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"

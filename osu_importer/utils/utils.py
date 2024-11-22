@@ -5,6 +5,11 @@ import bpy
 import mathutils
 from osu_importer.utils.constants import SCALE_FACTOR
 
+def update_dev_tools(self, context):
+    if not self.dev_tools:
+        self.quick_load = False
+        print("Dev Tools deaktiviert: Quick Load automatisch ausgeschaltet.")
+
 def update_quick_load(props):
     if props.quick_load:
         # .osu Path for Quick Load

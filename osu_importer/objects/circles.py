@@ -24,12 +24,10 @@ class CircleCreator:
 
             approach_rate = data_manager.adjusted_ar
             preempt_frames = data_manager.preempt_frames
-            audio_lead_in_frames = data_manager.audio_lead_in_frames
             osu_radius = data_manager.osu_radius
 
-            # Verwenden der vorab berechneten Frames
             start_frame = int(self.hitobject.start_frame)
-            end_frame = int(start_frame + 1)  # Kreise haben eine Dauer von 1 Frame
+            end_frame = int(start_frame + 1)
             early_start_frame = int(start_frame - preempt_frames)
 
             x = self.hitobject.x
@@ -67,7 +65,6 @@ class CircleCreator:
             if self.import_type == 'BASE':
                 create_geometry_nodes_modifier(circle, "circle")
 
-            # Keyframe-Setzungen basierend auf vorab berechneten Frames
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,
                 'circle',
@@ -89,7 +86,6 @@ class CircleCreator:
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 
             if self.import_type == 'FULL':
-                # Keyframes für Sichtbarkeit setzen
                 circle.hide_viewport = True
                 circle.hide_render = True
                 circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))

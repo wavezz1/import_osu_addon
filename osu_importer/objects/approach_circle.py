@@ -20,12 +20,10 @@ class ApproachCircleCreator:
     def create_approach_circle(self):
         hitobject = self.hitobject
 
-        # Überprüfen, ob das HitObject ein Circle oder Slider ist
         if not (hitobject.hit_type & 1 or hitobject.hit_type & 2):
             print(f"HitObject {hitobject.time} ist kein Circle oder Slider. Approach Circle wird nicht erstellt.")
             return
 
-        # Überprüfen, ob das HitObject die notwendigen Frame-Attribute besitzt
         if not hasattr(hitobject, 'start_frame') or not hasattr(hitobject, 'end_frame'):
             print(f"HitObject {hitobject.time} hat keine Attribute 'start_frame' oder 'end_frame'.")
             return
@@ -33,7 +31,6 @@ class ApproachCircleCreator:
         with timeit(f"Erstellen von ApproachCircle {self.global_index:03d}_approach_{hitobject.time}"):
             data_manager = self.data_manager
 
-            approach_rate = data_manager.adjusted_ar
             preempt_frames = data_manager.preempt_frames
             osu_radius = data_manager.osu_radius
 
@@ -41,15 +38,13 @@ class ApproachCircleCreator:
             end_frame = hitobject.end_frame
             early_start_frame = start_frame - preempt_frames
 
-            # Korrigierter Funktionsaufruf: Nur x und y übergeben
-            x, y = hitobject.x, hitobject.y  # Stellen Sie sicher, dass hitobject.x und hitobject.y existieren
+            x, y = hitobject.x, hitobject.y
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
             print(f"Creating Approach Circle for HitObject {hitobject.time} at position ({corrected_x}, {corrected_y}, {corrected_z})")
             print(f"  Start Frame: {start_frame}, Early Start Frame: {early_start_frame}, End Frame: {end_frame}")
 
             if self.import_type == 'FULL':
-                # Erstellen eines gefüllten Bezier-Kreises für den Approach Circle
                 bpy.ops.curve.primitive_bezier_circle_add(
                     radius=osu_radius * SCALE_FACTOR * 2,
                     enter_editmode=False,
@@ -60,27 +55,23 @@ class ApproachCircleCreator:
                 approach_obj = bpy.context.object
                 approach_obj.name = f"approach_{hitobject.time}"
 
-                # Bevel-Einstellungen
                 bevel_depth = self.settings.get('approach_circle_bevel_depth', 0.1)
                 approach_obj.data.bevel_depth = bevel_depth
 
                 bevel_resolution = self.settings.get('approach_circle_bevel_resolution', 4)
                 approach_obj.data.bevel_resolution = bevel_resolution
 
-                # Hinzufügen zur entsprechenden Collection und Entfernen aus anderen Collections
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:
                     for col in approach_obj.users_collection:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
 
-                # Setze Keyframes für Scale
                 approach_obj.scale = (2.0, 2.0, 2.0)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(early_start_frame))
                 approach_obj.scale = (1.0, 1.0, 1.0)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(start_frame))
 
-                # Keyframes für Sichtbarkeit setzen
                 approach_obj.hide_viewport = True
                 approach_obj.hide_render = True
                 approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -99,7 +90,6 @@ class ApproachCircleCreator:
                 print(f"  Approach Circle '{approach_obj.name}' created with bevel_depth={bevel_depth}, bevel_resolution={bevel_resolution}")
 
             elif self.import_type == 'BASE':
-                # Erstellen eines einfachen Mesh-Objekts für den Approach Circle
                 mesh = bpy.data.meshes.new(f"approach_{hitobject.time}_mesh")
                 mesh.from_pydata([ (0, 0, 0) ], [], [])
                 mesh.update()
@@ -113,10 +103,8 @@ class ApproachCircleCreator:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
 
-                # Hinzufügen des Geometry Nodes Modifiers
                 create_geometry_nodes_modifier(approach_obj, "approach_circle")
 
-                # Setzen von Keyframes basierend auf vorab berechneten Frames
                 frame_values = {
                     "show": [
                         (early_start_frame - 1, False),
@@ -136,6 +124,4 @@ class ApproachCircleCreator:
                     "cs": 'FLOAT',
                 }, frame_values, fixed_values)
 
-                print(f"  Approach Circle '{approach_obj.name}' created with Geometry Nodes Modifier")
-
-        # Ende der Klasse
+                print(f"Approach Circle '{approach_obj.name}' created with Geometry Nodes Modifier")

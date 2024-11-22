@@ -26,7 +26,6 @@ class SpinnerCreator:
 
             start_frame = int(self.hitobject.start_frame)
             end_frame = int(self.hitobject.end_frame)
-            early_start_frame = int(start_frame - data_manager.preempt_frames)
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 

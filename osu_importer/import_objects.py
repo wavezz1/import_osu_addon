@@ -95,18 +95,15 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL':
             collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
 
-        # Initialisieren des global_index für eindeutige Objektkennzeichnungen
         global_index = 1
 
     import_type = settings.get('import_type', 'FULL')
 
-    # Aktualisieren der Einstellungen mit zusätzlichen Parametern
     settings.update({
         'approach_circle_bevel_depth': props.approach_circle_bevel_depth,
         'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution
     })
 
-    # Importieren der Kreise
     if props.import_circles:
         circles = data_manager.hitobjects_processor.circles
         for hitobject in circles:
@@ -118,9 +115,8 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager,
                 import_type=import_type
             )
-            global_index += 1  # Inkrementieren nach jedem erstellten Objekt
+            global_index += 1
 
-    # Importieren der Slider
     if props.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
@@ -135,7 +131,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             )
             global_index += 1
 
-    # Importieren der Spinner
     if props.import_spinners:
         spinners = data_manager.hitobjects_processor.spinners
         for hitobject in spinners:
@@ -149,7 +144,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             )
             global_index += 1
 
-    # Importieren der Approach Circles
     if props.import_approach_circles:
         relevant_hitobjects = data_manager.hitobjects_processor.circles + data_manager.hitobjects_processor.sliders
         for hitobject in relevant_hitobjects:
@@ -163,7 +157,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             )
             global_index += 1
 
-    # Importieren der Cursor
     if props.import_cursors:
         cursor_creator = CursorCreator(
             cursor_collection=collections["Cursor"],
@@ -173,11 +166,10 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         )
         cursor_creator.animate_cursor()
 
-    # Importieren der Slider Heads und Tails (für FULL Import Typ)
     if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
-            # Slider Head erstellen
+            # Slider Head
             SliderHeadTailCreator(
                 hitobject=hitobject,
                 position=hitobject.start_pos,
@@ -189,7 +181,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             )
             global_index += 1
 
-            # Slider Tail erstellen
+            # Slider Tail
             SliderHeadTailCreator(
                 hitobject=hitobject,
                 position=hitobject.end_pos,
@@ -201,7 +193,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             )
             global_index += 1
 
-    # Setup der Osu Gameplay Collections, falls aktiviert
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(
             cursor=collections.get("Cursor"),

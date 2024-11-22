@@ -1,12 +1,9 @@
 # osu_importer/objects/slider_balls.py
 
 import bpy
-import math
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from osu_importer.utils.constants import SCALE_FACTOR, SPINNER_CENTER_X, SPINNER_CENTER_Y
-from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
+from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.osu_data_manager import OsuDataManager
-from osu_importer.parsers.hitobjects import HitObject
 
 class SliderBallCreator:
     def __init__(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame,
@@ -41,10 +38,8 @@ class SliderBallCreator:
         slider_ball = bpy.data.objects.new(f"{self.slider.name}_ball", mesh)
         slider_ball.location = self.slider.location
 
-        # Geometry Nodes Modifier hinzufügen und konfigurieren
         create_geometry_nodes_modifier(slider_ball, "slider_ball")
 
-        # Keyframes für das Sichtbarkeitsattribut setzen
         frame_values = {
             "show": [
                 (int(self.start_frame - 1), False),
@@ -63,7 +58,6 @@ class SliderBallCreator:
         return slider_ball
 
     def create_full_slider_ball(self):
-        circle_size = self.data_manager.adjusted_cs
         osu_radius = self.data_manager.osu_radius
 
         bpy.ops.mesh.primitive_uv_sphere_add(
@@ -76,7 +70,6 @@ class SliderBallCreator:
         return slider_ball
 
     def animate_slider_ball(self, slider_ball):
-        # FOLLOW_PATH Constraint hinzufügen und konfigurieren
         follow_path = slider_ball.constraints.new(type='FOLLOW_PATH')
         follow_path.target = self.slider
         follow_path.use_fixed_location = True
@@ -84,17 +77,14 @@ class SliderBallCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        # Dauer pro Wiederholung berechnen
         if self.repeat_count > 0:
             repeat_duration_frames = self.slider_duration_frames / self.repeat_count
         else:
             repeat_duration_frames = self.slider_duration_frames
 
-        # Pfad-Dauer einstellen auf die Dauer pro Wiederholung
         self.slider.data.use_path = True
         self.slider.data.path_duration = int(repeat_duration_frames)
 
-        # Keyframes für jede Wiederholung setzen
         for repeat in range(self.repeat_count):
             repeat_start_frame = self.start_frame + int(repeat * repeat_duration_frames)
             repeat_end_frame = repeat_start_frame + int(repeat_duration_frames)
@@ -110,14 +100,12 @@ class SliderBallCreator:
                 follow_path.offset_factor = 0.0
                 follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_end_frame))
 
-            # Linear Interpolation für flüssige Bewegung
             if slider_ball.animation_data and slider_ball.animation_data.action:
                 for fcurve in slider_ball.animation_data.action.fcurves:
                     for keyframe in fcurve.keyframe_points:
                         keyframe.interpolation = 'LINEAR'
 
         if self.import_type == 'FULL':
-            # Keyframes für Sichtbarkeit setzen
             slider_ball.hide_viewport = True
             slider_ball.hide_render = True
             slider_ball.keyframe_insert(data_path="hide_viewport", frame=int(self.start_frame - 1))

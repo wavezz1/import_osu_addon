@@ -256,7 +256,7 @@ class OsuDataManager:
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:
                 if beat_length < 0:
-                    inherited_multiplier = -100 / beat_length
+                    inherited_multiplier = -beat_length
                 else:
                     current_beat_length = beat_length
             else:

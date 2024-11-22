@@ -1,4 +1,4 @@
-# slider.py
+# osu_importer/objects/slider.py
 
 import bpy
 import math
@@ -52,20 +52,11 @@ class SliderCreator:
 
             approach_rate = data_manager.adjusted_ar
             osu_radius = data_manager.osu_radius
-            preempt_frames = data_manager.preempt_frames
-            audio_lead_in_frames = data_manager.audio_lead_in_frames
-            speed_multiplier = data_manager.speed_multiplier
-            ms_per_frame = data_manager.ms_per_frame
 
-            start_time_ms = self.hitobject.time / speed_multiplier
-            slider_duration_ms = data_manager.calculate_slider_duration(self.hitobject)
-            end_time_ms = (self.hitobject.time + slider_duration_ms) / speed_multiplier
-
-            start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
-            end_frame = end_time_ms / ms_per_frame + audio_lead_in_frames
-            early_start_frame = start_frame - preempt_frames
-
-            slider_duration_frames = slider_duration_ms / ms_per_frame
+            # Verwenden der vorab berechneten Frames
+            start_frame = int(self.hitobject.start_frame)
+            end_frame = int(self.hitobject.end_frame)
+            early_start_frame = int(start_frame - data_manager.preempt_frames)
 
             if self.hitobject.extras:
                 curve_data_str = self.hitobject.extras[0]
@@ -134,8 +125,10 @@ class SliderCreator:
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
+                # Berechnung der Slider-Dauer in Millisekunden
+                slider_duration_ms = self.hitobject.duration_frames * data_manager.ms_per_frame * data_manager.speed_multiplier
                 slider["slider_duration_ms"] = slider_duration_ms
-                slider["slider_duration_frames"] = slider_duration_frames
+                slider["slider_duration_frames"] = self.hitobject.duration_frames
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 
@@ -147,17 +140,7 @@ class SliderCreator:
                 if self.import_type == 'BASE':
                     create_geometry_nodes_modifier(slider, "slider")
 
-                # Setze das 'frame' Attribut auf den Start Frame
-                self.hitobject.frame = int(start_frame)
-                self.hitobject.end_frame = int(end_frame)
-
-                extra_params = {
-                    "slider_duration_ms": slider_duration_ms,
-                    "slider_duration_frames": slider_duration_frames,
-                    "repeat_count": repeat_count,
-                    "pixel_length": pixel_length
-                }
-
+                # Keyframe setzen basierend auf vorab berechneten Frames
                 frame_values, fixed_values = get_keyframe_values(
                     self.hitobject,
                     'slider',
@@ -167,9 +150,14 @@ class SliderCreator:
                     early_start_frame,
                     approach_rate,
                     osu_radius,
-                    extra_params,
-                    ms_per_frame=ms_per_frame,
-                    audio_lead_in_frames=audio_lead_in_frames
+                    extra_params={
+                        "slider_duration_ms": slider_duration_ms,
+                        "slider_duration_frames": self.hitobject.duration_frames,
+                        "repeat_count": repeat_count,
+                        "pixel_length": pixel_length
+                    },
+                    ms_per_frame=data_manager.ms_per_frame,
+                    audio_lead_in_frames=data_manager.audio_lead_in_frames
                 )
 
                 attributes = {
@@ -186,6 +174,7 @@ class SliderCreator:
                 set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
                 if self.import_type == 'FULL':
+                    # Keyframes für Sichtbarkeit setzen
                     slider.hide_viewport = True
                     slider.hide_render = True
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -201,12 +190,12 @@ class SliderCreator:
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
-                if self.settings.get('import_slider_balls', False):
+                if self.import_slider_balls:
                     from .slider_balls import SliderBallCreator  # Import der SliderBallCreator-Klasse
                     slider_ball_creator = SliderBallCreator(
                         slider=slider,
                         start_frame=start_frame,
-                        slider_duration_frames=slider_duration_frames,
+                        slider_duration_frames=self.hitobject.duration_frames,
                         repeat_count=repeat_count,
                         end_frame=end_frame,
                         slider_balls_collection=self.slider_balls_collection,
@@ -216,7 +205,7 @@ class SliderCreator:
                     )
                     slider_ball_creator.create()
 
-                if self.settings.get('import_slider_ticks', False):
+                if self.import_slider_ticks:
                     from .slider_ticks import SliderTicksCreator
                     slider_ticks_creator = SliderTicksCreator(
                         slider=slider,

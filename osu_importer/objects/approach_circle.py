@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from osu_importer.utils.utils import map_osu_to_blender, timeit
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
@@ -34,8 +34,9 @@ class ApproachCircleCreator:
             preempt_frames = data_manager.preempt_frames
             osu_radius = data_manager.osu_radius
 
-            start_frame = hitobject.frame
-            early_start_frame = start_frame - preempt_frames
+            # Verwenden der vorab berechneten Frames
+            start_frame = int(hitobject.start_frame)
+            early_start_frame = int(start_frame - preempt_frames)
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(hitobject.x, hitobject.y)
 
@@ -62,11 +63,13 @@ class ApproachCircleCreator:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
 
+                # Setze Keyframes für Scale
                 approach_obj.scale = (2.0, 2.0, 2.0)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(early_start_frame))
                 approach_obj.scale = (1.0, 1.0, 1.0)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(start_frame))
 
+                # Keyframes für Sichtbarkeit setzen
                 approach_obj.hide_viewport = True
                 approach_obj.hide_render = True
                 approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -97,21 +100,23 @@ class ApproachCircleCreator:
                             col.objects.unlink(approach_obj)
                 create_geometry_nodes_modifier(approach_obj, "approach_circle")
 
+                # Keyframe-Setzungen basierend auf vorab berechneten Frames
+                frame_values, fixed_values = get_keyframe_values(
+                    self.hitobject,
+                    'approach_circle',
+                    self.import_type,
+                    start_frame,
+                    start_frame + 1,  # Annahme: Approach Circle erscheint und verschwindet sofort
+                    early_start_frame,
+                    approach_rate,
+                    osu_radius,
+                    extra_params={}
+                )
+
                 attributes = {
                     "show": 'BOOLEAN',
                     "scale": 'FLOAT',
                     "cs": 'FLOAT',
-                }
-                frame_values = {
-                    "show": [
-                        (early_start_frame - 1, False),
-                        (early_start_frame, True),
-                        (start_frame, False),
-                    ],
-                    "scale": [
-                        (early_start_frame, 2.0),
-                        (start_frame, 1.0),
-                    ]
                 }
                 fixed_values = {"cs": osu_radius * SCALE_FACTOR}
 

@@ -9,6 +9,9 @@ class HitObject:
         self.hit_sound = hit_sound
         self.extras = extras
         self.frame = None
+        self.start_frame = None          # Neuer Attribute für Startframe
+        self.end_frame = None            # Neuer Attribute für Endframe (nur für Slider und Spinner)
+        self.duration_frames = None
         self.was_hit = False
         self.was_completed = False
 

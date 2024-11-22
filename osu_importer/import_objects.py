@@ -11,6 +11,7 @@ from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
 
+
 def set_collection_exclude(collection_names, exclude=False, view_layer=None):
     if view_layer is None:
         view_layer = bpy.context.view_layer
@@ -25,11 +26,13 @@ def set_collection_exclude(collection_names, exclude=False, view_layer=None):
         else:
             print(f"Collection '{collection_name}' not found in view layer '{view_layer.name}'.")
 
+
 def create_gameplay_placeholder():
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
     cube = bpy.context.object
     cube.name = "Osu_Gameplay"
     return cube
+
 
 def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, slider_balls, spinners, operator=None):
     gameplay_collection = create_collection("Osu_Gameplay")
@@ -62,11 +65,11 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
         "Socket_5": sliders,
         "Socket_6": slider_balls,
         "Socket_7": spinners
-
     }
     assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
 
     set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles"], exclude=True)
+
 
 def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Setting up collections"):
@@ -92,74 +95,120 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL':
             collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
 
+        # Initialisieren des global_index für eindeutige Objektkennzeichnungen
         global_index = 1
+
     import_type = settings.get('import_type', 'FULL')
 
+    # Aktualisieren der Einstellungen mit zusätzlichen Parametern
     settings.update({
         'approach_circle_bevel_depth': props.approach_circle_bevel_depth,
         'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution
     })
+
+    # Importieren der Kreise
     if props.import_circles:
         circles = data_manager.hitobjects_processor.circles
-        for i, hitobject in enumerate(circles):
-            CircleCreator(hitobject, global_index + i, collections["Circles"], settings, data_manager, import_type)
-        global_index += len(circles)
+        for hitobject in circles:
+            CircleCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                circles_collection=collections["Circles"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1  # Inkrementieren nach jedem erstellten Objekt
 
+    # Importieren der Slider
     if props.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders
-        for i, hitobject in enumerate(sliders):
-            SliderCreator(hitobject, global_index + i, collections["Sliders"], collections["Slider Balls"], settings, data_manager, import_type)
-        global_index += len(sliders)
+        for hitobject in sliders:
+            SliderCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                sliders_collection=collections["Sliders"],
+                slider_balls_collection=collections["Slider Balls"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
+    # Importieren der Spinner
     if props.import_spinners:
         spinners = data_manager.hitobjects_processor.spinners
-        for i, hitobject in enumerate(spinners):
-            SpinnerCreator(hitobject, global_index + i, collections["Spinners"], settings, data_manager, import_type)
-        global_index += len(spinners)
+        for hitobject in spinners:
+            SpinnerCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                spinners_collection=collections["Spinners"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
+    # Importieren der Approach Circles
     if props.import_approach_circles:
         relevant_hitobjects = data_manager.hitobjects_processor.circles + data_manager.hitobjects_processor.sliders
-        for i, hitobject in enumerate(relevant_hitobjects):
-            ApproachCircleCreator(hitobject, global_index + i, collections["Approach Circles"], settings, data_manager, import_type)
-        global_index += len(relevant_hitobjects)
+        for hitobject in relevant_hitobjects:
+            ApproachCircleCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                approach_circles_collection=collections["Approach Circles"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
+    # Importieren der Cursor
     if props.import_cursors:
-        cursor_creator = CursorCreator(collections["Cursor"], settings, data_manager, import_type)
+        cursor_creator = CursorCreator(
+            cursor_collection=collections["Cursor"],
+            settings=settings,
+            data_manager=data_manager,
+            import_type=import_type
+        )
         cursor_creator.animate_cursor()
 
+    # Importieren der Slider Heads und Tails (für FULL Import Typ)
     if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
-        for i, hitobject in enumerate(sliders):
-            start_pos = hitobject.start_pos
-            end_pos = hitobject.end_pos
-
-            # Slider Head
+        for hitobject in sliders:
+            # Slider Head erstellen
             SliderHeadTailCreator(
                 hitobject=hitobject,
-                position=start_pos,
-                global_index=global_index + i * 2,
+                position=hitobject.start_pos,
+                global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
                 settings=settings,
-                data_manager=data_manager
+                data_manager=data_manager,
+                import_type=import_type
             )
+            global_index += 1
 
-            # Slider Tail
+            # Slider Tail erstellen
             SliderHeadTailCreator(
                 hitobject=hitobject,
-                position=end_pos,
-                global_index=global_index + i * 2 + 1,
+                position=hitobject.end_pos,
+                global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
                 settings=settings,
-                data_manager=data_manager
+                data_manager=data_manager,
+                import_type=import_type
             )
-        global_index += len(sliders) * 2
+            global_index += 1
+
+    # Setup der Osu Gameplay Collections, falls aktiviert
     if import_type == 'BASE' and props.include_osu_gameplay:
         setup_osu_gameplay_collections(
-            cursor=collections["Cursor"],
-            approach_circle=collections["Approach Circles"],
-            circles=collections["Circles"],
-            sliders=collections["Sliders"],
-            slider_balls=collections["Slider Balls"],
-            spinners=collections["Spinners"],
+            cursor=collections.get("Cursor"),
+            approach_circle=collections.get("Approach Circles"),
+            circles=collections.get("Circles"),
+            sliders=collections.get("Sliders"),
+            slider_balls=collections.get("Slider Balls"),
+            spinners=collections.get("Spinners"),
             operator=operator
         )

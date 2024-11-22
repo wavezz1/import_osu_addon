@@ -245,6 +245,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             sliders=collections.get("Sliders"),
             slider_balls=collections.get("Slider Balls"),
             spinners=collections.get("Spinners"),
+            slider_heads_tails=collections.get("Slider Heads Tails"),
             operator=operator
         )
 

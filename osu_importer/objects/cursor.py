@@ -44,7 +44,7 @@ class CursorCreator:
                     "k2": 'BOOLEAN',
                     "m1": 'BOOLEAN',
                     "m2": 'BOOLEAN',
-                    "cursor_size": cursor_size
+                    "cursor_size": 'FLOAT'
                 }
 
                 initial_frame_values = {

@@ -273,7 +273,7 @@ class OSU_PT_SkinPanel(bpy.types.Panel):
         layout = self.layout
         props = context.scene.osu_importer_props
 
-        layout.prop(props, "auto_create_shaders", text="Auto Create Shaders")
+        layout.prop(props, "auto_create_shaders", text="Auto Create Shaders", toggle=True)
 
 
 class OSU_PT_ReplayInfoPanel(Panel):

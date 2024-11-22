@@ -48,7 +48,8 @@ def setup_geometry_node_trees():
                     "k1": 'BOOLEAN',
                     "k2": 'BOOLEAN',
                     "m1": 'BOOLEAN',
-                    "m2": 'BOOLEAN'
+                    "m2": 'BOOLEAN',
+                    "cursor_size": 'FLOAT'
                 }
             },
             "slider_ball": {

@@ -18,7 +18,7 @@ class CursorCreator:
     def create_cursor(self):
         try:
             if self.import_type == 'FULL':
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.3, location=(0, 0, 0))
+                bpy.ops.mesh.primitive_uv_sphere_add(radius=self.settings.get('cursor_size', 1.0), location=(0, 0, 0))
                 cursor = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
@@ -33,30 +33,36 @@ class CursorCreator:
 
                 create_geometry_nodes_modifier(cursor, "cursor")
 
+                cursor_size = self.settings.get('cursor_size', 1.0)
+
+                fixed_values = {
+                    "cursor_size" : cursor_size
+                }
+
+                initial_frame_values = {
+                    "k1": [
+                        (1, False),
+                    ],
+                    "k2": [
+                        (1, False),
+                    ],
+                    "m1": [
+                        (1, False),
+                    ],
+                    "m2": [
+                        (1, False),
+                    ]
+                }
+                set_modifier_inputs_with_keyframes(cursor, {
+                    "k1": 'BOOLEAN',
+                    "k2": 'BOOLEAN',
+                    "m1": 'BOOLEAN',
+                    "m2": 'BOOLEAN'
+                }, initial_frame_values, fixed_values)
+
             cursor.name = "Cursor"
 
             tag_imported(cursor)
-
-            initial_frame_values = {
-                "k1": [
-                    (1, False),
-                ],
-                "k2": [
-                    (1, False),
-                ],
-                "m1": [
-                    (1, False),
-                ],
-                "m2": [
-                    (1, False),
-                ]
-            }
-            set_modifier_inputs_with_keyframes(cursor, {
-                "k1": 'BOOLEAN',
-                "k2": 'BOOLEAN',
-                "m1": 'BOOLEAN',
-                "m2": 'BOOLEAN'
-            }, initial_frame_values)
 
             self.cursor_collection.objects.link(cursor)
             if cursor.users_collection:

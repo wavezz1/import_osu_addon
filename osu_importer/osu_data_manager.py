@@ -122,12 +122,12 @@ class OsuDataManager:
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 hitobject.duration_frames = int(slider_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
-                hitobject.slider_end_time = hitobject_time + slider_duration_ms / self.speed_multiplier  # Anpassung der Endzeit
+                hitobject.slider_end_time = hitobject_time + slider_duration_ms  # Entfernen der zusätzlichen Anpassung
             elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 hitobject.duration_frames = int(spinner_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
-                hitobject.slider_end_time = hitobject_time + spinner_duration_ms / self.speed_multiplier  # Anpassung der Endzeit
+                hitobject.slider_end_time = hitobject_time + spinner_duration_ms  # Entfernen der zusätzlichen Anpassung
             else:  # Circle
                 hitobject.duration_frames = 0
                 hitobject.end_frame = hitobject.start_frame

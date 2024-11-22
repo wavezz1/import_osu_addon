@@ -1,5 +1,5 @@
 import bpy
-from osu_importer.utils.utils import timeit, tag_imported, add_geometry_nodes_modifier
+from osu_importer.utils.utils import timeit, tag_imported
 
 node_groups = {}
 
@@ -193,3 +193,11 @@ def assign_collections_to_sockets(obj, socket_to_collection, operator=None):
             if operator:
                 operator.report({'ERROR'}, error_message)
             print(error_message)
+
+def add_geometry_nodes_modifier(obj, node_group_name):
+    node_group = bpy.data.node_groups.get(node_group_name)
+    if not node_group:
+        raise ValueError(f"Node Group '{node_group_name}' not found.")
+    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES') if not obj.modifiers.get("GeometryNodes") else obj.modifiers.get("GeometryNodes")
+    modifier.node_group = node_group
+    return modifier

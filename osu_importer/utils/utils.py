@@ -180,11 +180,3 @@ def flip_objects(prefixes, axis, invert_location=True, invert_scale=True):
         flipped_count += 1
 
     return flipped_count
-
-def add_geometry_nodes_modifier(obj, node_group_name):
-    node_group = bpy.data.node_groups.get(node_group_name)
-    if not node_group:
-        raise ValueError(f"Node Group '{node_group_name}' not found.")
-    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES') if not obj.modifiers.get("GeometryNodes") else obj.modifiers.get("GeometryNodes")
-    modifier.node_group = node_group
-    return modifier

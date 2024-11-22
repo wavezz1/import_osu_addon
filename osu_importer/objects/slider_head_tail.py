@@ -39,7 +39,7 @@ class SliderHeadTailCreator:
             end_frame = int(hitobject.end_frame)
             early_start_frame = int(start_frame - preempt_frames)
 
-            corrected_x, corrected_y, corrected_z = map_osu_to_blender(*self.position)
+            corrected_x, corrected_y, corrected_z = map_osu_to_blender(*self.position[:2])
 
             if self.import_type == 'FULL':
                 # Erstellen eines gefüllten Kreises für den Slider-Head/Tail

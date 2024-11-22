@@ -39,6 +39,14 @@ class CursorCreator:
                     "cursor_size" : cursor_size
                 }
 
+                attributes = {
+                    "k1": 'BOOLEAN',
+                    "k2": 'BOOLEAN',
+                    "m1": 'BOOLEAN',
+                    "m2": 'BOOLEAN',
+                    "cursor_size": cursor_size
+                }
+
                 initial_frame_values = {
                     "k1": [
                         (1, False),
@@ -53,12 +61,7 @@ class CursorCreator:
                         (1, False),
                     ]
                 }
-                set_modifier_inputs_with_keyframes(cursor, {
-                    "k1": 'BOOLEAN',
-                    "k2": 'BOOLEAN',
-                    "m1": 'BOOLEAN',
-                    "m2": 'BOOLEAN'
-                }, initial_frame_values, fixed_values)
+                set_modifier_inputs_with_keyframes(cursor, attributes, initial_frame_values, fixed_values)
 
             cursor.name = "Cursor"
 

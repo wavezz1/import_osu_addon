@@ -5,18 +5,15 @@ import bpy
 import mathutils
 from osu_importer.utils.constants import SCALE_FACTOR
 
-def update_dev_tools(self, context):
-    if self.dev_tools:
-        #Insert Quick Load Paths
-        self.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
-        self.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+def update_quick_load(props):
+    if props.quick_load:
+        props.osu_file = "/path/to/your/beatmap.osu"
+        props.osr_file = "/path/to/your/replay.osr"
+        print("Quick Load activated: File paths updated.")
     else:
-        self.osu_file = ""
-        self.osr_file = ""
-    # Force UI refresh
-    for area in context.screen.areas:
-        if area.type == 'VIEW_3D':
-            area.tag_redraw()
+        props.osu_file = ""
+        props.osr_file = ""
+        print("Quick Load deactivated: File paths cleared.")
 
 def timeit(label):
     class Timer:

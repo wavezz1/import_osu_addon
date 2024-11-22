@@ -3,16 +3,10 @@
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
-from osu_importer.utils.utils import update_dev_tools, flip_objects
+from osu_importer.utils.utils import update_quick_load, flip_objects
 
 
 class OSUImporterProperties(PropertyGroup):
-    dev_tools: BoolProperty(
-        name="Enable Dev Tools",
-        description="Enable development tools",
-        default=False,
-        update=update_dev_tools
-    )
     # File Paths
     osu_file: StringProperty(
         name="Beatmap (.osu) File",
@@ -184,6 +178,40 @@ class OSUImporterProperties(PropertyGroup):
         name="Player Name",
         default="Unknown"
     )
+    dev_tools: BoolProperty(
+        name="Enable Dev Tools",
+        description="Enable development tools",
+        default=False,
+    )
+    quick_load: BoolProperty(
+        name="Quick Load",
+        description="Automatically load predefined file paths for .osu and .osr files",
+        default=False,
+        update = update_quick_load
+    )
+    #Override Mods
+    override_mods: BoolProperty(
+        name="Override Mods",
+        description="Manually override the replay's mods with custom settings",
+        default=False
+    )
+
+    # Modifiers aus constants.py
+    override_no_fail: BoolProperty(name="No Fail", default=False)
+    override_easy: BoolProperty(name="Easy", default=False)
+    override_hidden: BoolProperty(name="Hidden", default=False)
+    override_hard_rock: BoolProperty(name="Hard Rock", default=False)
+    override_sudden_death: BoolProperty(name="Sudden Death", default=False)
+    override_double_time: BoolProperty(name="Double Time", default=False)
+    override_half_time: BoolProperty(name="Half Time", default=False)
+    override_nightcore: BoolProperty(name="Nightcore", default=False)
+    override_flashlight: BoolProperty(name="Flashlight", default=False)
+    override_perfect: BoolProperty(name="Perfect", default=False)
+    override_spun_out: BoolProperty(name="Spun Out", default=False)
+    override_autopilot: BoolProperty(name="Autopilot", default=False)
+    override_relax: BoolProperty(name="Relax", default=False)
+    override_cinema: BoolProperty(name="Cinema", default=False)
+
     # UI Toggles
     show_beatmap_info: BoolProperty(
         name="Show Beatmap Information",
@@ -218,8 +246,10 @@ class OSU_PT_ImporterPanel(Panel):
         if props.dev_tools:
             box.label(text="Dev Tools Activated", icon='MODIFIER')
             #Quick Load (Adjust update_dev_tools in utils.py)
-            box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
-            box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
+            #box.label(text=f"OSU File: {props.osu_file}", icon='FILE_BLEND')
+            #box.label(text=f"OSR File: {props.osr_file}", icon='FILE_BLEND')
+            box.prop(props, "osu_file")
+            box.prop(props, "osr_file")
         else:
             # Standard File Selection
             box.prop(props, "osu_file")
@@ -332,7 +362,31 @@ class OSU_PT_ToolsPanel(Panel):
         # Dev Tools Toggle
         col.separator()
         col.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
+        if props.dev_tools:
+            dev_box = layout.box()
+            dev_box.label(text="Developer Tools", icon='TOOL_SETTINGS')
 
+            # Quick Load Option
+            dev_box.prop(props, "quick_load", text="Quick Load", toggle=True)
+
+            # Override Mods Options
+            dev_box.label(text="Override Mods", icon='MODIFIER')
+            dev_box.prop(props, "override_mods", toggle=True)
+            if props.override_mods:
+                dev_box.prop(props, "override_no_fail", toggle=True)
+                dev_box.prop(props, "override_easy", toggle=True)
+                dev_box.prop(props, "override_hidden", toggle=True)
+                dev_box.prop(props, "override_hard_rock", toggle=True)
+                dev_box.prop(props, "override_sudden_death", toggle=True)
+                dev_box.prop(props, "override_double_time", toggle=True)
+                dev_box.prop(props, "override_half_time", toggle=True)
+                dev_box.prop(props, "override_nightcore", toggle=True)
+                dev_box.prop(props, "override_flashlight", toggle=True)
+                dev_box.prop(props, "override_perfect", toggle=True)
+                dev_box.prop(props, "override_spun_out", toggle=True)
+                dev_box.prop(props, "override_autopilot", toggle=True)
+                dev_box.prop(props, "override_relax", toggle=True)
+                dev_box.prop(props, "override_cinema", toggle=True)
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"
     bl_idname = "OSU_PT_import_options_panel"

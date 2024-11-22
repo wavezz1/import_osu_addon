@@ -4,18 +4,50 @@ import bpy
 import os
 import bisect
 from osu_importer.parsers.osu_parser import OsuParser, OsrParser
-from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
+from osu_importer.utils.constants import *
 from osu_importer.utils.mod_functions import calculate_speed_multiplier
 from osu_importer.utils.utils import tag_imported
 from osu_importer.parsers.hitobjects import HitObjectsProcessor
 
+def calculate_override_mods(props):
+    mods = 0
+    if props.override_no_fail:
+        mods |= MOD_NO_FAIL
+    if props.override_easy:
+        mods |= MOD_EASY
+    if props.override_hidden:
+        mods |= MOD_HIDDEN
+    if props.override_hard_rock:
+        mods |= MOD_HARD_ROCK
+    if props.override_sudden_death:
+        mods |= MOD_SUDDEN_DEATH
+    if props.override_double_time:
+        mods |= MOD_DOUBLE_TIME
+    if props.override_half_time:
+        mods |= MOD_HALF_TIME
+    if props.override_nightcore:
+        mods |= MOD_NIGHTCORE
+    if props.override_flashlight:
+        mods |= MOD_FLASHLIGHT
+    if props.override_perfect:
+        mods |= MOD_PERFECT
+    if props.override_spun_out:
+        mods |= MOD_SPUN_OUT
+    if props.override_autopilot:
+        mods |= MOD_AUTOPILOT
+    if props.override_relax:
+        mods |= MOD_RELAX
+    if props.override_cinema:
+        mods |= MOD_CINEMA
+    return mods
 
 class OsuDataManager:
-    def __init__(self, osu_file_path, osr_file_path):
+    def __init__(self, osu_file_path, osr_file_path, props):
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
         self.hitobjects_processor = HitObjectsProcessor(self)
-        #self.mods = self.osr_parser.mods  # Sicherstellen, dass self.mods definiert ist
+        self.props = props
+        self.mods = calculate_override_mods(props) if props.override_mods else self.osr_parser.mods
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
         self.ms_per_frame = self.get_ms_per_frame()
 
@@ -51,15 +83,19 @@ class OsuDataManager:
 
     @property
     def replay_info(self):
+        mod_list = (
+            self.osr_parser.mod_list if not self.props.override_mods
+            else [mod for mod, value in MOD_FLAGS.items() if self.mods & value]
+        )
+
         return {
-            "mods": ','.join(self.osr_parser.mod_list) if self.osr_parser.mod_list else "Keine",
+            "mods": ', '.join(mod_list) if mod_list else "None",
             "accuracy": self.osr_parser.calculate_accuracy(),
             "misses": self.osr_parser.misses,
             "max_combo": self.osr_parser.max_combo,
             "total_score": self.osr_parser.score,
             "username": self.osr_parser.username,
         }
-
     @property
     def hitobjects(self):
         return (
@@ -75,10 +111,6 @@ class OsuDataManager:
     @property
     def key_presses(self):
         return self.osr_parser.key_presses
-
-    @property
-    def mods(self):
-        return self.osr_parser.mods
 
     def print_all_info(self):
         print("\n--- Beatmap Information ---")

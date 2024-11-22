@@ -21,7 +21,7 @@ def main_execution(context):
         return {'CANCELLED'}, None
 
     with timeit("OsuDataManager Initialisierung"):
-        data_manager = OsuDataManager(osu_file_path, osr_file_path)
+        data_manager = OsuDataManager(osu_file_path, osr_file_path, props)
 
     data_manager.print_all_info()
 

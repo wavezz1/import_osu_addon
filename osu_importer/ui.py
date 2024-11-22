@@ -404,6 +404,8 @@ class OSU_PT_ToolsPanel(Panel):
                 dev_box.prop(props, "override_autopilot", toggle=True)
                 dev_box.prop(props, "override_relax", toggle=True)
                 dev_box.prop(props, "override_cinema", toggle=True)
+        else:
+            props.quick_load = False
 
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"

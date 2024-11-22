@@ -65,7 +65,6 @@ class SliderBallCreator:
     def create_full_slider_ball(self):
         circle_size = self.data_manager.adjusted_cs
         osu_radius = self.data_manager.osu_radius
-        corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 
         bpy.ops.mesh.primitive_uv_sphere_add(
             radius=osu_radius * SCALE_FACTOR * 2,

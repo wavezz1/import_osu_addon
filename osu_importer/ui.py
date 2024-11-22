@@ -389,9 +389,21 @@ class OSU_PT_ToolsPanel(Panel):
             # Override Mods Options
             dev_box.label(text="Override Mods", icon='MODIFIER')
             dev_box.prop(props, "override_mods", toggle=True)
-            for prop_name in dir(props):
-                if prop_name.startswith("override_") and prop_name != "override_mods":
-                    dev_box.prop(props, prop_name, toggle=True, enabled=props.override_mods)
+            if props.override_mods:
+                dev_box.prop(props, "override_no_fail", toggle=True)
+                dev_box.prop(props, "override_easy", toggle=True)
+                dev_box.prop(props, "override_hidden", toggle=True)
+                dev_box.prop(props, "override_hard_rock", toggle=True)
+                dev_box.prop(props, "override_sudden_death", toggle=True)
+                dev_box.prop(props, "override_double_time", toggle=True)
+                dev_box.prop(props, "override_half_time", toggle=True)
+                dev_box.prop(props, "override_nightcore", toggle=True)
+                dev_box.prop(props, "override_flashlight", toggle=True)
+                dev_box.prop(props, "override_perfect", toggle=True)
+                dev_box.prop(props, "override_spun_out", toggle=True)
+                dev_box.prop(props, "override_autopilot", toggle=True)
+                dev_box.prop(props, "override_relax", toggle=True)
+                dev_box.prop(props, "override_cinema", toggle=True)
 
 class OSU_PT_ImportOptionsPanel(Panel):
     bl_label = "Import Options"

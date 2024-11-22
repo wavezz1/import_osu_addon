@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from osu_importer.utils.utils import timeit, get_keyframe_values
+from osu_importer.utils.utils import timeit, get_keyframe_values, tag_imported
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 
@@ -57,6 +57,8 @@ class SliderHeadTailCreator:
                 return
 
             head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
+
+            tag_imported(head_tail_obj)
 
             self.slider_heads_tails_collection.objects.link(head_tail_obj)
             if head_tail_obj.users_collection:

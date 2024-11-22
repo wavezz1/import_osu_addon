@@ -1,7 +1,7 @@
 # cursor.py
 
 import bpy
-from osu_importer.utils.utils import map_osu_to_blender
+from osu_importer.utils.utils import map_osu_to_blender, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
 
@@ -34,6 +34,8 @@ class CursorCreator:
                 create_geometry_nodes_modifier(cursor, "cursor")
 
             cursor.name = "Cursor"
+
+            tag_imported(cursor)
 
             initial_frame_values = {
                 "k1": [

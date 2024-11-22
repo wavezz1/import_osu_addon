@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values, tag_imported
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
@@ -52,6 +52,8 @@ class CircleCreator:
                 circle.location = (corrected_x, corrected_y, corrected_z)
 
             circle.name = f"{self.global_index:03d}_circle_{self.hitobject.time}"
+
+            tag_imported(circle)
 
             circle["ar"] = approach_rate
             circle["cs"] = osu_radius * SCALE_FACTOR

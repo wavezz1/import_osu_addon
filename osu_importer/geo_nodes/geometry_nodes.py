@@ -1,5 +1,5 @@
 import bpy
-from osu_importer.utils.utils import timeit
+from osu_importer.utils.utils import timeit, tag_imported
 
 node_groups = {}
 
@@ -130,6 +130,7 @@ def create_geometry_nodes_modifier(obj, obj_type):
         modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
     modifier.node_group = node_group
 
+    tag_imported(modifier)
 
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values=None):
     modifier = obj.modifiers.get("GeometryNodes")

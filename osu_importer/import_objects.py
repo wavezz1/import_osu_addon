@@ -6,7 +6,7 @@ from osu_importer.objects.spinner import SpinnerCreator
 from osu_importer.objects.cursor import CursorCreator
 from osu_importer.objects.approach_circle import ApproachCircleCreator
 from osu_importer.objects.slider_head_tail import SliderHeadTailCreator
-from .utils.utils import create_collection, timeit, map_osu_to_blender
+from .utils.utils import create_collection, timeit, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
@@ -85,6 +85,11 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             "Approach Circles": create_collection("Approach Circles") if props.import_approach_circles else None,
             "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL' else None,
         }
+
+        for collection in collections.values():
+            if collection:
+                tag_imported(collection)
+
         global_index = 1
 
     import_type = settings.get('import_type', 'FULL')
@@ -193,3 +198,4 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             spinners=collections.get("Spinners"),
             operator=operator
         )
+        tag_imported(setup_osu_gameplay_collections)

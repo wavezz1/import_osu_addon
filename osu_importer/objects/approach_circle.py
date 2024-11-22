@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from osu_importer.utils.utils import map_osu_to_blender, timeit
+from osu_importer.utils.utils import map_osu_to_blender, timeit, tag_imported
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
@@ -55,6 +55,8 @@ class ApproachCircleCreator:
                 approach_obj = bpy.context.object
                 approach_obj.name = f"approach_{hitobject.time}"
 
+                tag_imported(approach_obj)
+
                 bevel_depth = self.settings.get('approach_circle_bevel_depth', 0.1)
                 approach_obj.data.bevel_depth = bevel_depth
 
@@ -96,6 +98,8 @@ class ApproachCircleCreator:
 
                 approach_obj = bpy.data.objects.new(f"approach_{hitobject.time}", mesh)
                 approach_obj.location = (corrected_x, corrected_y, corrected_z)
+
+                tag_imported(approach_obj)
 
                 self.approach_circles_collection.objects.link(approach_obj)
                 if approach_obj.users_collection:

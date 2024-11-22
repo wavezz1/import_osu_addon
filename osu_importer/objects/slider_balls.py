@@ -3,6 +3,7 @@
 import bpy
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.utils.constants import SCALE_FACTOR
+from osu_importer.utils.utils import tag_imported
 from osu_importer.osu_data_manager import OsuDataManager
 
 class SliderBallCreator:
@@ -26,6 +27,8 @@ class SliderBallCreator:
         else:
             print("Unsupported import type for slider ball.")
             return
+
+        tag_imported(slider_ball)
 
         self.animate_slider_ball(slider_ball)
         self.link_to_collection(slider_ball)

@@ -2,7 +2,7 @@
 
 import bpy
 import math
-from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values, tag_imported
 from osu_importer.utils.constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
@@ -46,6 +46,8 @@ class SpinnerCreator:
                 spinner.location = (corrected_x, corrected_y, corrected_z)
 
             spinner.name = f"{self.global_index:03d}_spinner_{self.hitobject.time}"
+
+            tag_imported(spinner)
 
             spinner["ar"] = approach_rate
 

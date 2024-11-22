@@ -156,3 +156,6 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
         ]
 
     return frame_values, fixed_values
+
+def tag_imported(obj, tag="osu_imported", value=True):
+    obj[tag] = value

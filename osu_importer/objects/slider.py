@@ -4,7 +4,7 @@ import bpy
 import math
 from mathutils import Vector
 from osu_importer.utils.constants import SCALE_FACTOR
-from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
 from osu_importer.parsers.hitobjects import HitObject
@@ -119,6 +119,8 @@ class SliderCreator:
                     curve_data.extrude = osu_radius * SCALE_FACTOR * 2
                 elif self.import_type == 'BASE':
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
+
+                tag_imported(slider)
 
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR

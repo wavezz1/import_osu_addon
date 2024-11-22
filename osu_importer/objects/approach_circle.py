@@ -105,9 +105,9 @@ class ApproachCircleCreator:
                     self.hitobject,
                     'approach_circle',
                     self.import_type,
+                    early_start_frame - 1,
+                    early_start_frame,  # Annahme: Approach Circle erscheint und verschwindet sofort
                     start_frame,
-                    start_frame + 1,  # Annahme: Approach Circle erscheint und verschwindet sofort
-                    early_start_frame,
                     approach_rate,
                     osu_radius,
                     extra_params={}

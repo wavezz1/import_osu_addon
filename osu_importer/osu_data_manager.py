@@ -256,7 +256,7 @@ class OsuDataManager:
         for offset, beat_length in timing_points:
             if start_time_ms >= offset:
                 if beat_length < 0:
-                    inherited_multiplier = -beat_length
+                    inherited_multiplier = -100 / beat_length
                 else:
                     current_beat_length = beat_length
             else:
@@ -267,7 +267,7 @@ class OsuDataManager:
 
         slider_duration_ms = (pixel_length / (
                 slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
-        slider_duration_ms /= speed_multiplier
+        # /= speed_multiplier
 
         return slider_duration_ms
 

@@ -35,11 +35,10 @@ class SliderCreator:
             if i < len(points) - 1:
                 p1 = points[i]
                 p2 = points[i + 1]
-                # Überprüfen, ob die Punkte innerhalb der Toleranz liegen
                 if (abs(p1.x - p2.x) <= tolerance) and (abs(p1.y - p2.y) <= tolerance):
                     print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
-                    merged.append(p1)  # Nur einen der doppelten Punkte hinzufügen
-                    i += 2  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
+                    merged.append(p1)
+                    i += 2
                     continue
             merged.append(points[i])
             i += 1
@@ -53,7 +52,6 @@ class SliderCreator:
             approach_rate = data_manager.adjusted_ar
             osu_radius = data_manager.osu_radius
 
-            # Verwenden der vorab berechneten Frames
             start_frame = int(self.hitobject.start_frame)
             end_frame = int(self.hitobject.end_frame)
             early_start_frame = int(start_frame - data_manager.preempt_frames)
@@ -125,7 +123,6 @@ class SliderCreator:
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
-                # Berechnung der Slider-Dauer in Millisekunden
                 slider_duration_frames = self.hitobject.duration_frames
                 slider_duration_ms = slider_duration_frames * data_manager.ms_per_frame
                 slider["slider_duration_ms"] = slider_duration_ms
@@ -141,7 +138,6 @@ class SliderCreator:
                 if self.import_type == 'BASE':
                     create_geometry_nodes_modifier(slider, "slider")
 
-                # Keyframe setzen basierend auf vorab berechneten Frames
                 frame_values, fixed_values = get_keyframe_values(
                     self.hitobject,
                     'slider',
@@ -175,7 +171,6 @@ class SliderCreator:
                 set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
                 if self.import_type == 'FULL':
-                    # Keyframes für Sichtbarkeit setzen
                     slider.hide_viewport = True
                     slider.hide_render = True
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -192,7 +187,7 @@ class SliderCreator:
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
                 if self.import_slider_balls:
-                    from .slider_balls import SliderBallCreator  # Import der SliderBallCreator-Klasse
+                    from .slider_balls import SliderBallCreator
                     slider_ball_creator = SliderBallCreator(
                         slider=slider,
                         start_frame=start_frame,

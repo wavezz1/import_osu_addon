@@ -76,24 +76,38 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         collections = {}
         if props.import_circles:
             collections["Circles"] = create_collection("Circles")
+        else:
+            collections["Circles"] = None
 
         if props.import_sliders:
             collections["Sliders"] = create_collection("Sliders")
+        else:
+            collections["Sliders"] = None
 
         if props.import_slider_balls:
             collections["Slider Balls"] = create_collection("Slider Balls")
+        else:
+            collections["Slider Balls"] = None
 
         if props.import_spinners:
             collections["Spinners"] = create_collection("Spinners")
+        else:
+            collections["Spinners"] = None
 
         if props.import_cursors:
             collections["Cursor"] = create_collection("Cursor")
+        else:
+            collections["Cursor"] = None
 
         if props.import_approach_circles:
             collections["Approach Circles"] = create_collection("Approach Circles")
+        else:
+            collections["Approach Circles"] = None
 
         if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL':
             collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
+        else:
+            collections["Slider Heads Tails"] = None
 
         global_index = 1
 

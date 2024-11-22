@@ -6,15 +6,19 @@ import mathutils
 from osu_importer.utils.constants import SCALE_FACTOR
 
 def update_quick_load(props):
-    if props.quick_load:
-        # .osu Path for Quick Load
-        props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
-        # .osr Path for Quick Load
-        props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+    if props.dev_tools:
+        if props.quick_load:
+            # .osu Path for Quick Load
+            props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+            # .osr Path for Quick Load
+            props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+        else:
+            props.osu_file = ""
+            props.osr_file = ""
+            print("Quick Load deactivated: File paths cleared.")
     else:
-        props.osu_file = ""
-        props.osr_file = ""
-        print("Quick Load deactivated: File paths cleared.")
+        props.quick_load = False
+        print("Quick Load is disabled because Dev Tools are not enabled.")
 
 def timeit(label):
     class Timer:
@@ -178,7 +182,6 @@ def flip_objects(prefixes, axis, invert_location=True, invert_scale=True):
         flipped_count += 1
 
     return flipped_count
-
 
 def update_override_mods(self, context):
     for prop_name in dir(self):

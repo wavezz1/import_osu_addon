@@ -64,7 +64,7 @@ def assign_materials_to_sockets(cube, socket_to_material, operator=None):
 
 def setup_osu_gameplay_collections_and_materials(
         cursor, approach_circle, circles, sliders, slider_balls, spinners,
-        slider_heads_tails, operator=None):
+        slider_heads_tails, materials, operator=None):
 
     gameplay_collection = create_collection("Osu_Gameplay")
     cube = create_gameplay_placeholder()
@@ -104,22 +104,12 @@ def setup_osu_gameplay_collections_and_materials(
         if collection:
             assign_collections_to_sockets(cube, {socket: collection}, operator=operator)
 
+    assign_materials_to_sockets(cube, materials, operator=operator)
+
     set_collection_exclude(
         ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles", "Slider Heads Tails"],
         exclude=True
     )
-
-    socket_to_material = {
-        "Socket_8": bpy.data.materials.get("Cursor Material"),
-        "Socket_9": bpy.data.materials.get("Circle Material"),
-        "Socket_10": bpy.data.materials.get("Slider Material"),
-        "Socket_11": bpy.data.materials.get("Slider Balls Material"),
-        "Socket_12": bpy.data.materials.get("Slider Head/Tail Material"),
-        "Socket_13": bpy.data.materials.get("Spinner Material"),
-        "Socket_14": bpy.data.materials.get("Approach Circle Material"),
-    }
-
-    assign_materials_to_sockets(cube, socket_to_material, operator=operator)
 
     return gameplay_collection
 
@@ -238,6 +228,16 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             global_index += 1
 
     if import_type == 'BASE' and props.include_osu_gameplay:
+        materials = {
+            "Socket_8": bpy.data.materials.get("Cursor Material"),
+            "Socket_9": bpy.data.materials.get("Circle Material"),
+            "Socket_10": bpy.data.materials.get("Slider Material"),
+            "Socket_11": bpy.data.materials.get("Slider Balls Material"),
+            "Socket_12": bpy.data.materials.get("Slider Head/Tail Material"),
+            "Socket_13": bpy.data.materials.get("Spinner Material"),
+            "Socket_14": bpy.data.materials.get("Approach Circle Material"),
+        }
+
         gameplay_collection = setup_osu_gameplay_collections_and_materials(
             cursor=collections.get("Cursor"),
             approach_circle=collections.get("Approach Circles"),
@@ -246,22 +246,9 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             slider_balls=collections.get("Slider Balls"),
             spinners=collections.get("Spinners"),
             slider_heads_tails=collections.get("Slider Heads Tails"),
+            materials=materials,
             operator=operator
         )
 
         if gameplay_collection:
             tag_imported(gameplay_collection)
-
-        gameplay_object = bpy.data.objects.get("Osu_Gameplay")
-        if gameplay_object:
-            socket_to_material = {
-                "Socket_8": bpy.data.materials.get("Cursor Material"),
-                "Socket_9": bpy.data.materials.get("Circle Material"),
-                "Socket_10": bpy.data.materials.get("Slider Material"),
-                "Socket_11": bpy.data.materials.get("Slider Balls Material"),
-                "Socket_12": bpy.data.materials.get("Slider Head/Tail Material"),
-                "Socket_13": bpy.data.materials.get("Spinner Material"),
-                "Socket_14": bpy.data.materials.get("Approach Circle Material"),
-            }
-
-            assign_materials_to_sockets(gameplay_object, socket_to_material, operator=operator)

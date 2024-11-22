@@ -656,11 +656,11 @@ def slider_sim_group_node_group():
     slider_balls_y_offset__socket.subtype = 'NONE'
     slider_balls_y_offset__socket.attribute_domain = 'POINT'
 
-    # Socket Slider Headt/Tail Material
-    slider_headt_tail_material_socket = slider_sim_group.interface.new_socket(name="Slider Headt/Tail Material",
+    # Socket Slider Head/Tail Material
+    slider_head_tail_material_socket = slider_sim_group.interface.new_socket(name="Slider Head/Tail Material",
                                                                               in_out='INPUT',
                                                                               socket_type='NodeSocketMaterial')
-    slider_headt_tail_material_socket.attribute_domain = 'POINT'
+    slider_head_tail_material_socket.attribute_domain = 'POINT'
 
     # initialize slider_sim_group nodes
     # node Group Output
@@ -1588,7 +1588,7 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(reroute_006_1.outputs[0], instance_on_points_1.inputs[2])
     # set_position_001.Geometry -> set_material_001.Geometry
     slider_sim_group.links.new(set_position_001.outputs[0], set_material_001.inputs[0])
-    # group_input_001_1.Slider Headt/Tail Material -> set_material_001.Material
+    # group_input_001_1.Slider Head/Tail Material -> set_material_001.Material
     slider_sim_group.links.new(group_input_001_1.outputs[9], set_material_001.inputs[2])
     # group_input_002_1.Slider Balls Y Offset  -> combine_xyz_003.Y
     slider_sim_group.links.new(group_input_002_1.outputs[8], combine_xyz_003.inputs[1])
@@ -2612,10 +2612,10 @@ def gn_osu_node_group():
                                                                  socket_type='NodeSocketMaterial')
     slider_balls_material_socket_1.attribute_domain = 'POINT'
 
-    # Socket Slider Headt/Tail Material
-    slider_headt_tail_material_socket_1 = gn_osu.interface.new_socket(name="Slider Headt/Tail Material", in_out='INPUT',
+    # Socket Slider Head/Tail Material
+    slider_head_tail_material_socket_1 = gn_osu.interface.new_socket(name="Slider Head/Tail Material", in_out='INPUT',
                                                                       socket_type='NodeSocketMaterial')
-    slider_headt_tail_material_socket_1.attribute_domain = 'POINT'
+    slider_head_tail_material_socket_1.attribute_domain = 'POINT'
 
     # Socket Spinner Material
     spinner_material_socket_1 = gn_osu.interface.new_socket(name="Spinner Material", in_out='INPUT',
@@ -3106,7 +3106,7 @@ def gn_osu_node_group():
     gn_osu.links.new(group_input_006_1.outputs[7], group_003.inputs[2])
     # group_input_007_1.Spinner Material -> group_002.Spinner Material
     gn_osu.links.new(group_input_007_1.outputs[12], group_002.inputs[2])
-    # group_input_008_1.Slider Headt/Tail Material -> group_001.Slider Headt/Tail Material
+    # group_input_008_1.Slider Head/Tail Material -> group_001.Slider Head/Tail Material
     gn_osu.links.new(group_input_008_1.outputs[11], group_001.inputs[9])
     # group_input_009_1.Slider Balls Material -> group_001.Slider Balls Material
     gn_osu.links.new(group_input_009_1.outputs[10], group_001.inputs[7])

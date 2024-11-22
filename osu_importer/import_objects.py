@@ -34,7 +34,38 @@ def create_gameplay_placeholder():
     return cube
 
 
-def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, slider_balls, spinners, operator=None):
+def assign_materials_to_sockets(cube, socket_to_material, operator=None):
+    """
+    Weist Materialien den Sockets eines Geometry Nodes Modifiers zu.
+    :param cube: Das Osu_Gameplay-Objekt
+    :param socket_to_material: Ein Dictionary mit Socket-Namen und zugehörigen Materialien
+    :param operator: Blender Operator für Fehlerberichte
+    """
+    modifier = cube.modifiers.get("GeometryNodes")
+    if not modifier or not modifier.node_group:
+        error_message = "No Geometry Nodes modifier or node group found on the Osu_Gameplay object."
+        if operator:
+            operator.report({'ERROR'}, error_message)
+        print(error_message)
+        return
+
+    for socket, material in socket_to_material.items():
+        if material:
+            try:
+                modifier[socket] = material
+                print(f"Material '{material.name}' assigned to socket '{socket}'.")
+            except KeyError:
+                if operator:
+                    operator.report({'WARNING'}, f"Socket '{socket}' not found in the node group.")
+                print(f"Socket '{socket}' not found in the node group.")
+        else:
+            print(f"No material found for socket '{socket}', skipping.")
+
+
+def setup_osu_gameplay_collections_and_materials(
+        cursor, approach_circle, circles, sliders, slider_balls, spinners,
+        slider_heads_tails, operator=None):
+
     gameplay_collection = create_collection("Osu_Gameplay")
     cube = create_gameplay_placeholder()
 
@@ -58,20 +89,37 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
     modifier = cube.modifiers.new(name="GeometryNodes", type='NODES') if not cube.modifiers.get("GeometryNodes") else cube.modifiers.get("GeometryNodes")
     modifier.node_group = node_group
 
+    # Collections zuweisen
     socket_to_collection = {
         "Socket_2": cursor,
         "Socket_3": approach_circle,
         "Socket_4": circles,
         "Socket_5": sliders,
         "Socket_6": slider_balls,
-        "Socket_7": spinners
+        "Socket_7": spinners,
+        "Socket_8": slider_heads_tails
     }
 
     for socket, collection in socket_to_collection.items():
         if collection:
             assign_collections_to_sockets(cube, {socket: collection}, operator=operator)
 
-    set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles"], exclude=True)
+    set_collection_exclude(
+        ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles", "Slider Heads Tails"],
+        exclude=True
+    )
+
+    socket_to_material = {
+        "Socket_8": bpy.data.materials.get("Cursor Material"),
+        "Socket_9": bpy.data.materials.get("Circle Material"),
+        "Socket_10": bpy.data.materials.get("Slider Material"),
+        "Socket_11": bpy.data.materials.get("Slider Balls Material"),
+        "Socket_12": bpy.data.materials.get("Slider Head/Tail Material"),
+        "Socket_13": bpy.data.materials.get("Spinner Material"),
+        "Socket_14": bpy.data.materials.get("Approach Circle Material"),
+    }
+
+    assign_materials_to_sockets(cube, socket_to_material, operator=operator)
 
     return gameplay_collection
 

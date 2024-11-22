@@ -55,7 +55,7 @@ def slider_balls_node_group():
     math.operation = 'COMPARE'
     math.use_clamp = False
     # Value_001
-    math.inputs[1].default_value = 1.0
+    math.inputs[1].default_value = 1.0499999523162842
     # Value_002
     math.inputs[2].default_value = 0.5
 
@@ -78,47 +78,9 @@ def slider_balls_node_group():
     # B_Color
     mix.inputs[7].default_value = (1.0, 1.0, 1.0, 1.0)
 
-    # node Math.001
-    math_001 = slider_balls.nodes.new("ShaderNodeMath")
-    math_001.name = "Math.001"
-    math_001.hide = True
-    math_001.operation = 'COMPARE'
-    math_001.use_clamp = False
-    # Value_001
-    math_001.inputs[1].default_value = 0.0
-    # Value_002
-    math_001.inputs[2].default_value = 0.5
-
-    # node Math.002
-    math_002 = slider_balls.nodes.new("ShaderNodeMath")
-    math_002.name = "Math.002"
-    math_002.operation = 'SUBTRACT'
-    math_002.use_clamp = False
-
-    # node Math.003
-    math_003 = slider_balls.nodes.new("ShaderNodeMath")
-    math_003.name = "Math.003"
-    math_003.operation = 'MULTIPLY'
-    math_003.use_clamp = False
-
     # node Reroute
     reroute = slider_balls.nodes.new("NodeReroute")
     reroute.name = "Reroute"
-    # node Map Range
-    map_range = slider_balls.nodes.new("ShaderNodeMapRange")
-    map_range.name = "Map Range"
-    map_range.clamp = False
-    map_range.data_type = 'FLOAT'
-    map_range.interpolation_type = 'LINEAR'
-    # From Min
-    map_range.inputs[1].default_value = 0.0
-    # From Max
-    map_range.inputs[2].default_value = 1.0
-    # To Min
-    map_range.inputs[3].default_value = -1.3199998140335083
-    # To Max
-    map_range.inputs[4].default_value = 1.0
-
     # node Mix Shader
     mix_shader = slider_balls.nodes.new("ShaderNodeMixShader")
     mix_shader.name = "Mix Shader"
@@ -130,20 +92,16 @@ def slider_balls_node_group():
     transparent_bsdf.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)
 
     # Set locations
-    material_output.location = (1313.6466064453125, 319.01947021484375)
+    material_output.location = (700.0, 300.0)
     mapping.location = (-260.0, 300.0)
     texture_coordinate.location = (-420.0, 300.0)
     vector_math.location = (-100.0, 300.0)
     math.location = (60.0, 300.0)
-    emission.location = (860.0, 300.0)
-    mix.location = (700.0, 300.0)
-    math_001.location = (380.0, 140.0)
-    math_002.location = (380.0, 300.0)
-    math_003.location = (540.0, 300.0)
+    emission.location = (380.0, 300.0)
+    mix.location = (220.0, 300.0)
     reroute.location = (120.0, 200.0)
-    map_range.location = (220.0, 300.0)
-    mix_shader.location = (1020.0, 220.0)
-    transparent_bsdf.location = (1020.0, 300.0)
+    mix_shader.location = (540.0, 300.0)
+    transparent_bsdf.location = (540.0, 400.0)
 
     # Set dimensions
     material_output.width, material_output.height = 140.0, 100.0
@@ -153,11 +111,7 @@ def slider_balls_node_group():
     math.width, math.height = 140.0, 100.0
     emission.width, emission.height = 140.0, 100.0
     mix.width, mix.height = 140.0, 100.0
-    math_001.width, math_001.height = 140.0, 100.0
-    math_002.width, math_002.height = 140.0, 100.0
-    math_003.width, math_003.height = 140.0, 100.0
     reroute.width, reroute.height = 16.0, 100.0
-    map_range.width, map_range.height = 140.0, 100.0
     mix_shader.width, mix_shader.height = 140.0, 100.0
     transparent_bsdf.width, transparent_bsdf.height = 140.0, 100.0
 
@@ -170,22 +124,10 @@ def slider_balls_node_group():
     slider_balls.links.new(vector_math.outputs[1], math.inputs[0])
     # mix.Result -> emission.Color
     slider_balls.links.new(mix.outputs[2], emission.inputs[0])
-    # reroute.Output -> math_001.Value
-    slider_balls.links.new(reroute.outputs[0], math_001.inputs[0])
-    # math_001.Value -> math_002.Value
-    slider_balls.links.new(math_001.outputs[0], math_002.inputs[1])
-    # reroute.Output -> math_003.Value
-    slider_balls.links.new(reroute.outputs[0], math_003.inputs[0])
-    # math_002.Value -> math_003.Value
-    slider_balls.links.new(math_002.outputs[0], math_003.inputs[1])
     # vector_math.Value -> reroute.Input
     slider_balls.links.new(vector_math.outputs[1], reroute.inputs[0])
-    # math_003.Value -> mix.Factor
-    slider_balls.links.new(math_003.outputs[0], mix.inputs[0])
-    # vector_math.Value -> map_range.Value
-    slider_balls.links.new(vector_math.outputs[1], map_range.inputs[0])
-    # map_range.Result -> math_002.Value
-    slider_balls.links.new(map_range.outputs[0], math_002.inputs[0])
+    # math.Value -> mix.Factor
+    slider_balls.links.new(math.outputs[0], mix.inputs[0])
     # emission.Emission -> mix_shader.Shader
     slider_balls.links.new(emission.outputs[0], mix_shader.inputs[2])
     # transparent_bsdf.BSDF -> mix_shader.Shader

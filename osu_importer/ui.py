@@ -187,7 +187,7 @@ class OSUImporterProperties(PropertyGroup):
         name="Quick Load",
         description="Automatically load predefined file paths for .osu and .osr files",
         default=False,
-        update = update_quick_load
+        update=lambda self, context: update_quick_load(self)
     )
     #Override Mods
     override_mods: BoolProperty(

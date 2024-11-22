@@ -138,7 +138,8 @@ def import_hitobjects(data_manager, settings, props, operator=None):
 
     settings.update({
         'approach_circle_bevel_depth': props.approach_circle_bevel_depth,
-        'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution
+        'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution,
+        'cursor_size': props.cursor_size
     })
 
     if props.import_circles:

@@ -275,20 +275,31 @@ class OSU_PT_SkinPanel(bpy.types.Panel):
 
 
 class OSU_OT_BasicShaderOperator(bpy.types.Operator):
-    """Executes the basic shader setup for Circles and Sliders"""
+    """Erstellt die Basis-Shader für Circles und Sliders"""
     bl_idname = "osu_importer.basic_shader"
     bl_label = "Create Basic Shader"
-    bl_description = "Setup basic shaders for Circles and Sliders"
 
     def execute(self, context):
         try:
-            # Execute the functions for creating shader node groups
-            circles_node_group()
-            slider_node_group()
-            self.report({'INFO'}, "Basic shaders created successfully")
+            # Materialien erstellen
+            circle_material = circles_node_group()
+            slider_material = slider_node_group()
+
+            # Optional: Materialien einem Objekt zuweisen (hier für Beispiel)
+            if bpy.context.object:
+                obj = bpy.context.object
+                if not obj.data.materials:
+                    obj.data.materials.append(circle_material)
+                    obj.data.materials.append(slider_material)
+                else:
+                    obj.data.materials[0] = circle_material
+                    obj.data.materials[1] = slider_material
+
+            self.report({'INFO'}, "Basic shaders created and applied successfully")
+            return {'FINISHED'}
         except Exception as e:
             self.report({'ERROR'}, f"Error creating shaders: {e}")
-        return {'FINISHED'}
+            return {'CANCELLED'}
 
 class OSU_PT_ReplayInfoPanel(Panel):
     bl_label = "Replay Information"

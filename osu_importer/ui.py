@@ -108,15 +108,15 @@ class OSUImporterProperties(PropertyGroup):
             ('SPHERE', "Sphere", "Use a UV Sphere for the cursor"),
             ('CIRCLE', "Circle", "Use a filled circle for the cursor")
         ],
-        default='SPHERE'
+        default='CIRCLE'
     )
     cursor_size: FloatProperty(
         name="Cursor Size",
         description="Adjust the size of the cursor",
-        default=1.0,
-        min=0.1,
+        default=0.4,
+        min=0.05,
         max=10.0,
-        step=0.1,
+        step=0.05,
         precision=2
     )
     # Audio Options

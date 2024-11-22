@@ -101,6 +101,15 @@ class OSUImporterProperties(PropertyGroup):
         description="Import cursor movements from the replay",
         default=True
     )
+    cursor_size: FloatProperty(
+        name="Cursor Size",
+        description="Adjust the size of the cursor",
+        default=1.0,
+        min=0.1,
+        max=10.0,
+        step=0.1,
+        precision=2
+    )
     # Audio Options
     import_audio: BoolProperty(
         name="Audio Track",
@@ -465,6 +474,9 @@ class OSU_PT_ImportOptionsPanel(Panel):
         col.separator()
         col.label(text="Replay Options:", icon='REC')
         col.prop(props, "import_cursors", toggle=True)
+
+        if props.import_cursors:
+            col.prop(props, "cursor_size", text="Cursor Size")
 
         # Audio Options
         col.separator()

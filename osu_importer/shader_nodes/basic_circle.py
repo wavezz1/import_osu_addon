@@ -1,11 +1,10 @@
 import bpy, mathutils
 
-mat = bpy.data.materials.new(name="Circles")
-mat.use_nodes = True
-
 
 # initialize Circles node group
 def circles_node_group():
+    mat = bpy.data.materials.new(name="Circles")
+    mat.use_nodes = True
     circles = mat.node_tree
     # start with a clean node tree
     for node in circles.nodes:

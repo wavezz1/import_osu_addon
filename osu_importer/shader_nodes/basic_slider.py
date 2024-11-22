@@ -1,10 +1,9 @@
 import bpy, mathutils
 
-mat = bpy.data.materials.new(name = "Slider")
-mat.use_nodes = True
 #initialize Slider node group
 def slider_node_group():
-
+	mat = bpy.data.materials.new(name="Slider")
+	mat.use_nodes = True
 	slider = mat.node_tree
 	#start with a clean node tree
 	for node in slider.nodes:

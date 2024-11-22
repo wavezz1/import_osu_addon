@@ -126,9 +126,10 @@ class SliderCreator:
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
                 # Berechnung der Slider-Dauer in Millisekunden
-                slider_duration_ms = self.hitobject.duration_frames * data_manager.ms_per_frame * data_manager.speed_multiplier
+                slider_duration_frames = self.hitobject.duration_frames
+                slider_duration_ms = slider_duration_frames * data_manager.ms_per_frame
                 slider["slider_duration_ms"] = slider_duration_ms
-                slider["slider_duration_frames"] = self.hitobject.duration_frames
+                slider["slider_duration_frames"] = slider_duration_frames
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 
@@ -152,7 +153,7 @@ class SliderCreator:
                     osu_radius,
                     extra_params={
                         "slider_duration_ms": slider_duration_ms,
-                        "slider_duration_frames": self.hitobject.duration_frames,
+                        "slider_duration_frames": slider_duration_frames,
                         "repeat_count": repeat_count,
                         "pixel_length": pixel_length
                     },

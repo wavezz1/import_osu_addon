@@ -112,24 +112,27 @@ class OsuDataManager:
 
     def calculate_hit_objects_frames(self):
         for hitobject in self.hitobjects:
-            # Startframe berechnen
-            hitobject.start_frame = int((hitobject.time - self.audio_lead_in) / self.ms_per_frame)
+            # Berechnung der tatsächlichen HitObject-Zeit unter Berücksichtigung des Speed Multipliers und Audio-Lead-In
+            hitobject_time = (hitobject.time / self.speed_multiplier) + self.audio_lead_in
+
+            # Startframe berechnen unter Berücksichtigung der Preempt-Zeit
+            hitobject.start_frame = int((hitobject_time - self.preempt_ms) / self.ms_per_frame)
 
             if hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 hitobject.duration_frames = int(slider_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
-                hitobject.slider_end_time = hitobject.time + slider_duration_ms  # Setzen von slider_end_time
+                hitobject.slider_end_time = hitobject_time + slider_duration_ms / self.speed_multiplier  # Anpassung der Endzeit
             elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)
                 hitobject.duration_frames = int(spinner_duration_ms / self.ms_per_frame)
                 hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
-                hitobject.slider_end_time = hitobject.time + spinner_duration_ms  # Setzen von slider_end_time
+                hitobject.slider_end_time = hitobject_time + spinner_duration_ms / self.speed_multiplier  # Anpassung der Endzeit
             else:  # Circle
                 hitobject.duration_frames = 0
                 hitobject.end_frame = hitobject.start_frame
                 # Für Kreise ist slider_end_time nicht relevant
-                hitobject.slider_end_time = hitobject.time
+                hitobject.slider_end_time = hitobject_time
 
     def import_audio(self):
         audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")

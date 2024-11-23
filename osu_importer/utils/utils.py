@@ -8,14 +8,13 @@ from osu_importer.utils.constants import SCALE_FACTOR
 def update_dev_tools(self, context):
     if not self.dev_tools:
         self.quick_load = False
-        print("Dev Tools deaktiviert: Quick Load automatisch ausgeschaltet.")
 
 def update_quick_load(props):
     if props.quick_load:
         # .osu Path for Quick Load
-        props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+        props.osu_file = r""
         # .osr Path for Quick Load
-        props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+        props.osr_file = r""
     else:
         props.osu_file = ""
         props.osr_file = ""

@@ -1,4 +1,4 @@
-# hitobjects.py
+# osu_importer/parsers/hitobjects.py
 
 class HitObject:
     def __init__(self, x, y, time, hit_type, hit_sound, extras):
@@ -9,6 +9,9 @@ class HitObject:
         self.hit_sound = hit_sound
         self.extras = extras
         self.frame = None
+        self.start_frame = None
+        self.end_frame = None
+        self.duration_frames = None
         self.was_hit = False
         self.was_completed = False
 

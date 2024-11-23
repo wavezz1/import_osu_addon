@@ -6,10 +6,11 @@ from osu_importer.objects.spinner import SpinnerCreator
 from osu_importer.objects.cursor import CursorCreator
 from osu_importer.objects.approach_circle import ApproachCircleCreator
 from osu_importer.objects.slider_head_tail import SliderHeadTailCreator
-from .utils.utils import create_collection, timeit, map_osu_to_blender
+from .utils.utils import create_collection, timeit, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
+
 
 def set_collection_exclude(collection_names, exclude=False, view_layer=None):
     if view_layer is None:
@@ -25,13 +26,40 @@ def set_collection_exclude(collection_names, exclude=False, view_layer=None):
         else:
             print(f"Collection '{collection_name}' not found in view layer '{view_layer.name}'.")
 
+
 def create_gameplay_placeholder():
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
     cube = bpy.context.object
     cube.name = "Osu_Gameplay"
     return cube
 
-def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, slider_balls, spinners, operator=None):
+
+def assign_materials_to_sockets(cube, socket_to_material, operator=None):
+    modifier = cube.modifiers.get("GeometryNodes")
+    if not modifier or not modifier.node_group:
+        error_message = "No Geometry Nodes modifier or node group found on the Osu_Gameplay object."
+        if operator:
+            operator.report({'ERROR'}, error_message)
+        print(error_message)
+        return
+
+    for socket, material in socket_to_material.items():
+        if material:
+            try:
+                modifier[socket] = material
+                print(f"Material '{material.name}' assigned to socket '{socket}'.")
+            except KeyError:
+                if operator:
+                    operator.report({'WARNING'}, f"Socket '{socket}' not found in the node group.")
+                print(f"Socket '{socket}' not found in the node group.")
+        else:
+            print(f"No material found for socket '{socket}', skipping.")
+
+
+def setup_osu_gameplay_collections_and_materials(
+        cursor, approach_circle, circles, sliders, slider_balls, spinners,
+        slider_heads_tails, operator=None):
+
     gameplay_collection = create_collection("Osu_Gameplay")
     cube = create_gameplay_placeholder()
 
@@ -55,6 +83,7 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
     modifier = cube.modifiers.new(name="GeometryNodes", type='NODES') if not cube.modifiers.get("GeometryNodes") else cube.modifiers.get("GeometryNodes")
     modifier.node_group = node_group
 
+    # Collections zuweisen
     socket_to_collection = {
         "Socket_2": cursor,
         "Socket_3": approach_circle,
@@ -62,104 +91,158 @@ def setup_osu_gameplay_collections(cursor, approach_circle, circles, sliders, sl
         "Socket_5": sliders,
         "Socket_6": slider_balls,
         "Socket_7": spinners
-
     }
-    assign_collections_to_sockets(cube, socket_to_collection, operator=operator)
 
-    set_collection_exclude(["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles"], exclude=True)
+    materials = {
+        "Socket_8": bpy.data.materials.get("Cursor"),
+        "Socket_9": bpy.data.materials.get("Circles"),
+        "Socket_10": bpy.data.materials.get("Slider"),
+        "Socket_11": bpy.data.materials.get("Slider_Balls"),
+        "Socket_12": bpy.data.materials.get("Circles"),
+        "Socket_13": bpy.data.materials.get("Spinner"),
+        "Socket_14": bpy.data.materials.get("Approach Circles"),
+    }
+
+    for socket, collection in socket_to_collection.items():
+        if collection:
+            assign_collections_to_sockets(cube, {socket: collection}, operator=operator)
+
+    assign_materials_to_sockets(cube, materials, operator=operator)
+
+    set_collection_exclude(
+        ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Approach Circles", "Slider Heads Tails"],
+        exclude=True
+    )
+
+    return gameplay_collection
 
 def import_hitobjects(data_manager, settings, props, operator=None):
     with timeit("Setting up collections"):
-        collections = {}
-        if props.import_circles:
-            collections["Circles"] = create_collection("Circles")
+        collections = {
+            "Circles": create_collection("Circles") if props.import_circles else None,
+            "Sliders": create_collection("Sliders") if props.import_sliders else None,
+            "Slider Balls": create_collection("Slider Balls") if props.import_slider_balls else None,
+            "Spinners": create_collection("Spinners") if props.import_spinners else None,
+            "Cursor": create_collection("Cursor") if props.import_cursors else None,
+            "Approach Circles": create_collection("Approach Circles") if props.import_approach_circles else None,
+            "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL' else None,
+        }
 
-        if props.import_sliders:
-            collections["Sliders"] = create_collection("Sliders")
-
-        if props.import_slider_balls:
-            collections["Slider Balls"] = create_collection("Slider Balls")
-
-        if props.import_spinners:
-            collections["Spinners"] = create_collection("Spinners")
-
-        if props.import_cursors:
-            collections["Cursor"] = create_collection("Cursor")
-
-        if props.import_approach_circles:
-            collections["Approach Circles"] = create_collection("Approach Circles")
-
-        if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL':
-            collections["Slider Heads Tails"] = create_collection("Slider Heads Tails")
+        for collection in collections.values():
+            if collection:
+                tag_imported(collection)
 
         global_index = 1
+
     import_type = settings.get('import_type', 'FULL')
 
     settings.update({
         'approach_circle_bevel_depth': props.approach_circle_bevel_depth,
-        'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution
+        'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution,
+        'cursor_size': props.cursor_size,
+        'cursor_shape': props.cursor_shape
     })
+
     if props.import_circles:
         circles = data_manager.hitobjects_processor.circles
-        for i, hitobject in enumerate(circles):
-            CircleCreator(hitobject, global_index + i, collections["Circles"], settings, data_manager, import_type)
-        global_index += len(circles)
+        for hitobject in circles:
+            CircleCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                circles_collection=collections["Circles"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
     if props.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders
-        for i, hitobject in enumerate(sliders):
-            SliderCreator(hitobject, global_index + i, collections["Sliders"], collections["Slider Balls"], settings, data_manager, import_type)
-        global_index += len(sliders)
+        for hitobject in sliders:
+            SliderCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                sliders_collection=collections["Sliders"],
+                slider_balls_collection=collections["Slider Balls"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
     if props.import_spinners:
         spinners = data_manager.hitobjects_processor.spinners
-        for i, hitobject in enumerate(spinners):
-            SpinnerCreator(hitobject, global_index + i, collections["Spinners"], settings, data_manager, import_type)
-        global_index += len(spinners)
+        for hitobject in spinners:
+            SpinnerCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                spinners_collection=collections["Spinners"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
     if props.import_approach_circles:
         relevant_hitobjects = data_manager.hitobjects_processor.circles + data_manager.hitobjects_processor.sliders
-        for i, hitobject in enumerate(relevant_hitobjects):
-            ApproachCircleCreator(hitobject, global_index + i, collections["Approach Circles"], settings, data_manager, import_type)
-        global_index += len(relevant_hitobjects)
+        for hitobject in relevant_hitobjects:
+            ApproachCircleCreator(
+                hitobject=hitobject,
+                global_index=global_index,
+                approach_circles_collection=collections["Approach Circles"],
+                settings=settings,
+                data_manager=data_manager,
+                import_type=import_type
+            )
+            global_index += 1
 
     if props.import_cursors:
-        cursor_creator = CursorCreator(collections["Cursor"], settings, data_manager, import_type)
+        cursor_creator = CursorCreator(
+            cursor_collection=collections["Cursor"],
+            settings=settings,
+            data_manager=data_manager,
+            import_type=import_type
+        )
         cursor_creator.animate_cursor()
 
     if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
-        for i, hitobject in enumerate(sliders):
-            start_pos = hitobject.start_pos
-            end_pos = hitobject.end_pos
-
+        for hitobject in sliders:
             # Slider Head
             SliderHeadTailCreator(
                 hitobject=hitobject,
-                position=start_pos,
-                global_index=global_index + i * 2,
+                position=hitobject.start_pos,
+                global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
                 settings=settings,
-                data_manager=data_manager
+                data_manager=data_manager,
+                import_type=import_type
             )
+            global_index += 1
 
             # Slider Tail
             SliderHeadTailCreator(
                 hitobject=hitobject,
-                position=end_pos,
-                global_index=global_index + i * 2 + 1,
+                position=hitobject.end_pos,
+                global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
                 settings=settings,
-                data_manager=data_manager
+                data_manager=data_manager,
+                import_type=import_type
             )
-        global_index += len(sliders) * 2
+            global_index += 1
+
     if import_type == 'BASE' and props.include_osu_gameplay:
-        setup_osu_gameplay_collections(
-            cursor=collections["Cursor"],
-            approach_circle=collections["Approach Circles"],
-            circles=collections["Circles"],
-            sliders=collections["Sliders"],
-            slider_balls=collections["Slider Balls"],
-            spinners=collections["Spinners"],
+        gameplay_collection = setup_osu_gameplay_collections_and_materials(
+            cursor=collections.get("Cursor"),
+            approach_circle=collections.get("Approach Circles"),
+            circles=collections.get("Circles"),
+            sliders=collections.get("Sliders"),
+            slider_balls=collections.get("Slider Balls"),
+            spinners=collections.get("Spinners"),
+            slider_heads_tails=collections.get("Slider Heads Tails"),
             operator=operator
         )
+
+        if gameplay_collection:
+            tag_imported(gameplay_collection)

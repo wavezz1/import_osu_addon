@@ -1,4 +1,4 @@
-# mod_functions.py
+# # osu_importer/utils/mod_functions.py
 
 from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME
 

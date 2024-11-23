@@ -1,5 +1,7 @@
+# osu_importer/objects/slider_ticks.py
+
 import bpy
-from osu_importer.utils.utils import evaluate_curve_at_t
+from osu_importer.utils.utils import evaluate_curve_at_t, tag_imported
 
 class SliderTicksCreator:
     def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, settings, import_type):
@@ -32,6 +34,9 @@ class SliderTicksCreator:
                 tick_obj.location = tick_position
 
             tick_obj.name = f"{self.slider.name}_tick_{tick}"
+
+            tag_imported(tick_obj)
+
             self.sliders_collection.objects.link(tick_obj)
             if tick_obj.users_collection:
                 for col in tick_obj.users_collection:

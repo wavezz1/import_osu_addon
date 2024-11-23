@@ -1,4 +1,4 @@
-# exec.py
+# osu_importer/exec.py
 
 import bpy
 import os
@@ -20,8 +20,33 @@ def main_execution(context):
         )
         return {'CANCELLED'}, None
 
+    if props.auto_create_shaders:
+        try:
+            from .shader_nodes.basic_circle import circles_node_group
+            from .shader_nodes.basic_slider import slider_node_group
+            from .shader_nodes.basic_slider_ball import slider_balls_node_group
+            from .shader_nodes.basic_approach_circle import approach_circles_node_group
+            from .shader_nodes.basic_cursor import cursor_node_group
+            from .shader_nodes.basic_spinner import spinner_node_group
+
+            circles_node_group()
+            slider_node_group()
+            slider_balls_node_group()
+            approach_circles_node_group()
+            cursor_node_group()
+            spinner_node_group()
+
+            print("Shaders created successfully.")
+        except Exception as e:
+            context.window_manager.popup_menu(
+                lambda self, ctx: self.layout.label(text=f"Error creating shaders: {str(e)}"),
+                title="Shader Error",
+                icon='ERROR'
+            )
+            return {'CANCELLED'}, None
+
     with timeit("OsuDataManager Initialisierung"):
-        data_manager = OsuDataManager(osu_file_path, osr_file_path)
+        data_manager = OsuDataManager(osu_file_path, osr_file_path, props)
 
     data_manager.print_all_info()
 

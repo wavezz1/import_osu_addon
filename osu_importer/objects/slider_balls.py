@@ -1,10 +1,14 @@
+# osu_importer/objects/slider_balls.py
+
 import bpy
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.utils.constants import SCALE_FACTOR
-
+from osu_importer.utils.utils import tag_imported
+from osu_importer.osu_data_manager import OsuDataManager
 
 class SliderBallCreator:
-    def __init__(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame, slider_balls_collection, data_manager, import_type, slider_time):
+    def __init__(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame,
+                 slider_balls_collection, data_manager: OsuDataManager, import_type, slider_time):
         self.slider = slider
         self.start_frame = start_frame
         self.slider_duration_frames = slider_duration_frames
@@ -24,14 +28,15 @@ class SliderBallCreator:
             print("Unsupported import type for slider ball.")
             return
 
+        tag_imported(slider_ball)
+
         self.animate_slider_ball(slider_ball)
         self.link_to_collection(slider_ball)
 
     def create_base_slider_ball(self):
-        mesh = bpy.data.meshes.new(f"{self.slider.name}_ball")
-        mesh.vertices.add(1)
-        mesh.vertices[0].co = (0, 0, 0)
-        mesh.use_auto_texspace = True
+        mesh = bpy.data.meshes.new(f"{self.slider.name}_ball_mesh")
+        mesh.from_pydata([ (0, 0, 0) ], [], [])
+        mesh.update()
 
         slider_ball = bpy.data.objects.new(f"{self.slider.name}_ball", mesh)
         slider_ball.location = self.slider.location
@@ -52,14 +57,19 @@ class SliderBallCreator:
             frame_values,
             fixed_values=None
         )
+
         return slider_ball
 
     def create_full_slider_ball(self):
-        circle_size = self.data_manager.calculate_adjusted_cs()
-        osu_radius = (54.4 - 4.48 * circle_size) / 2
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=osu_radius * SCALE_FACTOR * 2, location=self.slider.location)
+        osu_radius = self.data_manager.osu_radius
+
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            radius=osu_radius * SCALE_FACTOR * 2,
+            location=self.slider.location
+        )
         slider_ball = bpy.context.object
         slider_ball.name = f"{self.slider.name}_ball"
+
         return slider_ball
 
     def animate_slider_ball(self, slider_ball):
@@ -70,42 +80,28 @@ class SliderBallCreator:
         follow_path.forward_axis = 'FORWARD_Y'
         follow_path.up_axis = 'UP_Z'
 
-        speed_multiplier = self.data_manager.speed_multiplier
-        slider_multiplier = float(self.data_manager.osu_parser.difficulty_settings.get("SliderMultiplier", 1.4))
-        inherited_multiplier = 1.0
-
-        timing_points = sorted(set(self.data_manager.beatmap_info["timing_points"]), key=lambda tp: tp[0])
-        start_time_ms = self.slider_time
-
-        for offset, beat_length in timing_points:
-            if start_time_ms >= offset:
-                if beat_length < 0:
-                    inherited_multiplier = -100 / beat_length
-            else:
-                break
-
-        effective_speed = slider_multiplier * inherited_multiplier
-        adjusted_duration_frames = (self.slider_duration_frames / effective_speed) * speed_multiplier
+        if self.repeat_count > 0:
+            repeat_duration_frames = self.slider_duration_frames / self.repeat_count
+        else:
+            repeat_duration_frames = self.slider_duration_frames
 
         self.slider.data.use_path = True
-        self.slider.data.path_duration = int(adjusted_duration_frames)
-
-        repeat_duration_frames = adjusted_duration_frames / self.repeat_count if self.repeat_count > 0 else adjusted_duration_frames
+        self.slider.data.path_duration = int(repeat_duration_frames)
 
         for repeat in range(self.repeat_count):
-            repeat_start_frame = self.start_frame + repeat * repeat_duration_frames
+            repeat_start_frame = self.start_frame + int(repeat * repeat_duration_frames)
+            repeat_end_frame = repeat_start_frame + int(repeat_duration_frames)
+
             if repeat % 2 == 0:
                 follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame))
                 follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor",
-                                            frame=repeat_start_frame + repeat_duration_frames)
+                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_end_frame))
             else:
                 follow_path.offset_factor = 1.0
-                follow_path.keyframe_insert(data_path="offset_factor", frame=repeat_start_frame)
+                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_start_frame))
                 follow_path.offset_factor = 0.0
-                follow_path.keyframe_insert(data_path="offset_factor",
-                                            frame=repeat_start_frame + repeat_duration_frames)
+                follow_path.keyframe_insert(data_path="offset_factor", frame=int(repeat_end_frame))
 
             if slider_ball.animation_data and slider_ball.animation_data.action:
                 for fcurve in slider_ball.animation_data.action.fcurves:

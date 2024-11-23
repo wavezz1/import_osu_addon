@@ -1,11 +1,13 @@
+# osu_importer/geo_nodes/geometry_nodes.py
+
 import bpy
-from osu_importer.utils.utils import timeit
+from osu_importer.utils.utils import timeit, tag_imported
 
 node_groups = {}
 
 def setup_geometry_node_trees():
     global node_groups
-    with timeit("Einrichten der Geometry Node Trees"):
+    with timeit("Setup Geometry Node Trees"):
         node_definitions = {
             "circle": {
                 "name": "Geometry Nodes Circle",
@@ -46,7 +48,8 @@ def setup_geometry_node_trees():
                     "k1": 'BOOLEAN',
                     "k2": 'BOOLEAN',
                     "m1": 'BOOLEAN',
-                    "m2": 'BOOLEAN'
+                    "m2": 'BOOLEAN',
+                    "cursor_size": 'FLOAT'
                 }
             },
             "slider_ball": {
@@ -79,6 +82,7 @@ def create_geometry_nodes_tree(name, attributes):
 
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes)
+    tag_imported(group)
     return group
 
 def setup_node_group_interface(group, attributes):
@@ -125,11 +129,11 @@ def create_geometry_nodes_modifier(obj, obj_type):
         print(f"Unrecognized object type for {obj_type}. Skipping modifier setup.")
         return
 
-    modifier = obj.modifiers.get("GeometryNodes")
-    if not modifier:
-        modifier = obj.modifiers.new(name="GeometryNodes", type='NODES')
-    modifier.node_group = node_group
-
+    try:
+        modifier = add_geometry_nodes_modifier(obj, node_group.name)
+        tag_imported(modifier)
+    except ValueError as e:
+        print(f"Error creating Geometry Nodes modifier: {e}")
 
 def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_values=None):
     modifier = obj.modifiers.get("GeometryNodes")
@@ -192,3 +196,11 @@ def assign_collections_to_sockets(obj, socket_to_collection, operator=None):
             if operator:
                 operator.report({'ERROR'}, error_message)
             print(error_message)
+
+def add_geometry_nodes_modifier(obj, node_group_name):
+    node_group = bpy.data.node_groups.get(node_group_name)
+    if not node_group:
+        raise ValueError(f"Node Group '{node_group_name}' not found.")
+    modifier = obj.modifiers.new(name="GeometryNodes", type='NODES') if not obj.modifiers.get("GeometryNodes") else obj.modifiers.get("GeometryNodes")
+    modifier.node_group = node_group
+    return modifier

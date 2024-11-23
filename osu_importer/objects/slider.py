@@ -1,10 +1,10 @@
-# slider.py
+# osu_importer/objects/slider.py
 
 import bpy
 import math
 from mathutils import Vector
 from osu_importer.utils.constants import SCALE_FACTOR
-from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
 from osu_importer.parsers.hitobjects import HitObject
@@ -35,37 +35,26 @@ class SliderCreator:
             if i < len(points) - 1:
                 p1 = points[i]
                 p2 = points[i + 1]
-                # Überprüfen, ob die Punkte innerhalb der Toleranz liegen
                 if (abs(p1.x - p2.x) <= tolerance) and (abs(p1.y - p2.y) <= tolerance):
-                    print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
-                    merged.append(p1)  # Nur einen der doppelten Punkte hinzufügen
-                    i += 2  # Den nächsten Punkt überspringen, da er bereits gemergt wurde
+                    print(f"merged doubles {p1} und {p2} zu {p1}")
+                    merged.append(p1)
+                    i += 2
                     continue
             merged.append(points[i])
             i += 1
-        print(f"Ergebnis nach dem Mergen: {merged}")
+        print(f"Merge Result: {merged}")
         return merged
 
     def create_slider(self):
-        with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
+        with timeit(f"Create Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar
             osu_radius = data_manager.osu_radius
-            preempt_frames = data_manager.preempt_frames
-            audio_lead_in_frames = data_manager.audio_lead_in_frames
-            speed_multiplier = data_manager.speed_multiplier
-            ms_per_frame = data_manager.ms_per_frame
 
-            start_time_ms = self.hitobject.time / speed_multiplier
-            slider_duration_ms = data_manager.calculate_slider_duration(self.hitobject)
-            end_time_ms = (self.hitobject.time + slider_duration_ms) / speed_multiplier
-
-            start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
-            end_frame = end_time_ms / ms_per_frame + audio_lead_in_frames
-            early_start_frame = start_frame - preempt_frames
-
-            slider_duration_frames = slider_duration_ms / ms_per_frame
+            start_frame = int(self.hitobject.start_frame)
+            end_frame = int(self.hitobject.end_frame)
+            early_start_frame = int(start_frame - data_manager.preempt_frames)
 
             if self.hitobject.extras:
                 curve_data_str = self.hitobject.extras[0]
@@ -131,9 +120,13 @@ class SliderCreator:
                 elif self.import_type == 'BASE':
                     slider = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
 
+                tag_imported(slider)
+
                 slider["ar"] = approach_rate
                 slider["cs"] = osu_radius * SCALE_FACTOR
 
+                slider_duration_frames = self.hitobject.duration_frames
+                slider_duration_ms = slider_duration_frames * data_manager.ms_per_frame
                 slider["slider_duration_ms"] = slider_duration_ms
                 slider["slider_duration_frames"] = slider_duration_frames
                 slider["repeat_count"] = repeat_count
@@ -147,17 +140,6 @@ class SliderCreator:
                 if self.import_type == 'BASE':
                     create_geometry_nodes_modifier(slider, "slider")
 
-                # Setze das 'frame' Attribut auf den Start Frame
-                self.hitobject.frame = int(start_frame)
-                self.hitobject.end_frame = int(end_frame)
-
-                extra_params = {
-                    "slider_duration_ms": slider_duration_ms,
-                    "slider_duration_frames": slider_duration_frames,
-                    "repeat_count": repeat_count,
-                    "pixel_length": pixel_length
-                }
-
                 frame_values, fixed_values = get_keyframe_values(
                     self.hitobject,
                     'slider',
@@ -167,9 +149,14 @@ class SliderCreator:
                     early_start_frame,
                     approach_rate,
                     osu_radius,
-                    extra_params,
-                    ms_per_frame=ms_per_frame,
-                    audio_lead_in_frames=audio_lead_in_frames
+                    extra_params={
+                        "slider_duration_ms": slider_duration_ms,
+                        "slider_duration_frames": slider_duration_frames,
+                        "repeat_count": repeat_count,
+                        "pixel_length": pixel_length
+                    },
+                    ms_per_frame=data_manager.ms_per_frame,
+                    audio_lead_in_frames=data_manager.audio_lead_in_frames
                 )
 
                 attributes = {
@@ -201,12 +188,12 @@ class SliderCreator:
                     slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
                     slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
-                if self.settings.get('import_slider_balls', False):
-                    from .slider_balls import SliderBallCreator  # Import der SliderBallCreator-Klasse
+                if self.import_slider_balls:
+                    from .slider_balls import SliderBallCreator
                     slider_ball_creator = SliderBallCreator(
                         slider=slider,
                         start_frame=start_frame,
-                        slider_duration_frames=slider_duration_frames,
+                        slider_duration_frames=self.hitobject.duration_frames,
                         repeat_count=repeat_count,
                         end_frame=end_frame,
                         slider_balls_collection=self.slider_balls_collection,
@@ -216,7 +203,7 @@ class SliderCreator:
                     )
                     slider_ball_creator.create()
 
-                if self.settings.get('import_slider_ticks', False):
+                if self.import_slider_ticks:
                     from .slider_ticks import SliderTicksCreator
                     slider_ticks_creator = SliderTicksCreator(
                         slider=slider,

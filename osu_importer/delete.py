@@ -1,3 +1,5 @@
+# osu_importer/delete.py
+
 import bpy
 
 class OSU_OT_Delete(bpy.types.Operator):
@@ -7,35 +9,26 @@ class OSU_OT_Delete(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            objects_to_delete = [
-                obj for obj in bpy.data.objects if (
-                    obj.name.startswith("Circle") or
-                    obj.name.startswith("Slider") or
-                    obj.name.startswith("Spinner") or
-                    obj.name.startswith("Cursor") or
-                    obj.name.startswith("OsuAudioSpeaker") or
-                    obj.name.startswith("Osu_Gameplay") or
-                    obj.name.startswith("approach")
-                )
-            ]
+            objects_to_delete = [obj for obj in bpy.data.objects if obj.get("osu_imported")]
             for obj in objects_to_delete:
                 try:
                     bpy.data.objects.remove(obj, do_unlink=True)
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete object {obj.name}: {e}")
 
-            collections_to_delete = ["Circles", "Sliders", "Slider Balls", "Spinners", "Cursor", "Osu_Gameplay", "Approach Circles", "Slider Heads Tails"]
-            for collection_name in collections_to_delete:
-                collection = bpy.data.collections.get(collection_name)
-                if collection:
-                    try:
-                        bpy.data.collections.remove(collection)
-                    except Exception as e:
-                        self.report({'WARNING'}, f"Failed to delete collection {collection_name}: {e}")
+            collections_to_delete = [
+                collection for collection in bpy.data.collections
+                if collection.get("osu_imported")
+            ]
+            for collection in collections_to_delete:
+                try:
+                    bpy.data.collections.remove(collection)
+                except Exception as e:
+                    self.report({'WARNING'}, f"Failed to delete collection {collection.name}: {e}")
 
             node_groups_to_delete = [
                 gn_tree for gn_tree in bpy.data.node_groups
-                if gn_tree.name.startswith("Geometry Nodes")
+                if gn_tree.get("osu_imported")
             ]
             for gn_tree in node_groups_to_delete:
                 try:
@@ -45,7 +38,7 @@ class OSU_OT_Delete(bpy.types.Operator):
 
             sounds_to_delete = [
                 sound for sound in bpy.data.sounds
-                if sound.name.startswith("OsuAudioSpeaker")
+                if sound.get("osu_imported")
             ]
             for sound in sounds_to_delete:
                 try:
@@ -53,9 +46,20 @@ class OSU_OT_Delete(bpy.types.Operator):
                 except Exception as e:
                     self.report({'WARNING'}, f"Failed to delete sound {sound.name}: {e}")
 
+            materials_to_delete = [
+                material for material in bpy.data.materials
+                if material.get("osu_imported")
+            ]
+            for material in materials_to_delete:
+                try:
+                    bpy.data.materials.remove(material)
+                except Exception as e:
+                    self.report({'WARNING'}, f"Failed to delete material {material.name}: {e}")
+
+
             bpy.ops.outliner.orphans_purge(do_recursive=True)
 
-            self.report({'INFO'}, "All osu! data removed successfully, including audio.")
+            self.report({'INFO'}, "All tagged osu! data removed successfully, including audio.")
             return {'FINISHED'}
 
         except Exception as e:

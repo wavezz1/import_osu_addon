@@ -1,7 +1,8 @@
-# cursor.py
+# osu_importer/objects/cursor.py
 
 import bpy
-from osu_importer.utils.utils import map_osu_to_blender
+import math
+from osu_importer.utils.utils import map_osu_to_blender, tag_imported
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
 
@@ -17,9 +18,18 @@ class CursorCreator:
 
     def create_cursor(self):
         try:
+            cursor_size = self.settings.get('cursor_size', 1.0)
             if self.import_type == 'FULL':
-                bpy.ops.mesh.primitive_uv_sphere_add(radius=0.3, location=(0, 0, 0))
-                cursor = bpy.context.object
+                cursor_shape = self.settings.get('cursor_shape', 'SPHERE')
+                if cursor_shape == 'SPHERE':
+                    bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
+                    cursor = bpy.context.object
+                elif cursor_shape == 'CIRCLE':
+                    bpy.ops.mesh.primitive_circle_add(vertices=32, radius=cursor_size, fill_type='NGON', location=(0, 0, 0), rotation=(math.radians(90), 0, 0))
+                    cursor = bpy.context.object
+                else:
+                    bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
+                    cursor = bpy.context.object
             elif self.import_type == 'BASE':
                 mesh = bpy.data.meshes.new("Cursor")
 
@@ -33,28 +43,38 @@ class CursorCreator:
 
                 create_geometry_nodes_modifier(cursor, "cursor")
 
+
+                fixed_values = {
+                    "cursor_size" : cursor_size
+                }
+
+                attributes = {
+                    "k1": 'BOOLEAN',
+                    "k2": 'BOOLEAN',
+                    "m1": 'BOOLEAN',
+                    "m2": 'BOOLEAN',
+                    "cursor_size": 'FLOAT'
+                }
+
+                initial_frame_values = {
+                    "k1": [
+                        (1, False),
+                    ],
+                    "k2": [
+                        (1, False),
+                    ],
+                    "m1": [
+                        (1, False),
+                    ],
+                    "m2": [
+                        (1, False),
+                    ]
+                }
+                set_modifier_inputs_with_keyframes(cursor, attributes, initial_frame_values, fixed_values)
+
             cursor.name = "Cursor"
 
-            initial_frame_values = {
-                "k1": [
-                    (1, False),
-                ],
-                "k2": [
-                    (1, False),
-                ],
-                "m1": [
-                    (1, False),
-                ],
-                "m2": [
-                    (1, False),
-                ]
-            }
-            set_modifier_inputs_with_keyframes(cursor, {
-                "k1": 'BOOLEAN',
-                "k2": 'BOOLEAN',
-                "m1": 'BOOLEAN',
-                "m2": 'BOOLEAN'
-            }, initial_frame_values)
+            tag_imported(cursor)
 
             self.cursor_collection.objects.link(cursor)
             if cursor.users_collection:

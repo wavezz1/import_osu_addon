@@ -1,18 +1,53 @@
-# osu_data_manager.py
+# osu_importer/osu_data_manager.py
 
 import bpy
 import os
 import bisect
 from osu_importer.parsers.osu_parser import OsuParser, OsrParser
-from osu_importer.utils.constants import MOD_DOUBLE_TIME, MOD_HALF_TIME, MOD_HARD_ROCK, MOD_EASY
+from osu_importer.utils.constants import *
 from osu_importer.utils.mod_functions import calculate_speed_multiplier
+from osu_importer.utils.utils import tag_imported
 from osu_importer.parsers.hitobjects import HitObjectsProcessor
 
+def calculate_override_mods(props):
+    mods = 0
+    if props.override_no_fail:
+        mods |= MOD_NO_FAIL
+    if props.override_easy:
+        mods |= MOD_EASY
+    if props.override_hidden:
+        mods |= MOD_HIDDEN
+    if props.override_hard_rock:
+        mods |= MOD_HARD_ROCK
+    if props.override_sudden_death:
+        mods |= MOD_SUDDEN_DEATH
+    if props.override_double_time:
+        mods |= MOD_DOUBLE_TIME
+    if props.override_half_time:
+        mods |= MOD_HALF_TIME
+    if props.override_nightcore:
+        mods |= MOD_NIGHTCORE
+    if props.override_flashlight:
+        mods |= MOD_FLASHLIGHT
+    if props.override_perfect:
+        mods |= MOD_PERFECT
+    if props.override_spun_out:
+        mods |= MOD_SPUN_OUT
+    if props.override_autopilot:
+        mods |= MOD_AUTOPILOT
+    if props.override_relax:
+        mods |= MOD_RELAX
+    if props.override_cinema:
+        mods |= MOD_CINEMA
+    return mods
+
 class OsuDataManager:
-    def __init__(self, osu_file_path, osr_file_path):
+    def __init__(self, osu_file_path, osr_file_path, props):
         self.osu_parser = OsuParser(osu_file_path)
         self.osr_parser = OsrParser(osr_file_path)
         self.hitobjects_processor = HitObjectsProcessor(self)
+        self.props = props
+        self.mods = calculate_override_mods(props) if props.override_mods else self.osr_parser.mods
         self.speed_multiplier = calculate_speed_multiplier(self.mods)
         self.ms_per_frame = self.get_ms_per_frame()
 
@@ -30,6 +65,8 @@ class OsuDataManager:
         self.base_od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
 
         self.calculate_adjusted_values()
+        self.calculate_hit_objects_frames()  # Neue Methode aufrufen
+
     @property
     def beatmap_info(self):
         return {
@@ -46,15 +83,19 @@ class OsuDataManager:
 
     @property
     def replay_info(self):
+        mod_list = (
+            self.osr_parser.mod_list if not self.props.override_mods
+            else [mod for mod, value in MOD_FLAGS.items() if self.mods & value]
+        )
+
         return {
-            "mods": ','.join(self.osr_parser.mod_list) if self.osr_parser.mod_list else "Keine",
+            "mods": ', '.join(mod_list) if mod_list else "None",
             "accuracy": self.osr_parser.calculate_accuracy(),
             "misses": self.osr_parser.misses,
             "max_combo": self.osr_parser.max_combo,
             "total_score": self.osr_parser.score,
             "username": self.osr_parser.username,
         }
-
     @property
     def hitobjects(self):
         return (
@@ -62,6 +103,7 @@ class OsuDataManager:
                 self.hitobjects_processor.sliders +
                 self.hitobjects_processor.spinners
         )
+
     @property
     def replay_data(self):
         return self.osr_parser.replay_data
@@ -69,10 +111,6 @@ class OsuDataManager:
     @property
     def key_presses(self):
         return self.osr_parser.key_presses
-
-    @property
-    def mods(self):
-        return self.osr_parser.mods
 
     def print_all_info(self):
         print("\n--- Beatmap Information ---")
@@ -94,7 +132,7 @@ class OsuDataManager:
 
     def get_ms_per_frame(self):
         fps = bpy.context.scene.render.fps
-        return 1000 / fps  # Milliseconds per frame
+        return 1000 / fps  # Millisekunden pro Frame
 
     def calculate_adjusted_values(self):
         self.adjusted_ar = self.calculate_adjusted_ar()
@@ -104,6 +142,30 @@ class OsuDataManager:
         self.preempt_frames = self.preempt_ms / self.ms_per_frame
         self.osu_radius = (54.4 - 4.48 * self.adjusted_cs) / 2
         self.audio_lead_in_frames = self.audio_lead_in / self.ms_per_frame
+
+    def calculate_hit_objects_frames(self):
+        for hitobject in self.hitobjects:
+            # Berechnung der tatsächlichen HitObject-Zeit unter Berücksichtigung des Speed Multipliers und Audio-Lead-In
+            hitobject_time = (hitobject.time / self.speed_multiplier)
+
+            # Startframe berechnen unter Berücksichtigung der Preempt-Zeit
+            hitobject.start_frame = int(hitobject_time / self.ms_per_frame) + self.audio_lead_in
+
+            if hitobject.hit_type & 2:  # Slider
+                slider_duration_ms = self.calculate_slider_duration(hitobject)
+                hitobject.duration_frames = int(slider_duration_ms / self.ms_per_frame)
+                hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
+                hitobject.slider_end_time = hitobject_time + slider_duration_ms
+            elif hitobject.hit_type & 8:  # Spinner
+                spinner_duration_ms = self.calculate_spinner_duration(hitobject)
+                hitobject.duration_frames = int(spinner_duration_ms / self.ms_per_frame)
+                hitobject.end_frame = hitobject.start_frame + hitobject.duration_frames
+                hitobject.slider_end_time = hitobject_time + spinner_duration_ms
+            else:  # Circle
+                hitobject.duration_frames = 0
+                hitobject.end_frame = hitobject.start_frame
+                # Für Kreise ist slider_end_time nicht relevant
+                hitobject.slider_end_time = hitobject_time
 
     def import_audio(self):
         audio_filename = self.beatmap_info['general_settings'].get("AudioFilename")
@@ -122,7 +184,10 @@ class OsuDataManager:
         speaker = bpy.context.object
         speaker.name = "OsuAudioSpeaker"
 
+        tag_imported(speaker)
+
         sound = bpy.data.sounds.load(filepath=audio_path, check_existing=True)
+        tag_imported(sound)
         speaker.data.sound = sound
 
         pitch = 1.5 if self.mods & MOD_DOUBLE_TIME else 0.75 if self.mods & MOD_HALF_TIME else 1.0
@@ -153,6 +218,10 @@ class OsuDataManager:
             (kp['time'] / speed_multiplier) + audio_lead_in for kp in self.key_presses
         ]
 
+        if not key_press_times:
+            print("No key presses found.")
+            return
+
         key_press_times, key_presses = zip(*sorted(zip(key_press_times, self.key_presses), key=lambda x: x[0]))
 
         for hitobject in self.hitobjects:
@@ -174,8 +243,7 @@ class OsuDataManager:
                 hitobject.was_hit = was_hit
 
             elif hitobject.hit_type & 2:  # Slider
-                slider_duration_ms = self.calculate_slider_duration(hitobject)
-                slider_end_time = (hitobject.time + slider_duration_ms) / speed_multiplier + audio_lead_in
+                slider_end_time = hitobject.slider_end_time
                 window_end = slider_end_time + hit_window
                 end_idx = bisect.bisect_right(key_press_times, window_end)
                 was_hit = False
@@ -184,13 +252,10 @@ class OsuDataManager:
                         was_hit = True
                         break
                 hitobject.was_hit = was_hit
-                hitobject.was_completed = False  # Wir setzen es später basierend auf der Slider-Dauer
-                hitobject.slider_end_time = slider_end_time  # Speichern der Endzeit des Sliders
+                hitobject.was_completed = False
 
             elif hitobject.hit_type & 8:  # Spinner
-                spinner_duration_ms = self.calculate_spinner_duration(hitobject)
-                spinner_end_time = (hitobject.time + spinner_duration_ms) / speed_multiplier + audio_lead_in
-
+                spinner_end_time = hitobject.slider_end_time
                 window_end = spinner_end_time + hit_window
 
                 end_idx = bisect.bisect_right(key_press_times, window_end)
@@ -235,9 +300,8 @@ class OsuDataManager:
         if current_beat_length is not None and current_beat_length > 0:
             beat_duration = current_beat_length
 
-        slider_duration_ms = (pixel_length / (
-                    slider_multiplier * 100)) * beat_duration * repeat_count * inherited_multiplier
-        slider_duration_ms /= speed_multiplier
+        slider_duration_ms = (pixel_length / (slider_multiplier * 100)) * beat_duration * repeat_count
+        slider_duration_ms /= (speed_multiplier * inherited_multiplier)
 
         return slider_duration_ms
 
@@ -290,4 +354,3 @@ class OsuDataManager:
     def calculate_preempt_time(self, ar):
         preempt = 1800 - (120 * ar) if ar < 5 else 1200 - (150 * (ar - 5))
         return preempt / calculate_speed_multiplier(self.mods)
-

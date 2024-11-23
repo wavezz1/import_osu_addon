@@ -1,12 +1,11 @@
-# circles.py
+# osu_importer/objects/circles.py
 
 import bpy
 import math
-from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values, tag_imported
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
-
 
 class CircleCreator:
     def __init__(self, hitobject, global_index, circles_collection, settings, data_manager: OsuDataManager,
@@ -20,22 +19,19 @@ class CircleCreator:
         self.create_circle()
 
     def create_circle(self):
-        with timeit(f"Erstellen von Kreis {self.global_index:03d}_circle_{self.hitobject.time}"):
+        with timeit(f"Create Circle {self.global_index:03d}_circle_{self.hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar
             preempt_frames = data_manager.preempt_frames
-            audio_lead_in_frames = data_manager.audio_lead_in_frames
             osu_radius = data_manager.osu_radius
+
+            start_frame = int(self.hitobject.start_frame)
+            end_frame = int(start_frame + 1)
+            early_start_frame = int(start_frame - preempt_frames)
 
             x = self.hitobject.x
             y = self.hitobject.y
-            time_ms = self.hitobject.time
-            speed_multiplier = data_manager.speed_multiplier
-            ms_per_frame = data_manager.ms_per_frame
-
-            start_frame = ((time_ms / speed_multiplier) / ms_per_frame) + audio_lead_in_frames
-            early_start_frame = start_frame - preempt_frames
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
@@ -48,17 +44,16 @@ class CircleCreator:
                 )
                 circle = bpy.context.object
             elif self.import_type == 'BASE':
-                mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{time_ms}")
+                mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{self.hitobject.time}_mesh")
+                mesh.from_pydata([ (0, 0, 0) ], [], [])
+                mesh.update()
 
-                mesh.vertices.add(1)
-                mesh.vertices[0].co = (0, 0, 0)
-
-                mesh.use_auto_texspace = True
-
-                circle = bpy.data.objects.new(f"{self.global_index:03d}_circle_{time_ms}", mesh)
+                circle = bpy.data.objects.new(f"{self.global_index:03d}_circle_{self.hitobject.time}", mesh)
                 circle.location = (corrected_x, corrected_y, corrected_z)
 
-            circle.name = f"{self.global_index:03d}_circle_{time_ms}"
+            circle.name = f"{self.global_index:03d}_circle_{self.hitobject.time}"
+
+            tag_imported(circle)
 
             circle["ar"] = approach_rate
             circle["cs"] = osu_radius * SCALE_FACTOR
@@ -71,10 +66,6 @@ class CircleCreator:
 
             if self.import_type == 'BASE':
                 create_geometry_nodes_modifier(circle, "circle")
-
-            self.hitobject.frame = int(start_frame)
-
-            end_frame = start_frame + 1
 
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,

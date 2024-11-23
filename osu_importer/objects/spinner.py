@@ -1,8 +1,8 @@
-# spinner.py
+# osu_importer/objects/spinner.py
 
 import bpy
 import math
-from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values
+from osu_importer.utils.utils import map_osu_to_blender, timeit, get_keyframe_values, tag_imported
 from osu_importer.utils.constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 from osu_importer.osu_data_manager import OsuDataManager
@@ -19,24 +19,13 @@ class SpinnerCreator:
         self.create_spinner()
 
     def create_spinner(self):
-        with timeit(f"Erstellen von Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
+        with timeit(f"Create Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar
-            preempt_frames = data_manager.preempt_frames
-            audio_lead_in_frames = data_manager.audio_lead_in_frames
-            speed_multiplier = data_manager.speed_multiplier
-            ms_per_frame = data_manager.ms_per_frame
 
-            spinner_duration_ms = data_manager.calculate_spinner_duration(self.hitobject)
-            start_time_ms = self.hitobject.time / speed_multiplier
-            end_time_ms = (self.hitobject.time + spinner_duration_ms) / speed_multiplier
-
-            start_frame = start_time_ms / ms_per_frame + audio_lead_in_frames
-            end_frame = end_time_ms / ms_per_frame + audio_lead_in_frames
-            early_start_frame = start_frame - preempt_frames
-
-            spinner_duration_frames = spinner_duration_ms / ms_per_frame
+            start_frame = int(self.hitobject.start_frame)
+            end_frame = int(self.hitobject.end_frame)
 
             corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 
@@ -49,17 +38,16 @@ class SpinnerCreator:
                 )
                 spinner = bpy.context.object
             elif self.import_type == 'BASE':
-                mesh = bpy.data.meshes.new(f"{self.global_index:03d}_spinner_{self.hitobject.time}")
-
-                mesh.vertices.add(1)
-                mesh.vertices[0].co = (0, 0, 0)
-
-                mesh.use_auto_texspace = True
+                mesh = bpy.data.meshes.new(f"{self.global_index:03d}_spinner_{self.hitobject.time}_mesh")
+                mesh.from_pydata([ (0, 0, 0) ], [], [])
+                mesh.update()
 
                 spinner = bpy.data.objects.new(f"{self.global_index:03d}_spinner_{self.hitobject.time}", mesh)
                 spinner.location = (corrected_x, corrected_y, corrected_z)
 
             spinner.name = f"{self.global_index:03d}_spinner_{self.hitobject.time}"
+
+            tag_imported(spinner)
 
             spinner["ar"] = approach_rate
 
@@ -72,21 +60,21 @@ class SpinnerCreator:
             if self.import_type == 'BASE':
                 create_geometry_nodes_modifier(spinner, "spinner")
 
-            extra_params = {
-                "spinner_duration_ms": spinner_duration_ms,
-                "spinner_duration_frames": spinner_duration_frames
-            }
-
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,
                 'spinner',
                 self.import_type,
                 start_frame,
                 end_frame,
-                early_start_frame,
+                start_frame,
                 approach_rate,
                 osu_radius=0,
-                extra_params=extra_params
+                extra_params={
+                    "spinner_duration_ms": self.hitobject.duration_frames * data_manager.ms_per_frame * data_manager.speed_multiplier,
+                    "spinner_duration_frames": self.hitobject.duration_frames
+                },
+                ms_per_frame=data_manager.ms_per_frame,
+                audio_lead_in_frames=data_manager.audio_lead_in_frames
             )
 
             attributes = {
@@ -102,13 +90,13 @@ class SpinnerCreator:
             if self.import_type == 'FULL':
                 spinner.hide_viewport = True
                 spinner.hide_render = True
-                spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
-                spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame - 1))
+                spinner.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
+                spinner.keyframe_insert(data_path="hide_render", frame=int(start_frame - 1))
 
                 spinner.hide_viewport = False
                 spinner.hide_render = False
-                spinner.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame))
-                spinner.keyframe_insert(data_path="hide_render", frame=int(early_start_frame))
+                spinner.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
+                spinner.keyframe_insert(data_path="hide_render", frame=int(start_frame))
 
                 if self.hitobject.was_completed:
                     spinner.hide_viewport = False

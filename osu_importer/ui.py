@@ -1,9 +1,9 @@
-# ui.py
+# # osu_importer/ui.py
 
 import bpy
 from bpy.types import Panel, PropertyGroup, Operator
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, EnumProperty
-
+from osu_importer.utils.utils import update_quick_load, flip_objects, update_override_mods, update_dev_tools
 
 class OSUImporterProperties(PropertyGroup):
     # File Paths
@@ -101,6 +101,24 @@ class OSUImporterProperties(PropertyGroup):
         description="Import cursor movements from the replay",
         default=True
     )
+    cursor_shape: EnumProperty(
+        name="Cursor Shape",
+        description="Choose the shape of the cursor",
+        items=[
+            ('SPHERE', "Sphere", "Use a UV Sphere for the cursor"),
+            ('CIRCLE', "Circle", "Use a filled circle for the cursor")
+        ],
+        default='CIRCLE'
+    )
+    cursor_size: FloatProperty(
+        name="Cursor Size",
+        description="Adjust the size of the cursor",
+        default=0.4,
+        min=0.05,
+        max=10.0,
+        step=0.05,
+        precision=2
+    )
     # Audio Options
     import_audio: BoolProperty(
         name="Audio Track",
@@ -177,6 +195,47 @@ class OSUImporterProperties(PropertyGroup):
         name="Player Name",
         default="Unknown"
     )
+    dev_tools: BoolProperty(
+        name="Enable Dev Tools",
+        description="Enable development tools",
+        default=False,
+        update=update_dev_tools
+    )
+    quick_load: BoolProperty(
+        name="Quick Load",
+        description="Automatically load predefined file paths for .osu and .osr files",
+        default=False,
+        update=lambda self, context: update_quick_load(self)
+    )
+    auto_create_shaders: BoolProperty(
+        name="Auto Create Shaders",
+        description="Automatically create basic shaders for imported elements",
+        default=False,
+    )
+    #Override Mods
+    override_mods: BoolProperty(
+        name="Override Mods",
+        description="Manually override the replay's mods with custom settings",
+        default=False,
+        update = update_override_mods
+    )
+
+    # Modifiers aus constants.py
+    override_no_fail: BoolProperty(name="No Fail", default=False)
+    override_easy: BoolProperty(name="Easy", default=False)
+    override_hidden: BoolProperty(name="Hidden", default=False)
+    override_hard_rock: BoolProperty(name="Hard Rock", default=False)
+    override_sudden_death: BoolProperty(name="Sudden Death", default=False)
+    override_double_time: BoolProperty(name="Double Time", default=False)
+    override_half_time: BoolProperty(name="Half Time", default=False)
+    override_nightcore: BoolProperty(name="Nightcore", default=False)
+    override_flashlight: BoolProperty(name="Flashlight", default=False)
+    override_perfect: BoolProperty(name="Perfect", default=False)
+    override_spun_out: BoolProperty(name="Spun Out", default=False)
+    override_autopilot: BoolProperty(name="Autopilot", default=False)
+    override_relax: BoolProperty(name="Relax", default=False)
+    override_cinema: BoolProperty(name="Cinema", default=False)
+
     # UI Toggles
     show_beatmap_info: BoolProperty(
         name="Show Beatmap Information",
@@ -208,16 +267,176 @@ class OSU_PT_ImporterPanel(Panel):
 
         # File Selection
         box = layout.box()
-        box.label(text="File Selection", icon='FILE_FOLDER')
-        box.prop(props, "osu_file")
-        box.prop(props, "osr_file")
+        if props.dev_tools:
+            box.label(text="Dev Tools Activated", icon='MODIFIER')
+            #Quick Load (Adjust update_dev_tools in utils.py)
+            box.prop(props, "osu_file")
+            box.prop(props, "osr_file")
+        else:
+            # Standard File Selection
+            box.prop(props, "osu_file")
+            box.prop(props, "osr_file")
+
         box.separator()
         box.operator("osu_importer.import", text="Import", icon='IMPORT')
         box.operator("osu_importer.delete", text="Delete Imported Data", icon='TRASH')
 
+class OSU_PT_SkinPanel(bpy.types.Panel):
+    bl_label = "Skin"
+    bl_idname = "OSU_PT_skin_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        layout.prop(props, "auto_create_shaders", text="Auto Create Shaders", toggle=True)
+
+
+class OSU_PT_ReplayInfoPanel(Panel):
+    bl_label = "Replay Information"
+    bl_idname = "OSU_PT_replay_info_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        props = context.scene.osu_importer_props
+        # Anzeigen nur, wenn ein Replay importiert wurde
+        return props.osr_file and props.player_name != "Unknown"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
+            col = layout.column(align=True)
+            col.label(text=f"Player Name: {props.player_name}")
+            col.label(text=f"Mods: {props.formatted_mods}")
+            col.label(text=f"Accuracy: {props.accuracy:.2f}%")
+            col.label(text=f"Misses: {props.misses}")
+            col.label(text=f"Max Combo: {props.max_combo}")
+            col.label(text=f"Total Score: {props.total_score}")
+        else:
+            layout.label(text="No Replay Information Available", icon='INFO')
+
+class OSU_PT_BeatmapInfoPanel(Panel):
+    bl_label = "Beatmap Information"
+    bl_idname = "OSU_PT_beatmap_info_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        props = context.scene.osu_importer_props
+        # Anzeigen nur, wenn eine Beatmap importiert wurde
+        return props.osu_file and props.title != ""
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        if props.bpm != 0.0:
+            col = layout.column(align=True)
+            col.label(text=f"Title: {props.title}")
+            col.label(text=f"Artist: {props.artist}")
+            col.label(text=f"Difficulty: {props.difficulty_name}")
+            col.separator()
+            col.label(text=f"BPM: {props.bpm:.2f}")
+            ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
+            if ar_modified:
+                col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
+            else:
+                col.label(text=f"AR: {props.base_approach_rate}")
+            cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
+            if cs_modified:
+                col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
+            else:
+                col.label(text=f"CS: {props.base_circle_size}")
+            od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
+            if od_modified:
+                col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
+            else:
+                col.label(text=f"OD: {props.base_overall_difficulty}")
+            col.label(text=f"Total HitObjects: {props.total_hitobjects}")
+        else:
+            layout.label(text="No Beatmap Information Available", icon='INFO')
+
+
+class OSU_PT_ToolsPanel(Panel):
+    bl_label = "Tools"
+    bl_idname = "OSU_PT_tools_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
+        # Flip Cursor Position
+        col = layout.column(align=True)
+        col.label(text="Cursor Transformation:", icon='CURSOR')
+        row = col.row(align=True)
+        row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
+        row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
+
+        # Flip Map
+        col.separator()
+        col.label(text="Map Transformation:", icon='MOD_MIRROR')
+        row = col.row(align=True)
+        row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
+        row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
+
+        # Dev Tools Toggle
+        col.separator()
+        col.prop(props, "dev_tools", text="Enable Dev Tools", toggle=True)
+        if props.dev_tools:
+            dev_box = layout.box()
+            dev_box.label(text="Developer Tools", icon='TOOL_SETTINGS')
+
+            # Quick Load Option
+            dev_box.prop(props, "quick_load", text="Quick Load", toggle=True)
+
+            # Override Mods Options
+            dev_box.label(text="Override Mods", icon='MODIFIER')
+            dev_box.prop(props, "override_mods", toggle=True)
+            if props.override_mods:
+                dev_box.prop(props, "override_no_fail", toggle=True)
+                dev_box.prop(props, "override_easy", toggle=True)
+                dev_box.prop(props, "override_hidden", toggle=True)
+                dev_box.prop(props, "override_hard_rock", toggle=True)
+                dev_box.prop(props, "override_sudden_death", toggle=True)
+                dev_box.prop(props, "override_double_time", toggle=True)
+                dev_box.prop(props, "override_half_time", toggle=True)
+                dev_box.prop(props, "override_nightcore", toggle=True)
+                dev_box.prop(props, "override_flashlight", toggle=True)
+                dev_box.prop(props, "override_perfect", toggle=True)
+                dev_box.prop(props, "override_spun_out", toggle=True)
+                dev_box.prop(props, "override_autopilot", toggle=True)
+                dev_box.prop(props, "override_relax", toggle=True)
+                dev_box.prop(props, "override_cinema", toggle=True)
+
+class OSU_PT_ImportOptionsPanel(Panel):
+    bl_label = "Import Options"
+    bl_idname = "OSU_PT_import_options_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "osu! Importer"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.osu_importer_props
+
         # Import Options
         box = layout.box()
-        box.label(text="Import Options", icon='IMPORT')
 
         # Import Type Selection
         box.prop(props, "import_type")
@@ -237,7 +456,6 @@ class OSU_PT_ImporterPanel(Panel):
         row.prop(props, "import_circles", toggle=True)
         row.prop(props, "import_sliders", toggle=True)
         row.prop(props, "import_spinners", toggle=True)
-
 
         # Slider Options
         if props.import_sliders:
@@ -261,75 +479,18 @@ class OSU_PT_ImporterPanel(Panel):
                 warning_row = warning_box.row(align=True)
                 warning_row.label(text="This can lead to too many objects.", icon='NONE')
 
-        # Replay Options
-        col.separator()
-        col.label(text="Replay Options:", icon='REC')
+
+        col.label(text="Cursor Movements:", icon='CURSOR')
         col.prop(props, "import_cursors", toggle=True)
+        if props.import_type == 'FULL':
+            col.prop(props, "cursor_shape")
+        if props.import_cursors:
+            col.prop(props, "cursor_size", text="Cursor Size")
 
         # Audio Options
         col.separator()
         col.label(text="Audio Options:", icon='SPEAKER')
         col.prop(props, "import_audio", toggle=True)
-
-        # Beatmap Information Toggle
-        if props.bpm != 0.0:
-            box = layout.box()
-            box.prop(props, "show_beatmap_info", text="Beatmap Information", icon='INFO')
-            if props.show_beatmap_info:
-                col = box.column(align=True)
-                col.label(text=f"Title: {props.title}")
-                col.label(text=f"Artist: {props.artist}")
-                col.label(text=f"Difficulty: {props.difficulty_name}")
-                col.separator()
-                col.label(text=f"BPM: {props.bpm:.2f}")
-                ar_modified = abs(props.base_approach_rate - props.adjusted_approach_rate) > 0.01
-                if ar_modified:
-                    col.label(text=f"AR: {props.base_approach_rate} (Adjusted: {props.adjusted_approach_rate:.1f})")
-                else:
-                    col.label(text=f"AR: {props.base_approach_rate}")
-                cs_modified = abs(props.base_circle_size - props.adjusted_circle_size) > 0.01
-                if cs_modified:
-                    col.label(text=f"CS: {props.base_circle_size} (Adjusted: {props.adjusted_circle_size:.1f})")
-                else:
-                    col.label(text=f"CS: {props.base_circle_size}")
-                od_modified = abs(props.base_overall_difficulty - props.adjusted_overall_difficulty) > 0.01
-                if od_modified:
-                    col.label(text=f"OD: {props.base_overall_difficulty} (Adjusted: {props.adjusted_overall_difficulty:.1f})")
-                else:
-                    col.label(text=f"OD: {props.base_overall_difficulty}")
-                col.label(text=f"Total HitObjects: {props.total_hitobjects}")
-
-        # Replay Information Toggle
-        if props.formatted_mods != "None" or props.accuracy != 0.0 or props.misses != 0:
-            box = layout.box()
-            box.prop(props, "show_replay_info", text="Replay Information", icon='PLAY')
-            if props.show_replay_info:
-                col = box.column(align=True)
-                col.label(text=f"Player Name: {props.player_name}")
-                col.label(text=f"Mods: {props.formatted_mods}")
-                col.label(text=f"Accuracy: {props.accuracy:.2f}%")
-                col.label(text=f"Misses: {props.misses}")
-                col.label(text=f"Max Combo: {props.max_combo}")
-                col.label(text=f"Total Score: {props.total_score}")
-
-        # Tool Information Toggle
-        if props.bpm != 0.0:
-            box = layout.box()
-            box.prop(props, "show_tool_info", text="Tools", icon='PLUS')
-            if props.show_tool_info:
-                # Flip Cursor Position
-                col = box.column(align=True)
-                col.label(text="Cursor Transformation:", icon='CURSOR')
-                row = col.row(align=True)
-                row.operator("osu_importer.flip_cursor_horizontal", text="Flip Cursor Horizontal", icon='ARROW_LEFTRIGHT')
-                row.operator("osu_importer.flip_cursor_vertical", text="Flip Cursor Vertical", icon='EVENT_DOWN_ARROW')
-
-                # Flip Map
-                col.separator()
-                col.label(text="Map Transformation:", icon='MOD_MIRROR')
-                row = col.row(align=True)
-                row.operator("osu_importer.flip_map_horizontal", text="Flip Map Horizontal", icon='ARROW_LEFTRIGHT')
-                row.operator("osu_importer.flip_map_vertical", text="Flip Map Vertical", icon='EVENT_DOWN_ARROW')
 
 class OSU_OT_Import(Operator):
     bl_idname = "osu_importer.import"
@@ -385,25 +546,7 @@ class OSU_OT_FlipCursorHorizontal(Operator):
     bl_description = "Spiegelt die Cursor-Positionen horizontal (X-Achse)"
 
     def execute(self, context):
-        cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
-        flipped_count = 0
-        for obj in cursor_objects:
-            obj.scale.x *= -1
-            obj.location.x *= -1
-
-            if obj.animation_data and obj.animation_data.action:
-                for fcurve in obj.animation_data.action.fcurves:
-                    if fcurve.data_path == "location" and fcurve.array_index == 0:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-                    elif fcurve.data_path == "scale" and fcurve.array_index == 0:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-            flipped_count +=1
+        flipped_count = flip_objects(["Cursor"], axis="x")
         self.report({'INFO'}, f"Horizontales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}
 
@@ -413,25 +556,7 @@ class OSU_OT_FlipCursorVertical(Operator):
     bl_description = "Spiegelt die Cursor-Positionen vertikal (Y-Achse)"
 
     def execute(self, context):
-        cursor_objects = [obj for obj in bpy.data.objects if obj.name.startswith("Cursor")]
-        flipped_count = 0
-        for obj in cursor_objects:
-            obj.scale.z *= -1
-            obj.location.z *= -1
-
-            if obj.animation_data and obj.animation_data.action:
-                for fcurve in obj.animation_data.action.fcurves:
-                    if fcurve.data_path == "location" and fcurve.array_index == 2:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-                    elif fcurve.data_path == "scale" and fcurve.array_index == 2:
-                        for keyframe in fcurve.keyframe_points:
-                            keyframe.co.y *= -1
-                            keyframe.handle_left.y *= -1
-                            keyframe.handle_right.y *= -1
-            flipped_count +=1
+        flipped_count = flip_objects(["Cursor"], axis="z")
         self.report({'INFO'}, f"Vertikales Spiegeln der {flipped_count} Cursor abgeschlossen.")
         return {'FINISHED'}
 
@@ -441,12 +566,8 @@ class OSU_OT_FlipMapHorizontal(Operator):
     bl_description = "Spiegelt die gesamte Karte horizontal (X-Achse)"
 
     def execute(self, context):
-        map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
-        map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
-        for obj in map_objects:
-            obj.scale.x *= -1
-            obj.location.x *= -1
-        self.report({'INFO'}, f"Horizontales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
+        flipped_count = flip_objects(["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"], axis="x")
+        self.report({'INFO'}, f"Horizontales Spiegeln der {flipped_count} Kartenobjekte abgeschlossen.")
         return {'FINISHED'}
 
 class OSU_OT_FlipMapVertical(Operator):
@@ -455,10 +576,6 @@ class OSU_OT_FlipMapVertical(Operator):
     bl_description = "Spiegelt die gesamte Karte vertikal (Y-Achse)"
 
     def execute(self, context):
-        map_prefixes = ["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"]
-        map_objects = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in map_prefixes)]
-        for obj in map_objects:
-            obj.scale.z *= -1
-            obj.location.z *= -1
-        self.report({'INFO'}, f"Vertikales Spiegeln der {len(map_objects)} Kartenobjekte abgeschlossen.")
+        flipped_count = flip_objects(["Circle", "Slider", "Spinner", "Approach", "Osu_Gameplay", "Slider Heads Tails"], axis="z")
+        self.report({'INFO'}, f"Vertikales Spiegeln der {flipped_count} Kartenobjekte abgeschlossen.")
         return {'FINISHED'}

@@ -1,9 +1,25 @@
-# utils.py
+# # osu_importer/utils/utils.py
 
 import time
 import bpy
 import mathutils
 from osu_importer.utils.constants import SCALE_FACTOR
+
+def update_dev_tools(self, context):
+    if not self.dev_tools:
+        self.quick_load = False
+        print("Dev Tools deaktiviert: Quick Load automatisch ausgeschaltet.")
+
+def update_quick_load(props):
+    if props.quick_load:
+        # .osu Path for Quick Load
+        props.osu_file = r"F:\Spiele\osu!\Songs\1989856 Hugues Le Bars - Generique Oggy et les Cafards (TV Size)\Hugues Le Bars - Generique Oggy et les Cafards (TV Size) (Astrolis) [Mirai's Another].osu"
+        # .osr Path for Quick Load
+        props.osr_file = r"F:\Spiele\osu!\Replays\wavezz - Hugues Le Bars - Generique Oggy et les Cafards (TV Size) [Mirai's Another] (2024-10-14) Osu.osr"
+    else:
+        props.osu_file = ""
+        props.osr_file = ""
+        print("Quick Load deactivated: File paths cleared.")
 
 def timeit(label):
     class Timer:
@@ -143,3 +159,32 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
         ]
 
     return frame_values, fixed_values
+
+def tag_imported(obj, tag="osu_imported", value=True):
+    obj[tag] = value
+
+def flip_objects(prefixes, axis, invert_location=True, invert_scale=True):
+    flipped_count = 0
+    objects_to_flip = [obj for obj in bpy.data.objects if any(obj.name.startswith(prefix) for prefix in prefixes)]
+
+    for obj in objects_to_flip:
+        if invert_location:
+            setattr(obj.location, axis, getattr(obj.location, axis) * -1)
+        if invert_scale:
+            setattr(obj.scale, axis, getattr(obj.scale, axis) * -1)
+
+        if obj.animation_data and obj.animation_data.action:
+            for fcurve in obj.animation_data.action.fcurves:
+                if fcurve.data_path in ["location", "scale"] and fcurve.array_index == "xyz".index(axis):
+                    for keyframe in fcurve.keyframe_points:
+                        keyframe.co.y *= -1
+                        keyframe.handle_left.y *= -1
+                        keyframe.handle_right.y *= -1
+        flipped_count += 1
+
+    return flipped_count
+
+def update_override_mods(self, context):
+    for prop_name in dir(self):
+        if prop_name.startswith("override_") and prop_name != "override_mods":
+            setattr(self, prop_name, False)

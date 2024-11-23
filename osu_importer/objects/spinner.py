@@ -19,7 +19,7 @@ class SpinnerCreator:
         self.create_spinner()
 
     def create_spinner(self):
-        with timeit(f"Erstellen von Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
+        with timeit(f"Create Spinner {self.global_index:03d}_spinner_{self.hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar

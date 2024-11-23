@@ -28,7 +28,7 @@ class ApproachCircleCreator:
             print(f"HitObject {hitobject.time} hat keine Attribute 'start_frame' oder 'end_frame'.")
             return
 
-        with timeit(f"Erstellen von ApproachCircle {self.global_index:03d}_approach_{hitobject.time}"):
+        with timeit(f"Create ApproachCircle {self.global_index:03d}_approach_{hitobject.time}"):
             data_manager = self.data_manager
 
             preempt_frames = data_manager.preempt_frames

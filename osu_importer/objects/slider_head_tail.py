@@ -24,7 +24,7 @@ class SliderHeadTailCreator:
             print(f"HitObject {hitobject} hat keine Attribute 'start_frame' oder 'end_frame'.")
             return
 
-        with timeit(f"Erstellen von SliderHeadTail {self.global_index:03d}_head_tail_{hitobject.time}"):
+        with timeit(f"Create SliderHeadTail {self.global_index:03d}_head_tail_{hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar

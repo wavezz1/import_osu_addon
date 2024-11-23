@@ -7,7 +7,7 @@ node_groups = {}
 
 def setup_geometry_node_trees():
     global node_groups
-    with timeit("Einrichten der Geometry Node Trees"):
+    with timeit("Setup Geometry Node Trees"):
         node_definitions = {
             "circle": {
                 "name": "Geometry Nodes Circle",

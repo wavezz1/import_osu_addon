@@ -19,7 +19,7 @@ class CircleCreator:
         self.create_circle()
 
     def create_circle(self):
-        with timeit(f"Erstellen von Kreis {self.global_index:03d}_circle_{self.hitobject.time}"):
+        with timeit(f"Create Circle {self.global_index:03d}_circle_{self.hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar

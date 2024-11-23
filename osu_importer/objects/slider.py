@@ -36,17 +36,17 @@ class SliderCreator:
                 p1 = points[i]
                 p2 = points[i + 1]
                 if (abs(p1.x - p2.x) <= tolerance) and (abs(p1.y - p2.y) <= tolerance):
-                    print(f"Gemergte doppelte Punkte {p1} und {p2} zu {p1}")
+                    print(f"merged doubles {p1} und {p2} zu {p1}")
                     merged.append(p1)
                     i += 2
                     continue
             merged.append(points[i])
             i += 1
-        print(f"Ergebnis nach dem Mergen: {merged}")
+        print(f"Merge Result: {merged}")
         return merged
 
     def create_slider(self):
-        with timeit(f"Erstellen von Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
+        with timeit(f"Create Slider {self.global_index:03d}_slider_{self.hitobject.time}"):
             data_manager = self.data_manager
 
             approach_rate = data_manager.adjusted_ar

@@ -155,7 +155,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 import_type=import_type
             )
             global_index += 1
-            print(f"Circle combo {circles.combo_number} and color {circles.combo_color}")
+            print(f"Circle combo {hitobject.combo_number} and color {hitobject.combo_color}")
 
     if props.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders

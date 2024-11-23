@@ -65,7 +65,8 @@ class HitObjectsProcessor:
                 current_combo += 1
 
             hit_object.combo_number = current_combo
-            hit_object.combo_color = self.COMBO_COLORS[combo_color_index]
+            #hit_object.combo_color = self.COMBO_COLORS[combo_color_index]
+            hit_object.combo_color = combo_color_index
 
             # Einteilen in Typen
             if hit_type & 1:  # Circle

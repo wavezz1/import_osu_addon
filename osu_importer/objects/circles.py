@@ -57,7 +57,6 @@ class CircleCreator:
 
             circle["ar"] = approach_rate
             circle["cs"] = osu_radius * SCALE_FACTOR
-            circle["combo"] = self.hitobject.combo_number
 
             self.circles_collection.objects.link(circle)
             if circle.users_collection:
@@ -86,6 +85,10 @@ class CircleCreator:
                 "cs": 'FLOAT',
                 "combo": 'INT'
             }
+
+            if self.hitobject.combo is not None:
+                fixed_values['combo'] = self.hitobject.combo
+                #fixed_values['combo_color'] = self.hitobject.get_combo_color()
 
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 

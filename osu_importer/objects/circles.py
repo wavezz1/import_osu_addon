@@ -57,6 +57,7 @@ class CircleCreator:
 
             circle["ar"] = approach_rate
             circle["cs"] = osu_radius * SCALE_FACTOR
+            circle["combo"] = self.hitobject.combo_number
 
             self.circles_collection.objects.link(circle)
             if circle.users_collection:
@@ -82,7 +83,8 @@ class CircleCreator:
                 "show": 'BOOLEAN',
                 "was_hit": 'BOOLEAN',
                 "ar": 'FLOAT',
-                "cs": 'FLOAT'
+                "cs": 'FLOAT',
+                "combo": 'INT'
             }
 
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)

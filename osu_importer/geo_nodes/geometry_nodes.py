@@ -15,7 +15,8 @@ def setup_geometry_node_trees():
                     "show": 'BOOLEAN',
                     "was_hit": 'BOOLEAN',
                     "ar": 'FLOAT',
-                    "cs": 'FLOAT'
+                    "cs": 'FLOAT',
+                    "combo": 'INT'
                 }
             },
             "slider": {

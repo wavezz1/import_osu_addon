@@ -89,7 +89,7 @@ class CircleCreator:
 
             if self.hitobject.combo_number is not None:
                 fixed_values['combo'] = self.hitobject.combo_number
-                fixed_values['combo_color'] = self.hitobject.get_combo_color()
+                fixed_values['combo_color'] = self.hitobject.combo_color
 
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 

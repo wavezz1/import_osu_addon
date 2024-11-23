@@ -480,7 +480,6 @@ class OSU_PT_ImportOptionsPanel(Panel):
                 warning_row.label(text="This can lead to too many objects.", icon='NONE')
 
         if props.import_cursors:
-            col = layout.box()
             col.label(text="Cursor Movements:", icon='CURSOR')
             col.prop(props, "import_cursors", toggle=True)
             if props.import_type == 'FULL':

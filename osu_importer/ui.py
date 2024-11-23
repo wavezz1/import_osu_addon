@@ -479,14 +479,10 @@ class OSU_PT_ImportOptionsPanel(Panel):
                 warning_row = warning_box.row(align=True)
                 warning_row.label(text="This can lead to too many objects.", icon='NONE')
 
-        # Replay Options
-        col.separator()
-        col.label(text="Replay Options:", icon='REC')
-        col.prop(props, "import_cursors", toggle=True)
-
         if props.import_cursors:
             col = layout.box()
             col.label(text="Cursor Movements:", icon='CURSOR')
+            col.prop(props, "import_cursors", toggle=True)
             if props.import_type == 'FULL':
                 col.prop(props, "cursor_shape")
             col.prop(props, "cursor_size", text="Cursor Size")

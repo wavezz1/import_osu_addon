@@ -93,6 +93,7 @@ def setup_geometry_node_trees(domain):
                 node_group = create_geometry_nodes_tree(name, attributes, domain)
             node_groups[key] = node_group
 
+        print(f"Setup Geo {domain}")
 def create_geometry_nodes_tree(name, attributes, domain):
     if name in bpy.data.node_groups:
         return bpy.data.node_groups[name]
@@ -100,6 +101,7 @@ def create_geometry_nodes_tree(name, attributes, domain):
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes, domain)
     tag_imported(group)
+    print(f"Create Tree Geo {domain}")
     return group
 
 def setup_node_group_interface(group, attributes, domain):
@@ -122,6 +124,7 @@ def setup_node_group_interface(group, attributes, domain):
         "FLOAT_VECTOR": "NodeSocketVector"
     }
 
+    print(f"Setup Group Geo {domain}")
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
         store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_node.location = (x_offset * (i + 1), 0)
@@ -141,6 +144,7 @@ def setup_node_group_interface(group, attributes, domain):
 
 def create_geometry_nodes_modifier(obj, obj_type,domain):
     setup_geometry_node_trees(domain)
+    print(f"Create Geo {domain}")
 
     node_group = node_groups.get(obj_type)
     if not node_group:

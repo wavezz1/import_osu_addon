@@ -89,18 +89,19 @@ def setup_osu_gameplay_collections_and_materials(
         "Socket_3": approach_circle,
         "Socket_4": circles,
         "Socket_5": sliders,
-        "Socket_6": slider_balls,
-        "Socket_7": spinners
+        "Socket_6": slider_heads_tails,
+        "Socket_7": slider_balls,
+        "Socket_8": spinners
     }
 
     materials = {
-        "Socket_8": bpy.data.materials.get("Cursor"),
-        "Socket_9": bpy.data.materials.get("Circles"),
-        "Socket_10": bpy.data.materials.get("Slider"),
-        "Socket_11": bpy.data.materials.get("Slider_Balls"),
-        "Socket_12": bpy.data.materials.get("Circles"),
-        "Socket_13": bpy.data.materials.get("Spinner"),
-        "Socket_14": bpy.data.materials.get("Approach Circles"),
+        "Socket_9": bpy.data.materials.get("Cursor"),
+        "Socket_10": bpy.data.materials.get("Circles"),
+        "Socket_11": bpy.data.materials.get("Slider"),
+        "Socket_12": bpy.data.materials.get("Slider_Balls"),
+        "Socket_13": bpy.data.materials.get("Circles"),
+        "Socket_14": bpy.data.materials.get("Spinner"),
+        "Socket_15": bpy.data.materials.get("Approach Circles"),
     }
 
     for socket, collection in socket_to_collection.items():
@@ -121,11 +122,12 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         collections = {
             "Circles": create_collection("Circles") if props.import_circles else None,
             "Sliders": create_collection("Sliders") if props.import_sliders else None,
+            "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails else None,
+            # and settings.get('import_type') == 'FULL' else None,
             "Slider Balls": create_collection("Slider Balls") if props.import_slider_balls else None,
             "Spinners": create_collection("Spinners") if props.import_spinners else None,
             "Cursor": create_collection("Cursor") if props.import_cursors else None,
             "Approach Circles": create_collection("Approach Circles") if props.import_approach_circles else None,
-            "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails else None,# and settings.get('import_type') == 'FULL' else None,
         }
 
         for collection in collections.values():

@@ -24,13 +24,13 @@ def setup_geometry_node_trees():
             "slider": {
                 "name": "Geometry Nodes Slider",
                 "attributes": [
-                    {'name': 'show', 'type': 'BOOLEAN', 'domain': 'POINT'},
+                    {'name': 'show', 'type': 'BOOLEAN', 'domain': 'CURVE'},
                     {'name': 'slider_duration_ms', 'type': 'FLOAT', 'domain': 'CURVE'},
                     {'name': 'slider_duration_frames', 'type': 'FLOAT', 'domain': 'CURVE'},
                     {'name': 'ar', 'type': 'FLOAT', 'domain': 'CURVE'},
                     {'name': 'cs', 'type': 'FLOAT', 'domain': 'CURVE'},
-                    {'name': 'was_hit', 'type': 'BOOLEAN', 'domain': 'POINT'},
-                    {'name': 'was_completed', 'type': 'BOOLEAN', 'domain': 'POINT'},
+                    {'name': 'was_hit', 'type': 'BOOLEAN', 'domain': 'CURVE'},
+                    {'name': 'was_completed', 'type': 'BOOLEAN', 'domain': 'CURVE'},
                     {'name': 'repeat_count', 'type': 'INT', 'domain': 'CURVE'},
                     {'name': 'pixel_length', 'type': 'FLOAT', 'domain': 'CURVE'},
                     {'name': 'combo', 'type': 'INT', 'domain': 'CURVE'},

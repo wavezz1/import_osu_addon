@@ -38,6 +38,14 @@ def setup_geometry_node_trees():
                     "combo_color": 'FLOAT_VECTOR'
                 }
             },
+            "head_tail_obj": {
+                "name": "Geometry Nodes Head Tail",
+                "attributes": {
+                    "combo": 'INT',
+                    "combo_color_idx": 'INT',
+                    "combo_color": 'FLOAT_VECTOR'
+                }
+            },
             "spinner": {
                 "name": "Geometry Nodes Spinner",
                 "attributes": {

@@ -58,6 +58,11 @@ class SliderHeadTailCreator:
 
             head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
 
+            # **Zuweisen der Combo-Attribute**
+            head_tail_obj["combo"] = hitobject.combo_number
+            head_tail_obj["combo_color_idx"] = hitobject.combo_color_idx
+            head_tail_obj["combo_color"] = hitobject.combo_color
+
             tag_imported(head_tail_obj)
 
             self.slider_heads_tails_collection.objects.link(head_tail_obj)
@@ -85,9 +90,17 @@ class SliderHeadTailCreator:
                 "show": 'BOOLEAN',
                 "scale": 'FLOAT',
                 "cs": 'FLOAT',
+                "combo": 'INT',
+                "combo_color_idx": 'INT',
+                "combo_color": 'FLOAT_VECTOR',
             }
-            fixed_values = {"cs": osu_radius * SCALE_FACTOR}
 
+            fixed_values = {
+                "cs": osu_radius * SCALE_FACTOR,
+                "combo": hitobject.combo_number,
+                "combo_color_idx": hitobject.combo_color_idx,
+                "combo_color": hitobject.combo_color,
+            }
             set_modifier_inputs_with_keyframes(head_tail_obj, attributes, frame_values, fixed_values)
 
             if self.import_type == 'FULL':

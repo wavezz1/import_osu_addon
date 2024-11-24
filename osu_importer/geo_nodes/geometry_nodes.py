@@ -5,7 +5,7 @@ from osu_importer.utils.utils import timeit, tag_imported
 
 node_groups = {}
 
-def setup_geometry_node_trees(domain):
+def setup_geometry_node_trees():
     global node_groups
     with timeit("Setup Geometry Node Trees"):
         node_definitions = {
@@ -90,21 +90,19 @@ def setup_geometry_node_trees(domain):
             attributes = node_def["attributes"]
             node_group = bpy.data.node_groups.get(name)
             if node_group is None:
-                node_group = create_geometry_nodes_tree(name, attributes, domain)
+                node_group = create_geometry_nodes_tree(name, attributes)
             node_groups[key] = node_group
 
-        print(f"Setup Geo {domain}")
-def create_geometry_nodes_tree(name, attributes, domain):
+def create_geometry_nodes_tree(name, attributes):
     # if name in bpy.data.node_groups:
     #     return bpy.data.node_groups[name]
 
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
-    setup_node_group_interface(group, attributes, domain)
+    setup_node_group_interface(group, attributes)
     tag_imported(group)
-    print(f"Create Tree Geo {domain}")
     return group
 
-def setup_node_group_interface(group, attributes, domain):
+def setup_node_group_interface(group, attributes):
     x_offset = 200
 
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
@@ -124,13 +122,12 @@ def setup_node_group_interface(group, attributes, domain):
         "FLOAT_VECTOR": "NodeSocketVector"
     }
 
-    print(f"Setup Group Geo {domain}")
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
         store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_node.location = (x_offset * (i + 1), 0)
         store_node.inputs['Name'].default_value = attr_name
         store_node.data_type = attr_type
-        store_node.domain = domain
+        store_node.domain = 'SPLINE'
 
         group.links.new(previous_node_output, store_node.inputs['Geometry'])
         previous_node_output = store_node.outputs['Geometry']
@@ -142,9 +139,8 @@ def setup_node_group_interface(group, attributes, domain):
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
 
-def create_geometry_nodes_modifier(obj, obj_type, domain):
-    setup_geometry_node_trees(domain)
-    print(f"Create Geo {domain}")
+def create_geometry_nodes_modifier(obj, obj_type):
+    setup_geometry_node_trees()
 
     node_group = node_groups.get(obj_type)
     if not node_group:

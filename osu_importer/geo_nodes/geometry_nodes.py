@@ -5,7 +5,7 @@ from osu_importer.utils.utils import timeit, tag_imported
 
 node_groups = {}
 
-def setup_geometry_node_trees(domain='POINT'):
+def setup_geometry_node_trees(domain):
     global node_groups
     with timeit("Setup Geometry Node Trees"):
         node_definitions = {
@@ -93,7 +93,7 @@ def setup_geometry_node_trees(domain='POINT'):
                 node_group = create_geometry_nodes_tree(name, attributes, domain)
             node_groups[key] = node_group
 
-def create_geometry_nodes_tree(name, attributes, domain='POINT'):
+def create_geometry_nodes_tree(name, attributes, domain):
     if name in bpy.data.node_groups:
         return bpy.data.node_groups[name]
 
@@ -102,7 +102,7 @@ def create_geometry_nodes_tree(name, attributes, domain='POINT'):
     tag_imported(group)
     return group
 
-def setup_node_group_interface(group, attributes, domain='POINT'):
+def setup_node_group_interface(group, attributes, domain):
     x_offset = 200
 
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')

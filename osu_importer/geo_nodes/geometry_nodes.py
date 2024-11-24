@@ -183,13 +183,31 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
-    for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        socket_index = i + 2
-        socket_count = f"Socket_{socket_index}"
+    if isinstance(attributes, list):
+        # Handle attributes as a list of dicts (for sliders)
+        for i, attr in enumerate(attributes):
+            attr_name = attr['name']
+            attr_type = attr['type']
+            socket_index = i + 2  # +2 to account for the two geometry sockets
+            socket_count = f"Socket_{socket_index}"
 
-        if attr_name in frame_values:
-            for frame, value in frame_values[attr_name]:
+            if attr_name in frame_values:
+                for frame, value in frame_values[attr_name]:
+                    try:
+                        if attr_type == 'BOOLEAN':
+                            modifier[socket_count] = bool(value)
+                        elif attr_type == 'FLOAT':
+                            modifier[socket_count] = float(value)
+                        elif attr_type == 'INT':
+                            modifier[socket_count] = int(value)
+                        elif attr_type == 'FLOAT_VECTOR':
+                            modifier[socket_count] = tuple(float(v) for v in value)
+                        modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
+                    except Exception as e:
+                        print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
+            elif fixed_values and attr_name in fixed_values:
                 try:
+                    value = fixed_values[attr_name]
                     if attr_type == 'BOOLEAN':
                         modifier[socket_count] = bool(value)
                     elif attr_type == 'FLOAT':
@@ -198,25 +216,50 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                         modifier[socket_count] = int(value)
                     elif attr_type == 'FLOAT_VECTOR':
                         modifier[socket_count] = tuple(float(v) for v in value)
-                    modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
+                    print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
                 except Exception as e:
-                    print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
-        elif fixed_values and attr_name in fixed_values:
-            try:
-                value = fixed_values[attr_name]
-                if attr_type == 'BOOLEAN':
-                    modifier[socket_count] = bool(value)
-                elif attr_type == 'FLOAT':
-                    modifier[socket_count] = float(value)
-                elif attr_type == 'INT':
-                    modifier[socket_count] = int(value)
-                elif attr_type == 'FLOAT_VECTOR':
-                    modifier[socket_count] = tuple(float(v) for v in value)
-                print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
-            except Exception as e:
-                print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
-        else:
-            print(f"No values provided for attribute '{attr_name}'. Skipping.")
+                    print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
+            else:
+                print(f"No values provided for attribute '{attr_name}'. Skipping.")
+    elif isinstance(attributes, dict):
+        # Handle attributes as a dict of {attr_name: attr_type} (for other objects)
+        for i, (attr_name, attr_type) in enumerate(attributes.items()):
+            socket_index = i + 2  # +2 to account for the two geometry sockets
+            socket_count = f"Socket_{socket_index}"
+
+            if attr_name in frame_values:
+                for frame, value in frame_values[attr_name]:
+                    try:
+                        if attr_type == 'BOOLEAN':
+                            modifier[socket_count] = bool(value)
+                        elif attr_type == 'FLOAT':
+                            modifier[socket_count] = float(value)
+                        elif attr_type == 'INT':
+                            modifier[socket_count] = int(value)
+                        elif attr_type == 'FLOAT_VECTOR':
+                            modifier[socket_count] = tuple(float(v) for v in value)
+                        modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
+                    except Exception as e:
+                        print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
+            elif fixed_values and attr_name in fixed_values:
+                try:
+                    value = fixed_values[attr_name]
+                    if attr_type == 'BOOLEAN':
+                        modifier[socket_count] = bool(value)
+                    elif attr_type == 'FLOAT':
+                        modifier[socket_count] = float(value)
+                    elif attr_type == 'INT':
+                        modifier[socket_count] = int(value)
+                    elif attr_type == 'FLOAT_VECTOR':
+                        modifier[socket_count] = tuple(float(v) for v in value)
+                    print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
+                except Exception as e:
+                    print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
+            else:
+                print(f"No values provided for attribute '{attr_name}'. Skipping.")
+    else:
+        print(f"Unsupported attributes format for object '{obj.name}'")
+        return
 
 def assign_collections_to_sockets(obj, socket_to_collection, operator=None):
     modifier = obj.modifiers.get("GeometryNodes")

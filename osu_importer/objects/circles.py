@@ -65,7 +65,7 @@ class CircleCreator:
                         col.objects.unlink(circle)
 
             if self.import_type == 'BASE':
-                create_geometry_nodes_modifier(circle, "circle", 'POINT')
+                create_geometry_nodes_modifier(circle, "circle")
 
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,

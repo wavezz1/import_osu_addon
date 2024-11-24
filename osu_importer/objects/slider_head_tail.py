@@ -72,7 +72,7 @@ class SliderHeadTailCreator:
                         col.objects.unlink(head_tail_obj)
 
             if self.import_type == 'BASE':
-                create_geometry_nodes_modifier(head_tail_obj, "slider_head_tail", 'POINT')
+                create_geometry_nodes_modifier(head_tail_obj, "slider_head_tail")
 
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,

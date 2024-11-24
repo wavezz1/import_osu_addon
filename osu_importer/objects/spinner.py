@@ -58,7 +58,7 @@ class SpinnerCreator:
                         col.objects.unlink(spinner)
 
             if self.import_type == 'BASE':
-                create_geometry_nodes_modifier(spinner, "spinner",'POINT')
+                create_geometry_nodes_modifier(spinner, "spinner")
 
             frame_values, fixed_values = get_keyframe_values(
                 self.hitobject,

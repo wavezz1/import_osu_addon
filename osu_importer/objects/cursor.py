@@ -41,7 +41,7 @@ class CursorCreator:
                 cursor = bpy.data.objects.new("Cursor", mesh)
                 cursor.location = (0, 0, 0)
 
-                create_geometry_nodes_modifier(cursor, "cursor", 'POINT')
+                create_geometry_nodes_modifier(cursor, "cursor")
 
 
                 fixed_values = {

@@ -107,7 +107,7 @@ class ApproachCircleCreator:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
 
-                create_geometry_nodes_modifier(approach_obj, "approach_circle", 'POINT')
+                create_geometry_nodes_modifier(approach_obj, "approach_circle")
 
                 frame_values = {
                     "show": [

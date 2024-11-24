@@ -41,9 +41,12 @@ def setup_geometry_node_trees():
             "slider_head_tail": {
                 "name": "Geometry Nodes Head Tail",
                 "attributes": {
+                    "show": 'BOOLEAN',
+                    "scale": 'FLOAT',
+                    "cs": 'FLOAT',
                     "combo": 'INT',
                     "combo_color_idx": 'INT',
-                    "combo_color": 'FLOAT_VECTOR'
+                    "combo_color": 'FLOAT_VECTOR',
                 }
             },
             "spinner": {

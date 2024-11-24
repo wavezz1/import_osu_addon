@@ -21,16 +21,16 @@ class HitObject:
 
 class HitObjectsProcessor:
     COMBO_COLORS = [
-        "Blue",
-        "Red",
-        "Green",
-        "Yellow",
-        "Purple",
-        "Orange",
-        "Pink",
-        "Brown",
-        "Grey",
-        "Cyan",
+        (0.0, 0.0, 1.0),    # Blue
+        (1.0, 0.0, 0.0),    # Red
+        (0.0, 1.0, 0.0),    # Green
+        (1.0, 1.0, 0.0),    # Yellow
+        (0.5, 0.0, 0.5),    # Purple
+        (1.0, 0.65, 0.0),   # Orange
+        (1.0, 0.0, 1.0),    # Pink
+        (0.6, 0.4, 0.2),    # Brown
+        (0.5, 0.5, 0.5),    # Grey
+        (0.0, 1.0, 1.0),    # Cyan
     ]
     def __init__(self, data_manager):
         self.data_manager = data_manager

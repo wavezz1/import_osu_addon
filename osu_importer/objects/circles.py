@@ -84,8 +84,8 @@ class CircleCreator:
                 "ar": 'FLOAT',
                 "cs": 'FLOAT',
                 "combo": 'INT',
-                "combo_color": 'INT',
-                "combo_color_idx": 'FLOAT_VECTOR'
+                "combo_color_idx": 'INT',
+                "combo_color": 'FLOAT_VECTOR'
             }
 
             if self.hitobject.combo_number is not None:

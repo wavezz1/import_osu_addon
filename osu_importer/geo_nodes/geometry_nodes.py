@@ -142,7 +142,7 @@ def setup_node_group_interface(group, attributes, domain):
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
 
-def create_geometry_nodes_modifier(obj, obj_type,domain):
+def create_geometry_nodes_modifier(obj, obj_type, domain):
     setup_geometry_node_trees(domain)
     print(f"Create Geo {domain}")
 

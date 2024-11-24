@@ -38,7 +38,7 @@ def setup_geometry_node_trees():
                     "combo_color": 'FLOAT_VECTOR'
                 }
             },
-            "head_tail_obj": {
+            "slider_head_tail": {
                 "name": "Geometry Nodes Head Tail",
                 "attributes": {
                     "combo": 'INT',

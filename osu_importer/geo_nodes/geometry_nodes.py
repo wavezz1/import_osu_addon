@@ -17,7 +17,8 @@ def setup_geometry_node_trees():
                     "ar": 'FLOAT',
                     "cs": 'FLOAT',
                     "combo": 'INT',
-                    "combo_color": 'INT'
+                    "combo_color_idx": 'INT',
+                    "combo_color": 'FLOAT_VECTOR'
                 }
             },
             "slider": {
@@ -32,6 +33,9 @@ def setup_geometry_node_trees():
                     "was_completed": 'BOOLEAN',
                     "repeat_count": 'INT',
                     "pixel_length": 'FLOAT',
+                    "combo": 'INT',
+                    "combo_color_idx": 'INT',
+                    "combo_color": 'FLOAT_VECTOR'
                 }
             },
             "spinner": {
@@ -103,7 +107,8 @@ def setup_node_group_interface(group, attributes):
     socket_map = {
         "BOOLEAN": "NodeSocketBool",
         "FLOAT": "NodeSocketFloat",
-        "INT": "NodeSocketInt"
+        "INT": "NodeSocketInt",
+        "FLOAT_VECTOR": "NodeSocketVector"
     }
 
     for i, (attr_name, attr_type) in enumerate(attributes.items()):
@@ -156,6 +161,8 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                         modifier[socket_count] = float(value)
                     elif attr_type == 'INT':
                         modifier[socket_count] = int(value)
+                    elif attr_type == 'FLOAT_VECTOR':
+                        modifier[socket_count] = tuple(float(v) for v in value)
                     modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
                 except Exception as e:
                     print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")

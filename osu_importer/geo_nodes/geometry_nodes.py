@@ -175,6 +175,8 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                     modifier[socket_count] = float(value)
                 elif attr_type == 'INT':
                     modifier[socket_count] = int(value)
+                elif attr_type == 'FLOAT_VECTOR':
+                    modifier[socket_count] = tuple(float(v) for v in value)
                 print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
             except Exception as e:
                 print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")

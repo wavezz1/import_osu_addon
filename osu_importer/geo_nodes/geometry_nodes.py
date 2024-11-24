@@ -5,7 +5,7 @@ from osu_importer.utils.utils import timeit, tag_imported
 
 node_groups = {}
 
-def setup_geometry_node_trees(domain):
+def setup_geometry_node_trees():
     global node_groups
     with timeit("Setup Geometry Node Trees"):
         node_definitions = {
@@ -23,20 +23,20 @@ def setup_geometry_node_trees(domain):
             },
             "slider": {
                 "name": "Geometry Nodes Slider",
-                "attributes": {
-                    "show": 'BOOLEAN',
-                    "slider_duration_ms": 'FLOAT',
-                    "slider_duration_frames": 'FLOAT',
-                    "ar": 'FLOAT',
-                    "cs": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN',
-                    "repeat_count": 'INT',
-                    "pixel_length": 'FLOAT',
-                    "combo": 'INT',
-                    "combo_color_idx": 'INT',
-                    "combo_color": 'FLOAT_VECTOR'
-                }
+                "attributes": [
+                    {'name': 'show', 'type': 'BOOLEAN', 'domain': 'POINT'},
+                    {'name': 'slider_duration_ms', 'type': 'FLOAT', 'domain': 'CURVE'},
+                    {'name': 'slider_duration_frames', 'type': 'FLOAT', 'domain': 'CURVE'},
+                    {'name': 'ar', 'type': 'FLOAT', 'domain': 'CURVE'},
+                    {'name': 'cs', 'type': 'FLOAT', 'domain': 'CURVE'},
+                    {'name': 'was_hit', 'type': 'BOOLEAN', 'domain': 'POINT'},
+                    {'name': 'was_completed', 'type': 'BOOLEAN', 'domain': 'POINT'},
+                    {'name': 'repeat_count', 'type': 'INT', 'domain': 'CURVE'},
+                    {'name': 'pixel_length', 'type': 'FLOAT', 'domain': 'CURVE'},
+                    {'name': 'combo', 'type': 'INT', 'domain': 'CURVE'},
+                    {'name': 'combo_color_idx', 'type': 'INT', 'domain': 'CURVE'},
+                    {'name': 'combo_color', 'type': 'FLOAT_VECTOR', 'domain': 'CURVE'}
+                ]
             },
             "slider_head_tail": {
                 "name": "Geometry Nodes Head Tail",
@@ -90,23 +90,19 @@ def setup_geometry_node_trees(domain):
             attributes = node_def["attributes"]
             node_group = bpy.data.node_groups.get(name)
             if node_group is None:
-                node_group = create_geometry_nodes_tree(name, attributes, domain)
+                node_group = create_geometry_nodes_tree(name, attributes)
             node_groups[key] = node_group
 
-        print(f"Setup Geo {domain}")
-def create_geometry_nodes_tree(name, attributes, domain):
-    # if name in bpy.data.node_groups:
-    #     return bpy.data.node_groups[name]
+def create_geometry_nodes_tree(name, attributes):
     if name in bpy.data.node_groups:
-        bpy.data.node_groups.remove(bpy.data.node_groups[name])
+        return bpy.data.node_groups[name]
 
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
-    setup_node_group_interface(group, attributes, domain)
+    setup_node_group_interface(group, attributes)
     tag_imported(group)
-    print(f"Create Tree Geo {domain}")
     return group
 
-def setup_node_group_interface(group, attributes, domain):
+def setup_node_group_interface(group, attributes):
     x_offset = 200
 
     group.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
@@ -126,27 +122,49 @@ def setup_node_group_interface(group, attributes, domain):
         "FLOAT_VECTOR": "NodeSocketVector"
     }
 
-    print(f"Setup Group Geo {domain}")
-    for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
-        store_node.location = (x_offset * (i + 1), 0)
-        store_node.inputs['Name'].default_value = attr_name
-        store_node.data_type = attr_type
-        store_node.domain = domain
+    # Check if attributes is a list (for sliders) or dict (for other types)
+    if isinstance(attributes, list):
+        # Handle attributes as a list of dicts (for sliders)
+        for i, attr in enumerate(attributes):
+            attr_name = attr['name']
+            attr_type = attr['type']
+            attr_domain = attr.get('domain', 'POINT')
 
-        group.links.new(previous_node_output, store_node.inputs['Geometry'])
-        previous_node_output = store_node.outputs['Geometry']
+            store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
+            store_node.location = (x_offset * (i + 1), 0)
+            store_node.inputs['Name'].default_value = attr_name
+            store_node.data_type = attr_type
+            store_node.domain = attr_domain
 
-        socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
-        group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
+            group.links.new(previous_node_output, store_node.inputs['Geometry'])
+            previous_node_output = store_node.outputs['Geometry']
+
+            socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
+            new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+            group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
+    elif isinstance(attributes, dict):
+        # Handle attributes as a dict of {attr_name: attr_type} (for other objects)
+        for i, (attr_name, attr_type) in enumerate(attributes.items()):
+            store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
+            store_node.location = (x_offset * (i + 1), 0)
+            store_node.inputs['Name'].default_value = attr_name
+            store_node.data_type = attr_type
+            store_node.domain = 'POINT'  # Default domain for non-slider attributes
+
+            group.links.new(previous_node_output, store_node.inputs['Geometry'])
+            previous_node_output = store_node.outputs['Geometry']
+
+            socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
+            new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+            group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
+    else:
+        print(f"Unsupported attributes format for node group '{group.name}'")
+        return
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
-
-def create_geometry_nodes_modifier(obj, obj_type, domain):
-    setup_geometry_node_trees(domain)
-    print(f"Create Geo {domain}")
+def create_geometry_nodes_modifier(obj, obj_type):
+    setup_geometry_node_trees()
 
     node_group = node_groups.get(obj_type)
     if not node_group:

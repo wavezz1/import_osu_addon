@@ -138,7 +138,7 @@ class SliderCreator:
                         if col != self.sliders_collection:
                             col.objects.unlink(slider)
                 if self.import_type == 'BASE':
-                    create_geometry_nodes_modifier(slider, "slider", 'CURVE')
+                    create_geometry_nodes_modifier(slider, "slider")
 
                 frame_values, fixed_values = get_keyframe_values(
                     self.hitobject,

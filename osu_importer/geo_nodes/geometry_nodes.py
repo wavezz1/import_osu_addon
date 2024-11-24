@@ -97,6 +97,8 @@ def setup_geometry_node_trees(domain):
 def create_geometry_nodes_tree(name, attributes, domain):
     # if name in bpy.data.node_groups:
     #     return bpy.data.node_groups[name]
+    if name in bpy.data.node_groups:
+        bpy.data.node_groups.remove(bpy.data.node_groups[name])
 
     group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
     setup_node_group_interface(group, attributes, domain)

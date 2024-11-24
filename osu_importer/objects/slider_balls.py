@@ -41,7 +41,7 @@ class SliderBallCreator:
         slider_ball = bpy.data.objects.new(f"{self.slider.name}_ball", mesh)
         slider_ball.location = self.slider.location
 
-        create_geometry_nodes_modifier(slider_ball, "slider_ball", domain='POINT')
+        create_geometry_nodes_modifier(slider_ball, "slider_ball", 'POINT')
 
         frame_values = {
             "show": [

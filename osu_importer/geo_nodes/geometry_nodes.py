@@ -23,20 +23,20 @@ def setup_geometry_node_trees():
             },
             "slider": {
                 "name": "Geometry Nodes Slider",
-                "attributes": [
-                    {'name': 'show', 'type': 'BOOLEAN', 'domain': 'CURVE'},
-                    {'name': 'slider_duration_ms', 'type': 'FLOAT', 'domain': 'CURVE'},
-                    {'name': 'slider_duration_frames', 'type': 'FLOAT', 'domain': 'CURVE'},
-                    {'name': 'ar', 'type': 'FLOAT', 'domain': 'CURVE'},
-                    {'name': 'cs', 'type': 'FLOAT', 'domain': 'CURVE'},
-                    {'name': 'was_hit', 'type': 'BOOLEAN', 'domain': 'CURVE'},
-                    {'name': 'was_completed', 'type': 'BOOLEAN', 'domain': 'CURVE'},
-                    {'name': 'repeat_count', 'type': 'INT', 'domain': 'CURVE'},
-                    {'name': 'pixel_length', 'type': 'FLOAT', 'domain': 'CURVE'},
-                    {'name': 'combo', 'type': 'INT', 'domain': 'CURVE'},
-                    {'name': 'combo_color_idx', 'type': 'INT', 'domain': 'CURVE'},
-                    {'name': 'combo_color', 'type': 'FLOAT_VECTOR', 'domain': 'CURVE'}
-                ]
+                "attributes": {
+                    "show": ('BOOLEAN', 'CURVE'),
+                    "slider_duration_ms": ('FLOAT', 'CURVE'),
+                    "slider_duration_frames": ('FLOAT', 'CURVE'),
+                    "ar": ('FLOAT', 'CURVE'),
+                    "cs": ('FLOAT', 'CURVE'),
+                    "was_hit": ('BOOLEAN', 'CURVE'),
+                    "was_completed": ('BOOLEAN', 'CURVE'),
+                    "repeat_count": ('INT', 'CURVE'),
+                    "pixel_length": ('FLOAT', 'CURVE'),
+                    "combo": ('INT', 'CURVE'),
+                    "combo_color_idx": ('INT', 'CURVE'),
+                    "combo_color": ('FLOAT_VECTOR', 'CURVE')
+                }
             },
             "slider_head_tail": {
                 "name": "Geometry Nodes Head Tail",
@@ -122,44 +122,25 @@ def setup_node_group_interface(group, attributes):
         "FLOAT_VECTOR": "NodeSocketVector"
     }
 
-    # Check if attributes is a list (for sliders) or dict (for other types)
-    if isinstance(attributes, list):
-        # Handle attributes as a list of dicts (for sliders)
-        for i, attr in enumerate(attributes):
-            attr_name = attr['name']
-            attr_type = attr['type']
-            attr_domain = attr.get('domain', 'POINT')
+    for i, (attr_name, attr_info) in enumerate(attributes.items()):
+        if isinstance(attr_info, tuple):
+            attr_type, attr_domain = attr_info
+        else:
+            attr_type = attr_info
+            attr_domain = 'POINT'  # Default domain
 
-            store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
-            store_node.location = (x_offset * (i + 1), 0)
-            store_node.inputs['Name'].default_value = attr_name
-            store_node.data_type = attr_type
-            store_node.domain = attr_domain
+        store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
+        store_node.location = (x_offset * (i + 1), 0)
+        store_node.inputs['Name'].default_value = attr_name
+        store_node.data_type = attr_type
+        store_node.domain = attr_domain
 
-            group.links.new(previous_node_output, store_node.inputs['Geometry'])
-            previous_node_output = store_node.outputs['Geometry']
+        group.links.new(previous_node_output, store_node.inputs['Geometry'])
+        previous_node_output = store_node.outputs['Geometry']
 
-            socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-            new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
-            group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
-    elif isinstance(attributes, dict):
-        # Handle attributes as a dict of {attr_name: attr_type} (for other objects)
-        for i, (attr_name, attr_type) in enumerate(attributes.items()):
-            store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
-            store_node.location = (x_offset * (i + 1), 0)
-            store_node.inputs['Name'].default_value = attr_name
-            store_node.data_type = attr_type
-            store_node.domain = 'POINT'  # Default domain for non-slider attributes
-
-            group.links.new(previous_node_output, store_node.inputs['Geometry'])
-            previous_node_output = store_node.outputs['Geometry']
-
-            socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
-            new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
-            group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
-    else:
-        print(f"Unsupported attributes format for node group '{group.name}'")
-        return
+        socket_type = socket_map.get(attr_type.upper(), "NodeSocketFloat")
+        new_socket = group.interface.new_socket(name=attr_name, in_out='INPUT', socket_type=socket_type)
+        group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
 
@@ -183,31 +164,18 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
-    if isinstance(attributes, list):
-        # Handle attributes as a list of dicts (for sliders)
-        for i, attr in enumerate(attributes):
-            attr_name = attr['name']
-            attr_type = attr['type']
-            socket_index = i + 2  # +2 to account for the two geometry sockets
-            socket_count = f"Socket_{socket_index}"
+    for i, (attr_name, attr_info) in enumerate(attributes.items()):
+        if isinstance(attr_info, tuple):
+            attr_type = attr_info[0]
+        else:
+            attr_type = attr_info
 
-            if attr_name in frame_values:
-                for frame, value in frame_values[attr_name]:
-                    try:
-                        if attr_type == 'BOOLEAN':
-                            modifier[socket_count] = bool(value)
-                        elif attr_type == 'FLOAT':
-                            modifier[socket_count] = float(value)
-                        elif attr_type == 'INT':
-                            modifier[socket_count] = int(value)
-                        elif attr_type == 'FLOAT_VECTOR':
-                            modifier[socket_count] = tuple(float(v) for v in value)
-                        modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
-                    except Exception as e:
-                        print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
-            elif fixed_values and attr_name in fixed_values:
+        socket_index = i + 2  # +2 to account for the two geometry sockets
+        socket_count = f"Socket_{socket_index}"
+
+        if attr_name in frame_values:
+            for frame, value in frame_values[attr_name]:
                 try:
-                    value = fixed_values[attr_name]
                     if attr_type == 'BOOLEAN':
                         modifier[socket_count] = bool(value)
                     elif attr_type == 'FLOAT':
@@ -216,50 +184,25 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                         modifier[socket_count] = int(value)
                     elif attr_type == 'FLOAT_VECTOR':
                         modifier[socket_count] = tuple(float(v) for v in value)
-                    print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
+                    modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
                 except Exception as e:
-                    print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
-            else:
-                print(f"No values provided for attribute '{attr_name}'. Skipping.")
-    elif isinstance(attributes, dict):
-        # Handle attributes as a dict of {attr_name: attr_type} (for other objects)
-        for i, (attr_name, attr_type) in enumerate(attributes.items()):
-            socket_index = i + 2  # +2 to account for the two geometry sockets
-            socket_count = f"Socket_{socket_index}"
-
-            if attr_name in frame_values:
-                for frame, value in frame_values[attr_name]:
-                    try:
-                        if attr_type == 'BOOLEAN':
-                            modifier[socket_count] = bool(value)
-                        elif attr_type == 'FLOAT':
-                            modifier[socket_count] = float(value)
-                        elif attr_type == 'INT':
-                            modifier[socket_count] = int(value)
-                        elif attr_type == 'FLOAT_VECTOR':
-                            modifier[socket_count] = tuple(float(v) for v in value)
-                        modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
-                    except Exception as e:
-                        print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
-            elif fixed_values and attr_name in fixed_values:
-                try:
-                    value = fixed_values[attr_name]
-                    if attr_type == 'BOOLEAN':
-                        modifier[socket_count] = bool(value)
-                    elif attr_type == 'FLOAT':
-                        modifier[socket_count] = float(value)
-                    elif attr_type == 'INT':
-                        modifier[socket_count] = int(value)
-                    elif attr_type == 'FLOAT_VECTOR':
-                        modifier[socket_count] = tuple(float(v) for v in value)
-                    print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
-                except Exception as e:
-                    print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
-            else:
-                print(f"No values provided for attribute '{attr_name}'. Skipping.")
-    else:
-        print(f"Unsupported attributes format for object '{obj.name}'")
-        return
+                    print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
+        elif fixed_values and attr_name in fixed_values:
+            try:
+                value = fixed_values[attr_name]
+                if attr_type == 'BOOLEAN':
+                    modifier[socket_count] = bool(value)
+                elif attr_type == 'FLOAT':
+                    modifier[socket_count] = float(value)
+                elif attr_type == 'INT':
+                    modifier[socket_count] = int(value)
+                elif attr_type == 'FLOAT_VECTOR':
+                    modifier[socket_count] = tuple(float(v) for v in value)
+                print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
+            except Exception as e:
+                print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")
+        else:
+            print(f"No values provided for attribute '{attr_name}'. Skipping.")
 
 def assign_collections_to_sockets(obj, socket_to_collection, operator=None):
     modifier = obj.modifiers.get("GeometryNodes")

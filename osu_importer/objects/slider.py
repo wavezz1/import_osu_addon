@@ -132,6 +132,11 @@ class SliderCreator:
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 
+                reverse_frames = []
+                for i in range(1, repeat_count):
+                    reverse_frame = int(self.hitobject.start_frame + (slider_duration_frames / repeat_count) * i)
+                    reverse_frames.append(reverse_frame)
+
                 self.sliders_collection.objects.link(slider)
                 if slider.users_collection:
                     for col in slider.users_collection:
@@ -171,13 +176,43 @@ class SliderCreator:
                     "pixel_length": 'FLOAT',
                     "combo": 'INT',
                     "combo_color_idx": 'INT',
-                    "combo_color": 'FLOAT_VECTOR'
+                    "combo_color": 'FLOAT_VECTOR',
+                    "reverse_head": 'BOOLEAN',
+                    "reverse_tail": 'BOOLEAN',
                 }
+
+                fixed_values['reverse_head'] = False
+                fixed_values['reverse_tail'] = False
 
                 if self.hitobject.combo_number is not None:
                     fixed_values['combo'] = self.hitobject.combo_number
                     fixed_values['combo_color'] = self.hitobject.combo_color
                     fixed_values['combo_color_idx'] = self.hitobject.combo_color_idx
+
+                reverse_head_frames = [
+                    int((time + data_manager.audio_lead_in) / data_manager.ms_per_frame)
+                    for time in self.hitobject.reverse_arrow_keyframes_head
+                ]
+                reverse_tail_frames = [
+                    int((time + data_manager.audio_lead_in) / data_manager.ms_per_frame)
+                    for time in self.hitobject.reverse_arrow_keyframes_tail
+                ]
+
+                # Initialize frame_values if not already
+                if not frame_values:
+                    frame_values = {}
+
+                # Set reverse_head frames
+                for frame in reverse_head_frames:
+                    if frame not in frame_values:
+                        frame_values[frame] = {}
+                    frame_values[frame]['reverse_head'] = True
+
+                # Set reverse_tail frames
+                for frame in reverse_tail_frames:
+                    if frame not in frame_values:
+                        frame_values[frame] = {}
+                    frame_values[frame]['reverse_tail'] = True
 
                 set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 

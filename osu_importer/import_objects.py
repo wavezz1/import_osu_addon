@@ -208,7 +208,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         )
         cursor_creator.animate_cursor()
 
-    if props.import_sliders and props.import_slider_heads_tails: # and import_type == 'FULL':
+    if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
             # Slider Head

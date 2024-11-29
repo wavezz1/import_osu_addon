@@ -176,8 +176,8 @@ class SliderCreator:
                     "reverse_tail": 'BOOLEAN',
                 }
 
-                print(self.hitobject.reverse_arrow_keyframes_tail)
-                print(self.hitobject.reverse_arrow_keyframes_head)
+                print(f"Reverse Head: {self.hitobject.reverse_arrow_keyframes_head}")
+                print(f"Reverse Tail: {self.hitobject.reverse_arrow_keyframes_tail}")
 
                 if self.hitobject.combo_number is not None:
                     fixed_values['combo'] = self.hitobject.combo_number

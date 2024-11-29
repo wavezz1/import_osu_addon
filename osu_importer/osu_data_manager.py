@@ -158,17 +158,16 @@ class OsuDataManager:
                 hitobject.slider_end_time = hitobject_time + slider_duration_ms
 
                 # Berechnung der Reverse Arrow Zeiten
-                repeat_count = int(hitobject.extras[1])
+                repeat_count = int(hitobject.extras[1]) if len(hitobject.extras) > 1 else 1
                 slider_duration = slider_duration_ms / repeat_count
-
                 for i in range(1, repeat_count):
                     reverse_time = hitobject_time + slider_duration * i
-                    if i % 2 == 1:
-                        # Ungerade Wiederholung - Reverse Arrow am Ende (Tail)
-                        hitobject.reverse_arrow_keyframes_tail.append(reverse_time)
-                    else:
-                        # Gerade Wiederholung - Reverse Arrow am Kopf (Head)
+                    if i % 2 == 0:
+                        # Gerade Wiederholung - Reverse Arrow am Kopf
                         hitobject.reverse_arrow_keyframes_head.append(reverse_time)
+                    else:
+                        # Ungerade Wiederholung - Reverse Arrow am Ende
+                        hitobject.reverse_arrow_keyframes_tail.append(reverse_time)
 
             elif hitobject.hit_type & 8:  # Spinner
                 spinner_duration_ms = self.calculate_spinner_duration(hitobject)

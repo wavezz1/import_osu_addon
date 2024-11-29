@@ -132,11 +132,6 @@ class SliderCreator:
                 slider["repeat_count"] = repeat_count
                 slider["pixel_length"] = pixel_length
 
-                reverse_frames = []
-                for i in range(1, repeat_count):
-                    reverse_frame = int(self.hitobject.start_frame + (slider_duration_frames / repeat_count) * i)
-                    reverse_frames.append(reverse_frame)
-
                 self.sliders_collection.objects.link(slider)
                 if slider.users_collection:
                     for col in slider.users_collection:
@@ -180,6 +175,9 @@ class SliderCreator:
                     "reverse_head": 'BOOLEAN',
                     "reverse_tail": 'BOOLEAN',
                 }
+
+                print(self.hitobject.reverse_arrow_keyframes_tail)
+                print(self.hitobject.reverse_arrow_keyframes_head)
 
                 if self.hitobject.combo_number is not None:
                     fixed_values['combo'] = self.hitobject.combo_number

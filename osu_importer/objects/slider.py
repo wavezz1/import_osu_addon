@@ -195,17 +195,12 @@ class SliderCreator:
                     for time in self.hitobject.reverse_arrow_keyframes_tail
                 ]
 
-                # Initialize frame_values if not already
-                if not frame_values:
-                    frame_values = {}
-
-                # Set reverse_head frames
+                # reverse_head und reverse_tail unter frame_values setzen
                 for frame in reverse_head_frames:
                     if frame not in frame_values:
                         frame_values[frame] = {}
                     frame_values[frame]['reverse_head'] = True
 
-                # Set reverse_tail frames
                 for frame in reverse_tail_frames:
                     if frame not in frame_values:
                         frame_values[frame] = {}

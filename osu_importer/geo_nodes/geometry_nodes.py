@@ -36,8 +36,6 @@ def setup_geometry_node_trees():
                     "combo": ('INT', 'CURVE'),
                     "combo_color_idx": ('INT', 'CURVE'),
                     "combo_color": ('FLOAT_VECTOR', 'CURVE'),
-                    "reverse_head": ('BOOLEAN', 'CURVE'),
-                    "reverse_tail": ('BOOLEAN', 'CURVE'),
                 }
             },
             "slider_head_tail": {

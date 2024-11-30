@@ -18,8 +18,6 @@ class HitObject:
         self.is_new_combo = False
         self.combo_color = None
         self.combo_color_idx = None
-        self.reverse_arrow_keyframes_head = []
-        self.reverse_arrow_keyframes_tail = []
 
 class HitObjectsProcessor:
     COMBO_COLORS = [

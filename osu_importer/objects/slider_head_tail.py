@@ -48,10 +48,6 @@ class SliderHeadTailCreator:
 
                 head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
 
-                #head_tail_obj["combo"] = hitobject.combo_number
-                #head_tail_obj["combo_color_idx"] = hitobject.combo_color_idx
-                #head_tail_obj["combo_color"] = hitobject.combo_color
-
                 tag_imported(head_tail_obj)
 
                 head_tail_obj.hide_viewport = True

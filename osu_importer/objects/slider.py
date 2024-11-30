@@ -122,15 +122,8 @@ class SliderCreator:
 
                 tag_imported(slider)
 
-                #slider["ar"] = approach_rate
-                #slider["cs"] = osu_radius * SCALE_FACTOR
-
                 slider_duration_frames = self.hitobject.duration_frames
                 slider_duration_ms = slider_duration_frames * data_manager.ms_per_frame
-                #slider["slider_duration_ms"] = slider_duration_ms
-                #slider["slider_duration_frames"] = slider_duration_frames
-                #["repeat_count"] = repeat_count
-                #slider["pixel_length"] = pixel_length
 
                 self.sliders_collection.objects.link(slider)
                 if slider.users_collection:

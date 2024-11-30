@@ -55,9 +55,6 @@ class CircleCreator:
 
             tag_imported(circle)
 
-            #circle["ar"] = approach_rate
-            #circle["cs"] = osu_radius * SCALE_FACTOR
-
             self.circles_collection.objects.link(circle)
             if circle.users_collection:
                 for col in circle.users_collection:

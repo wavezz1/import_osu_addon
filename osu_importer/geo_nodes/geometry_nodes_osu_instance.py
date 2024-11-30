@@ -503,26 +503,26 @@ def circle_sim_group_node_group():
     set_material.width, set_material.height = 140.0, 100.0
     transform_geometry_001.width, transform_geometry_001.height = 140.0, 100.0
     attribute_statistic_001.width, attribute_statistic_001.height = 140.0, 100.0
-    reroute.width, reroute.height = 16.0, 100.0
-    reroute_001.width, reroute_001.height = 16.0, 100.0
+    reroute.width, reroute.height = 100.0, 100.0
+    reroute_001.width, reroute_001.height = 100.0, 100.0
     combine_xyz.width, combine_xyz.height = 140.0, 100.0
     uv_unwrap.width, uv_unwrap.height = 140.0, 100.0
     boolean.width, boolean.height = 140.0, 100.0
     pack_uv_islands.width, pack_uv_islands.height = 140.0, 100.0
-    reroute_002.width, reroute_002.height = 16.0, 100.0
+    reroute_002.width, reroute_002.height = 100.0, 100.0
     store_named_attribute.width, store_named_attribute.height = 140.0, 100.0
-    reroute_003.width, reroute_003.height = 16.0, 100.0
-    reroute_004.width, reroute_004.height = 16.0, 100.0
-    reroute_007.width, reroute_007.height = 16.0, 100.0
-    reroute_008.width, reroute_008.height = 16.0, 100.0
+    reroute_003.width, reroute_003.height = 100.0, 100.0
+    reroute_004.width, reroute_004.height = 100.0, 100.0
+    reroute_007.width, reroute_007.height = 100.0, 100.0
+    reroute_008.width, reroute_008.height = 100.0, 100.0
     group_input_001.width, group_input_001.height = 140.0, 100.0
     group_input_002.width, group_input_002.height = 140.0, 100.0
-    reroute_010.width, reroute_010.height = 16.0, 100.0
-    reroute_011.width, reroute_011.height = 16.0, 100.0
-    reroute_012.width, reroute_012.height = 16.0, 100.0
-    reroute_013.width, reroute_013.height = 16.0, 100.0
-    reroute_009.width, reroute_009.height = 16.0, 100.0
-    reroute_014.width, reroute_014.height = 16.0, 100.0
+    reroute_010.width, reroute_010.height = 100.0, 100.0
+    reroute_011.width, reroute_011.height = 100.0, 100.0
+    reroute_012.width, reroute_012.height = 100.0, 100.0
+    reroute_013.width, reroute_013.height = 100.0, 100.0
+    reroute_009.width, reroute_009.height = 100.0, 100.0
+    reroute_014.width, reroute_014.height = 100.0, 100.0
     math_002.width, math_002.height = 140.0, 100.0
     math_004.width, math_004.height = 140.0, 100.0
     math_006.width, math_006.height = 140.0, 100.0
@@ -534,7 +534,7 @@ def circle_sim_group_node_group():
     math_012.width, math_012.height = 140.0, 100.0
     math_013.width, math_013.height = 140.0, 100.0
     group_input_003.width, group_input_003.height = 140.0, 100.0
-    reroute_005.width, reroute_005.height = 16.0, 100.0
+    reroute_005.width, reroute_005.height = 100.0, 100.0
     instance_on_points_001.width, instance_on_points_001.height = 140.0, 100.0
     named_attribute_002.width, named_attribute_002.height = 140.0, 100.0
     math_001.width, math_001.height = 140.0, 100.0
@@ -812,22 +812,6 @@ def slider_sim_group_node_group():
     boolean_math_1.hide = True
     boolean_math_1.operation = 'NOT'
 
-    # node Instance on Points.002
-    instance_on_points_002 = slider_sim_group.nodes.new("GeometryNodeInstanceOnPoints")
-    instance_on_points_002.name = "Instance on Points.002"
-    instance_on_points_002.inputs[3].hide = True
-    instance_on_points_002.inputs[4].hide = True
-    instance_on_points_002.inputs[5].hide = True
-    instance_on_points_002.inputs[6].hide = True
-    # Pick Instance
-    instance_on_points_002.inputs[3].default_value = False
-    # Instance Index
-    instance_on_points_002.inputs[4].default_value = 0
-    # Rotation
-    instance_on_points_002.inputs[5].default_value = (0.0, 0.0, 0.0)
-    # Scale
-    instance_on_points_002.inputs[6].default_value = (1.0, 1.0, 1.0)
-
     # node Curve to Mesh
     curve_to_mesh = slider_sim_group.nodes.new("GeometryNodeCurveToMesh")
     curve_to_mesh.name = "Curve to Mesh"
@@ -875,9 +859,6 @@ def slider_sim_group_node_group():
     # node Reroute.002
     reroute_002_1 = slider_sim_group.nodes.new("NodeReroute")
     reroute_002_1.name = "Reroute.002"
-    # node Reroute.003
-    reroute_003_1 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_003_1.name = "Reroute.003"
     # node Set Material
     set_material_1 = slider_sim_group.nodes.new("GeometryNodeSetMaterial")
     set_material_1.name = "Set Material"
@@ -982,24 +963,6 @@ def slider_sim_group_node_group():
     # Z
     combine_xyz_003.inputs[2].default_value = 0.0
 
-    # node Set Position.001
-    set_position_001 = slider_sim_group.nodes.new("GeometryNodeSetPosition")
-    set_position_001.name = "Set Position.001"
-    # Selection
-    set_position_001.inputs[1].default_value = True
-    # Position
-    set_position_001.inputs[2].default_value = (0.0, 0.0, 0.0)
-
-    # node Combine XYZ.004
-    combine_xyz_004 = slider_sim_group.nodes.new("ShaderNodeCombineXYZ")
-    combine_xyz_004.name = "Combine XYZ.004"
-    combine_xyz_004.inputs[0].hide = True
-    combine_xyz_004.inputs[2].hide = True
-    # X
-    combine_xyz_004.inputs[0].default_value = 0.0
-    # Z
-    combine_xyz_004.inputs[2].default_value = 0.0
-
     # node Set Position.002
     set_position_002 = slider_sim_group.nodes.new("GeometryNodeSetPosition")
     set_position_002.name = "Set Position.002"
@@ -1103,23 +1066,6 @@ def slider_sim_group_node_group():
     group_input_006.outputs[12].hide = True
     group_input_006.outputs[13].hide = True
 
-    # node Group Input.007
-    group_input_007 = slider_sim_group.nodes.new("NodeGroupInput")
-    group_input_007.name = "Group Input.007"
-    group_input_007.outputs[0].hide = True
-    group_input_007.outputs[1].hide = True
-    group_input_007.outputs[2].hide = True
-    group_input_007.outputs[3].hide = True
-    group_input_007.outputs[4].hide = True
-    group_input_007.outputs[6].hide = True
-    group_input_007.outputs[7].hide = True
-    group_input_007.outputs[8].hide = True
-    group_input_007.outputs[9].hide = True
-    group_input_007.outputs[10].hide = True
-    group_input_007.outputs[11].hide = True
-    group_input_007.outputs[12].hide = True
-    group_input_007.outputs[13].hide = True
-
     # node Group Input.009
     group_input_009 = slider_sim_group.nodes.new("NodeGroupInput")
     group_input_009.name = "Group Input.009"
@@ -1154,15 +1100,6 @@ def slider_sim_group_node_group():
     group_input_010.outputs[12].hide = True
     group_input_010.outputs[13].hide = True
 
-    # node Reroute
-    reroute_1 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_1.name = "Reroute"
-    # node Reroute.004
-    reroute_004_1 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_004_1.name = "Reroute.004"
-    # node Reroute.005
-    reroute_005_1 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_005_1.name = "Reroute.005"
     # node Frame.002
     frame_002 = slider_sim_group.nodes.new("NodeFrame")
     frame_002.label = "Instance Slider Balls"
@@ -1193,9 +1130,6 @@ def slider_sim_group_node_group():
     group_input_008.outputs[12].hide = True
     group_input_008.outputs[13].hide = True
 
-    # node Reroute.006
-    reroute_006 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_006.name = "Reroute.006"
     # node Join Geometry.002
     join_geometry_002 = slider_sim_group.nodes.new("GeometryNodeJoinGeometry")
     join_geometry_002.name = "Join Geometry.002"
@@ -1210,9 +1144,6 @@ def slider_sim_group_node_group():
     # node Reroute.016
     reroute_016 = slider_sim_group.nodes.new("NodeReroute")
     reroute_016.name = "Reroute.016"
-    # node Reroute.017
-    reroute_017 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_017.name = "Reroute.017"
     # node Set Spline Type
     set_spline_type = slider_sim_group.nodes.new("GeometryNodeCurveSplineType")
     set_spline_type.name = "Set Spline Type"
@@ -1335,51 +1266,6 @@ def slider_sim_group_node_group():
     # node Reroute.009
     reroute_009_1 = slider_sim_group.nodes.new("NodeReroute")
     reroute_009_1.name = "Reroute.009"
-    # node Realize Instances.002
-    realize_instances_002 = slider_sim_group.nodes.new("GeometryNodeRealizeInstances")
-    realize_instances_002.name = "Realize Instances.002"
-    # Selection
-    realize_instances_002.inputs[1].default_value = True
-    # Realize All
-    realize_instances_002.inputs[2].default_value = True
-    # Depth
-    realize_instances_002.inputs[3].default_value = 0
-
-    # node Delete Geometry.004
-    delete_geometry_004 = slider_sim_group.nodes.new("GeometryNodeDeleteGeometry")
-    delete_geometry_004.name = "Delete Geometry.004"
-    delete_geometry_004.domain = 'POINT'
-    delete_geometry_004.mode = 'ALL'
-
-    # node Boolean Math.002
-    boolean_math_002 = slider_sim_group.nodes.new("FunctionNodeBooleanMath")
-    boolean_math_002.name = "Boolean Math.002"
-    boolean_math_002.operation = 'NOT'
-
-    # node Named Attribute.003
-    named_attribute_003_1 = slider_sim_group.nodes.new("GeometryNodeInputNamedAttribute")
-    named_attribute_003_1.name = "Named Attribute.003"
-    named_attribute_003_1.data_type = 'BOOLEAN'
-    # Name
-    named_attribute_003_1.inputs[0].default_value = "show"
-
-    # node Group Input.011
-    group_input_011 = slider_sim_group.nodes.new("NodeGroupInput")
-    group_input_011.name = "Group Input.011"
-    group_input_011.outputs[0].hide = True
-    group_input_011.outputs[1].hide = True
-    group_input_011.outputs[3].hide = True
-    group_input_011.outputs[4].hide = True
-    group_input_011.outputs[5].hide = True
-    group_input_011.outputs[6].hide = True
-    group_input_011.outputs[7].hide = True
-    group_input_011.outputs[8].hide = True
-    group_input_011.outputs[9].hide = True
-    group_input_011.outputs[10].hide = True
-    group_input_011.outputs[11].hide = True
-    group_input_011.outputs[12].hide = True
-    group_input_011.outputs[13].hide = True
-
     # node Instance on Points.001
     instance_on_points_001_1 = slider_sim_group.nodes.new("GeometryNodeInstanceOnPoints")
     instance_on_points_001_1.name = "Instance on Points.001"
@@ -1462,98 +1348,12 @@ def slider_sim_group_node_group():
     frame_006.label_size = 20
     frame_006.shrink = True
 
-    # node Instance on Points.003
-    instance_on_points_003 = slider_sim_group.nodes.new("GeometryNodeInstanceOnPoints")
-    instance_on_points_003.name = "Instance on Points.003"
-    instance_on_points_003.inputs[3].hide = True
-    instance_on_points_003.inputs[4].hide = True
-    instance_on_points_003.inputs[5].hide = True
-    instance_on_points_003.inputs[6].hide = True
-    # Pick Instance
-    instance_on_points_003.inputs[3].default_value = False
-    # Instance Index
-    instance_on_points_003.inputs[4].default_value = 0
-    # Rotation
-    instance_on_points_003.inputs[5].default_value = (0.0, 0.0, 0.0)
-    # Scale
-    instance_on_points_003.inputs[6].default_value = (1.0, 1.0, 1.0)
-
-    # node Index.001
-    index_001 = slider_sim_group.nodes.new("GeometryNodeInputIndex")
-    index_001.name = "Index.001"
-
-    # node Math.004
-    math_004_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_004_1.name = "Math.004"
-    math_004_1.operation = 'FLOORED_MODULO'
-    math_004_1.use_clamp = False
-    # Value_001
-    math_004_1.inputs[1].default_value = 2.0
-
-    # node Math.009
-    math_009_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_009_1.name = "Math.009"
-    math_009_1.operation = 'SUBTRACT'
-    math_009_1.use_clamp = False
-    # Value_001
-    math_009_1.inputs[1].default_value = 1.0
-
-    # node Math.010
-    math_010_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_010_1.name = "Math.010"
-    math_010_1.operation = 'FLOORED_MODULO'
-    math_010_1.use_clamp = False
-    # Value_001
-    math_010_1.inputs[1].default_value = 2.0
-
-    # node Set Position.003
-    set_position_003 = slider_sim_group.nodes.new("GeometryNodeSetPosition")
-    set_position_003.name = "Set Position.003"
-    # Selection
-    set_position_003.inputs[1].default_value = True
-    # Position
-    set_position_003.inputs[2].default_value = (0.0, 0.0, 0.0)
-
-    # node Combine XYZ.006
-    combine_xyz_006 = slider_sim_group.nodes.new("ShaderNodeCombineXYZ")
-    combine_xyz_006.name = "Combine XYZ.006"
-    combine_xyz_006.inputs[0].hide = True
-    combine_xyz_006.inputs[2].hide = True
-    # X
-    combine_xyz_006.inputs[0].default_value = 0.0
-    # Z
-    combine_xyz_006.inputs[2].default_value = 0.0
-
-    # node Group Input.013
-    group_input_013 = slider_sim_group.nodes.new("NodeGroupInput")
-    group_input_013.name = "Group Input.013"
-    group_input_013.outputs[0].hide = True
-    group_input_013.outputs[1].hide = True
-    group_input_013.outputs[2].hide = True
-    group_input_013.outputs[3].hide = True
-    group_input_013.outputs[5].hide = True
-    group_input_013.outputs[6].hide = True
-    group_input_013.outputs[7].hide = True
-    group_input_013.outputs[8].hide = True
-    group_input_013.outputs[9].hide = True
-    group_input_013.outputs[10].hide = True
-    group_input_013.outputs[11].hide = True
-    group_input_013.outputs[12].hide = True
-    group_input_013.outputs[13].hide = True
-
-    # node Join Geometry.004
-    join_geometry_004 = slider_sim_group.nodes.new("GeometryNodeJoinGeometry")
-    join_geometry_004.name = "Join Geometry.004"
-
     # node Set Material.002
     set_material_002 = slider_sim_group.nodes.new("GeometryNodeSetMaterial")
     set_material_002.name = "Set Material.002"
     # Selection
     set_material_002.inputs[1].default_value = True
 
-    # node Reroute.015
-    reroute_015 = slider_sim_group.nodes.new("NodeReroute")
-    reroute_015.name = "Reroute.015"
     # node Store Named Attribute.003
     store_named_attribute_003 = slider_sim_group.nodes.new("GeometryNodeStoreNamedAttribute")
     store_named_attribute_003.name = "Store Named Attribute.003"
@@ -1598,18 +1398,53 @@ def slider_sim_group_node_group():
     # Distance
     merge_by_distance.inputs[2].default_value = 0.0010000000474974513
 
+    # node Instance on Points.002
+    instance_on_points_002 = slider_sim_group.nodes.new("GeometryNodeInstanceOnPoints")
+    instance_on_points_002.name = "Instance on Points.002"
+    # Pick Instance
+    instance_on_points_002.inputs[3].default_value = False
+    # Instance Index
+    instance_on_points_002.inputs[4].default_value = 0
+    # Rotation
+    instance_on_points_002.inputs[5].default_value = (0.0, 0.0, 0.0)
+    # Scale
+    instance_on_points_002.inputs[6].default_value = (1.0, 1.0, 1.0)
+
+    # node Endpoint Selection
+    endpoint_selection = slider_sim_group.nodes.new("GeometryNodeCurveEndpointSelection")
+    endpoint_selection.name = "Endpoint Selection"
+    # Start Size
+    endpoint_selection.inputs[0].default_value = 1
+    # End Size
+    endpoint_selection.inputs[1].default_value = 1
+
+    # node Group Input.011
+    group_input_011 = slider_sim_group.nodes.new("NodeGroupInput")
+    group_input_011.name = "Group Input.011"
+    group_input_011.outputs[0].hide = True
+    group_input_011.outputs[2].hide = True
+    group_input_011.outputs[3].hide = True
+    group_input_011.outputs[4].hide = True
+    group_input_011.outputs[5].hide = True
+    group_input_011.outputs[6].hide = True
+    group_input_011.outputs[7].hide = True
+    group_input_011.outputs[8].hide = True
+    group_input_011.outputs[9].hide = True
+    group_input_011.outputs[10].hide = True
+    group_input_011.outputs[11].hide = True
+    group_input_011.outputs[12].hide = True
+    group_input_011.outputs[13].hide = True
+
     # Set parents
     group_input_1.parent = frame_1
     realize_instances_1.parent = frame_1
     delete_geometry_1.parent = frame_1
     named_attribute_1.parent = frame_1
     boolean_math_1.parent = frame_1
-    instance_on_points_002.parent = frame_003
     curve_to_mesh.parent = frame_001
     set_curve_radius.parent = frame_001
     delete_geometry_001_1.parent = frame_1
     named_attribute_001_1.parent = frame_1
-    reroute_003_1.parent = frame_003
     set_material_1.parent = frame_001
     collection_info.parent = frame_002
     realize_instances_001.parent = frame_002
@@ -1622,8 +1457,6 @@ def slider_sim_group_node_group():
     instance_on_points_1.parent = frame_002
     set_position.parent = frame_002
     combine_xyz_003.parent = frame_002
-    set_position_001.parent = frame_003
-    combine_xyz_004.parent = frame_003
     set_position_002.parent = frame_001
     combine_xyz_005.parent = frame_001
     group_input_001_1.parent = frame_003
@@ -1631,13 +1464,10 @@ def slider_sim_group_node_group():
     group_input_004.parent = frame_002
     group_input_005.parent = frame_002
     group_input_006.parent = frame_001
-    group_input_007.parent = frame_003
     group_input_009.parent = frame_003
     group_input_010.parent = frame_001
-    reroute_004_1.parent = frame_003
     set_material_005.parent = frame_002
     group_input_008.parent = frame_002
-    reroute_006.parent = frame_002
     set_spline_type.parent = frame_1
     join_geometry_1.parent = frame_001
     mesh_line.parent = frame_001
@@ -1651,11 +1481,6 @@ def slider_sim_group_node_group():
     math_006_1.parent = frame_001
     math_1.parent = frame_001
     math_007.parent = frame_001
-    realize_instances_002.parent = frame_003
-    delete_geometry_004.parent = frame_003
-    boolean_math_002.parent = frame_003
-    named_attribute_003_1.parent = frame_003
-    group_input_011.parent = frame_003
     instance_on_points_001_1.parent = frame_006
     named_attribute_004.parent = frame_006
     math_001_1.parent = frame_006
@@ -1664,22 +1489,15 @@ def slider_sim_group_node_group():
     index.parent = frame_006
     math_003.parent = frame_006
     math_008_1.parent = frame_006
-    instance_on_points_003.parent = frame_003
-    index_001.parent = frame_003
-    math_004_1.parent = frame_003
-    math_009_1.parent = frame_003
-    math_010_1.parent = frame_003
-    set_position_003.parent = frame_003
-    combine_xyz_006.parent = frame_003
-    group_input_013.parent = frame_003
-    join_geometry_004.parent = frame_003
     set_material_002.parent = frame_003
-    reroute_015.parent = frame_003
     store_named_attribute_003.parent = frame_001
     geometry_proximity.parent = frame_001
     curve_to_mesh_001.parent = frame_001
     mesh_island.parent = frame_001
     merge_by_distance.parent = frame_001
+    instance_on_points_002.parent = frame_003
+    endpoint_selection.parent = frame_003
+    group_input_011.parent = frame_002
 
     # Set locations
     group_output_1.location = (5300.0, -240.0)
@@ -1688,16 +1506,14 @@ def slider_sim_group_node_group():
     delete_geometry_1.location = (-362.0, -40.0)
     named_attribute_1.location = (-362.0, -220.0)
     boolean_math_1.location = (-362.0, -180.0)
-    instance_on_points_002.location = (2070.0, -388.935791015625)
     curve_to_mesh.location = (2790.0, 280.0)
     frame_1.location = (1432.0, -20.0)
-    frame_003.location = (429.9999694824219, -311.064208984375)
+    frame_003.location = (430.0, -311.064208984375)
     set_curve_radius.location = (2470.0, 600.0)
     reroute_001_1.location = (1660.0003662109375, -100.0)
     delete_geometry_001_1.location = (-202.0, -40.0)
     named_attribute_001_1.location = (-202.0, -180.0)
     reroute_002_1.location = (1660.0, 540.0)
-    reroute_003_1.location = (1742.8336181640625, -100.0311279296875)
     set_material_1.location = (3270.0, 280.0)
     collection_info.location = (1050.0, -660.0)
     realize_instances_001.location = (1210.0, -660.0)
@@ -1706,42 +1522,34 @@ def slider_sim_group_node_group():
     boolean_math_001.location = (1360.0, -820.0)
     delete_geometry_003.location = (1510.0, -660.0)
     named_attribute_005.location = (1510.0, -820.0)
-    switch.location = (2170.0, -660.0)
-    instance_on_points_1.location = (1690.0, -660.0)
-    set_position.location = (2010.0, -660.0)
-    combine_xyz_003.location = (2010.0, -820.0)
-    set_position_001.location = (2230.0, -388.935791015625)
-    combine_xyz_004.location = (2230.0, -548.935791015625)
+    switch.location = (2180.0, -660.0)
+    instance_on_points_1.location = (1680.0, -660.0)
+    set_position.location = (2020.0, -660.0)
+    combine_xyz_003.location = (2020.0, -820.0)
     set_position_002.location = (3110.0, 280.0)
     combine_xyz_005.location = (3110.0, 120.0)
-    group_input_001_1.location = (2550.0, -328.935791015625)
-    group_input_002_1.location = (2010.0, -900.0)
+    group_input_001_1.location = (2370.0, -328.935791015625)
+    group_input_002_1.location = (2020.0, -900.0)
     group_input_004.location = (1050.0, -780.0)
-    group_input_005.location = (2170.0, -820.0)
+    group_input_005.location = (2180.0, -820.0)
     group_input_006.location = (3110.0, 20.0)
-    group_input_007.location = (2230.0, -648.935791015625)
-    group_input_009.location = (1686.9998779296875, -460.0)
+    group_input_009.location = (1970.0, -328.935791015625)
     group_input_010.location = (3250.0, 140.0)
-    reroute_1.location = (2540.0, -1060.0)
-    reroute_004_1.location = (1870.0, -488.935791015625)
-    reroute_005_1.location = (2300.0, -1060.0)
-    frame_002.location = (880.0, -440.0)
-    set_material_005.location = (1850.0, -660.0)
-    group_input_008.location = (1690.0, -780.0)
-    reroute_006.location = (1670.0, -740.0)
-    join_geometry_002.location = (4900.0, -260.0)
+    frame_002.location = (2660.0, -260.0)
+    set_material_005.location = (1860.0, -660.0)
+    group_input_008.location = (1860.0, -800.0)
+    join_geometry_002.location = (4200.0, -240.0)
     join_geometry_003.location = (5140.0, -260.0)
-    reroute_013_1.location = (4860.0, 160.0)
+    reroute_013_1.location = (4160.0, 160.0)
     reroute_016.location = (4100.0, -320.0)
-    reroute_017.location = (5120.0, -300.0)
     set_spline_type.location = (-42.0, -40.0)
     join_geometry_1.location = (2270.0, 0.0)
     mesh_line.location = (2080.0, 340.0)
     mesh_line_001.location = (2080.0, 40.0)
     mesh_to_curve_001.location = (2430.0, 160.0)
     resample_curve.location = (2590.0, 160.0)
-    reroute_007_1.location = (4320.0, -1140.0)
-    reroute_008_1.location = (4320.0, -320.0)
+    reroute_007_1.location = (5040.0, -960.0)
+    reroute_008_1.location = (5040.0, -340.0)
     named_attribute_006.location = (1760.0003662109375, 300.0)
     attribute_statistic_002.location = (1760.0003662109375, 460.0)
     math_002_1.location = (1920.0003662109375, 460.0)
@@ -1750,11 +1558,6 @@ def slider_sim_group_node_group():
     math_1.location = (1920.0003662109375, 500.0)
     math_007.location = (2080.00048828125, 460.0)
     reroute_009_1.location = (1660.0003662109375, 340.0)
-    realize_instances_002.location = (1537.8726806640625, -32.497650146484375)
-    delete_geometry_004.location = (1694.3619384765625, -36.27496337890625)
-    boolean_math_002.location = (1693.8892822265625, -186.9097900390625)
-    named_attribute_003_1.location = (1694.3687744140625, -307.011474609375)
-    group_input_011.location = (1390.0, -28.935791015625)
     instance_on_points_001_1.location = (3520.000244140625, -460.0)
     named_attribute_004.location = (3200.0, -620.0)
     math_001_1.location = (3360.0, -620.0)
@@ -1763,27 +1566,20 @@ def slider_sim_group_node_group():
     index.location = (3040.0, -460.0)
     math_003.location = (3360.0, -460.0)
     math_008_1.location = (3200.0, -460.0)
-    reroute_010_1.location = (4860.0, -300.0)
+    reroute_010_1.location = (4160.0, -280.0)
     reroute_011_1.location = (4100.0, -520.0)
-    reroute_014_1.location = (1660.0003662109375, -400.0)
+    reroute_014_1.location = (1660.0, -500.0)
     frame_006.location = (190.0, 0.0)
-    instance_on_points_003.location = (2070.0, -48.935791015625)
-    index_001.location = (1190.0, -268.935791015625)
-    math_004_1.location = (1510.0, -268.935791015625)
-    math_009_1.location = (1350.0, -268.935791015625)
-    math_010_1.location = (1470.0, -448.935791015625)
-    set_position_003.location = (2230.0, -48.935791015625)
-    combine_xyz_006.location = (2230.0, -208.935791015625)
-    group_input_013.location = (2230.0, -308.935791015625)
-    join_geometry_004.location = (2390.0, -188.935791015625)
-    set_material_002.location = (2550.0, -188.935791015625)
-    reroute_015.location = (1870.0, -148.935791015625)
+    set_material_002.location = (2370.0, -188.935791015625)
     store_named_attribute_003.location = (2950.0, 280.0)
     geometry_proximity.location = (2790.0, 600.0)
     curve_to_mesh_001.location = (2630.0, 600.0)
     mesh_island.location = (2630.0, 480.0)
     frame_001.location = (10.0, 0.0)
     merge_by_distance.location = (2270.0, 160.0)
+    instance_on_points_002.location = (2199.171630859375, -131.59939575195312)
+    endpoint_selection.location = (1970.0, -208.935791015625)
+    group_input_011.location = (1680.0, -780.0)
 
     # Set dimensions
     group_output_1.width, group_output_1.height = 140.0, 100.0
@@ -1792,16 +1588,14 @@ def slider_sim_group_node_group():
     delete_geometry_1.width, delete_geometry_1.height = 140.0, 100.0
     named_attribute_1.width, named_attribute_1.height = 140.0, 100.0
     boolean_math_1.width, boolean_math_1.height = 140.0, 100.0
-    instance_on_points_002.width, instance_on_points_002.height = 140.0, 100.0
     curve_to_mesh.width, curve_to_mesh.height = 140.0, 100.0
     frame_1.width, frame_1.height = 840.0, 371.0
-    frame_003.width, frame_003.height = 1560.0, 742.0
+    frame_003.width, frame_003.height = 600.0, 397.0
     set_curve_radius.width, set_curve_radius.height = 140.0, 100.0
     reroute_001_1.width, reroute_001_1.height = 16.0, 100.0
     delete_geometry_001_1.width, delete_geometry_001_1.height = 140.0, 100.0
     named_attribute_001_1.width, named_attribute_001_1.height = 140.0, 100.0
     reroute_002_1.width, reroute_002_1.height = 16.0, 100.0
-    reroute_003_1.width, reroute_003_1.height = 16.0, 100.0
     set_material_1.width, set_material_1.height = 140.0, 100.0
     collection_info.width, collection_info.height = 140.0, 100.0
     realize_instances_001.width, realize_instances_001.height = 140.0, 100.0
@@ -1814,8 +1608,6 @@ def slider_sim_group_node_group():
     instance_on_points_1.width, instance_on_points_1.height = 140.0, 100.0
     set_position.width, set_position.height = 140.0, 100.0
     combine_xyz_003.width, combine_xyz_003.height = 140.0, 100.0
-    set_position_001.width, set_position_001.height = 140.0, 100.0
-    combine_xyz_004.width, combine_xyz_004.height = 140.0, 100.0
     set_position_002.width, set_position_002.height = 140.0, 100.0
     combine_xyz_005.width, combine_xyz_005.height = 140.0, 100.0
     group_input_001_1.width, group_input_001_1.height = 140.0, 100.0
@@ -1823,21 +1615,15 @@ def slider_sim_group_node_group():
     group_input_004.width, group_input_004.height = 140.0, 100.0
     group_input_005.width, group_input_005.height = 140.0, 100.0
     group_input_006.width, group_input_006.height = 140.0, 100.0
-    group_input_007.width, group_input_007.height = 140.0, 100.0
     group_input_009.width, group_input_009.height = 140.0, 100.0
     group_input_010.width, group_input_010.height = 140.0, 100.0
-    reroute_1.width, reroute_1.height = 16.0, 100.0
-    reroute_004_1.width, reroute_004_1.height = 16.0, 100.0
-    reroute_005_1.width, reroute_005_1.height = 16.0, 100.0
-    frame_002.width, frame_002.height = 1320.0, 391.0
+    frame_002.width, frame_002.height = 1330.0, 391.0
     set_material_005.width, set_material_005.height = 140.0, 100.0
     group_input_008.width, group_input_008.height = 140.0, 100.0
-    reroute_006.width, reroute_006.height = 16.0, 100.0
     join_geometry_002.width, join_geometry_002.height = 140.0, 100.0
     join_geometry_003.width, join_geometry_003.height = 140.0, 100.0
     reroute_013_1.width, reroute_013_1.height = 16.0, 100.0
     reroute_016.width, reroute_016.height = 16.0, 100.0
-    reroute_017.width, reroute_017.height = 16.0, 100.0
     set_spline_type.width, set_spline_type.height = 140.0, 100.0
     join_geometry_1.width, join_geometry_1.height = 140.0, 100.0
     mesh_line.width, mesh_line.height = 140.0, 100.0
@@ -1854,11 +1640,6 @@ def slider_sim_group_node_group():
     math_1.width, math_1.height = 140.0, 100.0
     math_007.width, math_007.height = 140.0, 100.0
     reroute_009_1.width, reroute_009_1.height = 16.0, 100.0
-    realize_instances_002.width, realize_instances_002.height = 140.0, 100.0
-    delete_geometry_004.width, delete_geometry_004.height = 140.0, 100.0
-    boolean_math_002.width, boolean_math_002.height = 140.0, 100.0
-    named_attribute_003_1.width, named_attribute_003_1.height = 140.0, 100.0
-    group_input_011.width, group_input_011.height = 140.0, 100.0
     instance_on_points_001_1.width, instance_on_points_001_1.height = 140.0, 100.0
     named_attribute_004.width, named_attribute_004.height = 140.0, 100.0
     math_001_1.width, math_001_1.height = 140.0, 100.0
@@ -1871,23 +1652,16 @@ def slider_sim_group_node_group():
     reroute_011_1.width, reroute_011_1.height = 16.0, 100.0
     reroute_014_1.width, reroute_014_1.height = 16.0, 100.0
     frame_006.width, frame_006.height = 860.0, 457.0
-    instance_on_points_003.width, instance_on_points_003.height = 140.0, 100.0
-    index_001.width, index_001.height = 140.0, 100.0
-    math_004_1.width, math_004_1.height = 140.0, 100.0
-    math_009_1.width, math_009_1.height = 140.0, 100.0
-    math_010_1.width, math_010_1.height = 140.0, 100.0
-    set_position_003.width, set_position_003.height = 140.0, 100.0
-    combine_xyz_006.width, combine_xyz_006.height = 140.0, 100.0
-    group_input_013.width, group_input_013.height = 140.0, 100.0
-    join_geometry_004.width, join_geometry_004.height = 140.0, 100.0
     set_material_002.width, set_material_002.height = 140.0, 100.0
-    reroute_015.width, reroute_015.height = 16.0, 100.0
     store_named_attribute_003.width, store_named_attribute_003.height = 140.0, 100.0
     geometry_proximity.width, geometry_proximity.height = 140.0, 100.0
     curve_to_mesh_001.width, curve_to_mesh_001.height = 140.0, 100.0
     mesh_island.width, mesh_island.height = 140.0, 100.0
     frame_001.width, frame_001.height = 1710.0, 918.0
     merge_by_distance.width, merge_by_distance.height = 140.0, 100.0
+    instance_on_points_002.width, instance_on_points_002.height = 140.0, 100.0
+    endpoint_selection.width, endpoint_selection.height = 140.0, 100.0
+    group_input_011.width, group_input_011.height = 140.0, 100.0
 
     # initialize slider_sim_group links
     # boolean_math_1.Boolean -> delete_geometry_1.Selection
@@ -1906,8 +1680,6 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(named_attribute_001_1.outputs[0], delete_geometry_001_1.inputs[1])
     # reroute_009_1.Output -> reroute_002_1.Input
     slider_sim_group.links.new(reroute_009_1.outputs[0], reroute_002_1.inputs[0])
-    # reroute_014_1.Output -> reroute_003_1.Input
-    slider_sim_group.links.new(reroute_014_1.outputs[0], reroute_003_1.inputs[0])
     # set_position_002.Geometry -> set_material_1.Geometry
     slider_sim_group.links.new(set_position_002.outputs[0], set_material_1.inputs[0])
     # set_spline_type.Curve -> reroute_001_1.Input
@@ -1926,24 +1698,16 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(set_position.outputs[0], switch.inputs[2])
     # collection_info.Instances -> realize_instances_001.Geometry
     slider_sim_group.links.new(collection_info.outputs[0], realize_instances_001.inputs[0])
-    # reroute_004_1.Output -> instance_on_points_002.Instance
-    slider_sim_group.links.new(reroute_004_1.outputs[0], instance_on_points_002.inputs[2])
     # delete_geometry_003.Geometry -> instance_on_points_1.Points
     slider_sim_group.links.new(delete_geometry_003.outputs[0], instance_on_points_1.inputs[0])
     # set_material_005.Geometry -> set_position.Geometry
     slider_sim_group.links.new(set_material_005.outputs[0], set_position.inputs[0])
     # combine_xyz_003.Vector -> set_position.Offset
     slider_sim_group.links.new(combine_xyz_003.outputs[0], set_position.inputs[3])
-    # instance_on_points_002.Instances -> set_position_001.Geometry
-    slider_sim_group.links.new(instance_on_points_002.outputs[0], set_position_001.inputs[0])
-    # combine_xyz_004.Vector -> set_position_001.Offset
-    slider_sim_group.links.new(combine_xyz_004.outputs[0], set_position_001.inputs[3])
     # store_named_attribute_003.Geometry -> set_position_002.Geometry
     slider_sim_group.links.new(store_named_attribute_003.outputs[0], set_position_002.inputs[0])
     # combine_xyz_005.Vector -> set_position_002.Offset
     slider_sim_group.links.new(combine_xyz_005.outputs[0], set_position_002.inputs[3])
-    # reroute_006.Output -> instance_on_points_1.Instance
-    slider_sim_group.links.new(reroute_006.outputs[0], instance_on_points_1.inputs[2])
     # group_input_002_1.Slider Balls Y Offset  -> combine_xyz_003.Y
     slider_sim_group.links.new(group_input_002_1.outputs[10], combine_xyz_003.inputs[1])
     # group_input_004.Slider Balls -> collection_info.Collection
@@ -1954,18 +1718,10 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(group_input_006.outputs[6], combine_xyz_005.inputs[1])
     # group_input_010.Slider Material -> set_material_1.Material
     slider_sim_group.links.new(group_input_010.outputs[3], set_material_1.inputs[2])
-    # reroute_005_1.Output -> reroute_1.Input
-    slider_sim_group.links.new(reroute_005_1.outputs[0], reroute_1.inputs[0])
-    # reroute_004_1.Output -> reroute_005_1.Input
-    slider_sim_group.links.new(reroute_004_1.outputs[0], reroute_005_1.inputs[0])
-    # group_input_009.Circle Mesh -> reroute_004_1.Input
-    slider_sim_group.links.new(group_input_009.outputs[1], reroute_004_1.inputs[0])
     # instance_on_points_1.Instances -> set_material_005.Geometry
     slider_sim_group.links.new(instance_on_points_1.outputs[0], set_material_005.inputs[0])
     # group_input_008.Slider Balls Material -> set_material_005.Material
     slider_sim_group.links.new(group_input_008.outputs[9], set_material_005.inputs[2])
-    # reroute_1.Output -> reroute_006.Input
-    slider_sim_group.links.new(reroute_1.outputs[0], reroute_006.inputs[0])
     # reroute_016.Output -> join_geometry_002.Geometry
     slider_sim_group.links.new(reroute_016.outputs[0], join_geometry_002.inputs[0])
     # reroute_008_1.Output -> join_geometry_003.Geometry
@@ -1974,8 +1730,6 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(set_material_1.outputs[0], reroute_013_1.inputs[0])
     # reroute_011_1.Output -> reroute_016.Input
     slider_sim_group.links.new(reroute_011_1.outputs[0], reroute_016.inputs[0])
-    # join_geometry_002.Geometry -> reroute_017.Input
-    slider_sim_group.links.new(join_geometry_002.outputs[0], reroute_017.inputs[0])
     # realize_instances_1.Geometry -> delete_geometry_1.Geometry
     slider_sim_group.links.new(realize_instances_1.outputs[0], delete_geometry_1.inputs[0])
     # set_curve_radius.Curve -> curve_to_mesh.Curve
@@ -2016,24 +1770,12 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(reroute_001_1.outputs[0], reroute_009_1.inputs[0])
     # reroute_009_1.Output -> attribute_statistic_002.Geometry
     slider_sim_group.links.new(reroute_009_1.outputs[0], attribute_statistic_002.inputs[0])
-    # realize_instances_002.Geometry -> delete_geometry_004.Geometry
-    slider_sim_group.links.new(realize_instances_002.outputs[0], delete_geometry_004.inputs[0])
-    # boolean_math_002.Boolean -> delete_geometry_004.Selection
-    slider_sim_group.links.new(boolean_math_002.outputs[0], delete_geometry_004.inputs[1])
-    # named_attribute_003_1.Attribute -> boolean_math_002.Boolean
-    slider_sim_group.links.new(named_attribute_003_1.outputs[0], boolean_math_002.inputs[0])
-    # delete_geometry_004.Geometry -> instance_on_points_002.Points
-    slider_sim_group.links.new(delete_geometry_004.outputs[0], instance_on_points_002.inputs[0])
-    # group_input_011.Slider Head/Tail -> realize_instances_002.Geometry
-    slider_sim_group.links.new(group_input_011.outputs[2], realize_instances_002.inputs[0])
     # named_attribute_004.Attribute -> math_001_1.Value
     slider_sim_group.links.new(named_attribute_004.outputs[0], math_001_1.inputs[0])
     # math_001_1.Value -> instance_on_points_001_1.Instance Index
     slider_sim_group.links.new(math_001_1.outputs[0], instance_on_points_001_1.inputs[4])
     # group_input_012.Instance -> instance_on_points_001_1.Instance
     slider_sim_group.links.new(group_input_012.outputs[12], instance_on_points_001_1.inputs[2])
-    # delete_geometry_004.Geometry -> instance_on_points_001_1.Points
-    slider_sim_group.links.new(delete_geometry_004.outputs[0], instance_on_points_001_1.inputs[0])
     # math_008_1.Value -> math_003.Value
     slider_sim_group.links.new(math_008_1.outputs[0], math_003.inputs[0])
     # instance_on_points_001_1.Instances -> join_geometry_001.Geometry
@@ -2048,36 +1790,10 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(join_geometry_001.outputs[0], reroute_011_1.inputs[0])
     # reroute_001_1.Output -> reroute_014_1.Input
     slider_sim_group.links.new(reroute_001_1.outputs[0], reroute_014_1.inputs[0])
-    # reroute_015.Output -> instance_on_points_003.Instance
-    slider_sim_group.links.new(reroute_015.outputs[0], instance_on_points_003.inputs[2])
-    # delete_geometry_004.Geometry -> instance_on_points_003.Points
-    slider_sim_group.links.new(delete_geometry_004.outputs[0], instance_on_points_003.inputs[0])
-    # math_009_1.Value -> math_004_1.Value
-    slider_sim_group.links.new(math_009_1.outputs[0], math_004_1.inputs[0])
-    # index_001.Index -> math_009_1.Value
-    slider_sim_group.links.new(index_001.outputs[0], math_009_1.inputs[0])
-    # math_004_1.Value -> instance_on_points_003.Selection
-    slider_sim_group.links.new(math_004_1.outputs[0], instance_on_points_003.inputs[1])
-    # index_001.Index -> math_010_1.Value
-    slider_sim_group.links.new(index_001.outputs[0], math_010_1.inputs[0])
-    # math_010_1.Value -> instance_on_points_002.Selection
-    slider_sim_group.links.new(math_010_1.outputs[0], instance_on_points_002.inputs[1])
-    # combine_xyz_006.Vector -> set_position_003.Offset
-    slider_sim_group.links.new(combine_xyz_006.outputs[0], set_position_003.inputs[3])
-    # group_input_013.Slider Head Y Offset -> combine_xyz_006.Y
-    slider_sim_group.links.new(group_input_013.outputs[4], combine_xyz_006.inputs[1])
-    # instance_on_points_003.Instances -> set_position_003.Geometry
-    slider_sim_group.links.new(instance_on_points_003.outputs[0], set_position_003.inputs[0])
-    # set_position_001.Geometry -> join_geometry_004.Geometry
-    slider_sim_group.links.new(set_position_001.outputs[0], join_geometry_004.inputs[0])
-    # join_geometry_004.Geometry -> set_material_002.Geometry
-    slider_sim_group.links.new(join_geometry_004.outputs[0], set_material_002.inputs[0])
+    # instance_on_points_002.Instances -> set_material_002.Geometry
+    slider_sim_group.links.new(instance_on_points_002.outputs[0], set_material_002.inputs[0])
     # group_input_001_1.Slider Head/Tail Material -> set_material_002.Material
     slider_sim_group.links.new(group_input_001_1.outputs[11], set_material_002.inputs[2])
-    # group_input_007.Slider Tail Y Offset -> combine_xyz_004.Y
-    slider_sim_group.links.new(group_input_007.outputs[5], combine_xyz_004.inputs[1])
-    # reroute_004_1.Output -> reroute_015.Input
-    slider_sim_group.links.new(reroute_004_1.outputs[0], reroute_015.inputs[0])
     # curve_to_mesh.Mesh -> store_named_attribute_003.Geometry
     slider_sim_group.links.new(curve_to_mesh.outputs[0], store_named_attribute_003.inputs[0])
     # geometry_proximity.Distance -> store_named_attribute_003.Value
@@ -2092,16 +1808,22 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(mesh_island.outputs[0], geometry_proximity.inputs[1])
     # join_geometry_1.Geometry -> merge_by_distance.Geometry
     slider_sim_group.links.new(join_geometry_1.outputs[0], merge_by_distance.inputs[0])
+    # group_input_009.Circle Mesh -> instance_on_points_002.Instance
+    slider_sim_group.links.new(group_input_009.outputs[1], instance_on_points_002.inputs[2])
+    # reroute_014_1.Output -> instance_on_points_002.Points
+    slider_sim_group.links.new(reroute_014_1.outputs[0], instance_on_points_002.inputs[0])
+    # endpoint_selection.Selection -> instance_on_points_002.Selection
+    slider_sim_group.links.new(endpoint_selection.outputs[0], instance_on_points_002.inputs[1])
+    # group_input_011.Circle Mesh -> instance_on_points_1.Instance
+    slider_sim_group.links.new(group_input_011.outputs[1], instance_on_points_1.inputs[2])
     # reroute_010_1.Output -> join_geometry_002.Geometry
     slider_sim_group.links.new(reroute_010_1.outputs[0], join_geometry_002.inputs[0])
-    # reroute_017.Output -> join_geometry_003.Geometry
-    slider_sim_group.links.new(reroute_017.outputs[0], join_geometry_003.inputs[0])
+    # join_geometry_002.Geometry -> join_geometry_003.Geometry
+    slider_sim_group.links.new(join_geometry_002.outputs[0], join_geometry_003.inputs[0])
     # mesh_line_001.Mesh -> join_geometry_1.Geometry
     slider_sim_group.links.new(mesh_line_001.outputs[0], join_geometry_1.inputs[0])
     # set_material_002.Geometry -> join_geometry_001.Geometry
     slider_sim_group.links.new(set_material_002.outputs[0], join_geometry_001.inputs[0])
-    # set_position_003.Geometry -> join_geometry_004.Geometry
-    slider_sim_group.links.new(set_position_003.outputs[0], join_geometry_004.inputs[0])
     return slider_sim_group
 
 # initialize spinner_sim_group node group
@@ -2767,10 +2489,10 @@ def approach_circle_group_node_group():
     attribute_statistic_001_1.inputs[1].default_value = True
 
     # node Math.004
-    math_004_2 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_004_2.name = "Math.004"
-    math_004_2.operation = 'MULTIPLY'
-    math_004_2.use_clamp = False
+    math_004_1 = approach_circle_group.nodes.new("ShaderNodeMath")
+    math_004_1.name = "Math.004"
+    math_004_1.operation = 'MULTIPLY'
+    math_004_1.use_clamp = False
 
     # node Math.006
     math_006_2 = approach_circle_group.nodes.new("ShaderNodeMath")
@@ -2798,8 +2520,8 @@ def approach_circle_group_node_group():
     math_001_2.inputs[1].default_value = 2.0
 
     # node Reroute
-    reroute_2 = approach_circle_group.nodes.new("NodeReroute")
-    reroute_2.name = "Reroute"
+    reroute_1 = approach_circle_group.nodes.new("NodeReroute")
+    reroute_1.name = "Reroute"
     # node Reroute.001
     reroute_001_2 = approach_circle_group.nodes.new("NodeReroute")
     reroute_001_2.name = "Reroute.001"
@@ -2807,11 +2529,11 @@ def approach_circle_group_node_group():
     reroute_002_2 = approach_circle_group.nodes.new("NodeReroute")
     reroute_002_2.name = "Reroute.002"
     # node Reroute.003
-    reroute_003_2 = approach_circle_group.nodes.new("NodeReroute")
-    reroute_003_2.name = "Reroute.003"
+    reroute_003_1 = approach_circle_group.nodes.new("NodeReroute")
+    reroute_003_1.name = "Reroute.003"
     # node Reroute.004
-    reroute_004_2 = approach_circle_group.nodes.new("NodeReroute")
-    reroute_004_2.name = "Reroute.004"
+    reroute_004_1 = approach_circle_group.nodes.new("NodeReroute")
+    reroute_004_1.name = "Reroute.004"
     # node Group Input.001
     group_input_001_4 = approach_circle_group.nodes.new("NodeGroupInput")
     group_input_001_4.name = "Group Input.001"
@@ -2850,15 +2572,15 @@ def approach_circle_group_node_group():
     boolean_1.location = (1140.0, -320.0)
     store_named_attribute_1.location = (1140.0, 220.0)
     attribute_statistic_001_1.location = (-200.0, 100.0)
-    math_004_2.location = (-40.0, 100.0)
+    math_004_1.location = (-40.0, 100.0)
     math_006_2.location = (-40.0, -60.0)
     math_008_2.location = (120.0, 100.0)
     math_001_2.location = (120.0, 60.0)
-    reroute_2.location = (-260.0, 180.1756591796875)
+    reroute_1.location = (-260.0, 180.1756591796875)
     reroute_001_2.location = (-260.0, 0.1756591796875)
     reroute_002_2.location = (-260.0, -399.8243408203125)
-    reroute_003_2.location = (620.0, -320.0)
-    reroute_004_2.location = (620.0, 140.0)
+    reroute_003_1.location = (620.0, -320.0)
+    reroute_004_1.location = (620.0, 140.0)
     group_input_001_4.location = (980.0, 100.0)
     group_input_002_4.location = (820.0, -80.0)
 
@@ -2886,15 +2608,15 @@ def approach_circle_group_node_group():
     boolean_1.width, boolean_1.height = 140.0, 100.0
     store_named_attribute_1.width, store_named_attribute_1.height = 140.0, 100.0
     attribute_statistic_001_1.width, attribute_statistic_001_1.height = 140.0, 100.0
-    math_004_2.width, math_004_2.height = 140.0, 100.0
+    math_004_1.width, math_004_1.height = 140.0, 100.0
     math_006_2.width, math_006_2.height = 140.0, 100.0
     math_008_2.width, math_008_2.height = 140.0, 100.0
     math_001_2.width, math_001_2.height = 140.0, 100.0
-    reroute_2.width, reroute_2.height = 100.0, 100.0
+    reroute_1.width, reroute_1.height = 100.0, 100.0
     reroute_001_2.width, reroute_001_2.height = 100.0, 100.0
     reroute_002_2.width, reroute_002_2.height = 100.0, 100.0
-    reroute_003_2.width, reroute_003_2.height = 100.0, 100.0
-    reroute_004_2.width, reroute_004_2.height = 100.0, 100.0
+    reroute_003_1.width, reroute_003_1.height = 100.0, 100.0
+    reroute_004_1.width, reroute_004_1.height = 100.0, 100.0
     group_input_001_4.width, group_input_001_4.height = 140.0, 100.0
     group_input_002_4.width, group_input_002_4.height = 140.0, 100.0
 
@@ -2903,8 +2625,8 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(named_attribute_001_3.outputs[0], boolean_math_3.inputs[0])
     # boolean_math_3.Boolean -> delete_geometry_3.Selection
     approach_circle_group.links.new(boolean_math_3.outputs[0], delete_geometry_3.inputs[1])
-    # reroute_2.Output -> instance_on_points_4.Points
-    approach_circle_group.links.new(reroute_2.outputs[0], instance_on_points_4.inputs[0])
+    # reroute_1.Output -> instance_on_points_4.Points
+    approach_circle_group.links.new(reroute_1.outputs[0], instance_on_points_4.inputs[0])
     # realize_instances_4.Geometry -> delete_geometry_3.Geometry
     approach_circle_group.links.new(realize_instances_4.outputs[0], delete_geometry_3.inputs[0])
     # math_003_1.Value -> math_2.Value
@@ -2915,8 +2637,8 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(named_attribute_4.outputs[0], math_003_1.inputs[0])
     # mesh_circle_3.Mesh -> extrude_mesh.Mesh
     approach_circle_group.links.new(mesh_circle_3.outputs[0], extrude_mesh.inputs[0])
-    # reroute_004_2.Output -> instance_on_points_4.Instance
-    approach_circle_group.links.new(reroute_004_2.outputs[0], instance_on_points_4.inputs[2])
+    # reroute_004_1.Output -> instance_on_points_4.Instance
+    approach_circle_group.links.new(reroute_004_1.outputs[0], instance_on_points_4.inputs[2])
     # group_input_4.Geometry -> realize_instances_4.Geometry
     approach_circle_group.links.new(group_input_4.outputs[0], realize_instances_4.inputs[0])
     # named_attribute_4.Attribute -> attribute_statistic_2.Attribute
@@ -2941,14 +2663,14 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(set_material_4.outputs[0], store_named_attribute_1.inputs[0])
     # pack_uv_islands_1.UV -> store_named_attribute_1.Value
     approach_circle_group.links.new(pack_uv_islands_1.outputs[0], store_named_attribute_1.inputs[3])
-    # attribute_statistic_001_1.Mean -> math_004_2.Value
-    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_004_2.inputs[0])
+    # attribute_statistic_001_1.Mean -> math_004_1.Value
+    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_004_1.inputs[0])
     # attribute_statistic_001_1.Mean -> math_006_2.Value
     approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_006_2.inputs[0])
-    # math_006_2.Value -> math_004_2.Value
-    approach_circle_group.links.new(math_006_2.outputs[0], math_004_2.inputs[1])
-    # math_004_2.Value -> math_008_2.Value
-    approach_circle_group.links.new(math_004_2.outputs[0], math_008_2.inputs[0])
+    # math_006_2.Value -> math_004_1.Value
+    approach_circle_group.links.new(math_006_2.outputs[0], math_004_1.inputs[1])
+    # math_004_1.Value -> math_008_2.Value
+    approach_circle_group.links.new(math_004_1.outputs[0], math_008_2.inputs[0])
     # attribute_statistic_001_1.Mean -> math_001_2.Value
     approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_001_2.inputs[0])
     # math_001_2.Value -> math_008_2.Value
@@ -2959,18 +2681,18 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(reroute_001_2.outputs[0], attribute_statistic_001_1.inputs[0])
     # math_008_2.Value -> math_2.Value
     approach_circle_group.links.new(math_008_2.outputs[0], math_2.inputs[0])
-    # delete_geometry_3.Geometry -> reroute_2.Input
-    approach_circle_group.links.new(delete_geometry_3.outputs[0], reroute_2.inputs[0])
-    # reroute_2.Output -> reroute_001_2.Input
-    approach_circle_group.links.new(reroute_2.outputs[0], reroute_001_2.inputs[0])
+    # delete_geometry_3.Geometry -> reroute_1.Input
+    approach_circle_group.links.new(delete_geometry_3.outputs[0], reroute_1.inputs[0])
+    # reroute_1.Output -> reroute_001_2.Input
+    approach_circle_group.links.new(reroute_1.outputs[0], reroute_001_2.inputs[0])
     # reroute_002_2.Output -> attribute_statistic_2.Geometry
     approach_circle_group.links.new(reroute_002_2.outputs[0], attribute_statistic_2.inputs[0])
     # reroute_001_2.Output -> reroute_002_2.Input
     approach_circle_group.links.new(reroute_001_2.outputs[0], reroute_002_2.inputs[0])
-    # extrude_mesh.Mesh -> reroute_003_2.Input
-    approach_circle_group.links.new(extrude_mesh.outputs[0], reroute_003_2.inputs[0])
-    # reroute_003_2.Output -> reroute_004_2.Input
-    approach_circle_group.links.new(reroute_003_2.outputs[0], reroute_004_2.inputs[0])
+    # extrude_mesh.Mesh -> reroute_003_1.Input
+    approach_circle_group.links.new(extrude_mesh.outputs[0], reroute_003_1.inputs[0])
+    # reroute_003_1.Output -> reroute_004_1.Input
+    approach_circle_group.links.new(reroute_003_1.outputs[0], reroute_004_1.inputs[0])
     # group_input_001_4.Approach Circle Material -> set_material_4.Material
     approach_circle_group.links.new(group_input_001_4.outputs[2], set_material_4.inputs[2])
     # group_input_002_4.Y Offset -> combine_xyz_3.Y
@@ -3300,13 +3022,13 @@ def gn_osu_node_group():
     group_001.node_tree = slider_sim_group_node_group()
     # Socket_5
     group_001.inputs[4].default_value = 0.029999999329447746
-    # Socket_13
-    group_001.inputs[5].default_value = 0.0
     # Socket_6
-    group_001.inputs[6].default_value = 0.03999999910593033
+    group_001.inputs[5].default_value = 0.0
     # Socket_7
+    group_001.inputs[6].default_value = 0.03999999910593033
+    # Socket_8
     group_001.inputs[7].default_value = True
-    # Socket_10
+    # Socket_11
     group_001.inputs[10].default_value = 0.019999999552965164
 
     # node Join Geometry
@@ -3472,23 +3194,23 @@ def gn_osu_node_group():
     group_input_006_1.outputs[15].hide = True
 
     # node Group Input.007
-    group_input_007_1 = gn_osu.nodes.new("NodeGroupInput")
-    group_input_007_1.name = "Group Input.007"
-    group_input_007_1.outputs[0].hide = True
-    group_input_007_1.outputs[1].hide = True
-    group_input_007_1.outputs[2].hide = True
-    group_input_007_1.outputs[3].hide = True
-    group_input_007_1.outputs[4].hide = True
-    group_input_007_1.outputs[5].hide = True
-    group_input_007_1.outputs[6].hide = True
-    group_input_007_1.outputs[7].hide = True
-    group_input_007_1.outputs[8].hide = True
-    group_input_007_1.outputs[9].hide = True
-    group_input_007_1.outputs[10].hide = True
-    group_input_007_1.outputs[11].hide = True
-    group_input_007_1.outputs[12].hide = True
-    group_input_007_1.outputs[14].hide = True
-    group_input_007_1.outputs[15].hide = True
+    group_input_007 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_007.name = "Group Input.007"
+    group_input_007.outputs[0].hide = True
+    group_input_007.outputs[1].hide = True
+    group_input_007.outputs[2].hide = True
+    group_input_007.outputs[3].hide = True
+    group_input_007.outputs[4].hide = True
+    group_input_007.outputs[5].hide = True
+    group_input_007.outputs[6].hide = True
+    group_input_007.outputs[7].hide = True
+    group_input_007.outputs[8].hide = True
+    group_input_007.outputs[9].hide = True
+    group_input_007.outputs[10].hide = True
+    group_input_007.outputs[11].hide = True
+    group_input_007.outputs[12].hide = True
+    group_input_007.outputs[14].hide = True
+    group_input_007.outputs[15].hide = True
 
     # node Group Input.008
     group_input_008_1 = gn_osu.nodes.new("NodeGroupInput")
@@ -3625,23 +3347,23 @@ def gn_osu_node_group():
     collection_info_005.inputs[2].default_value = False
 
     # node Group Input.013
-    group_input_013_1 = gn_osu.nodes.new("NodeGroupInput")
-    group_input_013_1.name = "Group Input.013"
-    group_input_013_1.outputs[0].hide = True
-    group_input_013_1.outputs[1].hide = True
-    group_input_013_1.outputs[2].hide = True
-    group_input_013_1.outputs[3].hide = True
-    group_input_013_1.outputs[4].hide = True
-    group_input_013_1.outputs[6].hide = True
-    group_input_013_1.outputs[7].hide = True
-    group_input_013_1.outputs[8].hide = True
-    group_input_013_1.outputs[9].hide = True
-    group_input_013_1.outputs[10].hide = True
-    group_input_013_1.outputs[11].hide = True
-    group_input_013_1.outputs[12].hide = True
-    group_input_013_1.outputs[13].hide = True
-    group_input_013_1.outputs[14].hide = True
-    group_input_013_1.outputs[15].hide = True
+    group_input_013 = gn_osu.nodes.new("NodeGroupInput")
+    group_input_013.name = "Group Input.013"
+    group_input_013.outputs[0].hide = True
+    group_input_013.outputs[1].hide = True
+    group_input_013.outputs[2].hide = True
+    group_input_013.outputs[3].hide = True
+    group_input_013.outputs[4].hide = True
+    group_input_013.outputs[6].hide = True
+    group_input_013.outputs[7].hide = True
+    group_input_013.outputs[8].hide = True
+    group_input_013.outputs[9].hide = True
+    group_input_013.outputs[10].hide = True
+    group_input_013.outputs[11].hide = True
+    group_input_013.outputs[12].hide = True
+    group_input_013.outputs[13].hide = True
+    group_input_013.outputs[14].hide = True
+    group_input_013.outputs[15].hide = True
 
     # node Group.005
     group_005 = gn_osu.nodes.new("GeometryNodeGroup")
@@ -3651,8 +3373,8 @@ def gn_osu_node_group():
     group_005.inputs[0].default_value = 0.4000000059604645
 
     # node Reroute
-    reroute_3 = gn_osu.nodes.new("NodeReroute")
-    reroute_3.name = "Reroute"
+    reroute_2 = gn_osu.nodes.new("NodeReroute")
+    reroute_2.name = "Reroute"
     # node Reroute.001
     reroute_001_3 = gn_osu.nodes.new("NodeReroute")
     reroute_001_3.name = "Reroute.001"
@@ -3677,7 +3399,7 @@ def gn_osu_node_group():
     join_geometry_002_1.location = (3000.0, 80.0)
     group_input_005_1.location = (40.0, -20.0)
     group_input_006_1.location = (2800.0, -180.0)
-    group_input_007_1.location = (1500.0, -200.0)
+    group_input_007.location = (1500.0, -200.0)
     group_input_008_1.location = (620.0, -320.0)
     group_input_009_1.location = (620.0, -260.0)
     group_input_010_1.location = (620.0, -140.0)
@@ -3688,9 +3410,9 @@ def gn_osu_node_group():
     bake.location = (3160.0, 80.0)
     group_input_012_1.location = (2160.0, -180.0)
     collection_info_005.location = (620.0, -80.0)
-    group_input_013_1.location = (460.0, -80.0)
+    group_input_013.location = (460.0, -80.0)
     group_005.location = (40.0, -100.0)
-    reroute_3.location = (380.0, 0.0)
+    reroute_2.location = (380.0, 0.0)
     reroute_001_3.location = (380.0, -140.0)
 
     # Set dimensions
@@ -3713,7 +3435,7 @@ def gn_osu_node_group():
     join_geometry_002_1.width, join_geometry_002_1.height = 140.0, 100.0
     group_input_005_1.width, group_input_005_1.height = 140.0, 100.0
     group_input_006_1.width, group_input_006_1.height = 140.0, 100.0
-    group_input_007_1.width, group_input_007_1.height = 140.0, 100.0
+    group_input_007.width, group_input_007.height = 140.0, 100.0
     group_input_008_1.width, group_input_008_1.height = 140.0, 100.0
     group_input_009_1.width, group_input_009_1.height = 140.0, 100.0
     group_input_010_1.width, group_input_010_1.height = 140.0, 100.0
@@ -3724,9 +3446,9 @@ def gn_osu_node_group():
     bake.width, bake.height = 140.0, 100.0
     group_input_012_1.width, group_input_012_1.height = 140.0, 100.0
     collection_info_005.width, collection_info_005.height = 140.0, 100.0
-    group_input_013_1.width, group_input_013_1.height = 140.0, 100.0
+    group_input_013.width, group_input_013.height = 140.0, 100.0
     group_005.width, group_005.height = 140.0, 100.0
-    reroute_3.width, reroute_3.height = 16.0, 100.0
+    reroute_2.width, reroute_2.height = 16.0, 100.0
     reroute_001_3.width, reroute_001_3.height = 16.0, 100.0
 
     # initialize gn_osu links
@@ -3762,8 +3484,8 @@ def gn_osu_node_group():
     gn_osu.links.new(group_input_005_1.outputs[9], group.inputs[1])
     # group_input_006_1.Cursor Material -> group_003.Cursor Material
     gn_osu.links.new(group_input_006_1.outputs[8], group_003.inputs[1])
-    # group_input_007_1.Spinner Material -> group_002.Spinner Material
-    gn_osu.links.new(group_input_007_1.outputs[13], group_002.inputs[2])
+    # group_input_007.Spinner Material -> group_002.Spinner Material
+    gn_osu.links.new(group_input_007.outputs[13], group_002.inputs[2])
     # group_input_008_1.Slider Head/Tail Material -> group_001.Slider Head/Tail Material
     gn_osu.links.new(group_input_008_1.outputs[12], group_001.inputs[11])
     # group_input_009_1.Slider Balls Material -> group_001.Slider Balls Material
@@ -3782,14 +3504,14 @@ def gn_osu_node_group():
     gn_osu.links.new(group_input_012_1.outputs[14], group_004.inputs[2])
     # collection_info_005.Instances -> group_001.Slider Head/Tail
     gn_osu.links.new(collection_info_005.outputs[0], group_001.inputs[2])
-    # group_input_013_1.Slider Head/Tail Collection -> collection_info_005.Collection
-    gn_osu.links.new(group_input_013_1.outputs[5], collection_info_005.inputs[0])
+    # group_input_013.Slider Head/Tail Collection -> collection_info_005.Collection
+    gn_osu.links.new(group_input_013.outputs[5], collection_info_005.inputs[0])
     # group_005.Geometry -> group.Instance
     gn_osu.links.new(group_005.outputs[0], group.inputs[3])
-    # group.Circle Mesh -> reroute_3.Input
-    gn_osu.links.new(group.outputs[1], reroute_3.inputs[0])
-    # reroute_3.Output -> reroute_001_3.Input
-    gn_osu.links.new(reroute_3.outputs[0], reroute_001_3.inputs[0])
+    # group.Circle Mesh -> reroute_2.Input
+    gn_osu.links.new(group.outputs[1], reroute_2.inputs[0])
+    # reroute_2.Output -> reroute_001_3.Input
+    gn_osu.links.new(reroute_2.outputs[0], reroute_001_3.inputs[0])
     # group_005.Geometry -> group_001.Instance
     gn_osu.links.new(group_005.outputs[0], group_001.inputs[12])
     # group.Circles -> join_geometry_3.Geometry

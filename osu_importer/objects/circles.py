@@ -82,8 +82,16 @@ class CircleCreator:
                 "show": 'BOOLEAN',
                 "was_hit": 'BOOLEAN',
                 "ar": 'FLOAT',
-                "cs": 'FLOAT'
+                "cs": 'FLOAT',
+                "combo": 'INT',
+                "combo_color_idx": 'INT',
+                "combo_color": 'FLOAT_VECTOR'
             }
+
+            if self.hitobject.combo_number is not None:
+                fixed_values['combo'] = self.hitobject.combo_number
+                fixed_values['combo_color'] = self.hitobject.combo_color
+                fixed_values['combo_color_idx'] = self.hitobject.combo_color_idx
 
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 

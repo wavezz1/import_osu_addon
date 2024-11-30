@@ -45,52 +45,15 @@ class SliderHeadTailCreator:
                     rotation=(math.radians(90), 0, 0)
                 )
                 head_tail_obj = bpy.context.object
-            elif self.import_type == 'BASE':
-                mesh = bpy.data.meshes.new(f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}_mesh")
-                mesh.from_pydata([ (0, 0, 0) ], [], [])
-                mesh.update()
 
-                head_tail_obj = bpy.data.objects.new(f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}", mesh)
-                head_tail_obj.location = (corrected_x, corrected_y, corrected_z)
-            else:
-                print(f"Unsupported import type '{self.import_type}' for SliderHeadTail.")
-                return
+                head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
 
-            head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
+                head_tail_obj["combo"] = hitobject.combo_number
+                head_tail_obj["combo_color_idx"] = hitobject.combo_color_idx
+                head_tail_obj["combo_color"] = hitobject.combo_color
 
-            tag_imported(head_tail_obj)
+                tag_imported(head_tail_obj)
 
-            self.slider_heads_tails_collection.objects.link(head_tail_obj)
-            if head_tail_obj.users_collection:
-                for col in head_tail_obj.users_collection:
-                    if col != self.slider_heads_tails_collection:
-                        col.objects.unlink(head_tail_obj)
-
-            if self.import_type == 'BASE':
-                create_geometry_nodes_modifier(head_tail_obj, "slider_head_tail")
-
-            frame_values, fixed_values = get_keyframe_values(
-                self.hitobject,
-                'slider_head_tail',
-                self.import_type,
-                start_frame,
-                end_frame,
-                early_start_frame,
-                approach_rate,
-                osu_radius,
-                extra_params={}
-            )
-
-            attributes = {
-                "show": 'BOOLEAN',
-                "scale": 'FLOAT',
-                "cs": 'FLOAT',
-            }
-            fixed_values = {"cs": osu_radius * SCALE_FACTOR}
-
-            set_modifier_inputs_with_keyframes(head_tail_obj, attributes, frame_values, fixed_values)
-
-            if self.import_type == 'FULL':
                 head_tail_obj.hide_viewport = True
                 head_tail_obj.hide_render = True
                 head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -105,3 +68,13 @@ class SliderHeadTailCreator:
                 head_tail_obj.hide_render = True
                 head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
                 head_tail_obj.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+
+                self.slider_heads_tails_collection.objects.link(head_tail_obj)
+                if head_tail_obj.users_collection:
+                    for col in head_tail_obj.users_collection:
+                        if col != self.slider_heads_tails_collection:
+                            col.objects.unlink(head_tail_obj)
+
+            else:
+                print(f"Unsupported import type '{self.import_type}' for SliderHeadTail.")
+                return

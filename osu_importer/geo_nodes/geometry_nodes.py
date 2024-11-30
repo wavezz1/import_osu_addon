@@ -15,21 +15,38 @@ def setup_geometry_node_trees():
                     "show": 'BOOLEAN',
                     "was_hit": 'BOOLEAN',
                     "ar": 'FLOAT',
-                    "cs": 'FLOAT'
+                    "cs": 'FLOAT',
+                    "combo": 'INT',
+                    "combo_color_idx": 'INT',
+                    "combo_color": 'FLOAT_VECTOR'
                 }
             },
             "slider": {
                 "name": "Geometry Nodes Slider",
                 "attributes": {
+                    "show": ('BOOLEAN', 'CURVE'),
+                    "slider_duration_ms": ('FLOAT', 'CURVE'),
+                    "slider_duration_frames": ('FLOAT', 'CURVE'),
+                    "ar": ('FLOAT', 'CURVE'),
+                    "cs": ('FLOAT', 'CURVE'),
+                    "was_hit": ('BOOLEAN', 'CURVE'),
+                    "was_completed": ('BOOLEAN', 'CURVE'),
+                    "repeat_count": ('INT', 'CURVE'),
+                    "pixel_length": ('FLOAT', 'CURVE'),
+                    "combo": ('INT', 'CURVE'),
+                    "combo_color_idx": ('INT', 'CURVE'),
+                    "combo_color": ('FLOAT_VECTOR', 'CURVE'),
+                }
+            },
+            "slider_head_tail": {
+                "name": "Geometry Nodes Head Tail",
+                "attributes": {
                     "show": 'BOOLEAN',
-                    "slider_duration_ms": 'FLOAT',
-                    "slider_duration_frames": 'FLOAT',
-                    "ar": 'FLOAT',
+                    "scale": 'FLOAT',
                     "cs": 'FLOAT',
-                    "was_hit": 'BOOLEAN',
-                    "was_completed": 'BOOLEAN',
-                    "repeat_count": 'INT',
-                    "pixel_length": 'FLOAT',
+                    "combo": 'INT',
+                    "combo_color_idx": 'INT',
+                    "combo_color": 'FLOAT_VECTOR',
                 }
             },
             "spinner": {
@@ -101,15 +118,22 @@ def setup_node_group_interface(group, attributes):
     socket_map = {
         "BOOLEAN": "NodeSocketBool",
         "FLOAT": "NodeSocketFloat",
-        "INT": "NodeSocketInt"
+        "INT": "NodeSocketInt",
+        "FLOAT_VECTOR": "NodeSocketVector"
     }
 
-    for i, (attr_name, attr_type) in enumerate(attributes.items()):
+    for i, (attr_name, attr_info) in enumerate(attributes.items()):
+        if isinstance(attr_info, tuple):
+            attr_type, attr_domain = attr_info
+        else:
+            attr_type = attr_info
+            attr_domain = 'POINT'  # Default domain
+
         store_node = group.nodes.new('GeometryNodeStoreNamedAttribute')
         store_node.location = (x_offset * (i + 1), 0)
         store_node.inputs['Name'].default_value = attr_name
         store_node.data_type = attr_type
-        store_node.domain = 'POINT'
+        store_node.domain = attr_domain
 
         group.links.new(previous_node_output, store_node.inputs['Geometry'])
         previous_node_output = store_node.outputs['Geometry']
@@ -119,7 +143,6 @@ def setup_node_group_interface(group, attributes):
         group.links.new(input_node.outputs[new_socket.name], store_node.inputs['Value'])
 
     group.links.new(previous_node_output, output_node.inputs['Geometry'])
-
 
 def create_geometry_nodes_modifier(obj, obj_type):
     setup_geometry_node_trees()
@@ -141,8 +164,13 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
         print(f"No GeometryNodes modifier found on object '{obj.name}'.")
         return
 
-    for i, (attr_name, attr_type) in enumerate(attributes.items()):
-        socket_index = i + 2
+    for i, (attr_name, attr_info) in enumerate(attributes.items()):
+        if isinstance(attr_info, tuple):
+            attr_type = attr_info[0]
+        else:
+            attr_type = attr_info
+
+        socket_index = i + 2  # +2 to account for the two geometry sockets
         socket_count = f"Socket_{socket_index}"
 
         if attr_name in frame_values:
@@ -154,6 +182,8 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                         modifier[socket_count] = float(value)
                     elif attr_type == 'INT':
                         modifier[socket_count] = int(value)
+                    elif attr_type == 'FLOAT_VECTOR':
+                        modifier[socket_count] = tuple(float(v) for v in value)
                     modifier.keyframe_insert(data_path=f'["{socket_count}"]', frame=frame)
                 except Exception as e:
                     print(f"Error setting keyframes for '{attr_name}' on socket '{socket_count}': {e}")
@@ -166,6 +196,8 @@ def set_modifier_inputs_with_keyframes(obj, attributes, frame_values, fixed_valu
                     modifier[socket_count] = float(value)
                 elif attr_type == 'INT':
                     modifier[socket_count] = int(value)
+                elif attr_type == 'FLOAT_VECTOR':
+                    modifier[socket_count] = tuple(float(v) for v in value)
                 print(f"Set fixed value for '{attr_name}' on socket '{socket_count}' to {value}")
             except Exception as e:
                 print(f"Error setting fixed value for '{attr_name}' on socket '{socket_count}': {e}")

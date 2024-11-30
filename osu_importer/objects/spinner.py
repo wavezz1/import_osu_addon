@@ -49,7 +49,7 @@ class SpinnerCreator:
 
             tag_imported(spinner)
 
-            spinner["ar"] = approach_rate
+            #spinner["ar"] = approach_rate
 
             self.spinners_collection.objects.link(spinner)
             if spinner.users_collection:

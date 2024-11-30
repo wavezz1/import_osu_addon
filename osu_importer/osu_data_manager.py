@@ -65,7 +65,7 @@ class OsuDataManager:
         self.base_od = float(self.osu_parser.difficulty_settings.get("OverallDifficulty", 5.0))
 
         self.calculate_adjusted_values()
-        self.calculate_hit_objects_frames()  # Neue Methode aufrufen
+        self.calculate_hit_objects_frames()
 
     @property
     def beatmap_info(self):
@@ -145,12 +145,8 @@ class OsuDataManager:
 
     def calculate_hit_objects_frames(self):
         for hitobject in self.hitobjects:
-            # Berechnung der tatsächlichen HitObject-Zeit unter Berücksichtigung des Speed Multipliers und Audio-Lead-In
             hitobject_time = (hitobject.time / self.speed_multiplier)
-
-            # Startframe berechnen unter Berücksichtigung der Preempt-Zeit
             hitobject.start_frame = int(hitobject_time / self.ms_per_frame) + self.audio_lead_in
-
             if hitobject.hit_type & 2:  # Slider
                 slider_duration_ms = self.calculate_slider_duration(hitobject)
                 hitobject.duration_frames = int(slider_duration_ms / self.ms_per_frame)
@@ -164,7 +160,6 @@ class OsuDataManager:
             else:  # Circle
                 hitobject.duration_frames = 0
                 hitobject.end_frame = hitobject.start_frame
-                # Für Kreise ist slider_end_time nicht relevant
                 hitobject.slider_end_time = hitobject_time
 
     def import_audio(self):

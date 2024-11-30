@@ -54,8 +54,7 @@ class HitObjectsProcessor:
 
             hit_object = HitObject(x, y, time, hit_type, hit_sound, extras)
 
-            # Prüfen auf New Combo-Flag
-            NEW_COMBO_FLAG = 4  # Bit 2 (0-indexed) repräsentiert New Combo in osu! Standard
+            NEW_COMBO_FLAG = 4
             is_new_combo = hit_type & NEW_COMBO_FLAG
             hit_object.is_new_combo = bool(is_new_combo)
 
@@ -69,7 +68,6 @@ class HitObjectsProcessor:
             hit_object.combo_color = self.COMBO_COLORS[combo_color_index]
             hit_object.combo_color_idx = combo_color_index
 
-            # Einteilen in Typen
             if hit_type & 1:  # Circle
                 self.circles.append(hit_object)
             elif hit_type & 2:  # Slider

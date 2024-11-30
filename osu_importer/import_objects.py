@@ -122,8 +122,7 @@ def import_hitobjects(data_manager, settings, props, operator=None):
         collections = {
             "Circles": create_collection("Circles") if props.import_circles else None,
             "Sliders": create_collection("Sliders") if props.import_sliders else None,
-            "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails else None,
-            # and settings.get('import_type') == 'FULL' else None,
+            "Slider Heads Tails": create_collection("Slider Heads Tails") if props.import_sliders and props.import_slider_heads_tails and settings.get('import_type') == 'FULL' else None,
             "Slider Balls": create_collection("Slider Balls") if props.import_slider_balls else None,
             "Spinners": create_collection("Spinners") if props.import_spinners else None,
             "Cursor": create_collection("Cursor") if props.import_cursors else None,

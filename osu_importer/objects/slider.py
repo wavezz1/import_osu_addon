@@ -125,6 +125,23 @@ class SliderCreator:
                 slider_duration_frames = self.hitobject.duration_frames
                 slider_duration_ms = slider_duration_frames * data_manager.ms_per_frame
 
+                # Initialisiere repeat_counter_keyframes
+                repeat_counter_keyframes = [
+                    (early_start_frame, 0),  # Startwert 0 vor der ersten Wiederholung
+                ]
+
+                if repeat_count == 0:
+                    # Kein Wiederholen, setze repeat_counter auf 1 am Start_frame
+                    repeat_counter_keyframes.append((start_frame, 1))
+                else:
+                    # Wiederholungen vorhanden
+                    repeat_counter_keyframes.append((start_frame, 1))  # Erste Durchfahrt
+                    repeat_duration_frames = slider_duration_frames / repeat_count
+
+                    for i in range(1, repeat_count + 1):
+                        repeat_end_frame = start_frame + int(i * repeat_duration_frames)
+                        repeat_counter_keyframes.append((repeat_end_frame, i + 1))  # Erhöhe den Zähler
+
                 self.sliders_collection.objects.link(slider)
                 if slider.users_collection:
                     for col in slider.users_collection:
@@ -146,7 +163,8 @@ class SliderCreator:
                         "slider_duration_ms": slider_duration_ms,
                         "slider_duration_frames": slider_duration_frames,
                         "repeat_count": repeat_count,
-                        "pixel_length": pixel_length
+                        "pixel_length": pixel_length,
+                        "repeat_counter_keyframes": repeat_counter_keyframes
                     },
                     ms_per_frame=data_manager.ms_per_frame,
                     audio_lead_in_frames=data_manager.audio_lead_in_frames
@@ -165,6 +183,7 @@ class SliderCreator:
                     "combo": 'INT',
                     "combo_color_idx": 'INT',
                     "combo_color": 'FLOAT_VECTOR',
+                    "repeat_counter": 'INT',
                 }
 
                 if self.hitobject.combo_number is not None:

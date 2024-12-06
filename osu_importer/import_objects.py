@@ -185,12 +185,10 @@ def import_hitobjects(data_manager, config, operator=None):
                 hitobject=hitobject,
                 global_index=global_index,
                 approach_circles_collection=collections["Approach Circles"],
-                settings=None,  # nicht mehr nötig, aber class erfordert param. Wir können settings=... durch config ersetzen:
+                config=config,
                 data_manager=data_manager,
                 import_type=config.import_type
             )
-            # Hier settings durch config ersetzen:
-            approach_creator.settings = config
             approach_creator.create_approach_circle()
             global_index += 1
 
@@ -213,11 +211,10 @@ def import_hitobjects(data_manager, config, operator=None):
                 position=hitobject.start_pos,
                 global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
-                settings=None,  # wir ersetzen settings durch config
+                config=config,
                 data_manager=data_manager,
                 import_type=config.import_type
             )
-            head_creator.settings = config
             head_creator.create_slider_head_tail()
             global_index += 1
 
@@ -226,11 +223,10 @@ def import_hitobjects(data_manager, config, operator=None):
                 position=hitobject.end_pos,
                 global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
-                settings=None,
+                config=config,
                 data_manager=data_manager,
                 import_type=config.import_type
             )
-            tail_creator.settings = config
             tail_creator.create_slider_head_tail()
             global_index += 1
 

@@ -7,12 +7,12 @@ from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 
 class SliderHeadTailCreator:
-    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager, import_type):
+    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, config, data_manager, import_type):
         self.hitobject = hitobject
         self.position = position
         self.global_index = global_index
         self.slider_heads_tails_collection = slider_heads_tails_collection
-        self.settings = settings
+        self.config = config
         self.data_manager = data_manager
         self.import_type = import_type
         self.create_slider_head_tail()
@@ -50,6 +50,7 @@ class SliderHeadTailCreator:
 
                 tag_imported(head_tail_obj)
 
+                # Keyframes for visibility
                 head_tail_obj.hide_viewport = True
                 head_tail_obj.hide_render = True
                 head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))

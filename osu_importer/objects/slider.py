@@ -15,7 +15,6 @@ class SliderCreator(BaseHitObjectCreator):
         self.slider_resolution = self.config.slider_resolution
         self.import_slider_balls = self.config.import_slider_balls
         self.import_slider_ticks = self.config.import_slider_ticks
-        # Hier nutzen wir nun die übergebenen Parameter statt auf self.config.data_manager zuzugreifen:
         self.slider_balls_collection = slider_balls_collection
         self.sliders_collection = sliders_collection
 
@@ -165,9 +164,9 @@ class SliderCreator(BaseHitObjectCreator):
             fixed_values['combo_color'] = self.hitobject.combo_color
             fixed_values['combo_color_idx'] = self.hitobject.combo_color_idx
 
-        set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
-
         if self.import_type == 'FULL':
+            # FULL: Keine Geometry Nodes Keyframes
+            # Nur Visibility Keyframes auf dem Objekt
             slider.hide_viewport = True
             slider.hide_render = True
             slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -182,11 +181,13 @@ class SliderCreator(BaseHitObjectCreator):
             slider.hide_render = True
             slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+        else:
+            # BASE: Geometry Nodes Keyframes
+            set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
         # Slider Balls
         if self.import_slider_balls and self.slider_balls_collection:
             from .slider_balls import SliderBallCreator
-            # SliderBallCreator nutzt jetzt nur config, kein import_type extra.
             slider_ball_creator = SliderBallCreator(
                 slider=slider,
                 start_frame=start_frame,
@@ -195,7 +196,7 @@ class SliderCreator(BaseHitObjectCreator):
                 end_frame=end_frame,
                 slider_balls_collection=self.slider_balls_collection,
                 data_manager=self.data_manager,
-                config=self.config,  # statt import_type übergeben wir jetzt config
+                config=self.config,
                 slider_time=self.hitobject.time
             )
             slider_ball_creator.create()
@@ -208,7 +209,7 @@ class SliderCreator(BaseHitObjectCreator):
                 slider_duration_ms=slider_duration_ms,
                 repeat_count=self.repeat_count,
                 sliders_collection=self.sliders_collection,
-                config=self.config  # statt settings und import_type nur config
+                config=self.config
             )
             slider_ticks_creator.create()
 

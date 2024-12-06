@@ -23,6 +23,7 @@ class CircleCreator(BaseHitObjectCreator):
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
         if self.import_type == 'FULL':
+            # Full Import: Direkt echtes Mesh, kein Geometry Nodes
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
                 radius=osu_radius * SCALE_FACTOR * 2,
@@ -31,6 +32,7 @@ class CircleCreator(BaseHitObjectCreator):
             )
             circle = bpy.context.object
         else:
+            # Base Import: Leeres Mesh mit Geometry Nodes
             mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{self.hitobject.time}_mesh")
             mesh.from_pydata([(0, 0, 0)], [], [])
             mesh.update()
@@ -77,9 +79,9 @@ class CircleCreator(BaseHitObjectCreator):
             fixed_values['combo_color'] = self.hitobject.combo_color
             fixed_values['combo_color_idx'] = self.hitobject.combo_color_idx
 
-        set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
-
         if self.import_type == 'FULL':
+            # Im FULL-Modus kein Geometry Nodes Keyframing:
+            # Nur Visibility Keyframes auf dem Objekt selbst
             circle.hide_viewport = True
             circle.hide_render = True
             circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -94,3 +96,6 @@ class CircleCreator(BaseHitObjectCreator):
             circle.hide_render = True
             circle.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             circle.keyframe_insert(data_path="hide_render", frame=int(end_frame))
+        else:
+            # Im BASE-Modus: Geometry Nodes Keyframes setzen
+            set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)

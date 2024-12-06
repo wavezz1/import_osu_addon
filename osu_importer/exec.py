@@ -7,7 +7,6 @@ from .import_objects import import_hitobjects
 from .utils.utils import timeit
 from .config import ImportConfig
 
-
 def main_execution(context):
     props = context.scene.osu_importer_props
     osu_file_path = bpy.path.abspath(props.osu_file)
@@ -51,19 +50,18 @@ def main_execution(context):
 
     data_manager.print_all_info()
 
-    if props.import_audio:
+    # Erstelle nun das config-Objekt
+    config = ImportConfig(props, data_manager)
+
+    if config.import_audio:
         with timeit("Audio Importieren"):
             data_manager.import_audio()
 
     with timeit("Hits Überprüfen"):
         data_manager.check_hits()
 
-    # Erstelle jetzt das zentrale config-Objekt
-    config = ImportConfig(props, data_manager)
-
     with timeit("Hitobjects Importieren"):
-        # Statt data_manager, settings, props nun nur noch config
-        import_hitobjects(config)
+        import_hitobjects(data_manager, config)
 
     with timeit("Frame-Range Setzen"):
         scene = bpy.context.scene

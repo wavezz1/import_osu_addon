@@ -10,8 +10,9 @@ from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier
 from osu_importer.parsers.hitobjects import HitObject
 
 class SpinnerCreator(BaseHitObjectCreator):
-    def __init__(self, hitobject: HitObject, global_index: int, collection, settings: dict, data_manager, import_type):
-        super().__init__(hitobject, global_index, collection, settings, data_manager, import_type)
+    def __init__(self, hitobject: HitObject, global_index: int, collection, config, data_manager, import_type):
+        # Hier "settings" durch "config" ersetzen
+        super().__init__(hitobject, global_index, collection, config, data_manager, import_type)
 
     def create_object(self):
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
@@ -42,7 +43,6 @@ class SpinnerCreator(BaseHitObjectCreator):
         start_frame = int(self.hitobject.start_frame)
         end_frame = int(self.hitobject.end_frame)
 
-        # Berechnungen mit config-Werten:
         spinner_duration_ms = self.hitobject.duration_frames * self.config.ms_per_frame * self.config.speed_multiplier
         spinner_duration_frames = self.hitobject.duration_frames
 

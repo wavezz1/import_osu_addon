@@ -11,16 +11,12 @@ from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
 
-# Neu importieren wir unsere Strategie-Funktion
 from .import_types import get_import_strategy
-
 
 def set_collection_exclude(collection_names, exclude=False, view_layer=None):
     if view_layer is None:
         view_layer = bpy.context.view_layer
-
     collection_names = [collection_names] if isinstance(collection_names, str) else collection_names
-
     for collection_name in collection_names:
         layer_collection = view_layer.layer_collection.children.get(collection_name)
         if layer_collection:
@@ -29,13 +25,11 @@ def set_collection_exclude(collection_names, exclude=False, view_layer=None):
         else:
             print(f"Collection '{collection_name}' not found in view layer '{view_layer.name}'.")
 
-
 def create_gameplay_placeholder():
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
     cube = bpy.context.object
     cube.name = "Osu_Gameplay"
     return cube
-
 
 def assign_materials_to_sockets(cube, socket_to_material, operator=None):
     modifier = cube.modifiers.get("GeometryNodes")
@@ -45,7 +39,6 @@ def assign_materials_to_sockets(cube, socket_to_material, operator=None):
             operator.report({'ERROR'}, error_message)
         print(error_message)
         return
-
     for socket, material in socket_to_material.items():
         if material:
             try:
@@ -57,7 +50,6 @@ def assign_materials_to_sockets(cube, socket_to_material, operator=None):
                 print(f"Socket '{socket}' not found in the node group.")
         else:
             print(f"No material found for socket '{socket}', skipping.")
-
 
 def setup_osu_gameplay_collections_and_materials(
         cursor, approach_circle, circles, sliders, slider_balls, spinners,
@@ -119,16 +111,12 @@ def setup_osu_gameplay_collections_and_materials(
 
     return gameplay_collection
 
-
-def import_hitobjects(config, operator=None):
-    data_manager = config.data_manager
-    import_type = config.import_type
-
+def import_hitobjects(data_manager, config, operator=None):
     with timeit("Setting up collections"):
         collections = {
             "Circles": create_collection("Circles") if config.import_circles else None,
             "Sliders": create_collection("Sliders") if config.import_sliders else None,
-            "Slider Heads Tails": create_collection("Slider Heads Tails") if config.import_sliders and config.import_slider_heads_tails and import_type == 'FULL' else None,
+            "Slider Heads Tails": create_collection("Slider Heads Tails") if config.import_sliders and config.import_slider_heads_tails and config.import_type == 'FULL' else None,
             "Slider Balls": create_collection("Slider Balls") if config.import_slider_balls else None,
             "Spinners": create_collection("Spinners") if config.import_spinners else None,
             "Cursor": create_collection("Cursor") if config.import_cursors else None,
@@ -141,8 +129,7 @@ def import_hitobjects(config, operator=None):
 
         global_index = 1
 
-    # Strategieobjekt anhand des import_type holen
-    strategy = get_import_strategy(import_type)
+    strategy = get_import_strategy(config.import_type)
 
     # Circles
     if config.import_circles:
@@ -152,11 +139,10 @@ def import_hitobjects(config, operator=None):
                 hitobject=hitobject,
                 global_index=global_index,
                 collection=collections["Circles"],
-                settings=None,  # nicht mehr benötigt
+                config=config,
                 data_manager=data_manager,
-                import_type=import_type
+                import_type=config.import_type
             )
-            circle_creator.config = config
             circle_creator.create()
             global_index += 1
             print(f"Circle combo {hitobject.combo_number} and color {hitobject.combo_color}")
@@ -169,11 +155,10 @@ def import_hitobjects(config, operator=None):
                 hitobject=hitobject,
                 global_index=global_index,
                 collection=collections["Sliders"],
-                settings=None,
+                config=config,
                 data_manager=data_manager,
-                import_type=import_type
+                import_type=config.import_type
             )
-            slider_creator.config = config
             slider_creator.create()
             global_index += 1
 
@@ -185,11 +170,10 @@ def import_hitobjects(config, operator=None):
                 hitobject=hitobject,
                 global_index=global_index,
                 collection=collections["Spinners"],
-                settings=None,
+                config=config,
                 data_manager=data_manager,
-                import_type=import_type
+                import_type=config.import_type
             )
-            spinner_creator.config = config
             spinner_creator.create()
             global_index += 1
 
@@ -201,11 +185,12 @@ def import_hitobjects(config, operator=None):
                 hitobject=hitobject,
                 global_index=global_index,
                 approach_circles_collection=collections["Approach Circles"],
-                settings=None,
+                settings=None,  # nicht mehr nötig, aber class erfordert param. Wir können settings=... durch config ersetzen:
                 data_manager=data_manager,
-                import_type=import_type
+                import_type=config.import_type
             )
-            approach_creator.config = config
+            # Hier settings durch config ersetzen:
+            approach_creator.settings = config
             approach_creator.create_approach_circle()
             global_index += 1
 
@@ -213,15 +198,14 @@ def import_hitobjects(config, operator=None):
     if config.import_cursors:
         cursor_creator = CursorCreator(
             cursor_collection=collections["Cursor"],
-            settings=None,
+            settings=config,
             data_manager=data_manager,
-            import_type=import_type
+            import_type=config.import_type
         )
-        cursor_creator.config = config
         cursor_creator.animate_cursor()
 
     # Slider Heads & Tails
-    if config.import_sliders and config.import_slider_heads_tails and import_type == 'FULL':
+    if config.import_sliders and config.import_slider_heads_tails and config.import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
             head_creator = SliderHeadTailCreator(
@@ -229,11 +213,11 @@ def import_hitobjects(config, operator=None):
                 position=hitobject.start_pos,
                 global_index=global_index,
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
-                settings=None,
+                settings=None,  # wir ersetzen settings durch config
                 data_manager=data_manager,
-                import_type=import_type
+                import_type=config.import_type
             )
-            head_creator.config = config
+            head_creator.settings = config
             head_creator.create_slider_head_tail()
             global_index += 1
 
@@ -244,12 +228,11 @@ def import_hitobjects(config, operator=None):
                 slider_heads_tails_collection=collections["Slider Heads Tails"],
                 settings=None,
                 data_manager=data_manager,
-                import_type=import_type
+                import_type=config.import_type
             )
-            tail_creator.config = config
+            tail_creator.settings = config
             tail_creator.create_slider_head_tail()
             global_index += 1
 
-    # Osu_Gameplay Setup jetzt über Strategie
     if strategy.should_include_osu_gameplay(config):
-        strategy.setup_osu_gameplay(config, collections, operator)
+        strategy.setup_osu_gameplay(data_manager, config, config, collections, operator)

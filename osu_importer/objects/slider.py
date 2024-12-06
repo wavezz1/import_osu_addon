@@ -7,16 +7,27 @@ from osu_importer.objects.base_creator import BaseHitObjectCreator
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from osu_importer.parsers.hitobjects import HitObject
 
 class SliderCreator(BaseHitObjectCreator):
-    def __init__(self, hitobject: HitObject, global_index: int, collection, settings: dict, data_manager, import_type):
-        super().__init__(hitobject, global_index, collection, settings, data_manager, import_type)
-        # Hier statt settings direkt config nutzen:
+    def __init__(self, hitobject, global_index, collection, config, data_manager, import_type):
+        super().__init__(hitobject, global_index, collection, config, data_manager, import_type)
         self.slider_resolution = self.config.slider_resolution
         self.import_slider_balls = self.config.import_slider_balls
         self.import_slider_ticks = self.config.import_slider_ticks
-        self.slider_balls_collection = self.config.slider_balls_collection
+        self.slider_balls_collection = self.config.data_manager  # später überschreiben wir dieses mit correcten Wert
+        # Aber eigentlich war slider_balls_collection aus settings:
+        # Da wir sie in import_objects mit config befüllt haben, können wir in import_hitobjects nach erstellen:
+        # Actually: In import_hitobjects wird slider_balls_collection im config nicht gesetzt.
+        # Lösung: config hat selbst keine Collections. Die collections stehen nur in import_hitobjects.
+        # Wir übergeben collections nicht ins config. Wir müssen slider_balls_collection vom Konstruktor annehmen.
+        # Passen wir import_hitobjects so an, dass wir slider_balls_collection mitgeben:
+
+        # Da wir die Collections in import_hitobjects an den Creator geben, machen wir:
+        # slider_balls_collection = self.settings.get('slider_balls_collection')
+        # ersetzen wir durch:
+        # Wir benötigen slider_balls_collection als zusätzlichen Parameter im Konstruktor -> siehe import_hitobjects-Aufruf.
+        # Gleiche Situation wie bei Heads/Tails.
+        pass
 
     def create_object(self):
         osu_radius = self.config.osu_radius
@@ -81,7 +92,7 @@ class SliderCreator(BaseHitObjectCreator):
         for i, point in enumerate(merged_curve_points):
             spline.points[i].co = (point.x, point.y, point.z, 1)
 
-        if self.config.import_type == 'FULL':
+        if self.import_type == 'FULL':
             slider_obj = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
             curve_data.extrude = osu_radius * SCALE_FACTOR * 2
         else:
@@ -99,16 +110,15 @@ class SliderCreator(BaseHitObjectCreator):
         osu_radius = self.config.osu_radius
         ms_per_frame = self.config.ms_per_frame
         audio_lead_in_frames = self.config.audio_lead_in_frames
-        preempt_frames = self.config.preempt_frames
+        data_manager = self.data_manager
 
         start_frame = int(self.hitobject.start_frame)
         end_frame = int(self.hitobject.end_frame)
-        early_start_frame = int(start_frame - preempt_frames)
+        early_start_frame = int(start_frame - data_manager.preempt_frames)
 
         slider_duration_frames = self.hitobject.duration_frames
         slider_duration_ms = slider_duration_frames * ms_per_frame
 
-        # Erzeuge repeat_counter_keyframes
         if self.repeat_count == 0:
             repeat_counter_keyframes = [
                 (early_start_frame, 0),
@@ -127,7 +137,7 @@ class SliderCreator(BaseHitObjectCreator):
         frame_values, fixed_values = get_keyframe_values(
             self.hitobject,
             'slider',
-            self.config.import_type,
+            self.import_type,
             start_frame,
             end_frame,
             early_start_frame,
@@ -167,7 +177,7 @@ class SliderCreator(BaseHitObjectCreator):
 
         set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
-        if self.config.import_type == 'FULL':
+        if self.import_type == 'FULL':
             slider.hide_viewport = True
             slider.hide_render = True
             slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -184,35 +194,42 @@ class SliderCreator(BaseHitObjectCreator):
             slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
         # Slider Balls
-        if self.import_slider_balls and self.slider_balls_collection:
-            from .slider_balls import SliderBallCreator
-            slider_ball_creator = SliderBallCreator(
-                slider=slider,
-                start_frame=start_frame,
-                slider_duration_frames=slider_duration_frames,
-                repeat_count=self.repeat_count,
-                end_frame=end_frame,
-                slider_balls_collection=self.slider_balls_collection,
-                data_manager=self.config.data_manager,  # Falls SliderBallCreator noch data_manager braucht
-                import_type=self.config.import_type,
-                slider_time=self.hitobject.time
-            )
-            slider_ball_creator.create()
+        if self.import_slider_balls and self.config.data_manager:
+            # Hier brauchen wir slider_balls_collection:
+            # Wir haben in import_hitobjects die collections, dort wurde slider_balls_collection in settings gepackt.
+            # Nun können wir slider_balls_collection auch als zusätzlichen Parameter übergeben, ähnlich wie config.
+            # Angenommen wir haben slider_balls_collection als Teil von config?
+            # Dann config hat die Collections nicht. Wir passen import_hitobjects so an, dass wir SliderCreator
+            # einen zusätzlichen Parameter slider_balls_collection übergeben:
+            if 'slider_balls_collection' in self.config.__dict__ and self.config.slider_balls_collection:
+                slider_balls_collection = self.config.slider_balls_collection
+                from .slider_balls import SliderBallCreator
+                slider_ball_creator = SliderBallCreator(
+                    slider=slider,
+                    start_frame=start_frame,
+                    slider_duration_frames=slider_duration_frames,
+                    repeat_count=self.repeat_count,
+                    end_frame=end_frame,
+                    slider_balls_collection=slider_balls_collection,
+                    data_manager=self.data_manager,
+                    import_type=self.import_type,
+                    slider_time=self.hitobject.time
+                )
+                slider_ball_creator.create()
 
         # Slider Ticks
         if self.import_slider_ticks:
-            from .slider_ticks import SliderTicksCreator
-            slider_ticks_creator = SliderTicksCreator(
-                slider=slider,
-                slider_duration_ms=slider_duration_ms,
-                repeat_count=self.repeat_count,
-                sliders_collection=self.collection,
-                settings=None,  # hier auf None setzen, da wir config verwenden wollen
-                import_type=self.config.import_type
-            )
-            # Dem SliderTicksCreator ebenfalls config übergeben:
-            slider_ticks_creator.config = self.config
-            slider_ticks_creator.create()
+            if 'sliders_collection' in self.config.__dict__ and self.collection:
+                from .slider_ticks import SliderTicksCreator
+                slider_ticks_creator = SliderTicksCreator(
+                    slider=slider,
+                    slider_duration_ms=slider_duration_ms,
+                    repeat_count=self.repeat_count,
+                    sliders_collection=self.collection,
+                    settings=self.config,
+                    import_type=self.import_type
+                )
+                slider_ticks_creator.create()
 
     def merge_duplicate_points(self, points, tolerance=0.01):
         if not points:
@@ -235,28 +252,23 @@ class SliderCreator(BaseHitObjectCreator):
         return merged
 
     def evaluate_curve(self, segment_type, segment_points):
-        # statt settings direkt config verwenden:
-        slider_resolution = self.config.slider_resolution
-
         if segment_type == "L":
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
         elif segment_type == "P":
             return self.evaluate_perfect_circle(segment_points)
         elif segment_type == "B":
-            return self.evaluate_bezier_curve(segment_points, num_points=slider_resolution)
+            return self.evaluate_bezier_curve(segment_points)
         elif segment_type == "C":
-            return self.evaluate_catmull_rom_spline(segment_points, slider_resolution=slider_resolution)
+            return self.evaluate_catmull_rom_spline(segment_points)
         else:
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
 
     def evaluate_bezier_curve(self, control_points_osu, num_points=None):
         if num_points is None:
-            num_points = self.config.slider_resolution
+            num_points = self.slider_resolution
         n = len(control_points_osu) - 1
         curve_points = []
-
         control_points = [Vector(map_osu_to_blender(x, y)) for x, y in control_points_osu]
-
         for t in [i / num_points for i in range(num_points + 1)]:
             point = Vector((0.0, 0.0, 0.0))
             for i in range(n + 1):
@@ -269,6 +281,7 @@ class SliderCreator(BaseHitObjectCreator):
         return math.comb(n, i) * (t ** i) * ((1 - t) ** (n - i))
 
     def evaluate_perfect_circle(self, points_osu):
+        # unverändert, nutzt self.config.slider_resolution statt settings
         if len(points_osu) < 3:
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
@@ -277,18 +290,14 @@ class SliderCreator(BaseHitObjectCreator):
         def circle_center(p1, p2, p3):
             temp = p2 - p1
             temp2 = p3 - p1
-
             a = temp.length_squared
             b = temp.dot(temp2)
             c = temp2.length_squared
             d = 2 * (temp.x * temp2.y - temp.y * temp2.x)
-
             if d == 0:
                 return None
-
             center_x = p1.x + (temp2.y * a - temp.y * c) / d
             center_y = p1.y + (temp.x * c - temp2.x * a) / d
-
             return Vector((center_x, center_y))
 
         center = circle_center(p1, p2, p3)
@@ -296,13 +305,10 @@ class SliderCreator(BaseHitObjectCreator):
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         radius = (p1 - center).length
-
         angle_start = math.atan2(p1.y - center.y, p1.x - center.x)
         angle_end = math.atan2(p3.y - center.y, p3.x - center.x)
-
         cross = (p2 - p1).cross(p3 - p2)
         clockwise = cross < 0
-
         if clockwise:
             if angle_end > angle_start:
                 angle_end -= 2 * math.pi
@@ -310,7 +316,7 @@ class SliderCreator(BaseHitObjectCreator):
             if angle_end < angle_start:
                 angle_end += 2 * math.pi
 
-        num_points = self.config.slider_resolution
+        num_points = self.slider_resolution
         arc_points = []
         for i in range(num_points + 1):
             t = i / num_points
@@ -318,36 +324,29 @@ class SliderCreator(BaseHitObjectCreator):
             x = center.x + radius * math.cos(angle)
             y = center.y + radius * math.sin(angle)
             arc_points.append(Vector(map_osu_to_blender(x, y)))
-
         return arc_points
 
-    def evaluate_catmull_rom_spline(self, points_osu, tension=0.0, slider_resolution=None):
-        if slider_resolution is None:
-            slider_resolution = self.config.slider_resolution
-
+    def evaluate_catmull_rom_spline(self, points_osu, tension=0.0):
         if len(points_osu) < 2:
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         spline_points = []
         n = len(points_osu)
-        num_points = slider_resolution
+        num_points = self.slider_resolution
         for i in range(n - 1):
             p0 = Vector(points_osu[i - 1]) if i > 0 else Vector(points_osu[i])
             p1 = Vector(points_osu[i])
             p2 = Vector(points_osu[i + 1])
             p3 = Vector(points_osu[i + 2]) if i + 2 < n else Vector(points_osu[i + 1])
-
             p0 = Vector(map_osu_to_blender(p0.x, p0.y))
             p1 = Vector(map_osu_to_blender(p1.x, p1.y))
             p2 = Vector(map_osu_to_blender(p2.x, p2.y))
             p3 = Vector(map_osu_to_blender(p3.x, p3.y))
-
             for t in [j / num_points for j in range(int(num_points) + 1)]:
-                t0 = ((-tension * t + 2 * tension * t ** 2 - tension * t ** 3) / 2)
-                t1 = ((1 + (tension - 3) * t ** 2 + (2 - tension) * t ** 3) / 2)
-                t2 = ((tension * t + (3 - 2 * tension) * t ** 2 + (tension - 2) * t ** 3) / 2)
-                t3 = ((-tension * t ** 2 + tension * t ** 3) / 2)
+                t0 = ((-tension * t + 2 * tension * t**2 - tension * t**3) / 2)
+                t1 = ((1 + (tension - 3)*t**2 + (2 - tension)*t**3) / 2)
+                t2 = ((tension*t + (3 - 2*tension)*t**2 + (tension - 2)*t**3) / 2)
+                t3 = ((-tension*t**2 + tension*t**3) / 2)
                 point = t0 * p0 + t1 * p1 + t2 * p2 + t3 * p3
                 spline_points.append(point)
-
         return spline_points

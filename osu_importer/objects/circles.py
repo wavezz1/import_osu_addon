@@ -10,9 +10,8 @@ from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier
 
 class CircleCreator(BaseHitObjectCreator):
     def create_object(self):
-        # Werte aus config statt data_manager:
         approach_rate = self.config.adjusted_ar
-        preempt_frames = self.config.preempt_frames
+        preempt_frames = self.config.data_manager.preempt_frames
         osu_radius = self.config.osu_radius
 
         start_frame = int(self.hitobject.start_frame)
@@ -23,7 +22,7 @@ class CircleCreator(BaseHitObjectCreator):
         y = self.hitobject.y
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
-        if self.config.import_type == 'FULL':
+        if self.import_type == 'FULL':
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
                 radius=osu_radius * SCALE_FACTOR * 2,
@@ -45,7 +44,7 @@ class CircleCreator(BaseHitObjectCreator):
 
     def animate_object(self, circle):
         approach_rate = self.config.adjusted_ar
-        preempt_frames = self.config.preempt_frames
+        preempt_frames = self.config.data_manager.preempt_frames
         osu_radius = self.config.osu_radius
 
         start_frame = int(self.hitobject.start_frame)
@@ -55,7 +54,7 @@ class CircleCreator(BaseHitObjectCreator):
         frame_values, fixed_values = get_keyframe_values(
             self.hitobject,
             'circle',
-            self.config.import_type,
+            self.import_type,
             start_frame,
             end_frame,
             early_start_frame,
@@ -80,7 +79,7 @@ class CircleCreator(BaseHitObjectCreator):
 
         set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 
-        if self.config.import_type == 'FULL':
+        if self.import_type == 'FULL':
             circle.hide_viewport = True
             circle.hide_render = True
             circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))

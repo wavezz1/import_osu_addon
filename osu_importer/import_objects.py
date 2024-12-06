@@ -11,6 +11,8 @@ from osu_importer.geo_nodes.geometry_nodes import assign_collections_to_sockets
 from osu_importer.geo_nodes.geometry_nodes_osu_instance import gn_osu_node_group
 import bpy
 
+# Neu importieren wir unsere Strategie-Funktion
+from .import_types import get_import_strategy
 
 def set_collection_exclude(collection_names, exclude=False, view_layer=None):
     if view_layer is None:
@@ -26,13 +28,11 @@ def set_collection_exclude(collection_names, exclude=False, view_layer=None):
         else:
             print(f"Collection '{collection_name}' not found in view layer '{view_layer.name}'.")
 
-
 def create_gameplay_placeholder():
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0))
     cube = bpy.context.object
     cube.name = "Osu_Gameplay"
     return cube
-
 
 def assign_materials_to_sockets(cube, socket_to_material, operator=None):
     modifier = cube.modifiers.get("GeometryNodes")
@@ -83,7 +83,6 @@ def setup_osu_gameplay_collections_and_materials(
     modifier = cube.modifiers.new(name="GeometryNodes", type='NODES') if not cube.modifiers.get("GeometryNodes") else cube.modifiers.get("GeometryNodes")
     modifier.node_group = node_group
 
-    # Collections zuweisen
     socket_to_collection = {
         "Socket_2": cursor,
         "Socket_3": approach_circle,
@@ -138,18 +137,20 @@ def import_hitobjects(data_manager, settings, props, operator=None):
 
     import_type = settings.get('import_type', 'FULL')
 
+    # Strategieobjekt anhand des import_type holen
+    strategy = get_import_strategy(import_type)
+
     # Zusätzliche Einstellungen
     settings.update({
         'approach_circle_bevel_depth': props.approach_circle_bevel_depth,
         'approach_circle_bevel_resolution': props.approach_circle_bevel_resolution,
         'cursor_size': props.cursor_size,
         'cursor_shape': props.cursor_shape,
-        # Hier kannst du zukünftige spezielle Collections hinzufügen, falls benötigt
         'slider_balls_collection': collections.get("Slider Balls"),
         'slider_heads_tails_collection': collections.get("Slider Heads Tails"),
     })
 
-    # Circles (Von BaseHitObjectCreator)
+    # Circles
     if props.import_circles:
         circles = data_manager.hitobjects_processor.circles
         for hitobject in circles:
@@ -161,12 +162,11 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager,
                 import_type=import_type
             )
-            # Jetzt create() aufrufen
             circle_creator.create()
             global_index += 1
             print(f"Circle combo {hitobject.combo_number} and color {hitobject.combo_color}")
 
-    # Sliders (Von BaseHitObjectCreator)
+    # Sliders
     if props.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
@@ -178,11 +178,10 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager,
                 import_type=import_type
             )
-            # create() aufrufen
             slider_creator.create()
             global_index += 1
 
-    # Spinners (Von BaseHitObjectCreator)
+    # Spinners
     if props.import_spinners:
         spinners = data_manager.hitobjects_processor.spinners
         for hitobject in spinners:
@@ -194,11 +193,10 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager,
                 import_type=import_type
             )
-            # create() aufrufen
             spinner_creator.create()
             global_index += 1
 
-    # Approach Circles (kein BaseHitObjectCreator, bleibt wie gehabt)
+    # Approach Circles (Hier waren keine direkten if import_type checks im import_objects.py, daher kann es so bleiben)
     if props.import_approach_circles:
         relevant_hitobjects = data_manager.hitobjects_processor.circles + data_manager.hitobjects_processor.sliders
         for hitobject in relevant_hitobjects:
@@ -210,12 +208,11 @@ def import_hitobjects(data_manager, settings, props, operator=None):
                 data_manager=data_manager,
                 import_type=import_type
             )
-            # ApproachCircleCreator hat keinen create(), da noch nicht umgestellt
-            # Bleibt wie bisher
+            # Kein direkter import_type check hier, nur in der Creator-Klasse selbst
             approach_creator.create_approach_circle()
             global_index += 1
 
-    # Cursor (bleibt wie gehabt)
+    # Cursor
     if props.import_cursors:
         cursor_creator = CursorCreator(
             cursor_collection=collections["Cursor"],
@@ -223,14 +220,13 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             data_manager=data_manager,
             import_type=import_type
         )
-        # CursorCreator noch nicht auf BaseHitObjectCreator umgestellt
+        # CursorCreator noch nicht von BaseHitObjectCreator abgeleitet, daher bleibt das so:
         cursor_creator.animate_cursor()
 
     # Slider Heads & Tails (bleibt wie gehabt)
     if props.import_sliders and props.import_slider_heads_tails and import_type == 'FULL':
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
-            # SliderHeadTailCreator noch nicht auf BaseHitObjectCreator umgestellt
             head_creator = SliderHeadTailCreator(
                 hitobject=hitobject,
                 position=hitobject.start_pos,
@@ -255,18 +251,6 @@ def import_hitobjects(data_manager, settings, props, operator=None):
             tail_creator.create_slider_head_tail()
             global_index += 1
 
-    # Osu_Gameplay Setup
-    if import_type == 'BASE' and props.include_osu_gameplay:
-        gameplay_collection = setup_osu_gameplay_collections_and_materials(
-            cursor=collections.get("Cursor"),
-            approach_circle=collections.get("Approach Circles"),
-            circles=collections.get("Circles"),
-            sliders=collections.get("Sliders"),
-            slider_balls=collections.get("Slider Balls"),
-            spinners=collections.get("Spinners"),
-            slider_heads_tails=collections.get("Slider Heads Tails"),
-            operator=operator
-        )
-
-        if gameplay_collection:
-            tag_imported(gameplay_collection)
+    # Osu_Gameplay Setup jetzt über Strategie
+    if strategy.should_include_osu_gameplay(props):
+        strategy.setup_osu_gameplay(data_manager, settings, props, collections, operator)

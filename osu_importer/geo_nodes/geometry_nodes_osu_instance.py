@@ -447,28 +447,28 @@ def circle_sim_group_node_group():
     set_material.width, set_material.height = 140.0, 100.0
     transform_geometry_001.width, transform_geometry_001.height = 140.0, 100.0
     attribute_statistic_001.width, attribute_statistic_001.height = 140.0, 100.0
-    reroute.width, reroute.height = 16.0, 100.0
-    reroute_001.width, reroute_001.height = 16.0, 100.0
+    reroute.width, reroute.height = 100.0, 100.0
+    reroute_001.width, reroute_001.height = 100.0, 100.0
     combine_xyz.width, combine_xyz.height = 140.0, 100.0
     uv_unwrap.width, uv_unwrap.height = 140.0, 100.0
     boolean.width, boolean.height = 140.0, 100.0
     pack_uv_islands.width, pack_uv_islands.height = 140.0, 100.0
-    reroute_002.width, reroute_002.height = 16.0, 100.0
+    reroute_002.width, reroute_002.height = 100.0, 100.0
     store_named_attribute.width, store_named_attribute.height = 140.0, 100.0
-    reroute_003.width, reroute_003.height = 16.0, 100.0
-    reroute_004.width, reroute_004.height = 16.0, 100.0
-    reroute_007.width, reroute_007.height = 16.0, 100.0
-    reroute_008.width, reroute_008.height = 16.0, 100.0
+    reroute_003.width, reroute_003.height = 100.0, 100.0
+    reroute_004.width, reroute_004.height = 100.0, 100.0
+    reroute_007.width, reroute_007.height = 100.0, 100.0
+    reroute_008.width, reroute_008.height = 100.0, 100.0
     group_input_001.width, group_input_001.height = 140.0, 100.0
     group_input_002.width, group_input_002.height = 140.0, 100.0
-    reroute_010.width, reroute_010.height = 16.0, 100.0
-    reroute_011.width, reroute_011.height = 16.0, 100.0
-    reroute_012.width, reroute_012.height = 16.0, 100.0
-    reroute_013.width, reroute_013.height = 16.0, 100.0
-    reroute_009.width, reroute_009.height = 16.0, 100.0
-    reroute_014.width, reroute_014.height = 16.0, 100.0
+    reroute_010.width, reroute_010.height = 100.0, 100.0
+    reroute_011.width, reroute_011.height = 100.0, 100.0
+    reroute_012.width, reroute_012.height = 100.0, 100.0
+    reroute_013.width, reroute_013.height = 100.0, 100.0
+    reroute_009.width, reroute_009.height = 100.0, 100.0
+    reroute_014.width, reroute_014.height = 100.0, 100.0
     group_input_003.width, group_input_003.height = 140.0, 100.0
-    reroute_005.width, reroute_005.height = 16.0, 100.0
+    reroute_005.width, reroute_005.height = 100.0, 100.0
     instance_on_points_001.width, instance_on_points_001.height = 140.0, 100.0
     named_attribute_002.width, named_attribute_002.height = 140.0, 100.0
     math_001.width, math_001.height = 140.0, 100.0
@@ -1721,10 +1721,10 @@ def slider_sim_group_node_group():
     frame_1.width, frame_1.height = 840.0, 371.0
     frame_003.width, frame_003.height = 1160.0001220703125, 660.0
     set_curve_radius.width, set_curve_radius.height = 140.0, 100.0
-    reroute_001_1.width, reroute_001_1.height = 16.0, 100.0
+    reroute_001_1.width, reroute_001_1.height = 100.0, 100.0
     delete_geometry_001_1.width, delete_geometry_001_1.height = 140.0, 100.0
     named_attribute_001_1.width, named_attribute_001_1.height = 140.0, 100.0
-    reroute_002_1.width, reroute_002_1.height = 16.0, 100.0
+    reroute_002_1.width, reroute_002_1.height = 100.0, 100.0
     set_material_1.width, set_material_1.height = 140.0, 100.0
     collection_info.width, collection_info.height = 140.0, 100.0
     realize_instances_001.width, realize_instances_001.height = 140.0, 100.0
@@ -1747,27 +1747,27 @@ def slider_sim_group_node_group():
     group_input_008.width, group_input_008.height = 140.0, 100.0
     join_geometry_002.width, join_geometry_002.height = 140.0, 100.0
     join_geometry_003.width, join_geometry_003.height = 140.0, 100.0
-    reroute_013_1.width, reroute_013_1.height = 16.0, 100.0
-    reroute_016.width, reroute_016.height = 16.0, 100.0
+    reroute_013_1.width, reroute_013_1.height = 100.0, 100.0
+    reroute_016.width, reroute_016.height = 100.0, 100.0
     set_spline_type.width, set_spline_type.height = 140.0, 100.0
     join_geometry_1.width, join_geometry_1.height = 140.0, 100.0
     mesh_line.width, mesh_line.height = 140.0, 100.0
     mesh_line_001.width, mesh_line_001.height = 140.0, 100.0
     mesh_to_curve_001.width, mesh_to_curve_001.height = 140.0, 100.0
     resample_curve.width, resample_curve.height = 140.0, 100.0
-    reroute_007_1.width, reroute_007_1.height = 16.0, 100.0
-    reroute_008_1.width, reroute_008_1.height = 16.0, 100.0
+    reroute_007_1.width, reroute_007_1.height = 100.0, 100.0
+    reroute_008_1.width, reroute_008_1.height = 100.0, 100.0
     named_attribute_006.width, named_attribute_006.height = 140.0, 100.0
     attribute_statistic_002.width, attribute_statistic_002.height = 140.0, 100.0
-    reroute_009_1.width, reroute_009_1.height = 16.0, 100.0
+    reroute_009_1.width, reroute_009_1.height = 100.0, 100.0
     instance_on_points_001_1.width, instance_on_points_001_1.height = 140.0, 100.0
     named_attribute_004.width, named_attribute_004.height = 140.0, 100.0
     math_001_1.width, math_001_1.height = 140.0, 100.0
     join_geometry_001.width, join_geometry_001.height = 140.0, 100.0
     group_input_012.width, group_input_012.height = 140.0, 100.0
-    reroute_010_1.width, reroute_010_1.height = 16.0, 100.0
-    reroute_011_1.width, reroute_011_1.height = 16.0, 100.0
-    reroute_014_1.width, reroute_014_1.height = 16.0, 100.0
+    reroute_010_1.width, reroute_010_1.height = 100.0, 100.0
+    reroute_011_1.width, reroute_011_1.height = 100.0, 100.0
+    reroute_014_1.width, reroute_014_1.height = 100.0, 100.0
     frame_006.width, frame_006.height = 898.0, 438.0
     set_material_002.width, set_material_002.height = 140.0, 100.0
     store_named_attribute_003.width, store_named_attribute_003.height = 140.0, 100.0
@@ -1790,9 +1790,9 @@ def slider_sim_group_node_group():
     named_attribute_003_1.width, named_attribute_003_1.height = 140.0, 100.0
     set_position_003.width, set_position_003.height = 140.0, 100.0
     named_attribute_007.width, named_attribute_007.height = 140.0, 100.0
-    reroute_1.width, reroute_1.height = 16.0, 100.0
-    reroute_003_1.width, reroute_003_1.height = 16.0, 100.0
-    reroute_004_1.width, reroute_004_1.height = 16.0, 100.0
+    reroute_1.width, reroute_1.height = 100.0, 100.0
+    reroute_003_1.width, reroute_003_1.height = 100.0, 100.0
+    reroute_004_1.width, reroute_004_1.height = 100.0, 100.0
     split_to_instances.width, split_to_instances.height = 140.0, 100.0
     mesh_island_001.width, mesh_island_001.height = 140.0, 100.0
     store_named_attribute_002.width, store_named_attribute_002.height = 140.0, 100.0
@@ -2592,29 +2592,12 @@ def approach_circle_group_node_group():
     # Name
     named_attribute_002_2.inputs[0].default_value = "cs"
 
-    # node Math
-    math = approach_circle_group.nodes.new("ShaderNodeMath")
-    math.name = "Math"
-    math.hide = True
-    math.operation = 'MULTIPLY'
-    math.use_clamp = False
-
-    # node Math.003
-    math_003_1 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_003_1.name = "Math.003"
-    math_003_1.operation = 'ADD'
-    math_003_1.use_clamp = False
-    # Value_001
-    math_003_1.inputs[1].default_value = 1.0
-
     # node Mesh Circle
     mesh_circle_4 = approach_circle_group.nodes.new("GeometryNodeMeshCircle")
     mesh_circle_4.name = "Mesh Circle"
     mesh_circle_4.fill_type = 'NONE'
     # Vertices
     mesh_circle_4.inputs[0].default_value = 32
-    # Radius
-    mesh_circle_4.inputs[1].default_value = 1.0
 
     # node Extrude Mesh
     extrude_mesh = approach_circle_group.nodes.new("GeometryNodeExtrudeMesh")
@@ -2697,37 +2680,6 @@ def approach_circle_group_node_group():
     # Selection
     attribute_statistic_001_1.inputs[1].default_value = True
 
-    # node Math.004
-    math_004_1 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_004_1.name = "Math.004"
-    math_004_1.operation = 'MULTIPLY'
-    math_004_1.use_clamp = False
-
-    # node Math.006
-    math_006 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_006.name = "Math.006"
-    math_006.hide = True
-    math_006.operation = 'ADD'
-    math_006.use_clamp = False
-    # Value_001
-    math_006.inputs[1].default_value = 1.0
-
-    # node Math.008
-    math_008_1 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_008_1.name = "Math.008"
-    math_008_1.hide = True
-    math_008_1.operation = 'MULTIPLY'
-    math_008_1.use_clamp = False
-
-    # node Math.001
-    math_001_2 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_001_2.name = "Math.001"
-    math_001_2.hide = True
-    math_001_2.operation = 'MULTIPLY'
-    math_001_2.use_clamp = False
-    # Value_001
-    math_001_2.inputs[1].default_value = 2.0
-
     # node Reroute
     reroute_2 = approach_circle_group.nodes.new("NodeReroute")
     reroute_2.name = "Reroute"
@@ -2757,6 +2709,14 @@ def approach_circle_group_node_group():
     group_input_002_3.outputs[2].hide = True
     group_input_002_3.outputs[3].hide = True
 
+    # node Math
+    math = approach_circle_group.nodes.new("ShaderNodeMath")
+    math.name = "Math"
+    math.operation = 'MULTIPLY'
+    math.use_clamp = False
+    # Value_001
+    math.inputs[1].default_value = 2.0
+
     # Set locations
     group_output_4.location = (1140.0, 220.0)
     group_input_4.location = (-760.0, 220.1756591796875)
@@ -2766,9 +2726,7 @@ def approach_circle_group_node_group():
     named_attribute_001_3.location = (-440.0, 20.1756591796875)
     boolean_math_3.location = (-440.0, 60.1756591796875)
     named_attribute_002_2.location = (-200.0, -60.0)
-    math.location = (280.0, 100.0)
-    math_003_1.location = (280.0, 60.0)
-    mesh_circle_4.location = (460.0, -140.0)
+    mesh_circle_4.location = (458.61968994140625, -134.40338134765625)
     extrude_mesh.location = (460.0, -280.0)
     realize_instances_4.location = (-600.0, 220.1756591796875)
     attribute_statistic_2.location = (280.0, -420.0)
@@ -2777,10 +2735,6 @@ def approach_circle_group_node_group():
     combine_xyz_3.location = (820.0, 60.0)
     set_material_4.location = (980.0, 220.0)
     attribute_statistic_001_1.location = (-200.0, 100.0)
-    math_004_1.location = (-40.0, 100.0)
-    math_006.location = (-40.0, -60.0)
-    math_008_1.location = (120.0, 100.0)
-    math_001_2.location = (120.0, 60.0)
     reroute_2.location = (-260.0, 180.1756591796875)
     reroute_001_2.location = (-260.0, 0.1756591796875)
     reroute_002_2.location = (-260.0, -399.8243408203125)
@@ -2788,6 +2742,7 @@ def approach_circle_group_node_group():
     reroute_004_2.location = (620.0, 140.0)
     group_input_001_4.location = (980.0, 80.0)
     group_input_002_3.location = (820.0, -80.0)
+    math.location = (-43.1097412109375, 106.15355682373047)
 
     # Set dimensions
     group_output_4.width, group_output_4.height = 140.0, 100.0
@@ -2798,8 +2753,6 @@ def approach_circle_group_node_group():
     named_attribute_001_3.width, named_attribute_001_3.height = 140.0, 100.0
     boolean_math_3.width, boolean_math_3.height = 140.0, 100.0
     named_attribute_002_2.width, named_attribute_002_2.height = 140.0, 100.0
-    math.width, math.height = 140.0, 100.0
-    math_003_1.width, math_003_1.height = 140.0, 100.0
     mesh_circle_4.width, mesh_circle_4.height = 140.0, 100.0
     extrude_mesh.width, extrude_mesh.height = 140.0, 100.0
     realize_instances_4.width, realize_instances_4.height = 140.0, 100.0
@@ -2809,17 +2762,14 @@ def approach_circle_group_node_group():
     combine_xyz_3.width, combine_xyz_3.height = 140.0, 100.0
     set_material_4.width, set_material_4.height = 140.0, 100.0
     attribute_statistic_001_1.width, attribute_statistic_001_1.height = 140.0, 100.0
-    math_004_1.width, math_004_1.height = 140.0, 100.0
-    math_006.width, math_006.height = 140.0, 100.0
-    math_008_1.width, math_008_1.height = 140.0, 100.0
-    math_001_2.width, math_001_2.height = 140.0, 100.0
-    reroute_2.width, reroute_2.height = 100.0, 100.0
-    reroute_001_2.width, reroute_001_2.height = 100.0, 100.0
-    reroute_002_2.width, reroute_002_2.height = 100.0, 100.0
-    reroute_003_2.width, reroute_003_2.height = 100.0, 100.0
-    reroute_004_2.width, reroute_004_2.height = 100.0, 100.0
+    reroute_2.width, reroute_2.height = 16.0, 100.0
+    reroute_001_2.width, reroute_001_2.height = 16.0, 100.0
+    reroute_002_2.width, reroute_002_2.height = 16.0, 100.0
+    reroute_003_2.width, reroute_003_2.height = 16.0, 100.0
+    reroute_004_2.width, reroute_004_2.height = 16.0, 100.0
     group_input_001_4.width, group_input_001_4.height = 140.0, 100.0
     group_input_002_3.width, group_input_002_3.height = 140.0, 100.0
+    math.width, math.height = 140.0, 100.0
 
     # initialize approach_circle_group links
     # named_attribute_001_3.Attribute -> boolean_math_3.Boolean
@@ -2830,12 +2780,6 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(reroute_2.outputs[0], instance_on_points_4.inputs[0])
     # realize_instances_4.Geometry -> delete_geometry_3.Geometry
     approach_circle_group.links.new(realize_instances_4.outputs[0], delete_geometry_3.inputs[0])
-    # math_003_1.Value -> math.Value
-    approach_circle_group.links.new(math_003_1.outputs[0], math.inputs[1])
-    # math.Value -> instance_on_points_4.Scale
-    approach_circle_group.links.new(math.outputs[0], instance_on_points_4.inputs[6])
-    # named_attribute_4.Attribute -> math_003_1.Value
-    approach_circle_group.links.new(named_attribute_4.outputs[0], math_003_1.inputs[0])
     # mesh_circle_4.Mesh -> extrude_mesh.Mesh
     approach_circle_group.links.new(mesh_circle_4.outputs[0], extrude_mesh.inputs[0])
     # reroute_004_2.Output -> instance_on_points_4.Instance
@@ -2856,24 +2800,10 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(combine_xyz_3.outputs[0], set_position_4.inputs[3])
     # set_position_4.Geometry -> set_material_4.Geometry
     approach_circle_group.links.new(set_position_4.outputs[0], set_material_4.inputs[0])
-    # attribute_statistic_001_1.Mean -> math_004_1.Value
-    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_004_1.inputs[0])
-    # attribute_statistic_001_1.Mean -> math_006.Value
-    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_006.inputs[0])
-    # math_006.Value -> math_004_1.Value
-    approach_circle_group.links.new(math_006.outputs[0], math_004_1.inputs[1])
-    # math_004_1.Value -> math_008_1.Value
-    approach_circle_group.links.new(math_004_1.outputs[0], math_008_1.inputs[0])
-    # attribute_statistic_001_1.Mean -> math_001_2.Value
-    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_001_2.inputs[0])
-    # math_001_2.Value -> math_008_1.Value
-    approach_circle_group.links.new(math_001_2.outputs[0], math_008_1.inputs[1])
     # named_attribute_002_2.Attribute -> attribute_statistic_001_1.Attribute
     approach_circle_group.links.new(named_attribute_002_2.outputs[0], attribute_statistic_001_1.inputs[2])
     # reroute_001_2.Output -> attribute_statistic_001_1.Geometry
     approach_circle_group.links.new(reroute_001_2.outputs[0], attribute_statistic_001_1.inputs[0])
-    # math_008_1.Value -> math.Value
-    approach_circle_group.links.new(math_008_1.outputs[0], math.inputs[0])
     # delete_geometry_3.Geometry -> reroute_2.Input
     approach_circle_group.links.new(delete_geometry_3.outputs[0], reroute_2.inputs[0])
     # reroute_2.Output -> reroute_001_2.Input
@@ -2890,6 +2820,12 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(group_input_001_4.outputs[2], set_material_4.inputs[2])
     # group_input_002_3.Y Offset -> combine_xyz_3.Y
     approach_circle_group.links.new(group_input_002_3.outputs[1], combine_xyz_3.inputs[1])
+    # attribute_statistic_001_1.Mean -> math.Value
+    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math.inputs[0])
+    # math.Value -> mesh_circle_4.Radius
+    approach_circle_group.links.new(math.outputs[0], mesh_circle_4.inputs[1])
+    # named_attribute_4.Attribute -> instance_on_points_4.Scale
+    approach_circle_group.links.new(named_attribute_4.outputs[0], instance_on_points_4.inputs[6])
     return approach_circle_group
 
 # initialize combo node group

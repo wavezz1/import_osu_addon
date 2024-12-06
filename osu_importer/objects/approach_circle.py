@@ -20,10 +20,12 @@ class ApproachCircleCreator:
     def create_approach_circle(self):
         hitobject = self.hitobject
 
+        # Nur für Circles oder Sliders
         if not (hitobject.hit_type & 1 or hitobject.hit_type & 2):
             print(f"HitObject {hitobject.time} ist kein Circle oder Slider. Approach Circle wird nicht erstellt.")
             return
 
+        # Müssen Frames haben
         if not hasattr(hitobject, 'start_frame') or not hasattr(hitobject, 'end_frame'):
             print(f"HitObject {hitobject.time} hat keine Attribute 'start_frame' oder 'end_frame'.")
             return
@@ -43,6 +45,10 @@ class ApproachCircleCreator:
 
             print(f"Creating Approach Circle for HitObject {hitobject.time} at position ({corrected_x}, {corrected_y}, {corrected_z})")
             print(f"  Start Frame: {start_frame}, Early Start Frame: {early_start_frame}, End Frame: {end_frame}")
+
+            # Im Spiel: Approach Circle beginnt bei ~4x Größe und schrumpft auf 1x beim Hitzeitpunkt
+            start_scale = 4.0
+            end_scale = 1.0
 
             if self.import_type == 'FULL':
                 bpy.ops.curve.primitive_bezier_circle_add(
@@ -69,11 +75,13 @@ class ApproachCircleCreator:
                         if col != self.approach_circles_collection:
                             col.objects.unlink(approach_obj)
 
-                approach_obj.scale = (2.0, 2.0, 2.0)
+                # Scale Keyframes
+                approach_obj.scale = (start_scale, start_scale, start_scale)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(early_start_frame))
-                approach_obj.scale = (1.0, 1.0, 1.0)
+                approach_obj.scale = (end_scale, end_scale, end_scale)
                 approach_obj.keyframe_insert(data_path="scale", frame=int(start_frame))
 
+                # Visibility Keyframes
                 approach_obj.hide_viewport = True
                 approach_obj.hide_render = True
                 approach_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -116,8 +124,8 @@ class ApproachCircleCreator:
                         (start_frame, False),
                     ],
                     "scale": [
-                        (early_start_frame, 2.0),
-                        (start_frame, 1.0),
+                        (early_start_frame, start_scale),
+                        (start_frame, end_scale),
                     ]
                 }
                 fixed_values = {"cs": osu_radius * SCALE_FACTOR}

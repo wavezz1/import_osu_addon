@@ -8,7 +8,7 @@ from osu_importer.osu_data_manager import OsuDataManager
 
 class SliderBallCreator:
     def __init__(self, slider, start_frame, slider_duration_frames, repeat_count, end_frame,
-                 slider_balls_collection, data_manager: OsuDataManager, import_type, slider_time):
+                 slider_balls_collection, data_manager: OsuDataManager, config, slider_time):
         self.slider = slider
         self.start_frame = start_frame
         self.slider_duration_frames = slider_duration_frames
@@ -16,8 +16,9 @@ class SliderBallCreator:
         self.end_frame = end_frame
         self.slider_balls_collection = slider_balls_collection
         self.data_manager = data_manager
-        self.import_type = import_type
+        self.config = config
         self.slider_time = slider_time
+        self.import_type = self.config.import_type
 
     def create(self):
         if self.import_type == 'BASE':
@@ -35,7 +36,7 @@ class SliderBallCreator:
 
     def create_base_slider_ball(self):
         mesh = bpy.data.meshes.new(f"{self.slider.name}_ball_mesh")
-        mesh.from_pydata([ (0, 0, 0) ], [], [])
+        mesh.from_pydata([(0, 0, 0)], [], [])
         mesh.update()
 
         slider_ball = bpy.data.objects.new(f"{self.slider.name}_ball", mesh)

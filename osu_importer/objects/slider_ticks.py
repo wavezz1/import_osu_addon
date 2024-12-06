@@ -4,17 +4,17 @@ import bpy
 from osu_importer.utils.utils import evaluate_curve_at_t, tag_imported
 
 class SliderTicksCreator:
-    def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, settings, import_type):
+    def __init__(self, slider, slider_duration_ms, repeat_count, sliders_collection, config):
         self.slider = slider
         self.slider_duration_ms = slider_duration_ms
         self.repeat_count = repeat_count
         self.sliders_collection = sliders_collection
-        self.settings = settings
-        self.import_type = import_type
+        self.config = config
+        self.import_type = config.import_type
         self.tick_interval_ms = 100
 
     def create(self):
-        tick_interval_ms = self.settings.get('tick_interval_ms', self.tick_interval_ms)
+        tick_interval_ms = self.tick_interval_ms
         total_ticks = int(self.slider_duration_ms / tick_interval_ms) * self.repeat_count
 
         for tick in range(total_ticks):

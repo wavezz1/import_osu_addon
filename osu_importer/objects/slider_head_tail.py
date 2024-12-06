@@ -7,12 +7,12 @@ from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 
 class SliderHeadTailCreator:
-    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, settings, data_manager, import_type):
+    def __init__(self, hitobject, position, global_index, slider_heads_tails_collection, config, data_manager, import_type):
         self.hitobject = hitobject
         self.position = position
         self.global_index = global_index
         self.slider_heads_tails_collection = slider_heads_tails_collection
-        self.settings = settings
+        self.config = config
         self.data_manager = data_manager
         self.import_type = import_type
         self.create_slider_head_tail()
@@ -27,7 +27,6 @@ class SliderHeadTailCreator:
         with timeit(f"Create SliderHeadTail {self.global_index:03d}_head_tail_{hitobject.time}"):
             data_manager = self.data_manager
 
-            approach_rate = data_manager.adjusted_ar
             osu_radius = data_manager.osu_radius
             preempt_frames = data_manager.preempt_frames
 
@@ -47,10 +46,6 @@ class SliderHeadTailCreator:
                 head_tail_obj = bpy.context.object
 
                 head_tail_obj.name = f"SliderHeadTail_{self.global_index:03d}_{hitobject.time}"
-
-                head_tail_obj["combo"] = hitobject.combo_number
-                head_tail_obj["combo_color_idx"] = hitobject.combo_color_idx
-                head_tail_obj["combo_color"] = hitobject.combo_color
 
                 tag_imported(head_tail_obj)
 

@@ -2636,7 +2636,7 @@ def approach_circle_group_node_group():
     # From Min
     map_range.inputs[1].default_value = 1.0
     # From Max
-    map_range.inputs[2].default_value = 2.0
+    map_range.inputs[2].default_value = 5.0
     # To Min
     map_range.inputs[3].default_value = 0.0
     # To Max

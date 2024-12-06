@@ -1,7 +1,5 @@
 import bpy, mathutils
 
-
-
 # initialize Approach Circles node group
 def approach_circles_node_group():
     mat = bpy.data.materials.new(name="Approach Circles")
@@ -85,9 +83,9 @@ def approach_circles_node_group():
     math.operation = 'COMPARE'
     math.use_clamp = False
     # Value_001
-    math.inputs[1].default_value = 1.0199999809265137
+    math.inputs[1].default_value = 0.5
     # Value_002
-    math.inputs[2].default_value = 0.02000001072883606
+    math.inputs[2].default_value = 0.5
 
     # Set locations
     material_output.location = (1480.0, 300.0)
@@ -126,8 +124,8 @@ def approach_circles_node_group():
     approach_circles.links.new(math.outputs[0], mix.inputs[0])
     # math.Value -> mix_shader.Fac
     approach_circles.links.new(math.outputs[0], mix_shader.inputs[0])
-    # mix_shader.Shader -> material_output.Surface
-    approach_circles.links.new(mix_shader.outputs[0], material_output.inputs[0])
     # vector_math.Value -> math.Value
     approach_circles.links.new(vector_math.outputs[1], math.inputs[0])
+    # mix_shader.Shader -> material_output.Surface
+    approach_circles.links.new(mix_shader.outputs[0], material_output.inputs[0])
     return approach_circles

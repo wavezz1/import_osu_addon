@@ -7,15 +7,13 @@ from osu_importer.objects.base_creator import BaseHitObjectCreator
 from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from osu_importer.osu_data_manager import OsuDataManager
 
 class CircleCreator(BaseHitObjectCreator):
     def create_object(self):
-        data_manager = self.data_manager
-
-        approach_rate = data_manager.adjusted_ar
-        preempt_frames = data_manager.preempt_frames
-        osu_radius = data_manager.osu_radius
+        # Werte aus config statt data_manager:
+        approach_rate = self.config.adjusted_ar
+        preempt_frames = self.config.preempt_frames
+        osu_radius = self.config.osu_radius
 
         start_frame = int(self.hitobject.start_frame)
         end_frame = int(start_frame + 1)
@@ -25,7 +23,7 @@ class CircleCreator(BaseHitObjectCreator):
         y = self.hitobject.y
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
-        if self.import_type == 'FULL':
+        if self.config.import_type == 'FULL':
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
                 radius=osu_radius * SCALE_FACTOR * 2,
@@ -46,10 +44,9 @@ class CircleCreator(BaseHitObjectCreator):
         return circle
 
     def animate_object(self, circle):
-        data_manager = self.data_manager
-        approach_rate = data_manager.adjusted_ar
-        preempt_frames = data_manager.preempt_frames
-        osu_radius = data_manager.osu_radius
+        approach_rate = self.config.adjusted_ar
+        preempt_frames = self.config.preempt_frames
+        osu_radius = self.config.osu_radius
 
         start_frame = int(self.hitobject.start_frame)
         end_frame = int(start_frame + 1)
@@ -58,7 +55,7 @@ class CircleCreator(BaseHitObjectCreator):
         frame_values, fixed_values = get_keyframe_values(
             self.hitobject,
             'circle',
-            self.import_type,
+            self.config.import_type,
             start_frame,
             end_frame,
             early_start_frame,
@@ -83,7 +80,7 @@ class CircleCreator(BaseHitObjectCreator):
 
         set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)
 
-        if self.import_type == 'FULL':
+        if self.config.import_type == 'FULL':
             circle.hide_viewport = True
             circle.hide_render = True
             circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))

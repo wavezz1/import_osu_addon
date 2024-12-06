@@ -5,6 +5,7 @@ import os
 from .osu_data_manager import OsuDataManager
 from .import_objects import import_hitobjects
 from .utils.utils import timeit
+from .config import ImportConfig
 
 
 def main_execution(context):
@@ -57,16 +58,12 @@ def main_execution(context):
     with timeit("Hits Überprüfen"):
         data_manager.check_hits()
 
-    settings = {
-        'audio_lead_in': data_manager.audio_lead_in,
-        'import_slider_balls': props.import_slider_balls,
-        'import_slider_ticks': props.import_slider_ticks,
-        'slider_resolution': props.slider_resolution,
-        'import_type': props.import_type
-    }
+    # Erstelle jetzt das zentrale config-Objekt
+    config = ImportConfig(props, data_manager)
 
     with timeit("Hitobjects Importieren"):
-        import_hitobjects(data_manager, settings, props)
+        # Statt data_manager, settings, props nun nur noch config
+        import_hitobjects(config)
 
     with timeit("Frame-Range Setzen"):
         scene = bpy.context.scene

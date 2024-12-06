@@ -7,21 +7,19 @@ from osu_importer.objects.base_creator import BaseHitObjectCreator
 from osu_importer.utils.constants import SCALE_FACTOR
 from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from osu_importer.osu_data_manager import OsuDataManager
 from osu_importer.parsers.hitobjects import HitObject
 
 class SliderCreator(BaseHitObjectCreator):
-    def __init__(self, hitobject: HitObject, global_index: int, collection, settings: dict, data_manager: OsuDataManager, import_type):
+    def __init__(self, hitobject: HitObject, global_index: int, collection, settings: dict, data_manager, import_type):
         super().__init__(hitobject, global_index, collection, settings, data_manager, import_type)
-        self.slider_resolution = self.settings.get('slider_resolution', 100)
-        self.import_slider_balls = self.settings.get('import_slider_balls', False)
-        self.import_slider_ticks = self.settings.get('import_slider_ticks', False)
-        # Falls benötigt: zusätzliche Collections aus settings
-        self.slider_balls_collection = self.settings.get('slider_balls_collection')
+        # Hier statt settings direkt config nutzen:
+        self.slider_resolution = self.config.slider_resolution
+        self.import_slider_balls = self.config.import_slider_balls
+        self.import_slider_ticks = self.config.import_slider_ticks
+        self.slider_balls_collection = self.config.slider_balls_collection
 
     def create_object(self):
-        data_manager = self.data_manager
-        osu_radius = data_manager.osu_radius
+        osu_radius = self.config.osu_radius
 
         if not self.hitobject.extras or len(self.hitobject.extras) < 1:
             print(f"No extras found for slider {self.hitobject.time}, cannot create slider.")
@@ -83,7 +81,7 @@ class SliderCreator(BaseHitObjectCreator):
         for i, point in enumerate(merged_curve_points):
             spline.points[i].co = (point.x, point.y, point.z, 1)
 
-        if self.import_type == 'FULL':
+        if self.config.import_type == 'FULL':
             slider_obj = bpy.data.objects.new(f"{self.global_index:03d}_slider_{self.hitobject.time}_curve", curve_data)
             curve_data.extrude = osu_radius * SCALE_FACTOR * 2
         else:
@@ -97,15 +95,15 @@ class SliderCreator(BaseHitObjectCreator):
         return self.slider_obj
 
     def animate_object(self, slider):
-        data_manager = self.data_manager
-        approach_rate = data_manager.adjusted_ar
-        osu_radius = data_manager.osu_radius
-        ms_per_frame = data_manager.ms_per_frame
-        audio_lead_in_frames = data_manager.audio_lead_in_frames
+        approach_rate = self.config.adjusted_ar
+        osu_radius = self.config.osu_radius
+        ms_per_frame = self.config.ms_per_frame
+        audio_lead_in_frames = self.config.audio_lead_in_frames
+        preempt_frames = self.config.preempt_frames
 
         start_frame = int(self.hitobject.start_frame)
         end_frame = int(self.hitobject.end_frame)
-        early_start_frame = int(start_frame - data_manager.preempt_frames)
+        early_start_frame = int(start_frame - preempt_frames)
 
         slider_duration_frames = self.hitobject.duration_frames
         slider_duration_ms = slider_duration_frames * ms_per_frame
@@ -129,7 +127,7 @@ class SliderCreator(BaseHitObjectCreator):
         frame_values, fixed_values = get_keyframe_values(
             self.hitobject,
             'slider',
-            self.import_type,
+            self.config.import_type,
             start_frame,
             end_frame,
             early_start_frame,
@@ -169,7 +167,7 @@ class SliderCreator(BaseHitObjectCreator):
 
         set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
-        if self.import_type == 'FULL':
+        if self.config.import_type == 'FULL':
             slider.hide_viewport = True
             slider.hide_render = True
             slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -195,8 +193,8 @@ class SliderCreator(BaseHitObjectCreator):
                 repeat_count=self.repeat_count,
                 end_frame=end_frame,
                 slider_balls_collection=self.slider_balls_collection,
-                data_manager=data_manager,
-                import_type=self.import_type,
+                data_manager=self.config.data_manager,  # Falls SliderBallCreator noch data_manager braucht
+                import_type=self.config.import_type,
                 slider_time=self.hitobject.time
             )
             slider_ball_creator.create()
@@ -209,9 +207,11 @@ class SliderCreator(BaseHitObjectCreator):
                 slider_duration_ms=slider_duration_ms,
                 repeat_count=self.repeat_count,
                 sliders_collection=self.collection,
-                settings=self.settings,
-                import_type=self.import_type
+                settings=None,  # hier auf None setzen, da wir config verwenden wollen
+                import_type=self.config.import_type
             )
+            # Dem SliderTicksCreator ebenfalls config übergeben:
+            slider_ticks_creator.config = self.config
             slider_ticks_creator.create()
 
     def merge_duplicate_points(self, points, tolerance=0.01):
@@ -235,20 +235,23 @@ class SliderCreator(BaseHitObjectCreator):
         return merged
 
     def evaluate_curve(self, segment_type, segment_points):
+        # statt settings direkt config verwenden:
+        slider_resolution = self.config.slider_resolution
+
         if segment_type == "L":
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
         elif segment_type == "P":
             return self.evaluate_perfect_circle(segment_points)
         elif segment_type == "B":
-            return self.evaluate_bezier_curve(segment_points)
+            return self.evaluate_bezier_curve(segment_points, num_points=slider_resolution)
         elif segment_type == "C":
-            return self.evaluate_catmull_rom_spline(segment_points)
+            return self.evaluate_catmull_rom_spline(segment_points, slider_resolution=slider_resolution)
         else:
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in segment_points]
 
     def evaluate_bezier_curve(self, control_points_osu, num_points=None):
         if num_points is None:
-            num_points = self.slider_resolution
+            num_points = self.config.slider_resolution
         n = len(control_points_osu) - 1
         curve_points = []
 
@@ -307,7 +310,7 @@ class SliderCreator(BaseHitObjectCreator):
             if angle_end < angle_start:
                 angle_end += 2 * math.pi
 
-        num_points = self.settings.get('slider_resolution', 50)
+        num_points = self.config.slider_resolution
         arc_points = []
         for i in range(num_points + 1):
             t = i / num_points
@@ -318,13 +321,16 @@ class SliderCreator(BaseHitObjectCreator):
 
         return arc_points
 
-    def evaluate_catmull_rom_spline(self, points_osu, tension=0.0):
+    def evaluate_catmull_rom_spline(self, points_osu, tension=0.0, slider_resolution=None):
+        if slider_resolution is None:
+            slider_resolution = self.config.slider_resolution
+
         if len(points_osu) < 2:
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
         spline_points = []
         n = len(points_osu)
-        num_points = self.settings.get('slider_resolution', 20)
+        num_points = slider_resolution
         for i in range(n - 1):
             p0 = Vector(points_osu[i - 1]) if i > 0 else Vector(points_osu[i])
             p1 = Vector(points_osu[i])

@@ -7,18 +7,16 @@ from osu_importer.objects.base_creator import BaseHitObjectCreator
 from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
 from osu_importer.utils.constants import SPINNER_CENTER_X, SPINNER_CENTER_Y
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
-from osu_importer.osu_data_manager import OsuDataManager
 from osu_importer.parsers.hitobjects import HitObject
 
 class SpinnerCreator(BaseHitObjectCreator):
-    def __init__(self, hitobject: HitObject, global_index: int, collection, settings: dict, data_manager: OsuDataManager, import_type):
+    def __init__(self, hitobject: HitObject, global_index: int, collection, settings: dict, data_manager, import_type):
         super().__init__(hitobject, global_index, collection, settings, data_manager, import_type)
 
     def create_object(self):
-        data_manager = self.data_manager
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(SPINNER_CENTER_X, SPINNER_CENTER_Y)
 
-        if self.import_type == 'FULL':
+        if self.config.import_type == 'FULL':
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
                 radius=4,
@@ -39,27 +37,30 @@ class SpinnerCreator(BaseHitObjectCreator):
         return spinner
 
     def animate_object(self, spinner):
-        data_manager = self.data_manager
-        approach_rate = data_manager.adjusted_ar
+        approach_rate = self.config.adjusted_ar
 
         start_frame = int(self.hitobject.start_frame)
         end_frame = int(self.hitobject.end_frame)
 
+        # Berechnungen mit config-Werten:
+        spinner_duration_ms = self.hitobject.duration_frames * self.config.ms_per_frame * self.config.speed_multiplier
+        spinner_duration_frames = self.hitobject.duration_frames
+
         frame_values, fixed_values = get_keyframe_values(
             self.hitobject,
             'spinner',
-            self.import_type,
+            self.config.import_type,
             start_frame,
             end_frame,
             start_frame,
             approach_rate,
             osu_radius=0,
             extra_params={
-                "spinner_duration_ms": self.hitobject.duration_frames * data_manager.ms_per_frame * data_manager.speed_multiplier,
-                "spinner_duration_frames": self.hitobject.duration_frames
+                "spinner_duration_ms": spinner_duration_ms,
+                "spinner_duration_frames": spinner_duration_frames
             },
-            ms_per_frame=data_manager.ms_per_frame,
-            audio_lead_in_frames=data_manager.audio_lead_in_frames
+            ms_per_frame=self.config.ms_per_frame,
+            audio_lead_in_frames=self.config.audio_lead_in_frames
         )
 
         attributes = {
@@ -72,7 +73,7 @@ class SpinnerCreator(BaseHitObjectCreator):
 
         set_modifier_inputs_with_keyframes(spinner, attributes, frame_values, fixed_values)
 
-        if self.import_type == 'FULL':
+        if self.config.import_type == 'FULL':
             # Vor Start ausgeblendet
             spinner.hide_viewport = True
             spinner.hide_render = True

@@ -14,7 +14,7 @@ class SliderTicksCreator:
         self.tick_interval_ms = 100
 
     def create(self):
-        tick_interval_ms = self.settings.get('tick_interval_ms', self.tick_interval_ms)
+        tick_interval_ms = self.tick_interval_ms
         total_ticks = int(self.slider_duration_ms / tick_interval_ms) * self.repeat_count
 
         for tick in range(total_ticks):

@@ -8,11 +8,11 @@ from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier
 from osu_importer.osu_data_manager import OsuDataManager
 
 class ApproachCircleCreator:
-    def __init__(self, hitobject, global_index, approach_circles_collection, settings, data_manager: OsuDataManager, import_type):
+    def __init__(self, hitobject, global_index, approach_circles_collection, config, data_manager, import_type):
         self.hitobject = hitobject
         self.global_index = global_index
         self.approach_circles_collection = approach_circles_collection
-        self.settings = settings
+        self.config = config
         self.data_manager = data_manager
         self.import_type = import_type
         self.create_approach_circle()
@@ -57,10 +57,10 @@ class ApproachCircleCreator:
 
                 tag_imported(approach_obj)
 
-                bevel_depth = self.settings.get('approach_circle_bevel_depth', 0.1)
+                bevel_depth = self.config.approach_circle_bevel_depth
                 approach_obj.data.bevel_depth = bevel_depth
 
-                bevel_resolution = self.settings.get('approach_circle_bevel_resolution', 4)
+                bevel_resolution = self.config.approach_circle_bevel_resolution
                 approach_obj.data.bevel_resolution = bevel_resolution
 
                 self.approach_circles_collection.objects.link(approach_obj)

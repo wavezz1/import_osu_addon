@@ -18,7 +18,7 @@ class CursorCreator:
 
     def create_cursor(self):
         try:
-            cursor_size = self.settings.get('cursor_size', 1.0)
+            cursor_size = self.settings.cursor_size
             if self.import_type == 'FULL':
                 # Bei FULL wird kein Geometry Nodes Modifier angelegt.
                 cursor_shape = self.settings.get('cursor_shape', 'SPHERE')

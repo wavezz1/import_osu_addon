@@ -21,7 +21,7 @@ class CursorCreator:
             cursor_size = self.settings.cursor_size
             if self.import_type == 'FULL':
                 # Bei FULL wird kein Geometry Nodes Modifier angelegt.
-                cursor_shape = self.settings.get('cursor_shape', 'SPHERE')
+                cursor_shape = self.settings.cursor_shape
                 if cursor_shape == 'SPHERE':
                     bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
                     cursor = bpy.context.object

@@ -304,84 +304,6 @@ def circle_sim_group_node_group():
     # node Reroute.014
     reroute_014 = circle_sim_group.nodes.new("NodeReroute")
     reroute_014.name = "Reroute.014"
-    # node Math.002
-    math_002 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_002.name = "Math.002"
-    math_002.operation = 'DIVIDE'
-    math_002.use_clamp = False
-    # Value_001
-    math_002.inputs[1].default_value = 2.0
-
-    # node Math.004
-    math_004 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_004.name = "Math.004"
-    math_004.hide = True
-    math_004.operation = 'MULTIPLY'
-    math_004.use_clamp = False
-
-    # node Math.006
-    math_006 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_006.name = "Math.006"
-    math_006.hide = True
-    math_006.operation = 'ADD'
-    math_006.use_clamp = False
-    # Value_001
-    math_006.inputs[1].default_value = 1.0
-
-    # node Math.008
-    math_008 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_008.name = "Math.008"
-    math_008.operation = 'MULTIPLY'
-    math_008.use_clamp = False
-
-    # node Math
-    math = circle_sim_group.nodes.new("ShaderNodeMath")
-    math.name = "Math"
-    math.hide = True
-    math.operation = 'MULTIPLY'
-    math.use_clamp = False
-    # Value_001
-    math.inputs[1].default_value = 2.0
-
-    # node Math.009
-    math_009 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_009.name = "Math.009"
-    math_009.operation = 'DIVIDE'
-    math_009.use_clamp = False
-    # Value_001
-    math_009.inputs[1].default_value = 2.0
-
-    # node Math.010
-    math_010 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_010.name = "Math.010"
-    math_010.hide = True
-    math_010.operation = 'MULTIPLY'
-    math_010.use_clamp = False
-
-    # node Math.011
-    math_011 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_011.name = "Math.011"
-    math_011.hide = True
-    math_011.operation = 'ADD'
-    math_011.use_clamp = False
-    # Value_001
-    math_011.inputs[1].default_value = 1.0
-
-    # node Math.012
-    math_012 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_012.name = "Math.012"
-    math_012.operation = 'MULTIPLY'
-    math_012.use_clamp = False
-
-    # node Math.013
-    math_013 = circle_sim_group.nodes.new("ShaderNodeMath")
-    math_013.name = "Math.013"
-    math_013.hide = True
-    math_013.operation = 'MULTIPLY'
-    math_013.use_clamp = False
-    # Value_001
-    math_013.inputs[1].default_value = 2.0
-
     # node Group Input.003
     group_input_003 = circle_sim_group.nodes.new("NodeGroupInput")
     group_input_003.name = "Group Input.003"
@@ -497,16 +419,6 @@ def circle_sim_group_node_group():
     reroute_013.location = (-240.0, 60.0)
     reroute_009.location = (-680.0, -180.0)
     reroute_014.location = (-240.0, -200.0)
-    math_002.location = (340.0, -120.0)
-    math_004.location = (500.0, -120.0)
-    math_006.location = (500.0, -160.0)
-    math_008.location = (660.0, -120.0)
-    math.location = (660.0, -280.0)
-    math_009.location = (340.0, -480.0)
-    math_010.location = (500.0, -480.0)
-    math_011.location = (500.0, -520.0)
-    math_012.location = (660.0, -480.0)
-    math_013.location = (660.0, -640.0)
     group_input_003.location = (980.0, 520.0)
     reroute_005.location = (942.3284301757812, 60.0)
     instance_on_points_001.location = (1180.0, 520.0)
@@ -535,38 +447,28 @@ def circle_sim_group_node_group():
     set_material.width, set_material.height = 140.0, 100.0
     transform_geometry_001.width, transform_geometry_001.height = 140.0, 100.0
     attribute_statistic_001.width, attribute_statistic_001.height = 140.0, 100.0
-    reroute.width, reroute.height = 100.0, 100.0
-    reroute_001.width, reroute_001.height = 100.0, 100.0
+    reroute.width, reroute.height = 16.0, 100.0
+    reroute_001.width, reroute_001.height = 16.0, 100.0
     combine_xyz.width, combine_xyz.height = 140.0, 100.0
     uv_unwrap.width, uv_unwrap.height = 140.0, 100.0
     boolean.width, boolean.height = 140.0, 100.0
     pack_uv_islands.width, pack_uv_islands.height = 140.0, 100.0
-    reroute_002.width, reroute_002.height = 100.0, 100.0
+    reroute_002.width, reroute_002.height = 16.0, 100.0
     store_named_attribute.width, store_named_attribute.height = 140.0, 100.0
-    reroute_003.width, reroute_003.height = 100.0, 100.0
-    reroute_004.width, reroute_004.height = 100.0, 100.0
-    reroute_007.width, reroute_007.height = 100.0, 100.0
-    reroute_008.width, reroute_008.height = 100.0, 100.0
+    reroute_003.width, reroute_003.height = 16.0, 100.0
+    reroute_004.width, reroute_004.height = 16.0, 100.0
+    reroute_007.width, reroute_007.height = 16.0, 100.0
+    reroute_008.width, reroute_008.height = 16.0, 100.0
     group_input_001.width, group_input_001.height = 140.0, 100.0
     group_input_002.width, group_input_002.height = 140.0, 100.0
-    reroute_010.width, reroute_010.height = 100.0, 100.0
-    reroute_011.width, reroute_011.height = 100.0, 100.0
-    reroute_012.width, reroute_012.height = 100.0, 100.0
-    reroute_013.width, reroute_013.height = 100.0, 100.0
-    reroute_009.width, reroute_009.height = 100.0, 100.0
-    reroute_014.width, reroute_014.height = 100.0, 100.0
-    math_002.width, math_002.height = 140.0, 100.0
-    math_004.width, math_004.height = 140.0, 100.0
-    math_006.width, math_006.height = 140.0, 100.0
-    math_008.width, math_008.height = 140.0, 100.0
-    math.width, math.height = 140.0, 100.0
-    math_009.width, math_009.height = 140.0, 100.0
-    math_010.width, math_010.height = 140.0, 100.0
-    math_011.width, math_011.height = 140.0, 100.0
-    math_012.width, math_012.height = 140.0, 100.0
-    math_013.width, math_013.height = 140.0, 100.0
+    reroute_010.width, reroute_010.height = 16.0, 100.0
+    reroute_011.width, reroute_011.height = 16.0, 100.0
+    reroute_012.width, reroute_012.height = 16.0, 100.0
+    reroute_013.width, reroute_013.height = 16.0, 100.0
+    reroute_009.width, reroute_009.height = 16.0, 100.0
+    reroute_014.width, reroute_014.height = 16.0, 100.0
     group_input_003.width, group_input_003.height = 140.0, 100.0
-    reroute_005.width, reroute_005.height = 100.0, 100.0
+    reroute_005.width, reroute_005.height = 16.0, 100.0
     instance_on_points_001.width, instance_on_points_001.height = 140.0, 100.0
     named_attribute_002.width, named_attribute_002.height = 140.0, 100.0
     math_001.width, math_001.height = 140.0, 100.0
@@ -649,38 +551,6 @@ def circle_sim_group_node_group():
     circle_sim_group.links.new(reroute.outputs[0], reroute_009.inputs[0])
     # reroute_012.Output -> reroute_014.Input
     circle_sim_group.links.new(reroute_012.outputs[0], reroute_014.inputs[0])
-    # math_002.Value -> math_004.Value
-    circle_sim_group.links.new(math_002.outputs[0], math_004.inputs[0])
-    # math_002.Value -> math_006.Value
-    circle_sim_group.links.new(math_002.outputs[0], math_006.inputs[0])
-    # math_006.Value -> math_004.Value
-    circle_sim_group.links.new(math_006.outputs[0], math_004.inputs[1])
-    # math_004.Value -> math_008.Value
-    circle_sim_group.links.new(math_004.outputs[0], math_008.inputs[0])
-    # attribute_statistic.Mean -> math_002.Value
-    circle_sim_group.links.new(attribute_statistic.outputs[0], math_002.inputs[0])
-    # math_008.Value -> transform_geometry.Scale
-    circle_sim_group.links.new(math_008.outputs[0], transform_geometry.inputs[3])
-    # attribute_statistic.Mean -> math.Value
-    circle_sim_group.links.new(attribute_statistic.outputs[0], math.inputs[0])
-    # math.Value -> math_008.Value
-    circle_sim_group.links.new(math.outputs[0], math_008.inputs[1])
-    # math_009.Value -> math_010.Value
-    circle_sim_group.links.new(math_009.outputs[0], math_010.inputs[0])
-    # math_009.Value -> math_011.Value
-    circle_sim_group.links.new(math_009.outputs[0], math_011.inputs[0])
-    # math_011.Value -> math_010.Value
-    circle_sim_group.links.new(math_011.outputs[0], math_010.inputs[1])
-    # math_010.Value -> math_012.Value
-    circle_sim_group.links.new(math_010.outputs[0], math_012.inputs[0])
-    # math_013.Value -> math_012.Value
-    circle_sim_group.links.new(math_013.outputs[0], math_012.inputs[1])
-    # attribute_statistic_001.Mean -> math_009.Value
-    circle_sim_group.links.new(attribute_statistic_001.outputs[0], math_009.inputs[0])
-    # attribute_statistic_001.Mean -> math_013.Value
-    circle_sim_group.links.new(attribute_statistic_001.outputs[0], math_013.inputs[0])
-    # math_012.Value -> transform_geometry_001.Scale
-    circle_sim_group.links.new(math_012.outputs[0], transform_geometry_001.inputs[3])
     # reroute_013.Output -> reroute_005.Input
     circle_sim_group.links.new(reroute_013.outputs[0], reroute_005.inputs[0])
     # reroute_005.Output -> instance_on_points_001.Points
@@ -701,6 +571,10 @@ def circle_sim_group_node_group():
     circle_sim_group.links.new(join_geometry.outputs[0], viewer.inputs[0])
     # instance_on_points_001.Instances -> set_position_001.Geometry
     circle_sim_group.links.new(instance_on_points_001.outputs[0], set_position_001.inputs[0])
+    # attribute_statistic_001.Mean -> transform_geometry_001.Scale
+    circle_sim_group.links.new(attribute_statistic_001.outputs[0], transform_geometry_001.inputs[3])
+    # attribute_statistic.Mean -> transform_geometry.Scale
+    circle_sim_group.links.new(attribute_statistic.outputs[0], transform_geometry.inputs[3])
     # set_position_001.Geometry -> join_geometry.Geometry
     circle_sim_group.links.new(set_position_001.outputs[0], join_geometry.inputs[0])
     return circle_sim_group
@@ -1150,46 +1024,6 @@ def slider_sim_group_node_group():
     # Selection
     attribute_statistic_002.inputs[1].default_value = True
 
-    # node Math.002
-    math_002_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_002_1.name = "Math.002"
-    math_002_1.operation = 'DIVIDE'
-    math_002_1.use_clamp = False
-    # Value_001
-    math_002_1.inputs[1].default_value = 2.0
-
-    # node Math.005
-    math_005 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_005.name = "Math.005"
-    math_005.hide = True
-    math_005.operation = 'MULTIPLY'
-    math_005.use_clamp = False
-
-    # node Math.006
-    math_006_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_006_1.name = "Math.006"
-    math_006_1.hide = True
-    math_006_1.operation = 'ADD'
-    math_006_1.use_clamp = False
-    # Value_001
-    math_006_1.inputs[1].default_value = 1.0
-
-    # node Math
-    math_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_1.name = "Math"
-    math_1.hide = True
-    math_1.operation = 'MULTIPLY'
-    math_1.use_clamp = False
-    # Value_001
-    math_1.inputs[1].default_value = 2.0
-
-    # node Math.007
-    math_007 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_007.name = "Math.007"
-    math_007.hide = True
-    math_007.operation = 'MULTIPLY'
-    math_007.use_clamp = False
-
     # node Reroute.009
     reroute_009_1 = slider_sim_group.nodes.new("NodeReroute")
     reroute_009_1.name = "Reroute.009"
@@ -1370,12 +1204,12 @@ def slider_sim_group_node_group():
     index_001.name = "Index.001"
 
     # node Math.004
-    math_004_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_004_1.name = "Math.004"
-    math_004_1.operation = 'FLOORED_MODULO'
-    math_004_1.use_clamp = False
+    math_004 = slider_sim_group.nodes.new("ShaderNodeMath")
+    math_004.name = "Math.004"
+    math_004.operation = 'FLOORED_MODULO'
+    math_004.use_clamp = False
     # Value_001
-    math_004_1.inputs[1].default_value = 2.0
+    math_004.inputs[1].default_value = 2.0
 
     # node Compare
     compare = slider_sim_group.nodes.new("FunctionNodeCompare")
@@ -1546,12 +1380,12 @@ def slider_sim_group_node_group():
     boolean_math_002.operation = 'AND'
 
     # node Math.008
-    math_008_1 = slider_sim_group.nodes.new("ShaderNodeMath")
-    math_008_1.name = "Math.008"
-    math_008_1.operation = 'FLOORED_MODULO'
-    math_008_1.use_clamp = False
+    math_008 = slider_sim_group.nodes.new("ShaderNodeMath")
+    math_008.name = "Math.008"
+    math_008.operation = 'FLOORED_MODULO'
+    math_008.use_clamp = False
     # Value_001
-    math_008_1.inputs[1].default_value = 2.0
+    math_008.inputs[1].default_value = 2.0
 
     # node Compare.004
     compare_004 = slider_sim_group.nodes.new("FunctionNodeCompare")
@@ -1704,11 +1538,6 @@ def slider_sim_group_node_group():
     resample_curve.parent = frame_001
     named_attribute_006.parent = frame_001
     attribute_statistic_002.parent = frame_001
-    math_002_1.parent = frame_001
-    math_005.parent = frame_001
-    math_006_1.parent = frame_001
-    math_1.parent = frame_001
-    math_007.parent = frame_001
     instance_on_points_001_1.parent = frame_006
     named_attribute_004.parent = frame_006
     math_001_1.parent = frame_006
@@ -1727,7 +1556,7 @@ def slider_sim_group_node_group():
     store_named_attribute_1.parent = frame_003
     store_named_attribute_001.parent = frame_003
     index_001.parent = frame_003
-    math_004_1.parent = frame_003
+    math_004.parent = frame_003
     compare.parent = frame_003
     compare_001.parent = frame_003
     set_position_001_1.parent = frame_003
@@ -1748,7 +1577,7 @@ def slider_sim_group_node_group():
     compare_003.parent = frame_004
     math_003.parent = frame_004
     boolean_math_002.parent = frame_004
-    math_008_1.parent = frame_004
+    math_008.parent = frame_004
     compare_004.parent = frame_004
     instances_to_points.parent = frame_004
     named_attribute_011.parent = frame_004
@@ -1814,11 +1643,6 @@ def slider_sim_group_node_group():
     reroute_008_1.location = (4720.0, -340.0)
     named_attribute_006.location = (1770.0, 300.0)
     attribute_statistic_002.location = (1770.0, 460.0)
-    math_002_1.location = (1930.0, 460.0)
-    math_005.location = (2090.0, 420.0)
-    math_006_1.location = (2090.0, 380.0)
-    math_1.location = (1930.0, 500.0)
-    math_007.location = (2090.0, 460.0)
     reroute_009_1.location = (2040.0, 340.0)
     instance_on_points_001_1.location = (3540.0, -440.0)
     named_attribute_004.location = (3220.0, -620.0)
@@ -1843,7 +1667,7 @@ def slider_sim_group_node_group():
     store_named_attribute_1.location = (2040.0, -109.0)
     store_named_attribute_001.location = (2200.0, -109.0)
     index_001.location = (2040.0, -649.0)
-    math_004_1.location = (2040.0, -489.0)
+    math_004.location = (2040.0, -489.0)
     compare.location = (2200.0, -309.0)
     compare_001.location = (2040.0, -309.0)
     set_position_001_1.location = (2360.0, -109.0)
@@ -1868,7 +1692,7 @@ def slider_sim_group_node_group():
     compare_003.location = (2140.0, -2020.0)
     math_003.location = (1980.0, -2020.0)
     boolean_math_002.location = (2300.0, -1860.0)
-    math_008_1.location = (2140.0, -1580.0)
+    math_008.location = (2140.0, -1580.0)
     compare_004.location = (2300.0, -1580.0)
     instances_to_points.location = (2000.0, -1260.0)
     named_attribute_011.location = (2140.0, -1440.0)
@@ -1935,11 +1759,6 @@ def slider_sim_group_node_group():
     reroute_008_1.width, reroute_008_1.height = 16.0, 100.0
     named_attribute_006.width, named_attribute_006.height = 140.0, 100.0
     attribute_statistic_002.width, attribute_statistic_002.height = 140.0, 100.0
-    math_002_1.width, math_002_1.height = 140.0, 100.0
-    math_005.width, math_005.height = 140.0, 100.0
-    math_006_1.width, math_006_1.height = 140.0, 100.0
-    math_1.width, math_1.height = 140.0, 100.0
-    math_007.width, math_007.height = 140.0, 100.0
     reroute_009_1.width, reroute_009_1.height = 16.0, 100.0
     instance_on_points_001_1.width, instance_on_points_001_1.height = 140.0, 100.0
     named_attribute_004.width, named_attribute_004.height = 140.0, 100.0
@@ -1964,7 +1783,7 @@ def slider_sim_group_node_group():
     store_named_attribute_1.width, store_named_attribute_1.height = 140.0, 100.0
     store_named_attribute_001.width, store_named_attribute_001.height = 140.0, 100.0
     index_001.width, index_001.height = 140.0, 100.0
-    math_004_1.width, math_004_1.height = 140.0, 100.0
+    math_004.width, math_004.height = 140.0, 100.0
     compare.width, compare.height = 140.0, 100.0
     compare_001.width, compare_001.height = 140.0, 100.0
     set_position_001_1.width, set_position_001_1.height = 140.0, 100.0
@@ -1989,7 +1808,7 @@ def slider_sim_group_node_group():
     compare_003.width, compare_003.height = 140.0, 100.0
     math_003.width, math_003.height = 140.0, 100.0
     boolean_math_002.width, boolean_math_002.height = 140.0, 100.0
-    math_008_1.width, math_008_1.height = 140.0, 100.0
+    math_008.width, math_008.height = 140.0, 100.0
     compare_004.width, compare_004.height = 140.0, 100.0
     instances_to_points.width, instances_to_points.height = 140.0, 100.0
     named_attribute_011.width, named_attribute_011.height = 140.0, 100.0
@@ -2084,24 +1903,8 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(switch.outputs[0], reroute_007_1.inputs[0])
     # reroute_007_1.Output -> reroute_008_1.Input
     slider_sim_group.links.new(reroute_007_1.outputs[0], reroute_008_1.inputs[0])
-    # math_002_1.Value -> math_005.Value
-    slider_sim_group.links.new(math_002_1.outputs[0], math_005.inputs[0])
-    # math_002_1.Value -> math_006_1.Value
-    slider_sim_group.links.new(math_002_1.outputs[0], math_006_1.inputs[0])
-    # math_006_1.Value -> math_005.Value
-    slider_sim_group.links.new(math_006_1.outputs[0], math_005.inputs[1])
-    # attribute_statistic_002.Mean -> math_002_1.Value
-    slider_sim_group.links.new(attribute_statistic_002.outputs[0], math_002_1.inputs[0])
-    # attribute_statistic_002.Mean -> math_1.Value
-    slider_sim_group.links.new(attribute_statistic_002.outputs[0], math_1.inputs[0])
     # named_attribute_006.Attribute -> attribute_statistic_002.Attribute
     slider_sim_group.links.new(named_attribute_006.outputs[0], attribute_statistic_002.inputs[2])
-    # math_005.Value -> math_007.Value
-    slider_sim_group.links.new(math_005.outputs[0], math_007.inputs[0])
-    # math_1.Value -> math_007.Value
-    slider_sim_group.links.new(math_1.outputs[0], math_007.inputs[1])
-    # math_007.Value -> set_curve_radius.Radius
-    slider_sim_group.links.new(math_007.outputs[0], set_curve_radius.inputs[2])
     # reroute_001_1.Output -> reroute_009_1.Input
     slider_sim_group.links.new(reroute_001_1.outputs[0], reroute_009_1.inputs[0])
     # reroute_009_1.Output -> attribute_statistic_002.Geometry
@@ -2154,12 +1957,12 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(instance_on_points_002.outputs[0], store_named_attribute_1.inputs[0])
     # store_named_attribute_1.Geometry -> store_named_attribute_001.Geometry
     slider_sim_group.links.new(store_named_attribute_1.outputs[0], store_named_attribute_001.inputs[0])
-    # index_001.Index -> math_004_1.Value
-    slider_sim_group.links.new(index_001.outputs[0], math_004_1.inputs[0])
-    # math_004_1.Value -> compare.A
-    slider_sim_group.links.new(math_004_1.outputs[0], compare.inputs[0])
-    # math_004_1.Value -> compare_001.A
-    slider_sim_group.links.new(math_004_1.outputs[0], compare_001.inputs[0])
+    # index_001.Index -> math_004.Value
+    slider_sim_group.links.new(index_001.outputs[0], math_004.inputs[0])
+    # math_004.Value -> compare.A
+    slider_sim_group.links.new(math_004.outputs[0], compare.inputs[0])
+    # math_004.Value -> compare_001.A
+    slider_sim_group.links.new(math_004.outputs[0], compare_001.inputs[0])
     # compare_001.Result -> store_named_attribute_1.Selection
     slider_sim_group.links.new(compare_001.outputs[0], store_named_attribute_1.inputs[1])
     # compare.Result -> store_named_attribute_001.Selection
@@ -2206,10 +2009,10 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(compare_003.outputs[0], boolean_math_002.inputs[1])
     # math_003.Value -> compare_003.B
     slider_sim_group.links.new(math_003.outputs[0], compare_003.inputs[3])
-    # named_attribute_010.Attribute -> math_008_1.Value
-    slider_sim_group.links.new(named_attribute_010.outputs[0], math_008_1.inputs[0])
-    # math_008_1.Value -> compare_004.A
-    slider_sim_group.links.new(math_008_1.outputs[0], compare_004.inputs[0])
+    # named_attribute_010.Attribute -> math_008.Value
+    slider_sim_group.links.new(named_attribute_010.outputs[0], math_008.inputs[0])
+    # math_008.Value -> compare_004.A
+    slider_sim_group.links.new(math_008.outputs[0], compare_004.inputs[0])
     # store_named_attribute_001.Geometry -> instances_to_points.Instances
     slider_sim_group.links.new(store_named_attribute_001.outputs[0], instances_to_points.inputs[0])
     # instances_to_points.Points -> instance_on_points_003.Points
@@ -2252,6 +2055,8 @@ def slider_sim_group_node_group():
     slider_sim_group.links.new(instance_on_points_001_1.outputs[0], delete_geometry_004.inputs[0])
     # named_attribute_013.Attribute -> delete_geometry_004.Selection
     slider_sim_group.links.new(named_attribute_013.outputs[0], delete_geometry_004.inputs[1])
+    # attribute_statistic_002.Mean -> set_curve_radius.Radius
+    slider_sim_group.links.new(attribute_statistic_002.outputs[0], set_curve_radius.inputs[2])
     # reroute_010_1.Output -> join_geometry_002.Geometry
     slider_sim_group.links.new(reroute_010_1.outputs[0], join_geometry_002.inputs[0])
     # join_geometry_002.Geometry -> join_geometry_003.Geometry
@@ -2788,11 +2593,11 @@ def approach_circle_group_node_group():
     named_attribute_002_2.inputs[0].default_value = "cs"
 
     # node Math
-    math_2 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_2.name = "Math"
-    math_2.hide = True
-    math_2.operation = 'MULTIPLY'
-    math_2.use_clamp = False
+    math = approach_circle_group.nodes.new("ShaderNodeMath")
+    math.name = "Math"
+    math.hide = True
+    math.operation = 'MULTIPLY'
+    math.use_clamp = False
 
     # node Math.003
     math_003_1 = approach_circle_group.nodes.new("ShaderNodeMath")
@@ -2893,26 +2698,26 @@ def approach_circle_group_node_group():
     attribute_statistic_001_1.inputs[1].default_value = True
 
     # node Math.004
-    math_004_2 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_004_2.name = "Math.004"
-    math_004_2.operation = 'MULTIPLY'
-    math_004_2.use_clamp = False
+    math_004_1 = approach_circle_group.nodes.new("ShaderNodeMath")
+    math_004_1.name = "Math.004"
+    math_004_1.operation = 'MULTIPLY'
+    math_004_1.use_clamp = False
 
     # node Math.006
-    math_006_2 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_006_2.name = "Math.006"
-    math_006_2.hide = True
-    math_006_2.operation = 'ADD'
-    math_006_2.use_clamp = False
+    math_006 = approach_circle_group.nodes.new("ShaderNodeMath")
+    math_006.name = "Math.006"
+    math_006.hide = True
+    math_006.operation = 'ADD'
+    math_006.use_clamp = False
     # Value_001
-    math_006_2.inputs[1].default_value = 1.0
+    math_006.inputs[1].default_value = 1.0
 
     # node Math.008
-    math_008_2 = approach_circle_group.nodes.new("ShaderNodeMath")
-    math_008_2.name = "Math.008"
-    math_008_2.hide = True
-    math_008_2.operation = 'MULTIPLY'
-    math_008_2.use_clamp = False
+    math_008_1 = approach_circle_group.nodes.new("ShaderNodeMath")
+    math_008_1.name = "Math.008"
+    math_008_1.hide = True
+    math_008_1.operation = 'MULTIPLY'
+    math_008_1.use_clamp = False
 
     # node Math.001
     math_001_2 = approach_circle_group.nodes.new("ShaderNodeMath")
@@ -2961,7 +2766,7 @@ def approach_circle_group_node_group():
     named_attribute_001_3.location = (-440.0, 20.1756591796875)
     boolean_math_3.location = (-440.0, 60.1756591796875)
     named_attribute_002_2.location = (-200.0, -60.0)
-    math_2.location = (280.0, 100.0)
+    math.location = (280.0, 100.0)
     math_003_1.location = (280.0, 60.0)
     mesh_circle_4.location = (460.0, -140.0)
     extrude_mesh.location = (460.0, -280.0)
@@ -2972,9 +2777,9 @@ def approach_circle_group_node_group():
     combine_xyz_3.location = (820.0, 60.0)
     set_material_4.location = (980.0, 220.0)
     attribute_statistic_001_1.location = (-200.0, 100.0)
-    math_004_2.location = (-40.0, 100.0)
-    math_006_2.location = (-40.0, -60.0)
-    math_008_2.location = (120.0, 100.0)
+    math_004_1.location = (-40.0, 100.0)
+    math_006.location = (-40.0, -60.0)
+    math_008_1.location = (120.0, 100.0)
     math_001_2.location = (120.0, 60.0)
     reroute_2.location = (-260.0, 180.1756591796875)
     reroute_001_2.location = (-260.0, 0.1756591796875)
@@ -2993,7 +2798,7 @@ def approach_circle_group_node_group():
     named_attribute_001_3.width, named_attribute_001_3.height = 140.0, 100.0
     boolean_math_3.width, boolean_math_3.height = 140.0, 100.0
     named_attribute_002_2.width, named_attribute_002_2.height = 140.0, 100.0
-    math_2.width, math_2.height = 140.0, 100.0
+    math.width, math.height = 140.0, 100.0
     math_003_1.width, math_003_1.height = 140.0, 100.0
     mesh_circle_4.width, mesh_circle_4.height = 140.0, 100.0
     extrude_mesh.width, extrude_mesh.height = 140.0, 100.0
@@ -3004,9 +2809,9 @@ def approach_circle_group_node_group():
     combine_xyz_3.width, combine_xyz_3.height = 140.0, 100.0
     set_material_4.width, set_material_4.height = 140.0, 100.0
     attribute_statistic_001_1.width, attribute_statistic_001_1.height = 140.0, 100.0
-    math_004_2.width, math_004_2.height = 140.0, 100.0
-    math_006_2.width, math_006_2.height = 140.0, 100.0
-    math_008_2.width, math_008_2.height = 140.0, 100.0
+    math_004_1.width, math_004_1.height = 140.0, 100.0
+    math_006.width, math_006.height = 140.0, 100.0
+    math_008_1.width, math_008_1.height = 140.0, 100.0
     math_001_2.width, math_001_2.height = 140.0, 100.0
     reroute_2.width, reroute_2.height = 100.0, 100.0
     reroute_001_2.width, reroute_001_2.height = 100.0, 100.0
@@ -3025,10 +2830,10 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(reroute_2.outputs[0], instance_on_points_4.inputs[0])
     # realize_instances_4.Geometry -> delete_geometry_3.Geometry
     approach_circle_group.links.new(realize_instances_4.outputs[0], delete_geometry_3.inputs[0])
-    # math_003_1.Value -> math_2.Value
-    approach_circle_group.links.new(math_003_1.outputs[0], math_2.inputs[1])
-    # math_2.Value -> instance_on_points_4.Scale
-    approach_circle_group.links.new(math_2.outputs[0], instance_on_points_4.inputs[6])
+    # math_003_1.Value -> math.Value
+    approach_circle_group.links.new(math_003_1.outputs[0], math.inputs[1])
+    # math.Value -> instance_on_points_4.Scale
+    approach_circle_group.links.new(math.outputs[0], instance_on_points_4.inputs[6])
     # named_attribute_4.Attribute -> math_003_1.Value
     approach_circle_group.links.new(named_attribute_4.outputs[0], math_003_1.inputs[0])
     # mesh_circle_4.Mesh -> extrude_mesh.Mesh
@@ -3051,24 +2856,24 @@ def approach_circle_group_node_group():
     approach_circle_group.links.new(combine_xyz_3.outputs[0], set_position_4.inputs[3])
     # set_position_4.Geometry -> set_material_4.Geometry
     approach_circle_group.links.new(set_position_4.outputs[0], set_material_4.inputs[0])
-    # attribute_statistic_001_1.Mean -> math_004_2.Value
-    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_004_2.inputs[0])
-    # attribute_statistic_001_1.Mean -> math_006_2.Value
-    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_006_2.inputs[0])
-    # math_006_2.Value -> math_004_2.Value
-    approach_circle_group.links.new(math_006_2.outputs[0], math_004_2.inputs[1])
-    # math_004_2.Value -> math_008_2.Value
-    approach_circle_group.links.new(math_004_2.outputs[0], math_008_2.inputs[0])
+    # attribute_statistic_001_1.Mean -> math_004_1.Value
+    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_004_1.inputs[0])
+    # attribute_statistic_001_1.Mean -> math_006.Value
+    approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_006.inputs[0])
+    # math_006.Value -> math_004_1.Value
+    approach_circle_group.links.new(math_006.outputs[0], math_004_1.inputs[1])
+    # math_004_1.Value -> math_008_1.Value
+    approach_circle_group.links.new(math_004_1.outputs[0], math_008_1.inputs[0])
     # attribute_statistic_001_1.Mean -> math_001_2.Value
     approach_circle_group.links.new(attribute_statistic_001_1.outputs[0], math_001_2.inputs[0])
-    # math_001_2.Value -> math_008_2.Value
-    approach_circle_group.links.new(math_001_2.outputs[0], math_008_2.inputs[1])
+    # math_001_2.Value -> math_008_1.Value
+    approach_circle_group.links.new(math_001_2.outputs[0], math_008_1.inputs[1])
     # named_attribute_002_2.Attribute -> attribute_statistic_001_1.Attribute
     approach_circle_group.links.new(named_attribute_002_2.outputs[0], attribute_statistic_001_1.inputs[2])
     # reroute_001_2.Output -> attribute_statistic_001_1.Geometry
     approach_circle_group.links.new(reroute_001_2.outputs[0], attribute_statistic_001_1.inputs[0])
-    # math_008_2.Value -> math_2.Value
-    approach_circle_group.links.new(math_008_2.outputs[0], math_2.inputs[0])
+    # math_008_1.Value -> math.Value
+    approach_circle_group.links.new(math_008_1.outputs[0], math.inputs[0])
     # delete_geometry_3.Geometry -> reroute_2.Input
     approach_circle_group.links.new(delete_geometry_3.outputs[0], reroute_2.inputs[0])
     # reroute_2.Output -> reroute_001_2.Input
@@ -3132,12 +2937,12 @@ def combo_node_group():
     repeat_output.repeat_items.new('INT', "Integer")
 
     # node Math
-    math_3 = combo.nodes.new("ShaderNodeMath")
-    math_3.name = "Math"
-    math_3.operation = 'ADD'
-    math_3.use_clamp = False
+    math_1 = combo.nodes.new("ShaderNodeMath")
+    math_1.name = "Math"
+    math_1.operation = 'ADD'
+    math_1.use_clamp = False
     # Value_001
-    math_3.inputs[1].default_value = 1.0
+    math_1.inputs[1].default_value = 1.0
 
     # node Value to String
     value_to_string = combo.nodes.new("FunctionNodeValueToString")
@@ -3210,7 +3015,7 @@ def combo_node_group():
     group_input_5.location = (-580.0, -260.0)
     repeat_input.location = (-900.0, -40.0)
     repeat_output.location = (100.0, -40.0)
-    math_3.location = (-740.0, -40.0)
+    math_1.location = (-740.0, -40.0)
     value_to_string.location = (-580.0, -100.0)
     sort_elements.location = (420.0, -40.0)
     named_attribute_5.location = (260.0, -180.0)
@@ -3224,7 +3029,7 @@ def combo_node_group():
     group_input_5.width, group_input_5.height = 140.0, 100.0
     repeat_input.width, repeat_input.height = 140.0, 100.0
     repeat_output.width, repeat_output.height = 140.0, 100.0
-    math_3.width, math_3.height = 140.0, 100.0
+    math_1.width, math_1.height = 140.0, 100.0
     value_to_string.width, value_to_string.height = 140.0, 100.0
     sort_elements.width, sort_elements.height = 140.0, 100.0
     named_attribute_5.width, named_attribute_5.height = 140.0, 100.0
@@ -3234,14 +3039,14 @@ def combo_node_group():
     join_geometry_2.width, join_geometry_2.height = 140.0, 100.0
 
     # initialize combo links
-    # math_3.Value -> value_to_string.Value
-    combo.links.new(math_3.outputs[0], value_to_string.inputs[0])
-    # math_3.Value -> repeat_output.Integer
-    combo.links.new(math_3.outputs[0], repeat_output.inputs[1])
+    # math_1.Value -> value_to_string.Value
+    combo.links.new(math_1.outputs[0], value_to_string.inputs[0])
+    # math_1.Value -> repeat_output.Integer
+    combo.links.new(math_1.outputs[0], repeat_output.inputs[1])
     # repeat_output.Geometry -> fill_curve.Curve
     combo.links.new(repeat_output.outputs[0], fill_curve.inputs[0])
-    # repeat_input.Integer -> math_3.Value
-    combo.links.new(repeat_input.outputs[1], math_3.inputs[0])
+    # repeat_input.Integer -> math_1.Value
+    combo.links.new(repeat_input.outputs[1], math_1.inputs[0])
     # fill_curve.Mesh -> sort_elements.Geometry
     combo.links.new(fill_curve.outputs[0], sort_elements.inputs[0])
     # sort_elements.Geometry -> group_output_5.Geometry
@@ -3258,8 +3063,8 @@ def combo_node_group():
     combo.links.new(group_input_5.outputs[0], string_to_curves_001.inputs[1])
     # named_attribute_5.Attribute -> sort_elements.Group ID
     combo.links.new(named_attribute_5.outputs[0], sort_elements.inputs[2])
-    # math_3.Value -> store_named_attribute_001_1.Value
-    combo.links.new(math_3.outputs[0], store_named_attribute_001_1.inputs[3])
+    # math_1.Value -> store_named_attribute_001_1.Value
+    combo.links.new(math_1.outputs[0], store_named_attribute_001_1.inputs[3])
     # store_named_attribute_001_1.Geometry -> join_geometry_2.Geometry
     combo.links.new(store_named_attribute_001_1.outputs[0], join_geometry_2.inputs[0])
     return combo

@@ -165,8 +165,6 @@ class SliderCreator(BaseHitObjectCreator):
             fixed_values['combo_color_idx'] = self.hitobject.combo_color_idx
 
         if self.import_type == 'FULL':
-            # FULL: Keine Geometry Nodes Keyframes
-            # Nur Visibility Keyframes auf dem Objekt
             slider.hide_viewport = True
             slider.hide_render = True
             slider.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -182,7 +180,6 @@ class SliderCreator(BaseHitObjectCreator):
             slider.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
         else:
-            # BASE: Geometry Nodes Keyframes
             set_modifier_inputs_with_keyframes(slider, attributes, frame_values, fixed_values)
 
         # Slider Balls

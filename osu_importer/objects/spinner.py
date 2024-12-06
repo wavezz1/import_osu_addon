@@ -11,7 +11,6 @@ from osu_importer.parsers.hitobjects import HitObject
 
 class SpinnerCreator(BaseHitObjectCreator):
     def __init__(self, hitobject: HitObject, global_index: int, collection, config, data_manager, import_type):
-        # Hier "settings" durch "config" ersetzen
         super().__init__(hitobject, global_index, collection, config, data_manager, import_type)
 
     def create_object(self):
@@ -74,19 +73,16 @@ class SpinnerCreator(BaseHitObjectCreator):
         set_modifier_inputs_with_keyframes(spinner, attributes, frame_values, fixed_values)
 
         if self.config.import_type == 'FULL':
-            # Vor Start ausgeblendet
             spinner.hide_viewport = True
             spinner.hide_render = True
             spinner.keyframe_insert(data_path="hide_viewport", frame=int(start_frame - 1))
             spinner.keyframe_insert(data_path="hide_render", frame=int(start_frame - 1))
 
-            # Am Start angezeigt
             spinner.hide_viewport = False
             spinner.hide_render = False
             spinner.keyframe_insert(data_path="hide_viewport", frame=int(start_frame))
             spinner.keyframe_insert(data_path="hide_render", frame=int(start_frame))
 
-            # Am Ende abhängig davon, ob completed oder nicht
             if self.hitobject.was_completed:
                 spinner.hide_viewport = False
                 spinner.hide_render = False

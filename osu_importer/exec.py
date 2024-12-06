@@ -50,7 +50,6 @@ def main_execution(context):
 
     data_manager.print_all_info()
 
-    # Erstelle nun das config-Objekt
     config = ImportConfig(props, data_manager)
 
     if config.import_audio:

@@ -27,7 +27,6 @@ class SliderHeadTailCreator:
         with timeit(f"Create SliderHeadTail {self.global_index:03d}_head_tail_{hitobject.time}"):
             data_manager = self.data_manager
 
-            approach_rate = data_manager.adjusted_ar
             osu_radius = data_manager.osu_radius
             preempt_frames = data_manager.preempt_frames
 
@@ -50,7 +49,6 @@ class SliderHeadTailCreator:
 
                 tag_imported(head_tail_obj)
 
-                # Keyframes for visibility
                 head_tail_obj.hide_viewport = True
                 head_tail_obj.hide_render = True
                 head_tail_obj.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))

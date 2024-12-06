@@ -2,7 +2,6 @@
 
 import bpy
 import math
-from mathutils import Vector
 from osu_importer.objects.base_creator import BaseHitObjectCreator
 from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
 from osu_importer.utils.constants import SCALE_FACTOR
@@ -10,20 +9,13 @@ from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier
 
 class CircleCreator(BaseHitObjectCreator):
     def create_object(self):
-        approach_rate = self.config.adjusted_ar
-        preempt_frames = self.config.data_manager.preempt_frames
         osu_radius = self.config.osu_radius
-
-        start_frame = int(self.hitobject.start_frame)
-        end_frame = int(start_frame + 1)
-        early_start_frame = int(start_frame - preempt_frames)
 
         x = self.hitobject.x
         y = self.hitobject.y
         corrected_x, corrected_y, corrected_z = map_osu_to_blender(x, y)
 
         if self.import_type == 'FULL':
-            # Full Import: Direkt echtes Mesh, kein Geometry Nodes
             bpy.ops.mesh.primitive_circle_add(
                 fill_type='NGON',
                 radius=osu_radius * SCALE_FACTOR * 2,
@@ -32,7 +24,6 @@ class CircleCreator(BaseHitObjectCreator):
             )
             circle = bpy.context.object
         else:
-            # Base Import: Leeres Mesh mit Geometry Nodes
             mesh = bpy.data.meshes.new(f"{self.global_index:03d}_circle_{self.hitobject.time}_mesh")
             mesh.from_pydata([(0, 0, 0)], [], [])
             mesh.update()
@@ -80,8 +71,6 @@ class CircleCreator(BaseHitObjectCreator):
             fixed_values['combo_color_idx'] = self.hitobject.combo_color_idx
 
         if self.import_type == 'FULL':
-            # Im FULL-Modus kein Geometry Nodes Keyframing:
-            # Nur Visibility Keyframes auf dem Objekt selbst
             circle.hide_viewport = True
             circle.hide_render = True
             circle.keyframe_insert(data_path="hide_viewport", frame=int(early_start_frame - 1))
@@ -97,5 +86,4 @@ class CircleCreator(BaseHitObjectCreator):
             circle.keyframe_insert(data_path="hide_viewport", frame=int(end_frame))
             circle.keyframe_insert(data_path="hide_render", frame=int(end_frame))
         else:
-            # Im BASE-Modus: Geometry Nodes Keyframes setzen
             set_modifier_inputs_with_keyframes(circle, attributes, frame_values, fixed_values)

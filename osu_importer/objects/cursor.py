@@ -20,7 +20,6 @@ class CursorCreator:
         try:
             cursor_size = self.settings.cursor_size
             if self.import_type == 'FULL':
-                # Bei FULL wird kein Geometry Nodes Modifier angelegt.
                 cursor_shape = self.settings.cursor_shape
                 if cursor_shape == 'SPHERE':
                     bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
@@ -34,7 +33,6 @@ class CursorCreator:
                     bpy.ops.mesh.primitive_uv_sphere_add(radius=cursor_size, location=(0, 0, 0))
                     cursor = bpy.context.object
             else:
-                # BASE import: Hier wird der Geometry Nodes Modifier angelegt.
                 mesh = bpy.data.meshes.new("Cursor")
                 mesh.vertices.add(1)
                 mesh.vertices[0].co = (0, 0, 0)
@@ -103,7 +101,6 @@ class CursorCreator:
                 adjusted_time_ms = total_time / speed_multiplier
                 frame = (adjusted_time_ms / ms_per_frame) + audio_lead_in_frames
 
-                # Nur im BASE-Modus gibt es GN-Modifier und damit set_modifier_inputs_with_keyframes.
                 if self.import_type == 'BASE':
                     set_cursor_keyframes(
                         self.cursor,
@@ -112,7 +109,6 @@ class CursorCreator:
                         key_presses[i]
                     )
                 else:
-                    # FULL-Modus: Nur Position keyframen, kein GN-Modifier
                     self.cursor.location = location
                     self.cursor.keyframe_insert(data_path='location', frame=frame)
 
@@ -122,7 +118,6 @@ class CursorCreator:
 
 
 def set_cursor_keyframes(cursor, frame, location, key_presses):
-    # Diese Funktion wird nur im BASE-Modus aufgerufen, wenn wir sicher sind, dass ein GN-Modifier vorhanden ist.
     cursor.location = location
     cursor.keyframe_insert(data_path='location', frame=frame)
 

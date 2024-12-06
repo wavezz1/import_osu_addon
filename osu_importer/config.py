@@ -2,7 +2,6 @@
 
 class ImportConfig:
     def __init__(self, props, data_manager):
-        # Aus props (Benutzereinstellungen)
         self.import_type = props.import_type
         self.include_osu_gameplay = props.include_osu_gameplay
         self.import_approach_circles = props.import_approach_circles
@@ -20,7 +19,6 @@ class ImportConfig:
         self.approach_circle_bevel_depth = props.approach_circle_bevel_depth
         self.approach_circle_bevel_resolution = props.approach_circle_bevel_resolution
 
-        # Aus data_manager (berechnete Werte und Beatmap-Infos)
         self.audio_lead_in = data_manager.audio_lead_in
         self.audio_lead_in_frames = data_manager.audio_lead_in_frames
         self.adjusted_ar = data_manager.adjusted_ar
@@ -33,10 +31,7 @@ class ImportConfig:
         self.ms_per_frame = data_manager.ms_per_frame
         self.speed_multiplier = data_manager.speed_multiplier
 
-        # Beatmap- und Replay-Informationen (falls benötigt)
         self.beatmap_info = data_manager.beatmap_info
         self.replay_info = data_manager.replay_info
 
-        # Da data_manager selbst auch häufig für den Zugriff auf die Hitobjects genutzt wird,
-        # können wir ihn optional direkt referenzieren, falls notwendig:
         self.data_manager = data_manager

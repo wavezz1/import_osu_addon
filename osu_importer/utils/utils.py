@@ -140,7 +140,6 @@ def get_keyframe_values(hitobject, object_type, import_type, start_frame, end_fr
             (int(slider_end_frame), True)
         ]
         if extra_params:
-            # Extrahiere repeat_counter_keyframes, falls vorhanden
             if "repeat_counter_keyframes" in extra_params:
                 frame_values["repeat_counter"] = extra_params["repeat_counter_keyframes"]
                 del extra_params["repeat_counter_keyframes"]  # Entferne es aus extra_params

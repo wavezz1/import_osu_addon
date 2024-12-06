@@ -191,7 +191,7 @@ class OSUImporterProperties(PropertyGroup):
         name="Total Score",
         default=0
     )
-    player_name: StringProperty(  # Neue Eigenschaft für den Spielernamen
+    player_name: StringProperty(
         name="Player Name",
         default="Unknown"
     )
@@ -220,7 +220,7 @@ class OSUImporterProperties(PropertyGroup):
         update = update_override_mods
     )
 
-    # Modifiers aus constants.py
+    # Modifiers constants.py
     override_no_fail: BoolProperty(name="No Fail", default=False)
     override_easy: BoolProperty(name="Easy", default=False)
     override_hidden: BoolProperty(name="Hidden", default=False)
@@ -269,7 +269,7 @@ class OSU_PT_ImporterPanel(Panel):
         box = layout.box()
         if props.dev_tools:
             box.label(text="Dev Tools Activated", icon='MODIFIER')
-            #Quick Load (Adjust update_dev_tools in utils.py)
+            # Quick Load (Adjust update_quick_load in utils.py)
             box.prop(props, "osu_file")
             box.prop(props, "osr_file")
         else:
@@ -306,7 +306,6 @@ class OSU_PT_ReplayInfoPanel(Panel):
     @classmethod
     def poll(cls, context):
         props = context.scene.osu_importer_props
-        # Anzeigen nur, wenn ein Replay importiert wurde
         return props.osr_file and props.player_name != "Unknown"
 
     def draw(self, context):
@@ -335,7 +334,6 @@ class OSU_PT_BeatmapInfoPanel(Panel):
     @classmethod
     def poll(cls, context):
         props = context.scene.osu_importer_props
-        # Anzeigen nur, wenn eine Beatmap importiert wurde
         return props.osu_file and props.title != ""
 
     def draw(self, context):

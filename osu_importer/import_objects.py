@@ -148,6 +148,10 @@ def import_hitobjects(data_manager, config, operator=None):
             print(f"Circle combo {hitobject.combo_number} and color {hitobject.combo_color}")
 
     # Sliders
+    # Hier übergeben wir nun slider_balls_collection und sliders_collection an den SliderCreator
+    slider_balls_collection = collections["Slider Balls"] if config.import_slider_balls else None
+    sliders_collection = collections["Sliders"] if config.import_sliders else None
+
     if config.import_sliders:
         sliders = data_manager.hitobjects_processor.sliders
         for hitobject in sliders:
@@ -157,7 +161,9 @@ def import_hitobjects(data_manager, config, operator=None):
                 collection=collections["Sliders"],
                 config=config,
                 data_manager=data_manager,
-                import_type=config.import_type
+                import_type=config.import_type,
+                slider_balls_collection=slider_balls_collection,
+                sliders_collection=sliders_collection
             )
             slider_creator.create()
             global_index += 1

@@ -9,25 +9,15 @@ from osu_importer.utils.utils import map_osu_to_blender, get_keyframe_values
 from osu_importer.geo_nodes.geometry_nodes import create_geometry_nodes_modifier, set_modifier_inputs_with_keyframes
 
 class SliderCreator(BaseHitObjectCreator):
-    def __init__(self, hitobject, global_index, collection, config, data_manager, import_type):
+    def __init__(self, hitobject, global_index, collection, config, data_manager, import_type,
+                 slider_balls_collection=None, sliders_collection=None):
         super().__init__(hitobject, global_index, collection, config, data_manager, import_type)
         self.slider_resolution = self.config.slider_resolution
         self.import_slider_balls = self.config.import_slider_balls
         self.import_slider_ticks = self.config.import_slider_ticks
-        self.slider_balls_collection = self.config.data_manager  # später überschreiben wir dieses mit correcten Wert
-        # Aber eigentlich war slider_balls_collection aus settings:
-        # Da wir sie in import_objects mit config befüllt haben, können wir in import_hitobjects nach erstellen:
-        # Actually: In import_hitobjects wird slider_balls_collection im config nicht gesetzt.
-        # Lösung: config hat selbst keine Collections. Die collections stehen nur in import_hitobjects.
-        # Wir übergeben collections nicht ins config. Wir müssen slider_balls_collection vom Konstruktor annehmen.
-        # Passen wir import_hitobjects so an, dass wir slider_balls_collection mitgeben:
-
-        # Da wir die Collections in import_hitobjects an den Creator geben, machen wir:
-        # slider_balls_collection = self.settings.get('slider_balls_collection')
-        # ersetzen wir durch:
-        # Wir benötigen slider_balls_collection als zusätzlichen Parameter im Konstruktor -> siehe import_hitobjects-Aufruf.
-        # Gleiche Situation wie bei Heads/Tails.
-        pass
+        # Hier nutzen wir nun die übergebenen Parameter statt auf self.config.data_manager zuzugreifen:
+        self.slider_balls_collection = slider_balls_collection
+        self.sliders_collection = sliders_collection
 
     def create_object(self):
         osu_radius = self.config.osu_radius
@@ -194,42 +184,33 @@ class SliderCreator(BaseHitObjectCreator):
             slider.keyframe_insert(data_path="hide_render", frame=int(end_frame))
 
         # Slider Balls
-        if self.import_slider_balls and self.config.data_manager:
-            # Hier brauchen wir slider_balls_collection:
-            # Wir haben in import_hitobjects die collections, dort wurde slider_balls_collection in settings gepackt.
-            # Nun können wir slider_balls_collection auch als zusätzlichen Parameter übergeben, ähnlich wie config.
-            # Angenommen wir haben slider_balls_collection als Teil von config?
-            # Dann config hat die Collections nicht. Wir passen import_hitobjects so an, dass wir SliderCreator
-            # einen zusätzlichen Parameter slider_balls_collection übergeben:
-            if 'slider_balls_collection' in self.config.__dict__ and self.config.slider_balls_collection:
-                slider_balls_collection = self.config.slider_balls_collection
-                from .slider_balls import SliderBallCreator
-                slider_ball_creator = SliderBallCreator(
-                    slider=slider,
-                    start_frame=start_frame,
-                    slider_duration_frames=slider_duration_frames,
-                    repeat_count=self.repeat_count,
-                    end_frame=end_frame,
-                    slider_balls_collection=slider_balls_collection,
-                    data_manager=self.data_manager,
-                    import_type=self.import_type,
-                    slider_time=self.hitobject.time
-                )
-                slider_ball_creator.create()
+        if self.import_slider_balls and self.slider_balls_collection:
+            from .slider_balls import SliderBallCreator
+            # SliderBallCreator nutzt jetzt nur config, kein import_type extra.
+            slider_ball_creator = SliderBallCreator(
+                slider=slider,
+                start_frame=start_frame,
+                slider_duration_frames=slider_duration_frames,
+                repeat_count=self.repeat_count,
+                end_frame=end_frame,
+                slider_balls_collection=self.slider_balls_collection,
+                data_manager=self.data_manager,
+                config=self.config,  # statt import_type übergeben wir jetzt config
+                slider_time=self.hitobject.time
+            )
+            slider_ball_creator.create()
 
         # Slider Ticks
-        if self.import_slider_ticks:
-            if 'sliders_collection' in self.config.__dict__ and self.collection:
-                from .slider_ticks import SliderTicksCreator
-                slider_ticks_creator = SliderTicksCreator(
-                    slider=slider,
-                    slider_duration_ms=slider_duration_ms,
-                    repeat_count=self.repeat_count,
-                    sliders_collection=self.collection,
-                    settings=self.config,
-                    import_type=self.import_type
-                )
-                slider_ticks_creator.create()
+        if self.import_slider_ticks and self.sliders_collection:
+            from .slider_ticks import SliderTicksCreator
+            slider_ticks_creator = SliderTicksCreator(
+                slider=slider,
+                slider_duration_ms=slider_duration_ms,
+                repeat_count=self.repeat_count,
+                sliders_collection=self.sliders_collection,
+                config=self.config  # statt settings und import_type nur config
+            )
+            slider_ticks_creator.create()
 
     def merge_duplicate_points(self, points, tolerance=0.01):
         if not points:
@@ -281,7 +262,6 @@ class SliderCreator(BaseHitObjectCreator):
         return math.comb(n, i) * (t ** i) * ((1 - t) ** (n - i))
 
     def evaluate_perfect_circle(self, points_osu):
-        # unverändert, nutzt self.config.slider_resolution statt settings
         if len(points_osu) < 3:
             return [Vector(map_osu_to_blender(point[0], point[1])) for point in points_osu]
 
